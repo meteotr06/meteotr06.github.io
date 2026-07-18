@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1620">
+<title>Türkiye Hava Durumu</title>
+
+
+<style>
+  /* ---- tema renkleri: masaustu surumuyle ayni palet ---- */
+  :root {
+    --arka:#0f1620; --panel:#1c2733; --ickart:#0e1620; --cizgi:#243444;
+    --secili:#12324f; --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#5a6b7d;
+    --vurgu:#1f8fff; --nem:#4aa3ff; --ruzgar:#7fd4ff; --yagis:#54c6ff;
+    --gunes:#ffd23b; --bulut:#cdd8e4;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
+      --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#8393a3;
+      --vurgu:#1f8fff; --nem:#1f7fe0; --ruzgar:#2a94cc; --yagis:#1f86d0;
+      --gunes:#f4b400; --bulut:#a7b4c3;
+    }
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:-apple-system, "Segoe UI", Roboto, sans-serif;
+    background:var(--arka); color:var(--yazi);
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    min-height:100vh; background-attachment:fixed;
+    transition:background 700ms ease;
+  }
+  @keyframes belir { from { opacity:0; transform:translateY(10px); }
+                     to   { opacity:1; transform:none; } }
+  #icerik { animation:belir 420ms ease both; }
+  .kap { max-width:640px; margin:0 auto; padding:14px 14px 32px; }
+
+  header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  header h1 { font-size:17px; font-weight:700; flex:1; overflow:hidden;
+              text-overflow:ellipsis; white-space:nowrap; }
+  .dugme {
+    background:var(--panel); color:var(--yazi); border:none; border-radius:12px;
+    /* dokunma hedefi en az 44x44 px (parmak ucu ~1 cm) */
+    padding:12px 14px; min-height:44px; min-width:44px;
+    font-size:14px; font-family:inherit; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .dugme:active { filter:brightness(1.3); }
+  .dugme.ana { background:var(--vurgu); color:#fff; font-weight:600; }
+  .dugme.genis { width:100%; }
+
+  .kart { background:var(--panel); border-radius:18px; padding:18px; margin-bottom:12px; }
+  .selam { color:var(--yazi3); font-size:12px; margin-bottom:3px; }
+  .yer { font-size:22px; font-weight:700; }
+  .tarih { color:var(--yazi3); font-size:12px; margin-top:2px; }
+  .simdi { display:flex; align-items:center; gap:14px; margin-top:14px; }
+  .derece { font-size:52px; font-weight:700; line-height:1; }
+  .durum { color:var(--yazi2); font-size:15px; margin-top:4px; }
+  .hissedilen { color:var(--yazi3); font-size:12px; margin-top:2px; }
+  .gunes-satir { color:var(--yazi3); font-size:12px; margin-top:12px;
+                 display:flex; gap:16px; flex-wrap:wrap; }
+  .yagmur-uyari { color:var(--yagis); font-size:13px; font-weight:600; margin-top:10px; }
+
+  .uclu { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+  .mini { background:var(--ickart); border-radius:14px; padding:12px 6px; text-align:center; }
+  .mini b { display:block; font-size:9px; color:var(--yazi3); letter-spacing:.5px; }
+  .mini span { display:block; font-size:16px; font-weight:700; margin-top:4px; }
+
+  /* detaylar izgarasi */
+  .detay { display:grid; grid-template-columns:repeat(3,1fr); gap:12px 8px; margin-top:10px; }
+  .detay div b { display:block; font-size:9px; color:var(--yazi3); }
+  .detay div span { display:block; font-size:14px; font-weight:700; margin-top:2px; }
+  .detay div span.kucuk { font-size:11px; }
+
+  /* hava kalitesi */
+  .aqi-satir { display:flex; align-items:center; gap:12px; margin-top:8px; }
+  .aqi-sayi { font-size:30px; font-weight:800; min-width:52px; }
+  .aqi-alt { color:var(--yazi3); font-size:11px; margin-top:2px; }
+
+  h2 { font-size:14px; margin:18px 0 8px; display:flex; align-items:baseline; gap:8px; }
+  h2 small { color:var(--yazi3); font-weight:400; font-size:11px; }
+
+  .saatlik { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px;
+             scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+  .saatlik::-webkit-scrollbar { height:0; }
+  .saat-kart { background:var(--panel); border-radius:14px; padding:12px 10px;
+    text-align:center; min-width:78px; scroll-snap-align:start; flex:0 0 auto; }
+  .saat-kart.simdi-kart { background:var(--secili); }
+  .saat-kart .s { font-size:12px; color:var(--yazi2); font-weight:600; }
+  .saat-kart .d { font-size:17px; font-weight:700; margin:4px 0 6px; }
+  .saat-kart .v { font-size:11px; margin-top:3px; }
+
+  .gun { display:flex; align-items:center; gap:10px; background:var(--panel);
+         border-radius:14px; padding:11px 14px; margin-bottom:6px; }
+  .gun .ad { flex:1; font-size:14px; font-weight:600; }
+  .gun .ols { font-size:11px; color:var(--nem); min-width:38px; text-align:right; }
+  .gun .dd { font-size:14px; font-weight:700; min-width:74px; text-align:right; }
+  .gun .dd i { color:var(--yazi3); font-style:normal; font-weight:400; }
+
+  /* harita (istege bagli yuklenir) */
+  #haritaKutu { height:280px; border-radius:16px; overflow:hidden; display:none; }
+  #haritaKutu.acik { display:block; }
+  .harita-dugmeler { display:flex; gap:8px; margin-top:8px; }
+  .harita-dugmeler .dugme { flex:1; font-size:13px; }
+
+  .ara-ekran { position:fixed; inset:0; background:var(--arka); z-index:9999;
+    display:none; flex-direction:column; padding:env(safe-area-inset-top) 14px 14px; }
+  .ara-ekran.acik { display:flex; }
+  .ara-ust { display:flex; gap:8px; padding:12px 0; }
+  #araKutu { flex:1; background:var(--panel); border:none; border-radius:12px;
+    padding:14px; color:var(--yazi); font-size:16px; font-family:inherit; outline:none; }
+  .sonuclar { flex:1; overflow-y:auto; }
+  .sonuc { padding:14px 12px; border-bottom:1px solid var(--cizgi); cursor:pointer; font-size:15px; }
+  .sonuc small { color:var(--yazi3); font-size:12px; margin-left:6px; }
+  .sonuc:active { background:var(--secili); }
+
+  .bilgi { color:var(--yazi3); font-size:12px; text-align:center; margin-top:18px; line-height:1.6; }
+  .yukleniyor { text-align:center; color:var(--yazi2); padding:30px; font-size:14px; }
+  .hata { background:#d6454522; color:#ff8a8a; border-radius:12px; padding:14px;
+          font-size:13px; text-align:center; }
+  svg { display:block; }
+</style>
+</head>
+<body>
+
+<div class="kap">
+  <header>
+    <h1 id="baslik">Yükleniyor…</h1>
+    <button class="dugme" id="konumBtn" title="Konumumu kullan">📍</button>
+    <button class="dugme ana" id="araBtn">Yer değiştir</button>
+  </header>
+  <div id="icerik"><div class="yukleniyor">Hava durumu getiriliyor…</div></div>
+  <p class="bilgi">
+    Veri: <b>Open-Meteo</b> · Radar: <b>RainViewer</b><br>
+    81 il · 957 ilçe · Türkiye Hava Durumu
+  </p>
+</div>
+
+<div class="ara-ekran" id="araEkran">
+  <div class="ara-ust">
+    <input id="araKutu" placeholder="İl veya ilçe yazın… (ör. Çeşme)" autocomplete="off">
+    <button class="dugme" id="kapatBtn">Kapat</button>
+  </div>
+  <div class="sonuclar" id="sonuclar"></div>
+</div>
+
+<script>
+// Turkiye il ve ilceleri - OTOMATIK URETILDI, elle duzenlemeyin.
+// Kaynak: kaynak/sehirler.py + kaynak/ilceler.py (masaustu surumuyle ayni veri)
+
+const ILLER = [["Adana", 37.0, 35.32], ["Adıyaman", 37.76, 38.28], ["Afyonkarahisar", 38.76, 30.54], ["Ağrı", 39.72, 43.05], ["Amasya", 40.65, 35.83], ["Ankara", 39.92, 32.85], ["Antalya", 36.9, 30.7], ["Artvin", 41.18, 41.82], ["Aydın", 37.85, 27.84], ["Balıkesir", 39.65, 27.89], ["Bilecik", 40.14, 29.98], ["Bingöl", 38.88, 40.5], ["Bitlis", 38.4, 42.11], ["Bolu", 40.74, 31.61], ["Burdur", 37.72, 30.29], ["Bursa", 40.19, 29.06], ["Çanakkale", 40.15, 26.41], ["Çankırı", 40.6, 33.62], ["Çorum", 40.55, 34.95], ["Denizli", 37.78, 29.09], ["Diyarbakır", 37.91, 40.24], ["Edirne", 41.68, 26.56], ["Elazığ", 38.68, 39.22], ["Erzincan", 39.75, 39.5], ["Erzurum", 39.9, 41.27], ["Eskişehir", 39.78, 30.52], ["Gaziantep", 37.07, 37.38], ["Giresun", 40.91, 38.39], ["Gümüşhane", 40.46, 39.48], ["Hakkari", 37.58, 43.74], ["Hatay", 36.2, 36.16], ["Isparta", 37.76, 30.55], ["Mersin", 36.81, 34.64], ["İstanbul", 41.01, 28.98], ["İzmir", 38.42, 27.14], ["Kars", 40.6, 43.1], ["Kastamonu", 41.39, 33.78], ["Kayseri", 38.73, 35.49], ["Kırklareli", 41.74, 27.22], ["Kırşehir", 39.15, 34.16], ["Kocaeli", 40.77, 29.92], ["Konya", 37.87, 32.48], ["Kütahya", 39.42, 29.99], ["Malatya", 38.35, 38.31], ["Manisa", 38.61, 27.43], ["Kahramanmaraş", 37.58, 36.93], ["Mardin", 37.31, 40.74], ["Muğla", 37.22, 28.36], ["Muş", 38.73, 41.49], ["Nevşehir", 38.62, 34.71], ["Niğde", 37.97, 34.68], ["Ordu", 40.98, 37.88], ["Rize", 41.02, 40.52], ["Sakarya", 40.78, 30.4], ["Samsun", 41.29, 36.33], ["Siirt", 37.93, 41.94], ["Sinop", 42.03, 35.15], ["Sivas", 39.75, 37.02], ["Tekirdağ", 40.98, 27.51], ["Tokat", 40.31, 36.55], ["Trabzon", 41.0, 39.72], ["Tunceli", 39.11, 39.55], ["Şanlıurfa", 37.17, 38.79], ["Uşak", 38.68, 29.41], ["Van", 38.49, 43.41], ["Yozgat", 39.82, 34.81], ["Zonguldak", 41.45, 31.79], ["Aksaray", 38.37, 34.03], ["Bayburt", 40.26, 40.22], ["Karaman", 37.18, 33.22], ["Kırıkkale", 39.85, 33.52], ["Batman", 37.88, 41.13], ["Şırnak", 37.52, 42.46], ["Bartın", 41.64, 32.34], ["Ardahan", 41.11, 42.7], ["Iğdır", 39.92, 44.04], ["Yalova", 40.65, 29.28], ["Karabük", 41.2, 32.63], ["Kilis", 36.72, 37.12], ["Osmaniye", 37.07, 36.25], ["Düzce", 40.84, 31.16]];
+
+const ILCELER = [["Aladağ", "Adana", 37.5464, 35.403], ["Ceyhan", "Adana", 37.0317, 35.8227], ["Çukurova", "Adana", 37.0, 35.3213], ["Feke", "Adana", 37.8199, 35.9125], ["İmamoğlu", "Adana", 37.2588, 35.6728], ["Karaisalı", "Adana", 37.252, 35.0633], ["Karataş", "Adana", 36.5634, 35.3844], ["Kozan", "Adana", 37.45, 35.8], ["Pozantı", "Adana", 37.4278, 34.8711], ["Saimbeyli", "Adana", 37.9882, 36.0921], ["Sarıçam", "Adana", 37.0, 35.3213], ["Seyhan", "Adana", 37.0, 35.3213], ["Tufanbeyli", "Adana", 38.2646, 36.2224], ["Yumurtalık", "Adana", 36.7667, 35.7833], ["Yüreğir", "Adana", 37.0, 35.3213], ["Adıyaman", "Adıyaman", 37.7642, 38.2762], ["Besni", "Adıyaman", 37.6929, 37.8592], ["Çelikhan", "Adıyaman", 38.0333, 38.25], ["Gerger", "Adıyaman", 38.0289, 39.0322], ["Gölbaşı", "Adıyaman", 37.7839, 37.6444], ["Kahta", "Adıyaman", 37.7833, 38.6167], ["Samsat", "Adıyaman", 37.5793, 38.4824], ["Sincik", "Adıyaman", 38.0381, 38.6158], ["Tut", "Adıyaman", 37.7967, 37.915], ["Afyon", "Afyonkarahisar", 38.7638, 30.5403], ["Başmakçı", "Afyonkarahisar", 37.896, 30.0116], ["Bayat", "Afyonkarahisar", 38.9871, 30.9198], ["Bolvadin", "Afyonkarahisar", 38.7167, 31.05], ["Çay", "Afyonkarahisar", 38.5932, 31.0249], ["Çobanlar", "Afyonkarahisar", 38.7, 30.7833], ["Dazkırı", "Afyonkarahisar", 37.9167, 29.8667], ["Dinar", "Afyonkarahisar", 38.0667, 30.1667], ["Emirdağ", "Afyonkarahisar", 39.026, 31.1534], ["Evciler", "Afyonkarahisar", 38.0431, 29.8831], ["Hocalar", "Afyonkarahisar", 38.5834, 29.9721], ["İhsaniye", "Afyonkarahisar", 39.0333, 30.4167], ["İscehisar", "Afyonkarahisar", 38.8667, 30.75], ["Kızılören", "Afyonkarahisar", 37.9629, 29.8019], ["Sandıklı", "Afyonkarahisar", 38.4654, 30.2702], ["Sincanlı", "Afyonkarahisar", 38.7438, 30.2441], ["Sultandağı", "Afyonkarahisar", 38.5333, 31.2333], ["Şuhut", "Afyonkarahisar", 38.5333, 30.55], ["Ağrı", "Ağrı", 39.7217, 43.0567], ["Diyadin", "Ağrı", 39.54, 43.6772], ["Doğubayazıt", "Ağrı", 39.548, 44.0833], ["Eleşkirt", "Ağrı", 39.7972, 42.6871], ["Hamur", "Ağrı", 39.6103, 42.9925], ["Patnos", "Ağrı", 39.2333, 42.8667], ["Taşlıçay", "Ağrı", 39.6344, 43.3768], ["Tutak", "Ağrı", 39.5422, 42.7717], ["Ağaçören", "Aksaray", 38.8722, 33.9172], ["Aksaray", "Aksaray", 38.3687, 34.037], ["Eskil", "Aksaray", 38.4017, 33.4131], ["Gülağaç", "Aksaray", 38.4, 34.35], ["Güzelyurt", "Aksaray", 38.2811, 34.3088], ["Ortaköy", "Aksaray", 38.7361, 34.0403], ["Sarıyahşi", "Aksaray", 38.9833, 33.85], ["Amasya", "Amasya", 40.65, 35.8333], ["Göynücek", "Amasya", 40.3979, 35.5262], ["Gümüşhacıköy", "Amasya", 40.8706, 35.2176], ["Hamamözü", "Amasya", 40.7835, 35.0223], ["Merzifon", "Amasya", 40.8749, 35.4597], ["Suluova", "Amasya", 40.8333, 35.65], ["Taşova", "Amasya", 40.762, 36.3226], ["Akyurt", "Ankara", 40.1333, 33.0833], ["Altındağ", "Ankara", 39.9208, 32.8541], ["Ayaş", "Ankara", 40.0218, 32.3409], ["Bala", "Ankara", 39.5539, 33.1211], ["Beypazarı", "Ankara", 40.1675, 31.9211], ["Çamlıdere", "Ankara", 40.4873, 32.4727], ["Çankaya", "Ankara", 39.8452, 32.9212], ["Çubuk", "Ankara", 40.2386, 33.0331], ["Elmadağ", "Ankara", 39.9208, 33.2308], ["Etimesgut", "Ankara", 39.9458, 32.6694], ["Evren", "Ankara", 39.0291, 33.8104], ["Gölbaşı", "Ankara", 39.9208, 32.8541], ["Güdül", "Ankara", 40.2111, 32.2428], ["Haymana", "Ankara", 39.4361, 32.4966], ["Kalecik", "Ankara", 40.0972, 33.4083], ["Kazan", "Ankara", 40.2317, 32.6839], ["Keçiören", "Ankara", 40.0211, 32.831], ["Kızılcahamam", "Ankara", 40.4697, 32.6506], ["Mamak", "Ankara", 39.89, 33.0114], ["Nallıhan", "Ankara", 40.1916, 31.3599], ["Polatlı", "Ankara", 39.5842, 32.1472], ["Pursaklar", "Ankara", 40.0488, 32.8953], ["Sincan", "Ankara", 39.9668, 32.5842], ["Şereflikoçhisar", "Ankara", 38.9395, 33.5525], ["Yenimahalle", "Ankara", 39.9904, 32.6955], ["Akseki", "Antalya", 37.0515, 31.7838], ["Aksu", "Antalya", 36.9467, 30.8398], ["Alanya", "Antalya", 36.5601, 32.0021], ["Demre", "Antalya", 36.2494, 29.9501], ["Döşemealtı", "Antalya", 37.0229, 30.5984], ["Elmalı", "Antalya", 36.7373, 29.9191], ["Finike", "Antalya", 36.3008, 30.1445], ["Gazipaşa", "Antalya", 36.2709, 32.3136], ["Gündoğmuş", "Antalya", 36.8112, 32.0013], ["İbradı", "Antalya", 37.0927, 31.5879], ["Kaş", "Antalya", 36.2044, 29.639], ["Kemer", "Antalya", 36.5924, 30.5477], ["Kepez", "Antalya", 36.8841, 30.7056], ["Konyaaltı", "Antalya", 36.8841, 30.7056], ["Korkuteli", "Antalya", 37.0667, 30.2], ["Kumluca", "Antalya", 36.3628, 30.2864], ["Manavgat", "Antalya", 36.7901, 31.4629], ["Muratpaşa", "Antalya", 36.8828, 30.7695], ["Serik", "Antalya", 36.9218, 31.1013], ["Ardahan", "Ardahan", 41.1105, 42.7022], ["Çıldır", "Ardahan", 41.1333, 43.1333], ["Damal", "Ardahan", 41.3407, 42.8412], ["Göle", "Ardahan", 40.7935, 42.6087], ["Hanak", "Ardahan", 41.2333, 42.85], ["Posof", "Ardahan", 41.5106, 42.7292], ["Ardanuç", "Artvin", 41.1286, 42.0592], ["Arhavi", "Artvin", 41.3521, 41.3116], ["Artvin", "Artvin", 41.1833, 41.8167], ["Borçka", "Artvin", 41.3625, 41.68], ["Hopa", "Artvin", 41.3867, 41.437], ["Murgul", "Artvin", 41.25, 41.65], ["Şavşat", "Artvin", 41.2419, 42.3644], ["Yusufeli", "Artvin", 40.8254, 41.5486], ["Aydın", "Aydın", 37.8444, 27.8458], ["Bozdoğan", "Aydın", 37.6703, 28.3097], ["Buharkent", "Aydın", 37.9702, 28.7472], ["Çine", "Aydın", 37.6117, 28.0614], ["Didim", "Aydın", 37.3756, 27.2678], ["Germencik", "Aydın", 37.8721, 27.6018], ["İncirliova", "Aydın", 37.8522, 27.7236], ["Karacasu", "Aydın", 37.7296, 28.6063], ["Karpuzlu", "Aydın", 37.5586, 27.8336], ["Koçarlı", "Aydın", 37.7617, 27.704], ["Köşk", "Aydın", 37.8533, 28.0517], ["Kuşadası", "Aydın", 37.86, 27.26], ["Kuyucak", "Aydın", 37.9153, 28.4592], ["Nazilli", "Aydın", 37.9104, 28.3203], ["Söke", "Aydın", 37.7561, 27.4039], ["Sultanhisar", "Aydın", 37.8897, 28.1575], ["Yenipazar", "Aydın", 37.8298, 28.1955], ["Ayvalık", "Balıkesir", 39.3178, 26.6981], ["Balıkesir", "Balıkesir", 39.6484, 27.8826], ["Balya", "Balıkesir", 39.75, 27.5833], ["Bandırma", "Balıkesir", 40.3595, 27.9792], ["Bigadiç", "Balıkesir", 39.3925, 28.1311], ["Burhaniye", "Balıkesir", 39.5069, 26.9778], ["Dursunbey", "Balıkesir", 39.5878, 28.6275], ["Edremit", "Balıkesir", 39.599, 27.0221], ["Erdek", "Balıkesir", 40.4031, 27.7961], ["Gömeç", "Balıkesir", 39.3911, 26.84], ["Gönen", "Balıkesir", 40.1033, 27.6558], ["Havran", "Balıkesir", 39.5583, 27.0983], ["İvrindi", "Balıkesir", 39.5833, 27.4833], ["Kepsut", "Balıkesir", 39.6889, 28.1522], ["Manyas", "Balıkesir", 40.0464, 27.97], ["Marmara", "Balıkesir", 40.5875, 27.5553], ["Savaştepe", "Balıkesir", 39.3839, 27.6547], ["Sındırgı", "Balıkesir", 39.24, 28.175], ["Susurluk", "Balıkesir", 39.9189, 28.1571], ["Amasra", "Bartın", 41.7451, 32.3847], ["Bartın", "Bartın", 41.6344, 32.3375], ["Kurucaşile", "Bartın", 41.8419, 32.7161], ["Ulus", "Bartın", 41.5861, 32.6406], ["Batman", "Batman", 37.8812, 41.1351], ["Beşiri", "Batman", 37.92, 41.29], ["Gercüş", "Batman", 37.5649, 41.388], ["Hasankeyf", "Batman", 37.7142, 41.4131], ["Kozluk", "Batman", 38.1944, 41.4911], ["Sason", "Batman", 38.3333, 41.4167], ["Aydıntepe", "Bayburt", 40.3908, 40.1506], ["Bayburt", "Bayburt", 40.2552, 40.2249], ["Demirözü", "Bayburt", 40.1639, 39.8925], ["Bilecik", "Bilecik", 40.1501, 29.9831], ["Bozüyük", "Bilecik", 39.9078, 30.0367], ["Gölpazarı", "Bilecik", 40.2847, 30.3172], ["İnhisar", "Bilecik", 40.0535, 30.3907], ["Osmaneli", "Bilecik", 40.3593, 30.0116], ["Pazaryeri", "Bilecik", 39.9965, 29.9076], ["Söğüt", "Bilecik", 40.0186, 30.1814], ["Yenipazar", "Bilecik", 40.1783, 30.52], ["Adaklı", "Bingöl", 39.2282, 40.4834], ["Bingöl", "Bingöl", 38.8853, 40.4983], ["Genç", "Bingöl", 38.7531, 40.5667], ["Karlıova", "Bingöl", 39.2978, 41.0125], ["Kiğı", "Bingöl", 39.3167, 40.35], ["Solhan", "Bingöl", 38.969, 41.0524], ["Yayladere", "Bingöl", 39.2244, 40.0725], ["Yedisu", "Bingöl", 39.4333, 40.55], ["Adilcevaz", "Bitlis", 38.8067, 42.7346], ["Ahlat", "Bitlis", 38.7528, 42.4944], ["Bitlis", "Bitlis", 38.4, 42.1167], ["Güroymak", "Bitlis", 38.5754, 42.0175], ["Hizan", "Bitlis", 38.2247, 42.4253], ["Mutki", "Bitlis", 38.4102, 41.9185], ["Tatvan", "Bitlis", 38.5022, 42.2814], ["Bolu", "Bolu", 40.7395, 31.6116], ["Dörtdivan", "Bolu", 40.7167, 32.0667], ["Gerede", "Bolu", 40.8006, 32.1986], ["Göynük", "Bolu", 40.4004, 30.7838], ["Kıbrıscık", "Bolu", 40.4087, 31.8472], ["Mengen", "Bolu", 40.9374, 32.0763], ["Mudurnu", "Bolu", 40.4667, 31.2167], ["Seben", "Bolu", 40.4091, 31.5741], ["Yeniçağa", "Bolu", 40.7724, 32.0358], ["Ağlasun", "Burdur", 37.6577, 30.5323], ["Altınyayla", "Burdur", 36.9986, 29.546], ["Bucak", "Burdur", 37.4568, 30.5819], ["Burdur", "Burdur", 37.7269, 30.2889], ["Çavdır", "Burdur", 37.155, 29.6939], ["Çeltikçi", "Burdur", 37.5344, 30.4844], ["Gölhisar", "Burdur", 37.1444, 29.5079], ["Karamanlı", "Burdur", 37.37, 29.821], ["Kemer", "Burdur", 37.352, 30.063], ["Tefenni", "Burdur", 37.311, 29.7745], ["Yeşilova", "Burdur", 37.5081, 29.7547], ["Büyükorhan", "Bursa", 39.771, 28.8859], ["Gemlik", "Bursa", 40.4331, 29.1567], ["Gürsu", "Bursa", 40.241, 29.2088], ["Harmancık", "Bursa", 39.6761, 29.1553], ["İnegöl", "Bursa", 40.0833, 29.5167], ["İznik", "Bursa", 40.429, 29.7165], ["Karacabey", "Bursa", 40.2255, 28.3727], ["Keles", "Bursa", 39.9136, 29.2294], ["Kestel", "Bursa", 40.1956, 29.2117], ["Mudanya", "Bursa", 40.3764, 28.8833], ["Mustafakemalpaşa", "Bursa", 40.0353, 28.4117], ["Nilüfer", "Bursa", 40.1826, 29.0669], ["Orhaneli", "Bursa", 39.9067, 28.9886], ["Orhangazi", "Bursa", 40.5011, 29.3107], ["Osmangazi", "Bursa", 40.1826, 29.0669], ["Yenişehir", "Bursa", 40.2644, 29.6531], ["Yıldırım", "Bursa", 40.3298, 29.5586], ["Ayvacık", "Çanakkale", 39.6011, 26.4047], ["Bayramiç", "Çanakkale", 40.7038, 26.9102], ["Biga", "Çanakkale", 40.2341, 27.2457], ["Bozcaada", "Çanakkale", 39.8231, 26.0325], ["Çan", "Çanakkale", 40.0275, 27.0475], ["Çanakkale", "Çanakkale", 40.1553, 26.4142], ["Eceabat", "Çanakkale", 40.1839, 26.3564], ["Ezine", "Çanakkale", 39.7832, 26.3412], ["Gelibolu", "Çanakkale", 40.4174, 26.6774], ["Gökçeada", "Çanakkale", 40.197, 25.918], ["Lapseki", "Çanakkale", 40.353, 26.6995], ["Yenice", "Çanakkale", 39.9283, 27.2604], ["Atkaracalar", "Çankırı", 40.8167, 33.0833], ["Bayramören", "Çankırı", 40.942, 33.2041], ["Çankırı", "Çankırı", 40.6, 33.6167], ["Çerkeş", "Çankırı", 40.8167, 32.9], ["Eldivan", "Çankırı", 40.5333, 33.5], ["Ilgaz", "Çankırı", 40.9261, 33.629], ["Kızılırmak", "Çankırı", 40.35, 33.9833], ["Korgun", "Çankırı", 40.7333, 33.5167], ["Kurşunlu", "Çankırı", 40.8397, 33.2578], ["Orta", "Çankırı", 40.6241, 33.1116], ["Şabanözü", "Çankırı", 40.4833, 33.2833], ["Yapraklı", "Çankırı", 40.7634, 33.7777], ["Alaca", "Çorum", 40.1737, 34.8442], ["Bayat", "Çorum", 40.646, 34.261], ["Boğazkale", "Çorum", 40.0278, 34.6168], ["Çorum", "Çorum", 40.5506, 34.9556], ["Dodurga", "Çorum", 40.857, 34.8084], ["İskilip", "Çorum", 40.7412, 34.4708], ["Kargı", "Çorum", 41.1344, 34.4872], ["Laçin", "Çorum", 40.7693, 34.8969], ["Mecitözü", "Çorum", 40.52, 35.2953], ["Oğuzlar", "Çorum", 40.5506, 34.9556], ["Ortaköy", "Çorum", 40.2733, 35.249], ["Osmancık", "Çorum", 40.9741, 34.8022], ["Sungurlu", "Çorum", 40.161, 34.377], ["Uğurludağ", "Çorum", 40.4475, 34.4547], ["Acıpayam", "Denizli", 37.4333, 29.35], ["Akköy", "Denizli", 37.9558, 29.0786], ["Babadağ", "Denizli", 37.8088, 28.8568], ["Baklan", "Denizli", 37.9795, 29.6064], ["Bekilli", "Denizli", 38.2319, 29.4217], ["Beyağaç", "Denizli", 37.2222, 28.9092], ["Bozkurt", "Denizli", 37.8244, 29.6064], ["Buldan", "Denizli", 38.0529, 28.8315], ["Çal", "Denizli", 38.0844, 29.3962], ["Çameli", "Denizli", 37.0708, 29.3454], ["Çardak", "Denizli", 37.8247, 29.676], ["Çivril", "Denizli", 38.2999, 29.7397], ["Denizli", "Denizli", 37.7765, 29.0864], ["Güney", "Denizli", 38.1596, 29.0678], ["Honaz", "Denizli", 37.7576, 29.264], ["Kale", "Denizli", 37.4392, 28.8453], ["Sarayköy", "Denizli", 37.9265, 28.9267], ["Serinhisar", "Denizli", 37.5807, 29.2698], ["Tavas", "Denizli", 37.5911, 29.0632], ["Bağlar", "Diyarbakır", 37.9144, 40.2306], ["Bismil", "Diyarbakır", 37.8452, 40.6756], ["Çermik", "Diyarbakır", 38.1372, 39.4511], ["Çınar", "Diyarbakır", 37.7242, 40.415], ["Çüngüş", "Diyarbakır", 38.2167, 39.2833], ["Dicle", "Diyarbakır", 38.375, 40.0733], ["Eğil", "Diyarbakır", 38.2566, 40.0837], ["Ergani", "Diyarbakır", 38.2667, 39.7667], ["Hani", "Diyarbakır", 38.4136, 40.3925], ["Hazro", "Diyarbakır", 38.25, 40.7833], ["Kayapınar", "Diyarbakır", 37.9144, 40.2306], ["Kocaköy", "Diyarbakır", 38.2897, 40.5014], ["Kulp", "Diyarbakır", 38.5017, 41.0117], ["Lice", "Diyarbakır", 38.4605, 40.6469], ["Silvan", "Diyarbakır", 38.1422, 41.0014], ["Sur", "Diyarbakır", 38.0598, 40.3886], ["Yenişehir", "Diyarbakır", 37.9144, 40.2306], ["Akçakoca", "Düzce", 41.0859, 31.12], ["Cumayeri", "Düzce", 40.8739, 30.9491], ["Çilimli", "Düzce", 40.8969, 31.047], ["Düzce", "Düzce", 40.8438, 31.1565], ["Gölyaka", "Düzce", 40.7766, 30.9957], ["Gümüşova", "Düzce", 40.85, 30.9333], ["Kaynaşlı", "Düzce", 40.7773, 31.3033], ["Yığılca", "Düzce", 40.9659, 31.4424], ["Edirne", "Edirne", 41.6667, 26.5667], ["Enez", "Edirne", 40.7293, 26.0889], ["Havsa", "Edirne", 41.55, 26.8167], ["İpsala", "Edirne", 40.9227, 26.3795], ["Keşan", "Edirne", 40.85, 26.6333], ["Lalapaşa", "Edirne", 41.8333, 26.7333], ["Meriç", "Edirne", 41.189, 26.418], ["Süloğlu", "Edirne", 41.7667, 26.9167], ["Uzunköprü", "Edirne", 41.2713, 26.6997], ["Ağın", "Elazığ", 38.9422, 38.7156], ["Alacakaya", "Elazığ", 38.4532, 39.8513], ["Arıcak", "Elazığ", 38.5667, 40.1333], ["Baskil", "Elazığ", 38.5697, 38.8231], ["Elazığ", "Elazığ", 38.681, 39.2264], ["Karakoçan", "Elazığ", 38.9584, 40.0348], ["Keban", "Elazığ", 38.7939, 38.7419], ["Kovancılar", "Elazığ", 38.7167, 39.8667], ["Maden", "Elazığ", 38.3897, 39.6686], ["Palu", "Elazığ", 38.7055, 39.9525], ["Sivrice", "Elazığ", 38.4467, 39.3117], ["Çayırlı", "Erzincan", 39.805, 40.0411], ["Erzincan", "Erzincan", 39.75, 39.5], ["Ilıç", "Erzincan", 39.4581, 38.5647], ["Kemah", "Erzincan", 39.6028, 39.0356], ["Kemaliye", "Erzincan", 39.2608, 38.4967], ["Otlukbeli", "Erzincan", 39.974, 40.0224], ["Refahiye", "Erzincan", 39.9016, 38.7683], ["Tercan", "Erzincan", 39.7795, 40.3851], ["Üzümlü", "Erzincan", 39.71, 39.7017], ["Aşkale", "Erzurum", 39.9203, 40.6924], ["Aziziye", "Erzurum", 39.9458, 41.1053], ["Çat", "Erzurum", 39.6111, 40.9789], ["Hınıs", "Erzurum", 39.3567, 41.7029], ["Horasan", "Erzurum", 40.0385, 42.1624], ["İspir", "Erzurum", 40.4836, 40.9953], ["Karaçoban", "Erzurum", 39.3508, 42.1119], ["Karayazı", "Erzurum", 39.7011, 42.1438], ["Köprüköy", "Erzurum", 39.9756, 41.8711], ["Narman", "Erzurum", 40.3451, 41.8672], ["Oltu", "Erzurum", 40.5456, 41.9956], ["Olur", "Erzurum", 40.8333, 42.1333], ["Palandöken", "Erzurum", 39.9043, 41.2679], ["Pasinler", "Erzurum", 39.9797, 41.6756], ["Pazaryolu", "Erzurum", 40.4159, 40.7688], ["Şenkaya", "Erzurum", 40.5667, 42.35], ["Tekman", "Erzurum", 39.645, 41.5083], ["Tortum", "Erzurum", 40.2992, 41.5479], ["Uzundere", "Erzurum", 40.5364, 41.5483], ["Yakutiye", "Erzurum", 39.9043, 41.2679], ["Alpu", "Eskişehir", 39.7606, 30.9581], ["Beylikova", "Eskişehir", 39.6869, 31.2056], ["Çifteler", "Eskişehir", 39.3831, 31.0392], ["Günyüzü", "Eskişehir", 39.3839, 31.81], ["Han", "Eskişehir", 39.1592, 30.8614], ["İnönü", "Eskişehir", 39.8212, 30.1445], ["Mahmudiye", "Eskişehir", 39.4973, 30.9889], ["Mihalgazi", "Eskişehir", 40.0264, 30.5778], ["Mihalıççık", "Eskişehir", 39.8642, 31.4953], ["Odunpazarı", "Eskişehir", 39.7843, 30.5192], ["Sarıcakaya", "Eskişehir", 40.0403, 30.6171], ["Seyitgazi", "Eskişehir", 39.4447, 30.6947], ["Sivrihisar", "Eskişehir", 39.45, 31.5378], ["Tepebaşı", "Eskişehir", 39.7843, 30.5192], ["Araban", "Gaziantep", 37.4265, 37.6892], ["İslahiye", "Gaziantep", 37.025, 36.6345], ["Karkamış", "Gaziantep", 36.834, 38.001], ["Nizip", "Gaziantep", 37.0167, 37.8], ["Nurdağı", "Gaziantep", 37.1792, 36.7362], ["Oğuzeli", "Gaziantep", 36.9657, 37.5135], ["Şahinbey", "Gaziantep", 37.0662, 37.3833], ["Şehitkamil", "Gaziantep", 37.0662, 37.3833], ["Yavuzeli", "Gaziantep", 37.3202, 37.5668], ["Alucra", "Giresun", 40.3167, 38.7667], ["Bulancak", "Giresun", 40.9352, 38.2126], ["Çamoluk", "Giresun", 40.1333, 38.75], ["Çanakçı", "Giresun", 40.913, 39.0043], ["Dereli", "Giresun", 40.7401, 38.4481], ["Doğankent", "Giresun", 40.8, 38.9167], ["Espiye", "Giresun", 40.9484, 38.7082], ["Eynesil", "Giresun", 41.0603, 39.1435], ["Giresun", "Giresun", 40.9128, 38.3895], ["Görele", "Giresun", 41.0318, 39.0014], ["Güce", "Giresun", 40.8935, 38.806], ["Keşap", "Giresun", 40.9167, 38.5167], ["Piraziz", "Giresun", 40.9515, 38.1201], ["Şebinkarahisar", "Giresun", 40.2898, 38.421], ["Tirebolu", "Giresun", 41.0051, 38.8141], ["Yağlıdere", "Giresun", 40.8616, 38.6255], ["Gümüşhane", "Gümüşhane", 40.4603, 39.4814], ["Kelkit", "Gümüşhane", 40.1286, 39.4383], ["Köse", "Gümüşhane", 40.2104, 39.6507], ["Kürtün", "Gümüşhane", 40.691, 39.103], ["Şiran", "Gümüşhane", 40.1894, 39.1267], ["Torul", "Gümüşhane", 40.5572, 39.2919], ["Çukurca", "Hakkari", 37.2506, 43.6167], ["Hakkari", "Hakkari", 37.5833, 43.7333], ["Şemdinli", "Hakkari", 37.3028, 44.5749], ["Yüksekova", "Hakkari", 37.5667, 44.2833], ["Altınözü", "Hatay", 36.1167, 36.25], ["Antakya", "Hatay", 36.2002, 36.1762], ["Belen", "Hatay", 36.4927, 36.1933], ["Dörtyol", "Hatay", 36.856, 36.2223], ["Erzin", "Hatay", 36.9539, 36.2022], ["Hassa", "Hatay", 36.7994, 36.5178], ["İskenderun", "Hatay", 36.5869, 36.1726], ["Kırıkhan", "Hatay", 36.498, 36.3641], ["Kumlu", "Hatay", 36.3717, 36.4554], ["Reyhanlı", "Hatay", 36.2672, 36.5737], ["Samandağ", "Hatay", 36.0824, 35.9993], ["Yayladağı", "Hatay", 35.9025, 36.0606], ["Aralık", "Iğdır", 39.872, 44.5181], ["Iğdır", "Iğdır", 39.9167, 44.0333], ["Karakoyunlu", "Iğdır", 39.9715, 44.1743], ["Tuzluca", "Iğdır", 40.0453, 43.6559], ["Aksu", "Isparta", 37.799, 31.071], ["Atabey", "Isparta", 37.9524, 30.6459], ["Eğirdir", "Isparta", 38.0238, 30.8729], ["Gelendost", "Isparta", 38.124, 31.0114], ["Gönen", "Isparta", 37.9586, 30.5144], ["Isparta", "Isparta", 37.7667, 30.55], ["Keçiborlu", "Isparta", 37.9482, 30.3061], ["Senirkent", "Isparta", 38.1054, 30.5481], ["Sütçüler", "Isparta", 37.4873, 30.9896], ["Şarkikaraağaç", "Isparta", 38.0813, 31.367], ["Uluborlu", "Isparta", 38.0789, 30.4559], ["Yalvaç", "Isparta", 38.2952, 31.1802], ["Yenişarbademli", "Isparta", 37.7081, 31.3856], ["Adalar", "İstanbul", 40.8764, 29.0954], ["Arnavutköy", "İstanbul", 41.2, 28.7333], ["Ataşehir", "İstanbul", 40.9833, 29.1167], ["Avcılar", "İstanbul", 41.0153, 28.7315], ["Bağcılar", "İstanbul", 41.0456, 28.8406], ["Bahçelievler", "İstanbul", 40.9975, 28.8506], ["Bakırköy", "İstanbul", 40.9682, 28.8228], ["Başakşehir", "İstanbul", 41.0779, 28.8126], ["Bayrampaşa", "İstanbul", 41.0482, 28.9005], ["Beşiktaş", "İstanbul", 41.0686, 29.0285], ["Beykoz", "İstanbul", 41.1327, 29.1057], ["Beylikdüzü", "İstanbul", 40.991, 28.6498], ["Beyoğlu", "İstanbul", 41.0383, 28.9703], ["Büyükçekmece", "İstanbul", 41.0341, 28.59], ["Çatalca", "İstanbul", 41.1482, 28.4677], ["Çekmeköy", "İstanbul", 41.1042, 29.3177], ["Esenler", "İstanbul", 41.0794, 28.8539], ["Esenyurt", "İstanbul", 41.0343, 28.6801], ["Eyüp", "İstanbul", 41.1872, 28.883], ["Fatih", "İstanbul", 41.0167, 28.9333], ["Gaziosmanpaşa", "İstanbul", 41.0759, 28.9005], ["Güngören", "İstanbul", 41.0167, 28.8833], ["Kadıköy", "İstanbul", 40.9801, 29.0823], ["Kağıthane", "İstanbul", 41.071, 28.97], ["Kartal", "İstanbul", 40.8997, 29.1936], ["Küçükçekmece", "İstanbul", 41.0087, 28.7753], ["Maltepe", "İstanbul", 40.949, 29.1741], ["Pendik", "İstanbul", 40.8793, 29.2581], ["Sancaktepe", "İstanbul", 41.0287, 29.2902], ["Sarıyer", "İstanbul", 41.1663, 29.0499], ["Silivri", "İstanbul", 41.0802, 28.2683], ["Sultanbeyli", "İstanbul", 40.9611, 29.2669], ["Sultangazi", "İstanbul", 41.1256, 28.8713], ["Şile", "İstanbul", 41.1764, 29.6128], ["Şişli", "İstanbul", 41.06, 28.987], ["Tuzla", "İstanbul", 40.842, 29.295], ["Ümraniye", "İstanbul", 41.0303, 29.1065], ["Üsküdar", "İstanbul", 41.0322, 29.0319], ["Zeytinburnu", "İstanbul", 40.9906, 28.8961], ["Aliağa", "İzmir", 38.795, 26.9703], ["Balçova", "İzmir", 38.3693, 27.0934], ["Bayındır", "İzmir", 38.2286, 27.6465], ["Bayraklı", "İzmir", 38.4622, 27.1667], ["Bergama", "İzmir", 39.1167, 27.1833], ["Beydağ", "İzmir", 38.0869, 28.2088], ["Bornova", "İzmir", 38.4627, 27.2441], ["Buca", "İzmir", 38.4188, 27.1287], ["Çeşme", "İzmir", 38.3298, 26.3149], ["Çiğli", "İzmir", 38.4994, 27.0382], ["Dikili", "İzmir", 39.0721, 26.8882], ["Foça", "İzmir", 38.6675, 26.7581], ["Gaziemir", "İzmir", 38.3252, 27.1225], ["Güzelbahçe", "İzmir", 38.362, 26.9028], ["Karabağlar", "İzmir", 38.327, 27.0441], ["Karaburun", "İzmir", 38.6333, 26.5167], ["Karşıyaka", "İzmir", 38.4188, 27.1287], ["Kemalpaşa", "İzmir", 38.4263, 27.4231], ["Kınık", "İzmir", 39.0884, 27.3807], ["Kiraz", "İzmir", 38.2306, 28.2044], ["Konak", "İzmir", 38.4145, 27.1441], ["Menderes", "İzmir", 38.254, 27.134], ["Menemen", "İzmir", 38.6, 27.0667], ["Narlıdere", "İzmir", 38.391, 27.0029], ["Ödemiş", "İzmir", 38.2306, 27.9717], ["Seferihisar", "İzmir", 38.1989, 26.8373], ["Selçuk", "İzmir", 37.9499, 27.3701], ["Tire", "İzmir", 38.0886, 27.7335], ["Torbalı", "İzmir", 38.1778, 27.3533], ["Urla", "İzmir", 38.3246, 26.7619], ["Afşin", "Kahramanmaraş", 38.25, 36.9167], ["Andırın", "Kahramanmaraş", 37.5763, 36.3525], ["Çağlıyancerit", "Kahramanmaraş", 37.5833, 36.9333], ["Ekinözü", "Kahramanmaraş", 38.0617, 37.1928], ["Elbistan", "Kahramanmaraş", 38.2027, 37.2062], ["Göksun", "Kahramanmaraş", 38.0167, 36.5], ["Kahramanmaraş", "Kahramanmaraş", 37.5833, 36.9333], ["Nurhak", "Kahramanmaraş", 37.9667, 37.4333], ["Pazarcık", "Kahramanmaraş", 37.4898, 37.2945], ["Türkoğlu", "Kahramanmaraş", 37.3914, 36.8522], ["Eflani", "Karabük", 41.4231, 32.9561], ["Eskipazar", "Karabük", 40.9431, 32.5306], ["Karabük", "Karabük", 41.2, 32.6333], ["Ovacık", "Karabük", 41.0761, 32.9219], ["Safranbolu", "Karabük", 41.2563, 32.6916], ["Yenice", "Karabük", 41.2, 32.3292], ["Ayrancı", "Karaman", 37.3619, 33.6836], ["Başyayla", "Karaman", 36.7547, 32.6789], ["Ermenek", "Karaman", 36.6389, 32.8925], ["Karaman", "Karaman", 37.1759, 33.2287], ["Kazımkarabekir", "Karaman", 37.2303, 32.9589], ["Sarıveliler", "Karaman", 36.7012, 32.6193], ["Akyaka", "Kars", 40.7444, 43.625], ["Arpaçay", "Kars", 40.85, 43.3333], ["Digor", "Kars", 40.3756, 43.4125], ["Kağızman", "Kars", 40.1577, 43.1331], ["Kars", "Kars", 40.5927, 43.0778], ["Sarıkamış", "Kars", 40.3319, 42.5952], ["Selim", "Kars", 40.4633, 42.7858], ["Susuz", "Kars", 40.78, 43.1353], ["Abana", "Kastamonu", 41.9758, 34.0114], ["Ağlı", "Kastamonu", 41.6874, 33.5535], ["Araç", "Kastamonu", 41.2422, 33.3283], ["Azdavay", "Kastamonu", 41.6408, 33.2983], ["Bozkurt", "Kastamonu", 41.961, 34.0153], ["Cide", "Kastamonu", 41.8919, 33.0002], ["Çatalzeytin", "Kastamonu", 41.9545, 34.215], ["Daday", "Kastamonu", 41.4792, 33.4691], ["Devrekani", "Kastamonu", 41.6003, 33.8333], ["Doğanyurt", "Kastamonu", 42.0041, 33.4598], ["Hanönü", "Kastamonu", 41.6385, 34.4971], ["İhsangazi", "Kastamonu", 41.2033, 33.5518], ["İnebolu", "Kastamonu", 41.9747, 33.7608], ["Kastamonu", "Kastamonu", 41.3887, 33.7827], ["Küre", "Kastamonu", 41.8048, 33.7107], ["Pınarbaşı", "Kastamonu", 41.6024, 33.1057], ["Seydiler", "Kastamonu", 41.6194, 33.7155], ["Şenpazar", "Kastamonu", 41.8069, 33.2325], ["Taşköprü", "Kastamonu", 41.5139, 34.2147], ["Tosya", "Kastamonu", 41.0185, 34.0374], ["Akkışla", "Kayseri", 39.0, 36.1667], ["Bünyan", "Kayseri", 38.8483, 35.86], ["Develi", "Kayseri", 38.3854, 35.4995], ["Felahiye", "Kayseri", 39.0914, 35.5685], ["Hacılar", "Kayseri", 38.6497, 35.4503], ["İncesu", "Kayseri", 38.6204, 35.1883], ["Kocasinan", "Kayseri", 38.7333, 35.4833], ["Melikgazi", "Kayseri", 38.7333, 35.4833], ["Özvatan", "Kayseri", 38.7333, 35.4833], ["Pınarbaşı", "Kayseri", 38.722, 36.391], ["Sarıoğlan", "Kayseri", 39.0794, 35.9653], ["Sarız", "Kayseri", 38.4792, 36.5006], ["Talas", "Kayseri", 38.686, 35.5779], ["Tomarza", "Kayseri", 38.45, 35.8], ["Yahyalı", "Kayseri", 38.1, 35.3608], ["Yeşilhisar", "Kayseri", 38.3585, 35.0801], ["Bahşili", "Kırıkkale", 39.7007, 33.3711], ["Balışeyh", "Kırıkkale", 39.9167, 33.7167], ["Çelebi", "Kırıkkale", 39.4642, 33.5252], ["Delice", "Kırıkkale", 39.9437, 34.0395], ["Karakeçili", "Kırıkkale", 39.5944, 33.3795], ["Keskin", "Kırıkkale", 39.6731, 33.6136], ["Kırıkkale", "Kırıkkale", 39.8468, 33.5153], ["Sulakyurt", "Kırıkkale", 40.1575, 33.7175], ["Yahşihan", "Kırıkkale", 39.8503, 33.4536], ["Babaeski", "Kırklareli", 41.4333, 27.1], ["Demirköy", "Kırklareli", 41.823, 27.7623], ["Kırklareli", "Kırklareli", 41.7333, 27.2167], ["Kofçaz", "Kırklareli", 41.9399, 27.1621], ["Lüleburgaz", "Kırklareli", 41.4, 27.35], ["Pehlivanköy", "Kırklareli", 41.3481, 26.9197], ["Pınarhisar", "Kırklareli", 41.6281, 27.5122], ["Vize", "Kırklareli", 41.5736, 27.7653], ["Akçakent", "Kırşehir", 39.6228, 34.0958], ["Akpınar", "Kırşehir", 39.4472, 33.9681], ["Boztepe", "Kırşehir", 39.2697, 34.2611], ["Çiçekdağı", "Kırşehir", 39.6069, 34.4086], ["Kaman", "Kırşehir", 39.3671, 33.7293], ["Kırşehir", "Kırşehir", 39.15, 34.1667], ["Mucur", "Kırşehir", 39.0636, 34.3783], ["Elbeyli", "Kilis", 36.6742, 37.4658], ["Kilis", "Kilis", 36.7184, 37.1212], ["Musabeyli", "Kilis", 36.8864, 36.9186], ["Polateli", "Kilis", 36.8409, 37.1446], ["Başiskele", "Kocaeli", 40.6298, 29.9509], ["Çayırova", "Kocaeli", 40.8361, 29.3831], ["Darıca", "Kocaeli", 40.7696, 29.37], ["Derince", "Kocaeli", 40.9021, 29.9047], ["Dilovası", "Kocaeli", 40.7797, 29.535], ["Gebze", "Kocaeli", 40.8, 29.4333], ["Gölcük", "Kocaeli", 40.7121, 29.841], ["İzmit", "Kocaeli", 40.776, 29.9484], ["Kandıra", "Kocaeli", 41.07, 30.15], ["Karamürsel", "Kocaeli", 40.6892, 29.615], ["Kartepe", "Kocaeli", 40.7014, 30.0896], ["Körfez", "Kocaeli", 40.7461, 29.7895], ["Ahırlı", "Konya", 37.2375, 32.1181], ["Akören", "Konya", 37.4569, 32.3694], ["Akşehir", "Konya", 38.3559, 31.4154], ["Altınekin", "Konya", 38.3078, 32.8686], ["Beyşehir", "Konya", 37.6764, 31.7261], ["Bozkır", "Konya", 37.1878, 32.2481], ["Cihanbeyli", "Konya", 38.6581, 32.9281], ["Çeltik", "Konya", 39.0244, 31.7906], ["Çumra", "Konya", 37.5713, 32.7844], ["Derbent", "Konya", 38.0136, 32.0164], ["Derebucak", "Konya", 37.3936, 31.5075], ["Doğanhisar", "Konya", 38.1447, 31.6781], ["Emirgazi", "Konya", 37.9022, 33.8372], ["Ereğli", "Konya", 37.5058, 34.0517], ["Güneysınır", "Konya", 37.2686, 32.7331], ["Hadim", "Konya", 36.9907, 32.4621], ["Halkapınar", "Konya", 37.4353, 34.1893], ["Hüyük", "Konya", 37.9519, 31.5958], ["Ilgın", "Konya", 38.2792, 31.9139], ["Kadınhanı", "Konya", 38.2397, 32.2114], ["Karapınar", "Konya", 37.7148, 33.5522], ["Karatay", "Konya", 37.8667, 32.4833], ["Kulu", "Konya", 39.0892, 33.0806], ["Meram", "Konya", 37.8667, 32.4833], ["Sarayönü", "Konya", 38.2661, 32.4064], ["Selçuklu", "Konya", 37.8667, 32.4833], ["Seydişehir", "Konya", 37.4239, 31.8507], ["Taşkent", "Konya", 36.9225, 32.4948], ["Tuzlukçu", "Konya", 38.4782, 31.6312], ["Yalıhüyük", "Konya", 37.3036, 32.0869], ["Yunak", "Konya", 38.8172, 31.7356], ["Altıntaş", "Kütahya", 39.0615, 30.1098], ["Aslanapa", "Kütahya", 39.219, 29.8743], ["Çavdarhisar", "Kütahya", 39.1978, 29.6158], ["Domaniç", "Kütahya", 39.8035, 29.6115], ["Dumlupınar", "Kütahya", 38.8564, 29.9769], ["Emet", "Kütahya", 39.3421, 29.2582], ["Gediz", "Kütahya", 38.9876, 29.386], ["Hisarcık", "Kütahya", 39.2469, 29.2408], ["Kütahya", "Kütahya", 39.4167, 29.9833], ["Pazarlar", "Kütahya", 38.9971, 29.1245], ["Simav", "Kütahya", 39.0927, 28.9776], ["Şaphane", "Kütahya", 39.0278, 29.2228], ["Tavşanlı", "Kütahya", 39.5444, 29.4916], ["Akçadağ", "Malatya", 38.35, 37.9667], ["Arapkir", "Malatya", 39.0467, 38.4878], ["Arguvan", "Malatya", 38.773, 38.2714], ["Battalgazi", "Malatya", 38.4228, 38.3656], ["Darende", "Malatya", 38.5472, 37.5111], ["Doğanşehir", "Malatya", 38.0958, 37.8792], ["Doğanyol", "Malatya", 38.3106, 39.0394], ["Hekimhan", "Malatya", 38.8167, 37.9333], ["Kale", "Malatya", 38.4161, 38.7667], ["Kuluncak", "Malatya", 38.8833, 37.6667], ["Malatya", "Malatya", 38.3552, 38.3095], ["Pütürge", "Malatya", 38.1967, 38.8697], ["Yazıhan", "Malatya", 38.5969, 38.1878], ["Yeşilyurt", "Malatya", 38.2974, 38.2443], ["Ahmetli", "Manisa", 38.5215, 27.9395], ["Akhisar", "Manisa", 38.9247, 27.8362], ["Alaşehir", "Manisa", 38.3509, 28.5152], ["Demirci", "Manisa", 39.045, 28.6581], ["Gölmarmara", "Manisa", 38.7167, 27.9167], ["Gördes", "Manisa", 38.9328, 28.2903], ["Kırkağaç", "Manisa", 39.1094, 27.6662], ["Köprübaşı", "Manisa", 38.7497, 28.4047], ["Kula", "Manisa", 38.5458, 28.6494], ["Manisa", "Manisa", 38.6191, 27.4289], ["Salihli", "Manisa", 38.4811, 28.1392], ["Sarıgöl", "Manisa", 38.2403, 28.6989], ["Saruhanlı", "Manisa", 38.7342, 27.5658], ["Selendi", "Manisa", 38.7444, 28.8678], ["Soma", "Manisa", 39.1883, 27.6089], ["Turgutlu", "Manisa", 38.5042, 27.7044], ["Dargeçit", "Mardin", 37.5471, 41.7184], ["Derik", "Mardin", 37.3658, 40.2697], ["Kızıltepe", "Mardin", 37.1939, 40.5861], ["Mardin", "Mardin", 37.3122, 40.7351], ["Mazıdağı", "Mardin", 37.4833, 40.4833], ["Midyat", "Mardin", 37.3122, 40.7351], ["Nusaybin", "Mardin", 37.0757, 41.2145], ["Ömerli", "Mardin", 37.4009, 40.9563], ["Savur", "Mardin", 37.5379, 40.8897], ["Yeşilli", "Mardin", 37.3426, 40.8249], ["Akdeniz", "Mersin", 36.8, 34.6333], ["Anamur", "Mersin", 36.0752, 32.8385], ["Aydıncık", "Mersin", 36.1417, 33.3177], ["Bozyazı", "Mersin", 36.1031, 32.9748], ["Çamlıyayla", "Mersin", 37.1701, 34.6082], ["Erdemli", "Mersin", 36.6078, 34.3161], ["Gülnar", "Mersin", 36.8, 34.6333], ["Mezitli", "Mersin", 36.8, 34.6333], ["Mut", "Mersin", 36.6443, 33.4355], ["Silifke", "Mersin", 36.3753, 33.9332], ["Tarsus", "Mersin", 36.9167, 34.9], ["Toroslar", "Mersin", 36.8, 34.6333], ["Yenişehir", "Mersin", 36.8662, 34.4864], ["Bodrum", "Muğla", 37.0353, 27.4303], ["Dalaman", "Muğla", 36.7719, 28.7977], ["Datça", "Muğla", 36.7283, 27.6869], ["Fethiye", "Muğla", 36.6514, 29.1231], ["Kavaklıdere", "Muğla", 37.4469, 28.3633], ["Köyceğiz", "Muğla", 36.9713, 28.6888], ["Marmaris", "Muğla", 36.8634, 28.275], ["Milas", "Muğla", 37.3128, 27.7819], ["Muğla", "Muğla", 37.2153, 28.3636], ["Ortaca", "Muğla", 36.8378, 28.7661], ["Ula", "Muğla", 37.1028, 28.4167], ["Yatağan", "Muğla", 37.3406, 28.1403], ["Bulanık", "Muş", 39.095, 42.2667], ["Hasköy", "Muş", 38.6864, 41.6936], ["Korkut", "Muş", 38.7442, 41.7839], ["Malazgirt", "Muş", 39.1501, 42.5541], ["Muş", "Muş", 38.7433, 41.5065], ["Varto", "Muş", 39.1694, 41.4542], ["Acıgöl", "Nevşehir", 38.5529, 34.5058], ["Avanos", "Nevşehir", 38.7197, 34.8553], ["Derinkuyu", "Nevşehir", 38.3735, 34.7395], ["Gülşehir", "Nevşehir", 38.743, 34.6261], ["Hacıbektaş", "Nevşehir", 38.9674, 34.6414], ["Kozaklı", "Nevşehir", 39.2166, 34.8486], ["Nevşehir", "Nevşehir", 38.6244, 34.724], ["Ürgüp", "Nevşehir", 38.552, 34.9948], ["Altunhisar", "Niğde", 38.0, 34.3667], ["Bor", "Niğde", 37.8833, 34.55], ["Çamardı", "Niğde", 37.832, 34.9865], ["Çiftlik", "Niğde", 37.9606, 34.8583], ["Niğde", "Niğde", 37.9667, 34.6833], ["Ulukışla", "Niğde", 37.5458, 34.4836], ["Akkuş", "Ordu", 40.7931, 37.0164], ["Aybastı", "Ordu", 40.6822, 37.3943], ["Çamaş", "Ordu", 40.899, 37.53], ["Çatalpınar", "Ordu", 41.106, 37.2517], ["Çaybaşı", "Ordu", 41.0186, 37.0976], ["Fatsa", "Ordu", 41.0333, 37.5], ["Gölköy", "Ordu", 40.6875, 37.6178], ["Gülyalı", "Ordu", 40.9621, 38.0549], ["Gürgentepe", "Ordu", 40.7883, 37.6017], ["İkizce", "Ordu", 41.0583, 37.0803], ["Kabadüz", "Ordu", 40.9833, 37.8833], ["Kabataş", "Ordu", 40.75, 37.45], ["Korgan", "Ordu", 40.8247, 37.3467], ["Kumru", "Ordu", 40.8744, 37.2639], ["Mesudiye", "Ordu", 40.4629, 37.7708], ["Ordu", "Ordu", 40.9833, 37.8833], ["Perşembe", "Ordu", 41.0656, 37.7714], ["Ulubey", "Ordu", 40.871, 37.7576], ["Ünye", "Ordu", 41.1278, 37.2872], ["Bahçe", "Osmaniye", 37.2, 36.5833], ["Düziçi", "Osmaniye", 37.2571, 36.4662], ["Hasanbeyli", "Osmaniye", 37.1332, 36.5527], ["Kadirli", "Osmaniye", 37.3698, 36.1], ["Osmaniye", "Osmaniye", 37.068, 36.2616], ["Sumbas", "Osmaniye", 37.4432, 36.0322], ["Toprakkale", "Osmaniye", 37.067, 36.1464], ["Ardeşen", "Rize", 41.1878, 40.9707], ["Çamlıhemşin", "Rize", 41.0465, 41.0049], ["Çayeli", "Rize", 41.0895, 40.7365], ["Derepazarı", "Rize", 41.0226, 40.4254], ["Fındıklı", "Rize", 40.9074, 40.4665], ["Güneysu", "Rize", 40.9718, 40.6137], ["Hemşin", "Rize", 41.05, 40.9], ["İkizdere", "Rize", 40.7819, 40.5533], ["İyidere", "Rize", 41.0119, 40.3619], ["Kalkandere", "Rize", 40.9285, 40.4431], ["Pazar", "Rize", 41.18, 40.8914], ["Rize", "Rize", 41.02, 40.5234], ["Adapazarı", "Sakarya", 40.7889, 30.406], ["Akyazı", "Sakarya", 40.6833, 30.6253], ["Arifiye", "Sakarya", 40.7145, 30.3624], ["Erenler", "Sakarya", 40.7569, 30.3781], ["Ferizli", "Sakarya", 40.9397, 30.4886], ["Geyve", "Sakarya", 40.5193, 30.3019], ["Hendek", "Sakarya", 40.8051, 30.7493], ["Karapürçek", "Sakarya", 40.6425, 30.5386], ["Karasu", "Sakarya", 41.1036, 30.6936], ["Kaynarca", "Sakarya", 41.0347, 30.3102], ["Kocaali", "Sakarya", 41.0547, 30.8503], ["Pamukova", "Sakarya", 40.5053, 30.1676], ["Sapanca", "Sakarya", 40.6905, 30.2634], ["Serdivan", "Sakarya", 40.7569, 30.3781], ["Söğütlü", "Sakarya", 40.9037, 30.4691], ["Taraklı", "Sakarya", 40.3969, 30.4928], ["Alaçam", "Samsun", 41.6169, 35.6054], ["Asarcık", "Samsun", 41.0418, 36.2302], ["Atakum", "Samsun", 41.2928, 36.3313], ["Ayvacık", "Samsun", 40.987, 36.6314], ["Bafra", "Samsun", 41.5654, 35.8952], ["Canik", "Samsun", 41.2928, 36.3313], ["Çarşamba", "Samsun", 41.199, 36.7269], ["Havza", "Samsun", 40.9704, 35.6626], ["İlkadım", "Samsun", 41.2928, 36.3313], ["Kavak", "Samsun", 41.0736, 36.0403], ["Ladik", "Samsun", 40.9106, 35.8919], ["Ondokuzmayıs", "Samsun", 41.5, 36.0833], ["Salıpazarı", "Samsun", 41.0806, 36.8266], ["Tekkeköy", "Samsun", 41.2125, 36.4569], ["Terme", "Samsun", 41.2092, 36.9706], ["Vezirköprü", "Samsun", 41.1451, 35.4573], ["Yakakent", "Samsun", 41.6331, 35.5323], ["Aydınlar", "Siirt", 37.9503, 42.0151], ["Baykan", "Siirt", 38.1639, 41.7847], ["Eruh", "Siirt", 37.75, 42.1833], ["Kurtalan", "Siirt", 37.9266, 41.6948], ["Pervari", "Siirt", 37.931, 42.5465], ["Siirt", "Siirt", 37.9443, 41.9329], ["Şirvan", "Siirt", 38.0633, 42.0275], ["Ayancık", "Sinop", 41.947, 34.5918], ["Boyabat", "Sinop", 41.4667, 34.7667], ["Dikmen", "Sinop", 41.654, 35.265], ["Durağan", "Sinop", 41.422, 35.055], ["Erfelek", "Sinop", 41.8764, 34.9085], ["Gerze", "Sinop", 41.8004, 35.1872], ["Saraydüzü", "Sinop", 41.3282, 34.8475], ["Sinop", "Sinop", 42.0264, 35.1551], ["Türkeli", "Sinop", 41.9486, 34.3367], ["Akıncılar", "Sivas", 40.0803, 38.3472], ["Altınyayla", "Sivas", 39.272, 36.752], ["Divriği", "Sivas", 39.3659, 38.1273], ["Doğanşar", "Sivas", 40.2167, 37.5333], ["Gemerek", "Sivas", 39.1852, 36.075], ["Gölova", "Sivas", 40.0622, 38.6094], ["Gürün", "Sivas", 38.7225, 37.2775], ["Hafik", "Sivas", 39.85, 37.3833], ["İmranlı", "Sivas", 39.8765, 38.1106], ["Kangal", "Sivas", 39.2333, 37.3833], ["Koyulhisar", "Sivas", 40.3, 37.8333], ["Sivas", "Sivas", 39.7477, 37.0179], ["Suşehri", "Sivas", 40.1623, 38.0957], ["Şarkışla", "Sivas", 39.3509, 36.4176], ["Ulaş", "Sivas", 39.4438, 37.0405], ["Yıldızeli", "Sivas", 39.8667, 36.6], ["Zara", "Sivas", 39.895, 37.7531], ["Akçakale", "Şanlıurfa", 36.711, 38.948], ["Birecik", "Şanlıurfa", 37.025, 37.9769], ["Bozova", "Şanlıurfa", 37.3628, 38.5256], ["Ceylanpınar", "Şanlıurfa", 36.85, 40.05], ["Halfeti", "Şanlıurfa", 37.25, 37.8667], ["Harran", "Şanlıurfa", 36.8652, 39.0242], ["Hilvan", "Şanlıurfa", 37.5886, 38.9556], ["Siverek", "Şanlıurfa", 37.752, 39.3321], ["Suruç", "Şanlıurfa", 36.9747, 38.4245], ["Şanlıurfa", "Şanlıurfa", 37.15, 38.8], ["Viranşehir", "Şanlıurfa", 37.2333, 39.7667], ["Beytüşşebap", "Şırnak", 37.5709, 43.1712], ["Cizre", "Şırnak", 37.325, 42.1958], ["Güçlükonak", "Şırnak", 37.4712, 41.9152], ["İdil", "Şırnak", 37.3417, 41.8903], ["Silopi", "Şırnak", 37.2483, 42.4723], ["Şırnak", "Şırnak", 37.5164, 42.4611], ["Uludere", "Şırnak", 37.4497, 42.8527], ["Çerkezköy", "Tekirdağ", 41.2833, 28.0], ["Çorlu", "Tekirdağ", 41.1675, 27.8056], ["Hayrabolu", "Tekirdağ", 41.2132, 27.1], ["Malkara", "Tekirdağ", 40.8933, 26.9042], ["Marmaraereğlisi", "Tekirdağ", 40.97, 27.955], ["Muratlı", "Tekirdağ", 41.174, 27.5088], ["Saray", "Tekirdağ", 41.4425, 27.922], ["Şarköy", "Tekirdağ", 40.6134, 27.1136], ["Tekirdağ", "Tekirdağ", 40.9833, 27.5167], ["Almus", "Tokat", 40.3757, 36.9044], ["Artova", "Tokat", 40.1154, 36.3042], ["Başçiftlik", "Tokat", 40.55, 37.1667], ["Erbaa", "Tokat", 40.6667, 36.5667], ["Niksar", "Tokat", 40.5905, 36.9536], ["Pazar", "Tokat", 40.2777, 36.2876], ["Reşadiye", "Tokat", 40.2076, 35.6854], ["Sulusaray", "Tokat", 39.9966, 36.0848], ["Tokat", "Tokat", 40.3167, 36.55], ["Turhal", "Tokat", 40.3855, 36.0743], ["Yeşilyurt", "Tokat", 40.0104, 36.2163], ["Zile", "Tokat", 40.3, 35.8833], ["Akçaabat", "Trabzon", 41.0167, 39.5833], ["Araklı", "Trabzon", 40.9392, 40.055], ["Arsin", "Trabzon", 40.9533, 39.9256], ["Beşikdüzü", "Trabzon", 41.0494, 39.2353], ["Çarşıbaşı", "Trabzon", 41.0833, 39.3833], ["Çaykara", "Trabzon", 40.7521, 40.2449], ["Dernekpazarı", "Trabzon", 40.8019, 40.2448], ["Düzköy", "Trabzon", 40.8759, 39.4272], ["Hayrat", "Trabzon", 40.8902, 40.3676], ["Köprübaşı", "Trabzon", 40.8082, 40.1226], ["Maçka", "Trabzon", 40.8167, 39.6167], ["Of", "Trabzon", 40.9454, 40.269], ["Sürmene", "Trabzon", 40.9127, 40.111], ["Şalpazarı", "Trabzon", 40.9419, 39.1911], ["Tonya", "Trabzon", 40.8854, 39.2924], ["Trabzon", "Trabzon", 41.0, 39.7333], ["Vakfıkebir", "Trabzon", 41.0475, 39.2798], ["Yomra", "Trabzon", 40.9543, 39.8651], ["Çemişgezek", "Tunceli", 39.0636, 38.9133], ["Hozat", "Tunceli", 39.1089, 39.2192], ["Mazgirt", "Tunceli", 39.0217, 39.6058], ["Nazımiye", "Tunceli", 39.1811, 39.8289], ["Ovacık", "Tunceli", 39.3583, 39.2161], ["Pertek", "Tunceli", 38.8669, 39.3261], ["Pülümür", "Tunceli", 39.4833, 39.9], ["Tunceli", "Tunceli", 39.108, 39.5402], ["Banaz", "Uşak", 38.7333, 29.75], ["Eşme", "Uşak", 38.4019, 28.969], ["Karahallı", "Uşak", 38.3258, 29.5305], ["Sivaslı", "Uşak", 38.4987, 29.6818], ["Ulubey", "Uşak", 38.4229, 29.2931], ["Uşak", "Uşak", 38.6823, 29.4082], ["Bahçesaray", "Van", 38.1286, 42.8092], ["Başkale", "Van", 38.046, 44.015], ["Çaldıran", "Van", 39.1419, 43.9139], ["Çatak", "Van", 38.0066, 43.0586], ["Edremit", "Van", 38.4942, 43.38], ["Erciş", "Van", 39.0265, 43.3533], ["Gevaş", "Van", 38.2958, 43.1082], ["Gürpınar", "Van", 38.3288, 43.4143], ["Muradiye", "Van", 38.9947, 43.7681], ["Özalp", "Van", 38.658, 43.992], ["Saray", "Van", 38.6506, 44.17], ["Van", "Van", 38.4942, 43.38], ["Altınova", "Yalova", 40.6975, 29.5114], ["Armutlu", "Yalova", 40.5194, 28.8281], ["Çınarcık", "Yalova", 40.6406, 29.1071], ["Çiftlikköy", "Yalova", 40.6603, 29.3236], ["Termal", "Yalova", 40.6053, 29.1744], ["Yalova", "Yalova", 40.65, 29.2667], ["Akdağmadeni", "Yozgat", 39.6658, 35.8836], ["Aydıncık", "Yozgat", 40.1288, 35.2862], ["Boğazlıyan", "Yozgat", 39.1942, 35.2472], ["Çandır", "Yozgat", 39.2447, 35.5139], ["Çayıralan", "Yozgat", 39.3028, 35.6439], ["Çekerek", "Yozgat", 40.0731, 35.4947], ["Kadışehri", "Yozgat", 39.9985, 35.7899], ["Saraykent", "Yozgat", 39.6936, 35.5111], ["Sarıkaya", "Yozgat", 39.4936, 35.3769], ["Sorgun", "Yozgat", 39.8128, 35.1817], ["Şefaatli", "Yozgat", 39.5017, 34.7522], ["Yenifakılı", "Yozgat", 39.2114, 34.9975], ["Yerköy", "Yozgat", 39.6381, 34.4672], ["Yozgat", "Yozgat", 39.82, 34.8044], ["Alaplı", "Zonguldak", 41.1833, 31.3833], ["Çaycuma", "Zonguldak", 41.4333, 32.0833], ["Devrek", "Zonguldak", 41.2252, 31.9597], ["Gökçebey", "Zonguldak", 41.3079, 32.1416], ["Karadenizereğli", "Zonguldak", 41.2894, 31.4181], ["Zonguldak", "Zonguldak", 41.4564, 31.7987]];
+
+</script>
+<script>
+/* ==================================================================
+   Türkiye Hava Durumu — mobil sürüm
+   Masaüstü sürümüyle AYNI veri kaynakları ve AYNI il/ilçe koordinatları.
+   ================================================================== */
+
+/* ---- WMO kodu -> Türkçe açıklama + ikon kategorisi ---- */
+const WMO = {
+  0:["Açık","gunes"], 1:["Az bulutlu","gunes_bulut"], 2:["Parçalı bulutlu","gunes_bulut"],
+  3:["Çok bulutlu","bulut"], 45:["Sisli","sis"], 48:["Kırağılı sis","sis"],
+  51:["Hafif çisenti","yagmur"], 53:["Çisenti","yagmur"], 55:["Yoğun çisenti","yagmur"],
+  56:["Dondurucu çisenti","yagmur"], 57:["Yoğun dondurucu çisenti","yagmur"],
+  61:["Hafif yağmur","yagmur"], 63:["Yağmurlu","yagmur"], 65:["Kuvvetli yağmur","yagmur"],
+  66:["Dondurucu yağmur","yagmur"], 67:["Kuvvetli dondurucu yağmur","yagmur"],
+  71:["Hafif kar","kar"], 73:["Karlı","kar"], 75:["Yoğun kar","kar"], 77:["Kar taneli","kar"],
+  80:["Hafif sağanak","yagmur"], 81:["Sağanak yağış","yagmur"], 82:["Şiddetli sağanak","yagmur"],
+  85:["Hafif kar sağanağı","kar"], 86:["Yoğun kar sağanağı","kar"],
+  95:["Gök gürültülü fırtına","firtina"], 96:["Dolulu fırtına","firtina"],
+  99:["Şiddetli dolu fırtınası","firtina"]
+};
+const kodCoz = k => WMO[k] || ["Bilinmiyor","bulut"];
+const YONLER = ["K","KD","D","GD","G","GB","B","KB"];
+const ruzgarYonu = d => (d==null) ? "-" : YONLER[Math.floor((d+22.5)/45)%8];
+
+/* ---- hava ikonu: SVG (resim dosyası yok, her boyutta net) ---- */
+function ikon(kat, b=54) {
+  const G="var(--gunes)", B="var(--bulut)", Y="var(--yagis)", A="#ffffff";
+  const gunes = (cx,cy,r) => {
+    let p = "";
+    for (let i=0;i<8;i++){
+      const a=i*Math.PI/4;
+      p += `<line x1="${cx+Math.cos(a)*r*1.35}" y1="${cy+Math.sin(a)*r*1.35}"
+             x2="${cx+Math.cos(a)*r*1.85}" y2="${cy+Math.sin(a)*r*1.85}"
+             stroke="${G}" stroke-width="${r*0.28}" stroke-linecap="round"/>`;
+    }
+    return p + `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${G}"/>`;
+  };
+  const bulut = (cx,cy,r,renk=B) =>
+    `<g fill="${renk}">
+      <circle cx="${cx-r*0.5}" cy="${cy+r*0.12}" r="${r*0.5}"/>
+      <circle cx="${cx}" cy="${cy-r*0.28}" r="${r*0.62}"/>
+      <circle cx="${cx+r*0.5}" cy="${cy+r*0.12}" r="${r*0.52}"/>
+      <rect x="${cx-r*0.95}" y="${cy+r*0.05}" width="${r*1.9}" height="${r*0.6}" rx="${r*0.2}"/>
+    </g>`;
+  const damla = (cx,cy,r) => [-0.5,0,0.5].map(dx =>
+    `<line x1="${cx+dx*r+r*0.12}" y1="${cy}" x2="${cx+dx*r-r*0.12}" y2="${cy+r*0.55}"
+      stroke="${Y}" stroke-width="${r*0.16}" stroke-linecap="round"/>`).join("");
+  const kar = (cx,cy,r) => [-0.5,0,0.5].map(dx =>
+    `<circle cx="${cx+dx*r}" cy="${cy+r*0.28}" r="${r*0.12}" fill="${A}"/>`).join("");
+  const simsek = (cx,cy,r) =>
+    `<polygon points="${cx+r*0.1},${cy} ${cx-r*0.35},${cy+r*0.5} ${cx-r*0.02},${cy+r*0.5}
+      ${cx-r*0.2},${cy+r*0.95} ${cx+r*0.4},${cy+r*0.35} ${cx+r*0.05},${cy+r*0.35}" fill="${G}"/>`;
+
+  const c = b/2, r = b*0.24;
+  let ic = "";
+  if (kat==="gunes") ic = gunes(c,c,r*1.1);
+  else if (kat==="gunes_bulut") ic = gunes(c-r*0.45,c-r*0.45,r*0.62) + bulut(c+r*0.2,c+r*0.3,r*0.92);
+  else if (kat==="bulut") ic = bulut(c,c,r*1.05);
+  else if (kat==="sis") ic = bulut(c,c-r*0.25,r) +
+      [0,1,2].map(i=>`<line x1="${c-r*0.8}" y1="${c+r*(0.55+i*0.3)}" x2="${c+r*0.8}"
+        y2="${c+r*(0.55+i*0.3)}" stroke="${B}" stroke-width="${r*0.16}" stroke-linecap="round"/>`).join("");
+  else if (kat==="yagmur") ic = bulut(c,c-r*0.25,r) + damla(c,c+r*0.55,r);
+  else if (kat==="kar") ic = bulut(c,c-r*0.25,r) + kar(c,c+r*0.55,r);
+  else if (kat==="firtina") ic = bulut(c,c-r*0.25,r) + simsek(c,c+r*0.4,r);
+  else ic = bulut(c,c,r);
+  return `<svg width="${b}" height="${b}" viewBox="0 0 ${b} ${b}">${ic}</svg>`;
+}
+
+/* ---- yer listesi (yerler.js'ten) ---- */
+const ETIKET = (ilce, il) => `${ilce} (${il})`;
+const kucult = s => s.replace(/I/g,"ı").replace(/İ/g,"i").toLowerCase();
+const TUM_YERLER = [
+  ...ILLER.map(([ad,e,b]) => ({etiket:ad, alt:"il", e, b, k:kucult(ad)})),
+  ...ILCELER.map(([a,i,e,b]) => ({etiket:ETIKET(a,i), alt:i+" ilçesi", e, b, k:kucult(a)}))
+];
+
+/* ---- havaya göre arka plan (temanın üstüne "tint") ---- */
+const ACIK_TEMA = () => window.matchMedia("(prefers-color-scheme: light)").matches;
+const ZEMIN = {
+  koyu: { gunes:["#123a5c","#0f1620"], gunes_gece:["#0d1b33","#0a0f18"],
+          gunes_bulut:["#1a3550","#0f1620"], bulut:["#1e2a36","#0f1620"],
+          yagmur:["#132430","#0b131b"], kar:["#1b2b3a","#0f1620"],
+          firtina:["#231d38","#0f1620"], sis:["#242c33","#0f1620"] },
+  acik: { gunes:["#bfe3ff","#eef1f5"], gunes_gece:["#c6d0de","#eef1f5"],
+          gunes_bulut:["#cfe6fb","#eef1f5"], bulut:["#d5dee8","#eef1f5"],
+          yagmur:["#c9d6e2","#eef1f5"], kar:["#dcebf7","#eef1f5"],
+          firtina:["#d3cde4","#eef1f5"], sis:["#d9dee3","#eef1f5"] }
+};
+function geceMi(simdi, dogus, batis){
+  const dk = t => { const [s,m] = t.slice(11,16).split(":").map(Number); return s*60+m; };
+  const s = dk(simdi);
+  return s < dk(dogus) || s > dk(batis);
+}
+function arkaPlanUygula(kat, gece){
+  const pal = ZEMIN[ACIK_TEMA() ? "acik" : "koyu"];
+  const anahtar = (gece && (kat==="gunes" || kat==="gunes_bulut")) ? "gunes_gece"
+                : (pal[kat] ? kat : "bulut");
+  const [ust, alt] = pal[anahtar];
+  document.body.style.background = `linear-gradient(170deg, ${ust} 0%, ${alt} 55%, ${alt} 100%)`;
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", ust);
+}
+function selamla(t){
+  const s = parseInt(t.slice(11,13),10);
+  if (s>=5 && s<11) return "Günaydın";
+  if (s>=11 && s<17) return "İyi günler";
+  if (s>=17 && s<22) return "İyi akşamlar";
+  return "İyi geceler";
+}
+
+/* ---- tarih / ay evresi ---- */
+const AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+const GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+const tarihYaz = iso => { const d=new Date(iso); return `${d.getDate()} ${AYLAR[d.getMonth()]} ${GUNLER[d.getDay()]}`; };
+const gunAdi = (iso,i) => i===0 ? "Bugün" : i===1 ? "Yarın" : GUNLER[new Date(iso).getDay()];
+const AY_EVRELERI = ["Yeni Ay","Büyüyen Hilal","İlk Dördün","Büyüyen Şişkin Ay",
+                     "Dolunay","Küçülen Şişkin Ay","Son Dördün","Küçülen Hilal"];
+function ayEvresi(iso){
+  const gun = (((new Date(iso) - new Date(2000,0,6)) / 86400000) % 29.53058867 + 29.53058867) % 29.53058867;
+  return AY_EVRELERI[Math.round((gun/29.53058867)*8) % 8];
+}
+
+/* ---- hava kalitesi bantları (Avrupa AQI) ---- */
+const AQI_BANT = [[20,"İyi","#4fc978"],[40,"Makul","#a3d900"],[60,"Orta","#f4c500"],
+                  [80,"Kötü","#ff8c42"],[100,"Çok kötü","#ff4d4f"],[1e9,"Aşırı kötü","#a05cf0"]];
+const aqiCoz = v => AQI_BANT.find(b => v <= b[0]) || ["-","Bilinmiyor","#9fb0c0"];
+const POLEN = { grass_pollen:"Çim", birch_pollen:"Huş ağacı", olive_pollen:"Zeytin",
+                alder_pollen:"Kızılağaç", mugwort_pollen:"Pelin otu", ragweed_pollen:"Kanarya otu" };
+
+/* ---- veri çekme ---- */
+async function havaAl(enlem, boylam){
+  const p = new URLSearchParams({
+    latitude:enlem, longitude:boylam,
+    current:"temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,"+
+            "wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index,surface_pressure,visibility,"+
+            "dew_point_2m,cloud_cover",
+    hourly:"temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,weather_code,"+
+           "wind_speed_10m,wind_direction_10m",
+    daily:"weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset",
+    minutely_15:"precipitation",
+    wind_speed_unit:"kmh", timezone:"Europe/Istanbul", forecast_days:7
+  });
+  const c = await fetch("https://api.open-meteo.com/v1/forecast?"+p);
+  if(!c.ok) throw new Error("Veri alınamadı");
+  return c.json();
+}
+/* hava kalitesi AYRI servistir; hata verirse havayı bozmasın diye ayrı çekilir */
+async function havaKalitesiAl(enlem, boylam){
+  try {
+    const p = new URLSearchParams({
+      latitude:enlem, longitude:boylam, current:"european_aqi,pm2_5,pm10",
+      hourly:Object.keys(POLEN).join(","), timezone:"Europe/Istanbul", forecast_days:1
+    });
+    const c = await fetch("https://air-quality-api.open-meteo.com/v1/air-quality?"+p);
+    if(!c.ok) return null;
+    const v = await c.json();
+    let enAd=null, enDeger=0;
+    for (const [anahtar, turkce] of Object.entries(POLEN)){
+      const dizi = (v.hourly?.[anahtar]||[]).filter(x => x!=null);
+      if (dizi.length){ const tepe = Math.max(...dizi); if (tepe > enDeger){ enDeger=tepe; enAd=turkce; } }
+    }
+    const seviye = enDeger<1 ? null : enDeger<30 ? "düşük" : enDeger<70 ? "orta" : "yüksek";
+    return { aqi:v.current?.european_aqi, pm25:v.current?.pm2_5, pm10:v.current?.pm10,
+             polen: seviye ? `${enAd} (${seviye})` : "Düşük" };
+  } catch { return null; }
+}
+/* model karşılaştırma: yarının en yükseği 3 modelde */
+async function modelKarsilastir(enlem, boylam){
+  try {
+    const p = new URLSearchParams({
+      latitude:enlem, longitude:boylam, daily:"temperature_2m_max",
+      models:"ecmwf_ifs025,gfs_seamless,icon_seamless", timezone:"Europe/Istanbul", forecast_days:2
+    });
+    const c = await fetch("https://api.open-meteo.com/v1/forecast?"+p);
+    if(!c.ok) return null;
+    const d = (await c.json()).daily;
+    const ad = { ecmwf_ifs025:"ECMWF", gfs_seamless:"GFS", icon_seamless:"ICON" };
+    return Object.entries(ad).map(([k,a]) => {
+      const dizi = d[`temperature_2m_max_${k}`];
+      return (dizi && dizi[1]!=null) ? `${a} ${Math.round(dizi[1])}°` : null;
+    }).filter(Boolean);
+  } catch { return null; }
+}
+
+/* ---- sıcaklık grafiği (SVG, 24 saat + yağış çubukları) ---- */
+function grafikCiz(saatler){
+  const G=320, Y=110, sol=26, sag=8, ust=14, alt=18;
+  const gw=G-sol-sag, gh=Y-ust-alt;
+  const t = saatler.map(s => s.sicaklik);
+  const tmin=Math.min(...t), tmax=Math.max(...t)===tmin ? tmin+1 : Math.max(...t);
+  const nokta = (i,v) => [sol+gw*i/(t.length-1), ust+gh*(1-(v-tmin)/(tmax-tmin))];
+  const cubuklar = saatler.map((s,i) => {
+    const p = s.olasilik||0; if(!p) return "";
+    const [x] = nokta(i,t[i]); const h = gh*p/100;
+    return `<rect x="${x-3}" y="${ust+gh-h}" width="6" height="${h}" fill="var(--yagis)" opacity="0.35"/>`;
+  }).join("");
+  const cizgi = t.map((v,i) => nokta(i,v).join(",")).join(" ");
+  const saatEtiket = saatler.map((s,i) => i%6 ? "" :
+    `<text x="${nokta(i,t[i])[0]}" y="${Y-4}" font-size="9" fill="var(--yazi3)" text-anchor="middle">${s.saat}</text>`).join("");
+  return `<svg viewBox="0 0 ${G} ${Y}" style="width:100%;height:${Y}px">
+    ${cubuklar}
+    <polyline points="${cizgi}" fill="none" stroke="var(--vurgu)" stroke-width="2" stroke-linejoin="round"/>
+    <text x="2" y="${ust+4}" font-size="9" fill="var(--yazi3)">${tmax}°</text>
+    <text x="2" y="${ust+gh}" font-size="9" fill="var(--yazi3)">${tmin}°</text>
+    ${saatEtiket}</svg>`;
+}
+
+/* ---- ekrana yazma ---- */
+let sonYer = null, sonVeri = null;
+
+function goster(yer, v, hk, modeller){
+  const g = v.current, [acik, kat] = kodCoz(g.weather_code);
+  document.getElementById("baslik").textContent = yer.etiket;
+  const gece = geceMi(g.time, v.daily.sunrise[0], v.daily.sunset[0]);
+  arkaPlanUygula(kat, gece);
+
+  /* saatlik: şu andan itibaren 24 saat */
+  const simdiSaat = g.time.slice(0,13);
+  let bas = v.hourly.time.findIndex(t => t.slice(0,13) === simdiSaat);
+  if (bas < 0) bas = 0;
+  const saatler = [];
+  for (let i=bas; i<Math.min(bas+24, v.hourly.time.length); i++)
+    saatler.push({ saat:v.hourly.time[i].slice(11,16), sicaklik:Math.round(v.hourly.temperature_2m[i]),
+      nem:v.hourly.relative_humidity_2m[i], yagis:v.hourly.precipitation[i]||0,
+      olasilik:v.hourly.precipitation_probability[i]||0, kod:v.hourly.weather_code[i], ilk:i===bas });
+
+  const saatlikHTML = saatler.map(s => `
+    <div class="saat-kart ${s.ilk?'simdi-kart':''}">
+      <div class="s">${s.ilk?"Şimdi":s.saat}</div>
+      ${ikon(kodCoz(s.kod)[1],34)}
+      <div class="d">${s.sicaklik}°</div>
+      <div class="v" style="color:var(--nem)">%${s.nem}</div>
+      <div class="v" style="color:var(--ruzgar)">${s.yagis.toFixed(1)} mm</div>
+    </div>`).join("");
+
+  const gunlukHTML = v.daily.time.map((t,i) => {
+    const ols = v.daily.precipitation_probability_max[i] || 0;
+    return `<div class="gun">${ikon(kodCoz(v.daily.weather_code[i])[1],30)}
+      <span class="ad">${gunAdi(t,i)}</span>
+      <span class="ols">${ols?("%"+ols):""}</span>
+      <span class="dd">${Math.round(v.daily.temperature_2m_max[i])}° <i>${Math.round(v.daily.temperature_2m_min[i])}°</i></span>
+    </div>`; }).join("");
+
+  /* yağmur ne zaman başlıyor (15 dk çözünürlük, önümüzdeki 2 saat) */
+  let yagmurUyari = "";
+  if (v.minutely_15){
+    const bas15 = v.minutely_15.time.findIndex(t => t >= g.time);
+    for (let i=Math.max(0,bas15); i<Math.min(bas15+8, v.minutely_15.time.length); i++){
+      if ((v.minutely_15.precipitation[i]||0) > 0.05){
+        yagmurUyari = `<div class="yagmur-uyari">☔ Yağış ~${v.minutely_15.time[i].slice(11,16)} civarında başlıyor</div>`;
+        break;
+      }
+    }
+  }
+
+  /* hava kalitesi kartı */
+  let aqiHTML = "";
+  if (hk && hk.aqi != null){
+    const [,ad,renk] = aqiCoz(hk.aqi);
+    aqiHTML = `<div class="kart">
+      <h2 style="margin:0 0 4px">Hava Kalitesi</h2>
+      <div class="aqi-satir">
+        <span class="aqi-sayi" style="color:${renk}">${Math.round(hk.aqi)}</span>
+        <div><b style="color:${renk};font-size:15px">${ad}</b>
+          <div class="aqi-alt">PM2.5 ${Math.round(hk.pm25)} · PM10 ${Math.round(hk.pm10)} · Polen: ${hk.polen}</div>
+        </div>
+      </div></div>`;
+  }
+
+  const km = g.visibility != null ? Math.round(g.visibility/1000)+" km" : "—";
+  document.getElementById("icerik").innerHTML = `
+    <div class="kart">
+      <div class="selam">${selamla(g.time)} 👋</div>
+      <div class="yer">${yer.etiket}</div>
+      <div class="tarih">${tarihYaz(g.time)} · ${g.time.slice(11,16)}</div>
+      <div class="simdi">
+        ${ikon(kat,86)}
+        <div>
+          <div class="derece">${Math.round(g.temperature_2m)}°C</div>
+          <div class="durum">${acik}</div>
+          <div class="hissedilen">Hissedilen ${Math.round(g.apparent_temperature)}°C</div>
+        </div>
+      </div>
+      <div class="gunes-satir">
+        <span>↑ ${v.daily.sunrise[0].slice(11,16)}</span>
+        <span>↓ ${v.daily.sunset[0].slice(11,16)}</span>
+        <span>UV ${Math.round(g.uv_index)}</span>
+      </div>
+      ${yagmurUyari}
+    </div>
+
+    <div class="uclu">
+      <div class="mini"><b>NEM</b><span style="color:var(--nem)">%${g.relative_humidity_2m}</span></div>
+      <div class="mini"><b>RÜZGÂR</b><span style="color:var(--ruzgar)">${Math.round(g.wind_speed_10m)}<small style="font-size:10px"> km/s ${ruzgarYonu(g.wind_direction_10m)}</small></span></div>
+      <div class="mini"><b>YAĞIŞ</b><span style="color:var(--yagis)">${(g.precipitation||0).toFixed(1)}<small style="font-size:10px"> mm</small></span></div>
+    </div>
+
+    ${aqiHTML}
+
+    <div class="kart">
+      <h2 style="margin:0">Detaylar</h2>
+      <div class="detay">
+        <div><b>BASINÇ</b><span>${Math.round(g.surface_pressure)} hPa</span></div>
+        <div><b>GÖRÜŞ</b><span>${km}</span></div>
+        <div><b>ÇİY NOKTASI</b><span>${Math.round(g.dew_point_2m)}°</span></div>
+        <div><b>HAMLE</b><span>${Math.round(g.wind_gusts_10m)} km/s</span></div>
+        <div><b>BULUT</b><span>%${g.cloud_cover}</span></div>
+        <div><b>AY EVRESİ</b><span class="kucuk">${ayEvresi(g.time)}</span></div>
+      </div>
+      ${modeller && modeller.length ? `<div class="aqi-alt" style="margin-top:12px">
+        Yarın en yüksek — ${modeller.join(" · ")} <br>(3 model yakınsa tahmin daha güvenilir)</div>` : ""}
+    </div>
+
+    <h2>Saatlik tahmin <small>nem · yağış — kaydırın →</small></h2>
+    <div class="saatlik">${saatlikHTML}</div>
+
+    <h2>Sıcaklık grafiği <small>çizgi °C · çubuk %yağış</small></h2>
+    <div class="kart" style="padding:12px">${grafikCiz(saatler)}</div>
+
+    <h2>7 günlük tahmin</h2>
+    ${gunlukHTML}
+
+    <h2>Harita <small>yağış radarı</small></h2>
+    <div id="haritaKutu"></div>
+    <div class="harita-dugmeler">
+      <button class="dugme" id="haritaBtn">🗺️ Haritayı göster</button>
+      <button class="dugme" id="radarBtn" style="display:none">🌧️ Radar</button>
+    </div>`;
+
+  document.getElementById("haritaBtn").onclick = haritayiAc;
+  document.getElementById("radarBtn").onclick = radarDegistir;
+}
+
+/* ---- harita: İSTEĞE BAĞLI yüklenir (açılışı yavaşlatmasın) ---- */
+let harita = null, radarKatman = null, radarAcik = false;
+function betikYukle(src){ return new Promise((c,h) => {
+  const s = document.createElement("script"); s.src = src; s.onload = c; s.onerror = h;
+  document.head.appendChild(s); }); }
+
+async function haritayiAc(){
+  const btn = document.getElementById("haritaBtn");
+  if (harita){ document.getElementById("haritaKutu").classList.toggle("acik"); return; }
+  btn.textContent = "Harita yükleniyor…";
+  try {
+    if (!window.L){
+      const css = document.createElement("link");
+      css.rel="stylesheet"; css.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(css);
+      await betikYukle("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+    }
+    const kutu = document.getElementById("haritaKutu");
+    kutu.classList.add("acik");
+    harita = L.map(kutu).setView([sonYer.e, sonYer.b], 8);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { maxZoom:18, attribution:"© OpenStreetMap" }).addTo(harita);
+    L.marker([sonYer.e, sonYer.b]).addTo(harita).bindPopup(sonYer.etiket);
+    // haritaya dokununca oranın havası
+    harita.on("click", e => {
+      let enIyi=null, enKisa=Infinity;
+      for (const y of TUM_YERLER){
+        const d=(y.e-e.latlng.lat)**2+(y.b-e.latlng.lng)**2;
+        if(d<enKisa){ enKisa=d; enIyi=y; }
+      }
+      yukle({ ...enIyi, e:e.latlng.lat, b:e.latlng.lng });
+    });
+    btn.textContent = "🗺️ Haritayı gizle";
+    document.getElementById("radarBtn").style.display = "flex";
+    setTimeout(() => harita.invalidateSize(), 200);
+  } catch { btn.textContent = "Harita yüklenemedi"; }
+}
+
+async function radarDegistir(){
+  const btn = document.getElementById("radarBtn");
+  if (radarAcik){ harita.removeLayer(radarKatman); radarAcik=false;
+    btn.textContent = "🌧️ Radar"; return; }
+  btn.textContent = "Radar yükleniyor…";
+  try {
+    const v = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
+    const kare = v.radar.past[v.radar.past.length-1];
+    radarKatman = L.tileLayer(`${v.host}${kare.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity:0.65 });
+    radarKatman.addTo(harita); radarAcik = true;
+    btn.textContent = "🌧️ Radar: Açık";
+  } catch { btn.textContent = "Radar alınamadı"; }
+}
+
+/* ---- yükleme ---- */
+async function yukle(yer){
+  sonYer = yer;
+  harita = null; radarAcik = false;      // yeni yer -> harita sifirlansin
+  document.getElementById("baslik").textContent = yer.etiket;
+  document.getElementById("icerik").innerHTML = '<div class="yukleniyor">Hava durumu getiriliyor…</div>';
+  try {
+    const v = await havaAl(yer.e, yer.b);
+    sonVeri = v;
+    goster(yer, v, null, null);                       // önce hava (hızlı)
+    localStorage.setItem("sonYer", JSON.stringify(yer));
+    // hava kalitesi + modeller arka planda gelsin, gelince tazele
+    const [hk, md] = await Promise.all([havaKalitesiAl(yer.e, yer.b), modelKarsilastir(yer.e, yer.b)]);
+    if (sonYer === yer) goster(yer, v, hk, md);
+  } catch {
+    document.getElementById("icerik").innerHTML =
+      '<div class="hata">Veri alınamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.</div>';
+  }
+}
+
+/* ---- arama ---- */
+const araEkran = document.getElementById("araEkran");
+const araKutu  = document.getElementById("araKutu");
+const sonuclar = document.getElementById("sonuclar");
+function sonucCiz(liste){
+  sonuclar.innerHTML = liste.slice(0,60).map((y,i) =>
+    `<div class="sonuc" data-i="${i}">${y.etiket}<small>${y.alt}</small></div>`).join("")
+    || '<div class="yukleniyor">Sonuç yok</div>';
+  [...sonuclar.children].forEach((el,i) => {
+    if (el.dataset.i !== undefined)
+      el.onclick = () => { araEkran.classList.remove("acik"); yukle(liste[i]); };
+  });
+}
+function aramaYap(){
+  const k = kucult(araKutu.value.trim());
+  if(!k){ sonucCiz(TUM_YERLER.filter(y=>y.alt==="il")); return; }
+  sonucCiz([...TUM_YERLER.filter(y => y.alt==="il" && y.k.includes(k)),
+            ...TUM_YERLER.filter(y => y.alt!=="il" && y.k.includes(k))]);
+}
+araKutu.oninput = aramaYap;
+document.getElementById("araBtn").onclick = () => {
+  araEkran.classList.add("acik"); araKutu.value=""; aramaYap(); araKutu.focus(); };
+document.getElementById("kapatBtn").onclick = () => araEkran.classList.remove("acik");
+
+/* ---- konumumu kullan ---- */
+document.getElementById("konumBtn").onclick = () => {
+  if(!navigator.geolocation){ alert("Cihazınız konum desteklemiyor."); return; }
+  document.getElementById("baslik").textContent = "Konum alınıyor…";
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      let enIyi=null, enKisa=Infinity;
+      for(const y of TUM_YERLER){
+        const d=(y.e-p.coords.latitude)**2+(y.b-p.coords.longitude)**2;
+        if(d<enKisa){ enKisa=d; enIyi=y; }
+      }
+      yukle({etiket:enIyi.etiket, alt:enIyi.alt, e:p.coords.latitude, b:p.coords.longitude});
+    },
+    () => { alert("Konum alınamadı. Konum izni verdiğinizden emin olun."); acilis(); });
+};
+
+/* ---- açılış ---- */
+function acilis(){
+  let yer;
+  try { yer = JSON.parse(localStorage.getItem("sonYer")); } catch(e){}
+  if(!yer || !yer.etiket) yer = TUM_YERLER.find(y => y.etiket==="İzmir") || TUM_YERLER[0];
+  yukle(yer);
+}
+acilis();
+
+/* tek dosya surumu: servis calisani yok */
+</script>
+</body>
+</html>

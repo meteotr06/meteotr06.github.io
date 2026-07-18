@@ -1,0 +1,17 @@
+{
+  "name": "Türkiye Hava Durumu",
+  "short_name": "Hava Durumu",
+  "description": "Türkiye'nin 81 ili ve 957 ilçesi için saatlik ve 7 günlük hava durumu; nem, rüzgâr ve yağış bilgileriyle.",
+  "lang": "tr",
+  "start_url": "index.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1620",
+  "theme_color": "#0f1620",
+  "icons": [
+    { "src": "simge-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "simge-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "simge-maskeli-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,9 @@
+# derleme cikti/gecici dosyalari
+kaynak/build/
+kaynak/dist/
+kaynak/__pycache__/
+*.spec
+*.pyc
+
+# 23 MB'lik exe depoya konmaz; GitHub Releases'e yuklenir
+Hava Durumu.exe

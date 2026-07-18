@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1620">
+<title>Türkiye Hava Durumu</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="simge-192.png">
+<style>
+  /* ---- tema renkleri: masaustu surumuyle ayni palet ---- */
+  :root {
+    --arka:#0f1620; --panel:#1c2733; --ickart:#0e1620; --cizgi:#243444;
+    --secili:#12324f; --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#5a6b7d;
+    --vurgu:#1f8fff; --nem:#4aa3ff; --ruzgar:#7fd4ff; --yagis:#54c6ff;
+    --gunes:#ffd23b; --bulut:#cdd8e4;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
+      --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#8393a3;
+      --vurgu:#1f8fff; --nem:#1f7fe0; --ruzgar:#2a94cc; --yagis:#1f86d0;
+      --gunes:#f4b400; --bulut:#a7b4c3;
+    }
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:-apple-system, "Segoe UI", Roboto, sans-serif;
+    background:var(--arka); color:var(--yazi);
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    min-height:100vh; background-attachment:fixed;
+    transition:background 700ms ease;
+  }
+  @keyframes belir { from { opacity:0; transform:translateY(10px); }
+                     to   { opacity:1; transform:none; } }
+  #icerik { animation:belir 420ms ease both; }
+  .kap { max-width:640px; margin:0 auto; padding:14px 14px 32px; }
+
+  header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  header h1 { font-size:17px; font-weight:700; flex:1; overflow:hidden;
+              text-overflow:ellipsis; white-space:nowrap; }
+  .dugme {
+    background:var(--panel); color:var(--yazi); border:none; border-radius:12px;
+    /* dokunma hedefi en az 44x44 px (parmak ucu ~1 cm) */
+    padding:12px 14px; min-height:44px; min-width:44px;
+    font-size:14px; font-family:inherit; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .dugme:active { filter:brightness(1.3); }
+  .dugme.ana { background:var(--vurgu); color:#fff; font-weight:600; }
+  .dugme.genis { width:100%; }
+
+  .kart { background:var(--panel); border-radius:18px; padding:18px; margin-bottom:12px; }
+  .selam { color:var(--yazi3); font-size:12px; margin-bottom:3px; }
+  .yer { font-size:22px; font-weight:700; }
+  .tarih { color:var(--yazi3); font-size:12px; margin-top:2px; }
+  .simdi { display:flex; align-items:center; gap:14px; margin-top:14px; }
+  .derece { font-size:52px; font-weight:700; line-height:1; }
+  .durum { color:var(--yazi2); font-size:15px; margin-top:4px; }
+  .hissedilen { color:var(--yazi3); font-size:12px; margin-top:2px; }
+  .gunes-satir { color:var(--yazi3); font-size:12px; margin-top:12px;
+                 display:flex; gap:16px; flex-wrap:wrap; }
+  .yagmur-uyari { color:var(--yagis); font-size:13px; font-weight:600; margin-top:10px; }
+
+  .uclu { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+  .mini { background:var(--ickart); border-radius:14px; padding:12px 6px; text-align:center; }
+  .mini b { display:block; font-size:9px; color:var(--yazi3); letter-spacing:.5px; }
+  .mini span { display:block; font-size:16px; font-weight:700; margin-top:4px; }
+
+  /* detaylar izgarasi */
+  .detay { display:grid; grid-template-columns:repeat(3,1fr); gap:12px 8px; margin-top:10px; }
+  .detay div b { display:block; font-size:9px; color:var(--yazi3); }
+  .detay div span { display:block; font-size:14px; font-weight:700; margin-top:2px; }
+  .detay div span.kucuk { font-size:11px; }
+
+  /* hava kalitesi */
+  .aqi-satir { display:flex; align-items:center; gap:12px; margin-top:8px; }
+  .aqi-sayi { font-size:30px; font-weight:800; min-width:52px; }
+  .aqi-alt { color:var(--yazi3); font-size:11px; margin-top:2px; }
+
+  h2 { font-size:14px; margin:18px 0 8px; display:flex; align-items:baseline; gap:8px; }
+  h2 small { color:var(--yazi3); font-weight:400; font-size:11px; }
+
+  .saatlik { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px;
+             scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+  .saatlik::-webkit-scrollbar { height:0; }
+  .saat-kart { background:var(--panel); border-radius:14px; padding:12px 10px;
+    text-align:center; min-width:78px; scroll-snap-align:start; flex:0 0 auto; }
+  .saat-kart.simdi-kart { background:var(--secili); }
+  .saat-kart .s { font-size:12px; color:var(--yazi2); font-weight:600; }
+  .saat-kart .d { font-size:17px; font-weight:700; margin:4px 0 6px; }
+  .saat-kart .v { font-size:11px; margin-top:3px; }
+
+  .gun { display:flex; align-items:center; gap:10px; background:var(--panel);
+         border-radius:14px; padding:11px 14px; margin-bottom:6px; }
+  .gun .ad { flex:1; font-size:14px; font-weight:600; }
+  .gun .ols { font-size:11px; color:var(--nem); min-width:38px; text-align:right; }
+  .gun .dd { font-size:14px; font-weight:700; min-width:74px; text-align:right; }
+  .gun .dd i { color:var(--yazi3); font-style:normal; font-weight:400; }
+
+  /* harita (istege bagli yuklenir) */
+  #haritaKutu { height:280px; border-radius:16px; overflow:hidden; display:none; }
+  #haritaKutu.acik { display:block; }
+  .harita-dugmeler { display:flex; gap:8px; margin-top:8px; }
+  .harita-dugmeler .dugme { flex:1; font-size:13px; }
+
+  .ara-ekran { position:fixed; inset:0; background:var(--arka); z-index:9999;
+    display:none; flex-direction:column; padding:env(safe-area-inset-top) 14px 14px; }
+  .ara-ekran.acik { display:flex; }
+  .ara-ust { display:flex; gap:8px; padding:12px 0; }
+  #araKutu { flex:1; background:var(--panel); border:none; border-radius:12px;
+    padding:14px; color:var(--yazi); font-size:16px; font-family:inherit; outline:none; }
+  .sonuclar { flex:1; overflow-y:auto; }
+  .sonuc { padding:14px 12px; border-bottom:1px solid var(--cizgi); cursor:pointer; font-size:15px; }
+  .sonuc small { color:var(--yazi3); font-size:12px; margin-left:6px; }
+  .sonuc:active { background:var(--secili); }
+
+  .bilgi { color:var(--yazi3); font-size:12px; text-align:center; margin-top:18px; line-height:1.6; }
+  .yukleniyor { text-align:center; color:var(--yazi2); padding:30px; font-size:14px; }
+  .hata { background:#d6454522; color:#ff8a8a; border-radius:12px; padding:14px;
+          font-size:13px; text-align:center; }
+  svg { display:block; }
+</style>
+</head>
+<body>
+
+<div class="kap">
+  <header>
+    <h1 id="baslik">Yükleniyor…</h1>
+    <button class="dugme" id="konumBtn" title="Konumumu kullan">📍</button>
+    <button class="dugme ana" id="araBtn">Yer değiştir</button>
+  </header>
+  <div id="icerik"><div class="yukleniyor">Hava durumu getiriliyor…</div></div>
+  <p class="bilgi">
+    Veri: <b>Open-Meteo</b> · Radar: <b>RainViewer</b><br>
+    81 il · 957 ilçe · Türkiye Hava Durumu
+  </p>
+</div>
+
+<div class="ara-ekran" id="araEkran">
+  <div class="ara-ust">
+    <input id="araKutu" placeholder="İl veya ilçe yazın… (ör. Çeşme)" autocomplete="off">
+    <button class="dugme" id="kapatBtn">Kapat</button>
+  </div>
+  <div class="sonuclar" id="sonuclar"></div>
+</div>
+
+<script src="yerler.js"></script>
+<script>
+/* ==================================================================
+   Türkiye Hava Durumu — mobil sürüm
+   Masaüstü sürümüyle AYNI veri kaynakları ve AYNI il/ilçe koordinatları.
+   ================================================================== */
+
+/* ---- WMO kodu -> Türkçe açıklama + ikon kategorisi ---- */
+const WMO = {
+  0:["Açık","gunes"], 1:["Az bulutlu","gunes_bulut"], 2:["Parçalı bulutlu","gunes_bulut"],
+  3:["Çok bulutlu","bulut"], 45:["Sisli","sis"], 48:["Kırağılı sis","sis"],
+  51:["Hafif çisenti","yagmur"], 53:["Çisenti","yagmur"], 55:["Yoğun çisenti","yagmur"],
+  56:["Dondurucu çisenti","yagmur"], 57:["Yoğun dondurucu çisenti","yagmur"],
+  61:["Hafif yağmur","yagmur"], 63:["Yağmurlu","yagmur"], 65:["Kuvvetli yağmur","yagmur"],
+  66:["Dondurucu yağmur","yagmur"], 67:["Kuvvetli dondurucu yağmur","yagmur"],
+  71:["Hafif kar","kar"], 73:["Karlı","kar"], 75:["Yoğun kar","kar"], 77:["Kar taneli","kar"],
+  80:["Hafif sağanak","yagmur"], 81:["Sağanak yağış","yagmur"], 82:["Şiddetli sağanak","yagmur"],
+  85:["Hafif kar sağanağı","kar"], 86:["Yoğun kar sağanağı","kar"],
+  95:["Gök gürültülü fırtına","firtina"], 96:["Dolulu fırtına","firtina"],
+  99:["Şiddetli dolu fırtınası","firtina"]
+};
+const kodCoz = k => WMO[k] || ["Bilinmiyor","bulut"];
+const YONLER = ["K","KD","D","GD","G","GB","B","KB"];
+const ruzgarYonu = d => (d==null) ? "-" : YONLER[Math.floor((d+22.5)/45)%8];
+
+/* ---- hava ikonu: SVG (resim dosyası yok, her boyutta net) ---- */
+function ikon(kat, b=54) {
+  const G="var(--gunes)", B="var(--bulut)", Y="var(--yagis)", A="#ffffff";
+  const gunes = (cx,cy,r) => {
+    let p = "";
+    for (let i=0;i<8;i++){
+      const a=i*Math.PI/4;
+      p += `<line x1="${cx+Math.cos(a)*r*1.35}" y1="${cy+Math.sin(a)*r*1.35}"
+             x2="${cx+Math.cos(a)*r*1.85}" y2="${cy+Math.sin(a)*r*1.85}"
+             stroke="${G}" stroke-width="${r*0.28}" stroke-linecap="round"/>`;
+    }
+    return p + `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${G}"/>`;
+  };
+  const bulut = (cx,cy,r,renk=B) =>
+    `<g fill="${renk}">
+      <circle cx="${cx-r*0.5}" cy="${cy+r*0.12}" r="${r*0.5}"/>
+      <circle cx="${cx}" cy="${cy-r*0.28}" r="${r*0.62}"/>
+      <circle cx="${cx+r*0.5}" cy="${cy+r*0.12}" r="${r*0.52}"/>
+      <rect x="${cx-r*0.95}" y="${cy+r*0.05}" width="${r*1.9}" height="${r*0.6}" rx="${r*0.2}"/>
+    </g>`;
+  const damla = (cx,cy,r) => [-0.5,0,0.5].map(dx =>
+    `<line x1="${cx+dx*r+r*0.12}" y1="${cy}" x2="${cx+dx*r-r*0.12}" y2="${cy+r*0.55}"
+      stroke="${Y}" stroke-width="${r*0.16}" stroke-linecap="round"/>`).join("");
+  const kar = (cx,cy,r) => [-0.5,0,0.5].map(dx =>
+    `<circle cx="${cx+dx*r}" cy="${cy+r*0.28}" r="${r*0.12}" fill="${A}"/>`).join("");
+  const simsek = (cx,cy,r) =>
+    `<polygon points="${cx+r*0.1},${cy} ${cx-r*0.35},${cy+r*0.5} ${cx-r*0.02},${cy+r*0.5}
+      ${cx-r*0.2},${cy+r*0.95} ${cx+r*0.4},${cy+r*0.35} ${cx+r*0.05},${cy+r*0.35}" fill="${G}"/>`;
+
+  const c = b/2, r = b*0.24;
+  let ic = "";
+  if (kat==="gunes") ic = gunes(c,c,r*1.1);
+  else if (kat==="gunes_bulut") ic = gunes(c-r*0.45,c-r*0.45,r*0.62) + bulut(c+r*0.2,c+r*0.3,r*0.92);
+  else if (kat==="bulut") ic = bulut(c,c,r*1.05);
+  else if (kat==="sis") ic = bulut(c,c-r*0.25,r) +
+      [0,1,2].map(i=>`<line x1="${c-r*0.8}" y1="${c+r*(0.55+i*0.3)}" x2="${c+r*0.8}"
+        y2="${c+r*(0.55+i*0.3)}" stroke="${B}" stroke-width="${r*0.16}" stroke-linecap="round"/>`).join("");
+  else if (kat==="yagmur") ic = bulut(c,c-r*0.25,r) + damla(c,c+r*0.55,r);
+  else if (kat==="kar") ic = bulut(c,c-r*0.25,r) + kar(c,c+r*0.55,r);
+  else if (kat==="firtina") ic = bulut(c,c-r*0.25,r) + simsek(c,c+r*0.4,r);
+  else ic = bulut(c,c,r);
+  return `<svg width="${b}" height="${b}" viewBox="0 0 ${b} ${b}">${ic}</svg>`;
+}
+
+/* ---- yer listesi (yerler.js'ten) ---- */
+const ETIKET = (ilce, il) => `${ilce} (${il})`;
+const kucult = s => s.replace(/I/g,"ı").replace(/İ/g,"i").toLowerCase();
+const TUM_YERLER = [
+  ...ILLER.map(([ad,e,b]) => ({etiket:ad, alt:"il", e, b, k:kucult(ad)})),
+  ...ILCELER.map(([a,i,e,b]) => ({etiket:ETIKET(a,i), alt:i+" ilçesi", e, b, k:kucult(a)}))
+];
+
+/* ---- havaya göre arka plan (temanın üstüne "tint") ---- */
+const ACIK_TEMA = () => window.matchMedia("(prefers-color-scheme: light)").matches;
+const ZEMIN = {
+  koyu: { gunes:["#123a5c","#0f1620"], gunes_gece:["#0d1b33","#0a0f18"],
+          gunes_bulut:["#1a3550","#0f1620"], bulut:["#1e2a36","#0f1620"],
+          yagmur:["#132430","#0b131b"], kar:["#1b2b3a","#0f1620"],
+          firtina:["#231d38","#0f1620"], sis:["#242c33","#0f1620"] },
+  acik: { gunes:["#bfe3ff","#eef1f5"], gunes_gece:["#c6d0de","#eef1f5"],
+          gunes_bulut:["#cfe6fb","#eef1f5"], bulut:["#d5dee8","#eef1f5"],
+          yagmur:["#c9d6e2","#eef1f5"], kar:["#dcebf7","#eef1f5"],
+          firtina:["#d3cde4","#eef1f5"], sis:["#d9dee3","#eef1f5"] }
+};
+function geceMi(simdi, dogus, batis){
+  const dk = t => { const [s,m] = t.slice(11,16).split(":").map(Number); return s*60+m; };
+  const s = dk(simdi);
+  return s < dk(dogus) || s > dk(batis);
+}
+function arkaPlanUygula(kat, gece){
+  const pal = ZEMIN[ACIK_TEMA() ? "acik" : "koyu"];
+  const anahtar = (gece && (kat==="gunes" || kat==="gunes_bulut")) ? "gunes_gece"
+                : (pal[kat] ? kat : "bulut");
+  const [ust, alt] = pal[anahtar];
+  document.body.style.background = `linear-gradient(170deg, ${ust} 0%, ${alt} 55%, ${alt} 100%)`;
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", ust);
+}
+function selamla(t){
+  const s = parseInt(t.slice(11,13),10);
+  if (s>=5 && s<11) return "Günaydın";
+  if (s>=11 && s<17) return "İyi günler";
+  if (s>=17 && s<22) return "İyi akşamlar";
+  return "İyi geceler";
+}
+
+/* ---- tarih / ay evresi ---- */
+const AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+const GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+const tarihYaz = iso => { const d=new Date(iso); return `${d.getDate()} ${AYLAR[d.getMonth()]} ${GUNLER[d.getDay()]}`; };
+const gunAdi = (iso,i) => i===0 ? "Bugün" : i===1 ? "Yarın" : GUNLER[new Date(iso).getDay()];
+const AY_EVRELERI = ["Yeni Ay","Büyüyen Hilal","İlk Dördün","Büyüyen Şişkin Ay",
+                     "Dolunay","Küçülen Şişkin Ay","Son Dördün","Küçülen Hilal"];
+function ayEvresi(iso){
+  const gun = (((new Date(iso) - new Date(2000,0,6)) / 86400000) % 29.53058867 + 29.53058867) % 29.53058867;
+  return AY_EVRELERI[Math.round((gun/29.53058867)*8) % 8];
+}
+
+/* ---- hava kalitesi bantları (Avrupa AQI) ---- */
+const AQI_BANT = [[20,"İyi","#4fc978"],[40,"Makul","#a3d900"],[60,"Orta","#f4c500"],
+                  [80,"Kötü","#ff8c42"],[100,"Çok kötü","#ff4d4f"],[1e9,"Aşırı kötü","#a05cf0"]];
+const aqiCoz = v => AQI_BANT.find(b => v <= b[0]) || ["-","Bilinmiyor","#9fb0c0"];
+const POLEN = { grass_pollen:"Çim", birch_pollen:"Huş ağacı", olive_pollen:"Zeytin",
+                alder_pollen:"Kızılağaç", mugwort_pollen:"Pelin otu", ragweed_pollen:"Kanarya otu" };
+
+/* ---- veri çekme ---- */
+async function havaAl(enlem, boylam){
+  const p = new URLSearchParams({
+    latitude:enlem, longitude:boylam,
+    current:"temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,"+
+            "wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index,surface_pressure,visibility,"+
+            "dew_point_2m,cloud_cover",
+    hourly:"temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,weather_code,"+
+           "wind_speed_10m,wind_direction_10m",
+    daily:"weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset",
+    minutely_15:"precipitation",
+    wind_speed_unit:"kmh", timezone:"Europe/Istanbul", forecast_days:7
+  });
+  const c = await fetch("https://api.open-meteo.com/v1/forecast?"+p);
+  if(!c.ok) throw new Error("Veri alınamadı");
+  return c.json();
+}
+/* hava kalitesi AYRI servistir; hata verirse havayı bozmasın diye ayrı çekilir */
+async function havaKalitesiAl(enlem, boylam){
+  try {
+    const p = new URLSearchParams({
+      latitude:enlem, longitude:boylam, current:"european_aqi,pm2_5,pm10",
+      hourly:Object.keys(POLEN).join(","), timezone:"Europe/Istanbul", forecast_days:1
+    });
+    const c = await fetch("https://air-quality-api.open-meteo.com/v1/air-quality?"+p);
+    if(!c.ok) return null;
+    const v = await c.json();
+    let enAd=null, enDeger=0;
+    for (const [anahtar, turkce] of Object.entries(POLEN)){
+      const dizi = (v.hourly?.[anahtar]||[]).filter(x => x!=null);
+      if (dizi.length){ const tepe = Math.max(...dizi); if (tepe > enDeger){ enDeger=tepe; enAd=turkce; } }
+    }
+    const seviye = enDeger<1 ? null : enDeger<30 ? "düşük" : enDeger<70 ? "orta" : "yüksek";
+    return { aqi:v.current?.european_aqi, pm25:v.current?.pm2_5, pm10:v.current?.pm10,
+             polen: seviye ? `${enAd} (${seviye})` : "Düşük" };
+  } catch { return null; }
+}
+/* model karşılaştırma: yarının en yükseği 3 modelde */
+async function modelKarsilastir(enlem, boylam){
+  try {
+    const p = new URLSearchParams({
+      latitude:enlem, longitude:boylam, daily:"temperature_2m_max",
+      models:"ecmwf_ifs025,gfs_seamless,icon_seamless", timezone:"Europe/Istanbul", forecast_days:2
+    });
+    const c = await fetch("https://api.open-meteo.com/v1/forecast?"+p);
+    if(!c.ok) return null;
+    const d = (await c.json()).daily;
+    const ad = { ecmwf_ifs025:"ECMWF", gfs_seamless:"GFS", icon_seamless:"ICON" };
+    return Object.entries(ad).map(([k,a]) => {
+      const dizi = d[`temperature_2m_max_${k}`];
+      return (dizi && dizi[1]!=null) ? `${a} ${Math.round(dizi[1])}°` : null;
+    }).filter(Boolean);
+  } catch { return null; }
+}
+
+/* ---- sıcaklık grafiği (SVG, 24 saat + yağış çubukları) ---- */
+function grafikCiz(saatler){
+  const G=320, Y=110, sol=26, sag=8, ust=14, alt=18;
+  const gw=G-sol-sag, gh=Y-ust-alt;
+  const t = saatler.map(s => s.sicaklik);
+  const tmin=Math.min(...t), tmax=Math.max(...t)===tmin ? tmin+1 : Math.max(...t);
+  const nokta = (i,v) => [sol+gw*i/(t.length-1), ust+gh*(1-(v-tmin)/(tmax-tmin))];
+  const cubuklar = saatler.map((s,i) => {
+    const p = s.olasilik||0; if(!p) return "";
+    const [x] = nokta(i,t[i]); const h = gh*p/100;
+    return `<rect x="${x-3}" y="${ust+gh-h}" width="6" height="${h}" fill="var(--yagis)" opacity="0.35"/>`;
+  }).join("");
+  const cizgi = t.map((v,i) => nokta(i,v).join(",")).join(" ");
+  const saatEtiket = saatler.map((s,i) => i%6 ? "" :
+    `<text x="${nokta(i,t[i])[0]}" y="${Y-4}" font-size="9" fill="var(--yazi3)" text-anchor="middle">${s.saat}</text>`).join("");
+  return `<svg viewBox="0 0 ${G} ${Y}" style="width:100%;height:${Y}px">
+    ${cubuklar}
+    <polyline points="${cizgi}" fill="none" stroke="var(--vurgu)" stroke-width="2" stroke-linejoin="round"/>
+    <text x="2" y="${ust+4}" font-size="9" fill="var(--yazi3)">${tmax}°</text>
+    <text x="2" y="${ust+gh}" font-size="9" fill="var(--yazi3)">${tmin}°</text>
+    ${saatEtiket}</svg>`;
+}
+
+/* ---- ekrana yazma ---- */
+let sonYer = null, sonVeri = null;
+
+function goster(yer, v, hk, modeller){
+  const g = v.current, [acik, kat] = kodCoz(g.weather_code);
+  document.getElementById("baslik").textContent = yer.etiket;
+  const gece = geceMi(g.time, v.daily.sunrise[0], v.daily.sunset[0]);
+  arkaPlanUygula(kat, gece);
+
+  /* saatlik: şu andan itibaren 24 saat */
+  const simdiSaat = g.time.slice(0,13);
+  let bas = v.hourly.time.findIndex(t => t.slice(0,13) === simdiSaat);
+  if (bas < 0) bas = 0;
+  const saatler = [];
+  for (let i=bas; i<Math.min(bas+24, v.hourly.time.length); i++)
+    saatler.push({ saat:v.hourly.time[i].slice(11,16), sicaklik:Math.round(v.hourly.temperature_2m[i]),
+      nem:v.hourly.relative_humidity_2m[i], yagis:v.hourly.precipitation[i]||0,
+      olasilik:v.hourly.precipitation_probability[i]||0, kod:v.hourly.weather_code[i], ilk:i===bas });
+
+  const saatlikHTML = saatler.map(s => `
+    <div class="saat-kart ${s.ilk?'simdi-kart':''}">
+      <div class="s">${s.ilk?"Şimdi":s.saat}</div>
+      ${ikon(kodCoz(s.kod)[1],34)}
+      <div class="d">${s.sicaklik}°</div>
+      <div class="v" style="color:var(--nem)">%${s.nem}</div>
+      <div class="v" style="color:var(--ruzgar)">${s.yagis.toFixed(1)} mm</div>
+    </div>`).join("");
+
+  const gunlukHTML = v.daily.time.map((t,i) => {
+    const ols = v.daily.precipitation_probability_max[i] || 0;
+    return `<div class="gun">${ikon(kodCoz(v.daily.weather_code[i])[1],30)}
+      <span class="ad">${gunAdi(t,i)}</span>
+      <span class="ols">${ols?("%"+ols):""}</span>
+      <span class="dd">${Math.round(v.daily.temperature_2m_max[i])}° <i>${Math.round(v.daily.temperature_2m_min[i])}°</i></span>
+    </div>`; }).join("");
+
+  /* yağmur ne zaman başlıyor (15 dk çözünürlük, önümüzdeki 2 saat) */
+  let yagmurUyari = "";
+  if (v.minutely_15){
+    const bas15 = v.minutely_15.time.findIndex(t => t >= g.time);
+    for (let i=Math.max(0,bas15); i<Math.min(bas15+8, v.minutely_15.time.length); i++){
+      if ((v.minutely_15.precipitation[i]||0) > 0.05){
+        yagmurUyari = `<div class="yagmur-uyari">☔ Yağış ~${v.minutely_15.time[i].slice(11,16)} civarında başlıyor</div>`;
+        break;
+      }
+    }
+  }
+
+  /* hava kalitesi kartı */
+  let aqiHTML = "";
+  if (hk && hk.aqi != null){
+    const [,ad,renk] = aqiCoz(hk.aqi);
+    aqiHTML = `<div class="kart">
+      <h2 style="margin:0 0 4px">Hava Kalitesi</h2>
+      <div class="aqi-satir">
+        <span class="aqi-sayi" style="color:${renk}">${Math.round(hk.aqi)}</span>
+        <div><b style="color:${renk};font-size:15px">${ad}</b>
+          <div class="aqi-alt">PM2.5 ${Math.round(hk.pm25)} · PM10 ${Math.round(hk.pm10)} · Polen: ${hk.polen}</div>
+        </div>
+      </div></div>`;
+  }
+
+  const km = g.visibility != null ? Math.round(g.visibility/1000)+" km" : "—";
+  document.getElementById("icerik").innerHTML = `
+    <div class="kart">
+      <div class="selam">${selamla(g.time)} 👋</div>
+      <div class="yer">${yer.etiket}</div>
+      <div class="tarih">${tarihYaz(g.time)} · ${g.time.slice(11,16)}</div>
+      <div class="simdi">
+        ${ikon(kat,86)}
+        <div>
+          <div class="derece">${Math.round(g.temperature_2m)}°C</div>
+          <div class="durum">${acik}</div>
+          <div class="hissedilen">Hissedilen ${Math.round(g.apparent_temperature)}°C</div>
+        </div>
+      </div>
+      <div class="gunes-satir">
+        <span>↑ ${v.daily.sunrise[0].slice(11,16)}</span>
+        <span>↓ ${v.daily.sunset[0].slice(11,16)}</span>
+        <span>UV ${Math.round(g.uv_index)}</span>
+      </div>
+      ${yagmurUyari}
+    </div>
+
+    <div class="uclu">
+      <div class="mini"><b>NEM</b><span style="color:var(--nem)">%${g.relative_humidity_2m}</span></div>
+      <div class="mini"><b>RÜZGÂR</b><span style="color:var(--ruzgar)">${Math.round(g.wind_speed_10m)}<small style="font-size:10px"> km/s ${ruzgarYonu(g.wind_direction_10m)}</small></span></div>
+      <div class="mini"><b>YAĞIŞ</b><span style="color:var(--yagis)">${(g.precipitation||0).toFixed(1)}<small style="font-size:10px"> mm</small></span></div>
+    </div>
+
+    ${aqiHTML}
+
+    <div class="kart">
+      <h2 style="margin:0">Detaylar</h2>
+      <div class="detay">
+        <div><b>BASINÇ</b><span>${Math.round(g.surface_pressure)} hPa</span></div>
+        <div><b>GÖRÜŞ</b><span>${km}</span></div>
+        <div><b>ÇİY NOKTASI</b><span>${Math.round(g.dew_point_2m)}°</span></div>
+        <div><b>HAMLE</b><span>${Math.round(g.wind_gusts_10m)} km/s</span></div>
+        <div><b>BULUT</b><span>%${g.cloud_cover}</span></div>
+        <div><b>AY EVRESİ</b><span class="kucuk">${ayEvresi(g.time)}</span></div>
+      </div>
+      ${modeller && modeller.length ? `<div class="aqi-alt" style="margin-top:12px">
+        Yarın en yüksek — ${modeller.join(" · ")} <br>(3 model yakınsa tahmin daha güvenilir)</div>` : ""}
+    </div>
+
+    <h2>Saatlik tahmin <small>nem · yağış — kaydırın →</small></h2>
+    <div class="saatlik">${saatlikHTML}</div>
+
+    <h2>Sıcaklık grafiği <small>çizgi °C · çubuk %yağış</small></h2>
+    <div class="kart" style="padding:12px">${grafikCiz(saatler)}</div>
+
+    <h2>7 günlük tahmin</h2>
+    ${gunlukHTML}
+
+    <h2>Harita <small>yağış radarı</small></h2>
+    <div id="haritaKutu"></div>
+    <div class="harita-dugmeler">
+      <button class="dugme" id="haritaBtn">🗺️ Haritayı göster</button>
+      <button class="dugme" id="radarBtn" style="display:none">🌧️ Radar</button>
+    </div>`;
+
+  document.getElementById("haritaBtn").onclick = haritayiAc;
+  document.getElementById("radarBtn").onclick = radarDegistir;
+}
+
+/* ---- harita: İSTEĞE BAĞLI yüklenir (açılışı yavaşlatmasın) ---- */
+let harita = null, radarKatman = null, radarAcik = false;
+function betikYukle(src){ return new Promise((c,h) => {
+  const s = document.createElement("script"); s.src = src; s.onload = c; s.onerror = h;
+  document.head.appendChild(s); }); }
+
+async function haritayiAc(){
+  const btn = document.getElementById("haritaBtn");
+  if (harita){ document.getElementById("haritaKutu").classList.toggle("acik"); return; }
+  btn.textContent = "Harita yükleniyor…";
+  try {
+    if (!window.L){
+      const css = document.createElement("link");
+      css.rel="stylesheet"; css.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(css);
+      await betikYukle("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+    }
+    const kutu = document.getElementById("haritaKutu");
+    kutu.classList.add("acik");
+    harita = L.map(kutu).setView([sonYer.e, sonYer.b], 8);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { maxZoom:18, attribution:"© OpenStreetMap" }).addTo(harita);
+    L.marker([sonYer.e, sonYer.b]).addTo(harita).bindPopup(sonYer.etiket);
+    // haritaya dokununca oranın havası
+    harita.on("click", e => {
+      let enIyi=null, enKisa=Infinity;
+      for (const y of TUM_YERLER){
+        const d=(y.e-e.latlng.lat)**2+(y.b-e.latlng.lng)**2;
+        if(d<enKisa){ enKisa=d; enIyi=y; }
+      }
+      yukle({ ...enIyi, e:e.latlng.lat, b:e.latlng.lng });
+    });
+    btn.textContent = "🗺️ Haritayı gizle";
+    document.getElementById("radarBtn").style.display = "flex";
+    setTimeout(() => harita.invalidateSize(), 200);
+  } catch { btn.textContent = "Harita yüklenemedi"; }
+}
+
+async function radarDegistir(){
+  const btn = document.getElementById("radarBtn");
+  if (radarAcik){ harita.removeLayer(radarKatman); radarAcik=false;
+    btn.textContent = "🌧️ Radar"; return; }
+  btn.textContent = "Radar yükleniyor…";
+  try {
+    const v = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
+    const kare = v.radar.past[v.radar.past.length-1];
+    radarKatman = L.tileLayer(`${v.host}${kare.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity:0.65 });
+    radarKatman.addTo(harita); radarAcik = true;
+    btn.textContent = "🌧️ Radar: Açık";
+  } catch { btn.textContent = "Radar alınamadı"; }
+}
+
+/* ---- yükleme ---- */
+async function yukle(yer){
+  sonYer = yer;
+  harita = null; radarAcik = false;      // yeni yer -> harita sifirlansin
+  document.getElementById("baslik").textContent = yer.etiket;
+  document.getElementById("icerik").innerHTML = '<div class="yukleniyor">Hava durumu getiriliyor…</div>';
+  try {
+    const v = await havaAl(yer.e, yer.b);
+    sonVeri = v;
+    goster(yer, v, null, null);                       // önce hava (hızlı)
+    localStorage.setItem("sonYer", JSON.stringify(yer));
+    // hava kalitesi + modeller arka planda gelsin, gelince tazele
+    const [hk, md] = await Promise.all([havaKalitesiAl(yer.e, yer.b), modelKarsilastir(yer.e, yer.b)]);
+    if (sonYer === yer) goster(yer, v, hk, md);
+  } catch {
+    document.getElementById("icerik").innerHTML =
+      '<div class="hata">Veri alınamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.</div>';
+  }
+}
+
+/* ---- arama ---- */
+const araEkran = document.getElementById("araEkran");
+const araKutu  = document.getElementById("araKutu");
+const sonuclar = document.getElementById("sonuclar");
+function sonucCiz(liste){
+  sonuclar.innerHTML = liste.slice(0,60).map((y,i) =>
+    `<div class="sonuc" data-i="${i}">${y.etiket}<small>${y.alt}</small></div>`).join("")
+    || '<div class="yukleniyor">Sonuç yok</div>';
+  [...sonuclar.children].forEach((el,i) => {
+    if (el.dataset.i !== undefined)
+      el.onclick = () => { araEkran.classList.remove("acik"); yukle(liste[i]); };
+  });
+}
+function aramaYap(){
+  const k = kucult(araKutu.value.trim());
+  if(!k){ sonucCiz(TUM_YERLER.filter(y=>y.alt==="il")); return; }
+  sonucCiz([...TUM_YERLER.filter(y => y.alt==="il" && y.k.includes(k)),
+            ...TUM_YERLER.filter(y => y.alt!=="il" && y.k.includes(k))]);
+}
+araKutu.oninput = aramaYap;
+document.getElementById("araBtn").onclick = () => {
+  araEkran.classList.add("acik"); araKutu.value=""; aramaYap(); araKutu.focus(); };
+document.getElementById("kapatBtn").onclick = () => araEkran.classList.remove("acik");
+
+/* ---- konumumu kullan ---- */
+document.getElementById("konumBtn").onclick = () => {
+  if(!navigator.geolocation){ alert("Cihazınız konum desteklemiyor."); return; }
+  document.getElementById("baslik").textContent = "Konum alınıyor…";
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      let enIyi=null, enKisa=Infinity;
+      for(const y of TUM_YERLER){
+        const d=(y.e-p.coords.latitude)**2+(y.b-p.coords.longitude)**2;
+        if(d<enKisa){ enKisa=d; enIyi=y; }
+      }
+      yukle({etiket:enIyi.etiket, alt:enIyi.alt, e:p.coords.latitude, b:p.coords.longitude});
+    },
+    () => { alert("Konum alınamadı. Konum izni verdiğinizden emin olun."); acilis(); });
+};
+
+/* ---- açılış ---- */
+function acilis(){
+  let yer;
+  try { yer = JSON.parse(localStorage.getItem("sonYer")); } catch(e){}
+  if(!yer || !yer.etiket) yer = TUM_YERLER.find(y => y.etiket==="İzmir") || TUM_YERLER[0];
+  yukle(yer);
+}
+acilis();
+
+if("serviceWorker" in navigator)
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
