@@ -119,6 +119,19 @@
   .sonuc small { color:var(--yazi3); font-size:12px; margin-left:6px; }
   .sonuc:active { background:var(--secili); }
 
+  /* "ana ekrana ekle" daveti - cogu kullanici bunu bilmez, uygulama kendisi soyler */
+  .kur-serit {
+    position:fixed; left:12px; right:12px; bottom:12px; z-index:100;
+    background:var(--panel); border-radius:16px; padding:12px 14px;
+    display:none; align-items:center; gap:10px;
+    box-shadow:0 10px 34px rgba(0,0,0,.4);
+    animation:belir 400ms ease both;
+  }
+  .kur-serit.acik { display:flex; }
+  .kur-serit .metin { flex:1; font-size:13px; line-height:1.35; }
+  .kur-serit .metin small { color:var(--yazi3); font-size:11px; }
+  .kur-serit .kapat { color:var(--yazi3); font-size:18px; padding:8px; cursor:pointer; }
+
   .bilgi { color:var(--yazi3); font-size:12px; text-align:center; margin-top:18px; line-height:1.6; }
   .yukleniyor { text-align:center; color:var(--yazi2); padding:30px; font-size:14px; }
   .hata { background:#d6454522; color:#ff8a8a; border-radius:12px; padding:14px;
@@ -139,6 +152,16 @@
     Veri: <b>Open-Meteo</b> · Radar: <b>RainViewer</b><br>
     81 il · 957 ilçe · Türkiye Hava Durumu
   </p>
+</div>
+
+<!-- "ana ekrana ekle" daveti: kullanici bilmese de uygulama kendisi anlatir -->
+<div class="kur-serit" id="kurSerit">
+  <div class="metin">
+    <b>📲 Ana ekrana ekle</b><br>
+    <small>Uygulama gibi tek dokunuşla açılır, internetsiz de çalışır</small>
+  </div>
+  <button class="dugme ana" id="kurBtn">Ekle</button>
+  <span class="kapat" id="kurKapat">✕</span>
 </div>
 
 <div class="ara-ekran" id="araEkran">
@@ -604,6 +627,47 @@ function acilis(){
   yukle(yer);
 }
 acilis();
+
+/* ---- "Ana ekrana ekle" daveti ----
+   Cogu kullanici bu ozelligi bilmez. Android/Chrome bize "kurulabilir" sinyali
+   (beforeinstallprompt) verir; biz de kendi seridimizi gosterip TEK TIKLA
+   kurulumu baslatiriz. iPhone/Safari bu sinyali vermez, orada talimat gosteririz. */
+let kurulumOlayi = null;
+const serit = document.getElementById("kurSerit");
+const zatenKurulu = () =>
+  window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+
+function seritGoster(){
+  if (zatenKurulu()) return;                       // zaten eklemis
+  if (localStorage.getItem("kurulumGizle")) return; // kullanici kapatmis
+  serit.classList.add("acik");
+}
+
+window.addEventListener("beforeinstallprompt", olay => {
+  olay.preventDefault();          // tarayicinin kendi cirkin cubugunu engelle
+  kurulumOlayi = olay;            // sakla, kendi dugmemizle kullanacagiz
+  setTimeout(seritGoster, 2500);  // once uygulamayi gorsun, sonra davet
+});
+
+document.getElementById("kurBtn").onclick = async () => {
+  if (kurulumOlayi){
+    kurulumOlayi.prompt();                       // Android: gercek kurulum penceresi
+    await kurulumOlayi.userChoice;
+    kurulumOlayi = null;
+    serit.classList.remove("acik");
+  } else {
+    // iPhone/Safari: API yok, elle tarif
+    alert("iPhone'da:\n\n1) Alttaki Paylaş düğmesine dokunun  ⬆️\n" +
+          "2) Aşağı kaydırıp \"Ana Ekrana Ekle\" seçin\n3) Ekle deyin");
+  }
+};
+document.getElementById("kurKapat").onclick = () => {
+  serit.classList.remove("acik");
+  localStorage.setItem("kurulumGizle", "1");   // bir daha rahatsiz etme
+};
+
+// iPhone'da beforeinstallprompt gelmez; yine de daveti gosterelim
+if (/iphone|ipad|ipod/i.test(navigator.userAgent)) setTimeout(seritGoster, 3000);
 
 if("serviceWorker" in navigator)
   navigator.serviceWorker.register("sw.js").catch(()=>{});
