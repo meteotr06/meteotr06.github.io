@@ -1,74 +1,105 @@
 @echo off
 chcp 65001 >nul
-setlocal
+setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
+set GH="C:\Program Files\GitHub CLI\gh.exe"
+set DEPO=hava-durumu
+
 echo ============================================
-echo   Turkiye Hava Durumu - GitHub'a yayinla
+echo    UYGULAMAYI HERKESE ACMA
 echo ============================================
 echo.
-echo ONCE sunlari yapmis olmalisiniz:
-echo   1) github.com'da ucretsiz hesap actiniz
-echo   2) BOS bir depo (repository) olusturdunuz
-echo      - "Add a README" kutusunu ISARETLEMEYIN
+echo Bu islem bittiginde elinizde su link olacak:
+echo    https://KULLANICI-ADINIZ.github.io/%DEPO%/
+echo.
+echo Bu linki acan HERKES, HER YERDEN, HER ZAMAN
+echo uygulamayi kullanabilir. Bilgisayariniz kapali olsa bile.
+echo.
+echo ONKOSUL: github.com'da ucretsiz hesabiniz olmali.
+echo          (Yoksa once acin: https://github.com/signup)
+echo.
+pause
 echo.
 
-set /p KULLANICI="GitHub kullanici adiniz: "
-if "%KULLANICI%"=="" goto :iptal
-set /p DEPO="Depo adi (ornek: hava-durumu): "
-if "%DEPO%"=="" goto :iptal
+rem ---------- 1) hesap baglantisi ----------
+%GH% auth status >nul 2>&1
+if errorlevel 1 (
+    echo [1/3] GitHub hesabiniza baglaniyoruz...
+    echo.
+    echo       Simdi ekranda 8 haneli bir KOD cikacak.
+    echo       Tarayici acilacak, o kodu oraya yapistirin.
+    echo.
+    %GH% auth login --hostname github.com --git-protocol https --web
+    if errorlevel 1 goto :hata_giris
+) else (
+    echo [1/3] GitHub hesabi zaten bagli.
+)
 
+rem kullanici adini al
+for /f "delims=" %%u in ('%GH% api user --jq .login 2^>nul') do set KULLANICI=%%u
+if "%KULLANICI%"=="" goto :hata_giris
+echo       Hesap: %KULLANICI%
 echo.
-echo Gonderilecek: https://github.com/%KULLANICI%/%DEPO%
-set /p ONAY="Devam edilsin mi? (E/H): "
-if /i not "%ONAY%"=="E" goto :iptal
 
-echo.
-echo [1/3] Degisiklikler kaydediliyor...
+rem ---------- 2) depo olustur + dosyalari gonder ----------
+echo [2/3] Dosyalar GitHub'a gonderiliyor...
 git add -A >nul 2>&1
 git commit -q -m "guncelleme" >nul 2>&1
+git branch -M main >nul 2>&1
 
-echo [2/3] GitHub adresi ayarlaniyor...
-git remote remove origin >nul 2>&1
-git remote add origin https://github.com/%KULLANICI%/%DEPO%.git
-git branch -M main
+%GH% repo view %KULLANICI%/%DEPO% >nul 2>&1
+if errorlevel 1 (
+    %GH% repo create %DEPO% --public --source=. --remote=origin --push
+    if errorlevel 1 goto :hata_gonder
+) else (
+    echo       Depo zaten var, guncelleniyor...
+    git remote remove origin >nul 2>&1
+    git remote add origin https://github.com/%KULLANICI%/%DEPO%.git
+    git push -u origin main
+    if errorlevel 1 goto :hata_gonder
+)
+echo.
 
-echo [3/3] Gonderiliyor... (ilk seferde GitHub sifresi/token isteyebilir)
-git push -u origin main
-if errorlevel 1 goto :hata
+rem ---------- 3) web yayinini ac ----------
+echo [3/3] Web yayini aciliyor...
+%GH% api -X POST repos/%KULLANICI%/%DEPO%/pages -f "source[branch]=main" -f "source[path]=/" >nul 2>&1
+if errorlevel 1 (
+    %GH% api -X PUT repos/%KULLANICI%/%DEPO%/pages -f "source[branch]=main" -f "source[path]=/" >nul 2>&1
+)
 
 echo.
 echo ============================================
-echo   GONDERILDI!
+echo    YAYINDA!
 echo ============================================
 echo.
-echo SON ADIM (bir kez yapilir):
-echo   1) https://github.com/%KULLANICI%/%DEPO%/settings/pages adresini acin
-echo   2) "Source" bolumunde: Deploy from a branch
-echo   3) Branch: main  /  klasor: / (root)  -^> Save
-echo   4) 1-2 dakika bekleyin
+echo    https://%KULLANICI%.github.io/%DEPO%/
 echo.
-echo Sonra siteniz burada yayinda olacak:
-echo   https://%KULLANICI%.github.io/%DEPO%/
+echo Ilk yayin 1-2 dakika surebilir.
+echo Bu linki istediginiz kisiye gonderebilirsiniz.
+echo Telefonda acip "Ana ekrana ekle" derseniz uygulama gibi durur.
 echo.
-echo Bu linki telefonunuzda acip "Ana ekrana ekle" diyebilirsiniz.
-echo Istediginiz kisiye de gonderebilirsiniz.
+echo Linki panoya kopyaliyorum...
+echo https://%KULLANICI%.github.io/%DEPO%/ | clip
+echo (Kopyalandi - istediginiz yere yapistirabilirsiniz.)
 echo.
 pause
 exit /b 0
 
-:hata
+:hata_giris
 echo.
-echo HATA: Gonderilemedi.
-echo   - Depo adini dogru yazdiniz mi?
-echo   - Depoyu BOS olusturdunuz mu?
-echo   - GitHub kullanici adi/token dogru mu?
+echo HATA: GitHub hesabina baglanilamadi.
+echo   - github.com'da hesabiniz var mi?
+echo   - Tarayicida kodu dogru yapistirdiniz mi?
 echo.
 pause
 exit /b 1
 
-:iptal
+:hata_gonder
 echo.
-echo Iptal edildi.
+echo HATA: Dosyalar gonderilemedi.
+echo   - Internet baglantinizi kontrol edin.
+echo   - Depo adi baskasinda olabilir; farkli bir ad deneyelim.
+echo.
 pause
 exit /b 1
