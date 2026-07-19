@@ -651,23 +651,36 @@ window.addEventListener("beforeinstallprompt", olay => {
 
 document.getElementById("kurBtn").onclick = async () => {
   if (kurulumOlayi){
-    kurulumOlayi.prompt();                       // Android: gercek kurulum penceresi
+    kurulumOlayi.prompt();                       // gercek kurulum penceresi
     await kurulumOlayi.userChoice;
     kurulumOlayi = null;
     serit.classList.remove("acik");
-  } else {
-    // iPhone/Safari: API yok, elle tarif
-    alert("iPhone'da:\n\n1) Alttaki Paylaş düğmesine dokunun  ⬆️\n" +
-          "2) Aşağı kaydırıp \"Ana Ekrana Ekle\" seçin\n3) Ekle deyin");
+    return;
   }
+  // Sinyal yoksa cihaza gore DOGRU talimati goster
+  const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  alert(iOS
+    ? "iPhone'da ana ekrana ekleme:\n\n" +
+      "1) Alttaki Paylaş düğmesine dokunun  ⬆️\n" +
+      "2) Aşağı kaydırıp \"Ana Ekrana Ekle\" seçin\n" +
+      "3) \"Ekle\" deyin"
+    : "Ana ekrana ekleme:\n\n" +
+      "1) Sağ üstteki menüye dokunun  ⋮\n" +
+      "2) \"Ana ekrana ekle\" (veya \"Uygulamayı yükle\") seçin\n" +
+      "3) \"Ekle\" deyin");
 };
 document.getElementById("kurKapat").onclick = () => {
   serit.classList.remove("acik");
   localStorage.setItem("kurulumGizle", "1");   // bir daha rahatsiz etme
 };
 
-// iPhone'da beforeinstallprompt gelmez; yine de daveti gosterelim
-if (/iphone|ipad|ipod/i.test(navigator.userAgent)) setTimeout(seritGoster, 3000);
+/* GUVENLIK AGI: bazi tarayicilar (iPhone/Safari, gomulu tarayicilar, bazi
+   Android tarayicilari) "kurulabilir" sinyalini HIC gondermez. O zaman
+   kullanici oneriyi hic gormez. Bu yuzden: telefon/tablet ise, sinyal
+   gelmese bile 4 saniye sonra daveti gosteriyoruz (talimatli olarak). */
+const TELEFON = /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent)
+                || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+if (TELEFON) setTimeout(seritGoster, 4000);
 
 if("serviceWorker" in navigator)
   navigator.serviceWorker.register("sw.js").catch(()=>{});
