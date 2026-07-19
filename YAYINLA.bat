@@ -46,6 +46,8 @@ echo.
 
 rem ---------- 2) depo olustur + dosyalari gonder ----------
 echo [2/3] Dosyalar GitHub'a gonderiliyor...
+rem mobil onbellek surumunu otomatik artir (yoksa kullanicilar eski surumde kalir)
+python "kaynak\surum_artir.py" 2>nul
 git add -A >nul 2>&1
 git commit -q -m "guncelleme" >nul 2>&1
 git branch -M main >nul 2>&1
