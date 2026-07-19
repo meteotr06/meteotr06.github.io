@@ -4,14 +4,13 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 set GH="C:\Program Files\GitHub CLI\gh.exe"
-set DEPO=hava-durumu
 
 echo ============================================
 echo    UYGULAMAYI HERKESE ACMA
 echo ============================================
 echo.
 echo Bu islem bittiginde elinizde su link olacak:
-echo    https://KULLANICI-ADINIZ.github.io/%DEPO%/
+echo    https://KULLANICI-ADINIZ.github.io
 echo.
 echo Bu linki acan HERKES, HER YERDEN, HER ZAMAN
 echo uygulamayi kullanabilir. Bilgisayariniz kapali olsa bile.
@@ -39,7 +38,10 @@ if errorlevel 1 (
 rem kullanici adini al
 for /f "delims=" %%u in ('%GH% api user --jq .login 2^>nul') do set KULLANICI=%%u
 if "%KULLANICI%"=="" goto :hata_giris
+rem depo adi "kullanici.github.io" olursa adres kisalir: https://kullanici.github.io
+set DEPO=%KULLANICI%.github.io
 echo       Hesap: %KULLANICI%
+echo       Adres: https://%DEPO%
 echo.
 
 rem ---------- 2) depo olustur + dosyalari gonder ----------
@@ -73,14 +75,14 @@ echo ============================================
 echo    YAYINDA!
 echo ============================================
 echo.
-echo    https://%KULLANICI%.github.io/%DEPO%/
+echo    https://%DEPO%
 echo.
 echo Ilk yayin 1-2 dakika surebilir.
 echo Bu linki istediginiz kisiye gonderebilirsiniz.
 echo Telefonda acip "Ana ekrana ekle" derseniz uygulama gibi durur.
 echo.
 echo Linki panoya kopyaliyorum...
-echo https://%KULLANICI%.github.io/%DEPO%/ | clip
+echo https://%DEPO% | clip
 echo (Kopyalandi - istediginiz yere yapistirabilirsiniz.)
 echo.
 pause
