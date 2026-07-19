@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f1620">
+<!-- iPhone/Safari: ana ekrandan acilinca TAM EKRAN olsun (tarayici cubugu gitsin).
+     Android/Chrome manifest'ten anlar, iOS bu etiketleri ister. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hava Durumu">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Türkiye Hava Durumu</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="simge-192.png">
@@ -179,6 +185,23 @@
    Türkiye Hava Durumu — mobil sürüm
    Masaüstü sürümüyle AYNI veri kaynakları ve AYNI il/ilçe koordinatları.
    ================================================================== */
+
+/* ---- GUVENLI HAFIZA ----
+   localStorage bazi tarayicilarda HATA FIRLATIR: Safari gizli sekme, katı
+   gizlilik ayarlari, cerez engelleyiciler, bazi gomulu tarayicilar.
+   Dogrudan cagirirsak uygulama coker; bu yuzden hep bu sarmalayicidan
+   geciyoruz. Hafiza yoksa uygulama yine calisir, sadece "son bakilan yer"
+   hatirlanmaz. */
+const Hafiza = {
+  yaz(anahtar, deger) {
+    try { localStorage.setItem(anahtar, deger); return true; }
+    catch (e) { return false; }
+  },
+  oku(anahtar) {
+    try { return localStorage.getItem(anahtar); }
+    catch (e) { return null; }
+  }
+};
 
 /* ---- WMO kodu -> Türkçe açıklama + ikon kategorisi ---- */
 const WMO = {
@@ -570,7 +593,7 @@ async function yukle(yer){
     const v = await havaAl(yer.e, yer.b);
     sonVeri = v;
     goster(yer, v, null, null);                       // önce hava (hızlı)
-    localStorage.setItem("sonYer", JSON.stringify(yer));
+    Hafiza.yaz("sonYer", JSON.stringify(yer));
     // hava kalitesi + modeller arka planda gelsin, gelince tazele
     const [hk, md] = await Promise.all([havaKalitesiAl(yer.e, yer.b), modelKarsilastir(yer.e, yer.b)]);
     if (sonYer === yer) goster(yer, v, hk, md);
@@ -623,7 +646,7 @@ document.getElementById("konumBtn").onclick = () => {
 /* ---- açılış ---- */
 function acilis(){
   let yer;
-  try { yer = JSON.parse(localStorage.getItem("sonYer")); } catch(e){}
+  try { yer = JSON.parse(Hafiza.oku("sonYer")); } catch(e){}
   if(!yer || !yer.etiket) yer = TUM_YERLER.find(y => y.etiket==="İzmir") || TUM_YERLER[0];
   yukle(yer);
 }
@@ -640,7 +663,7 @@ const zatenKurulu = () =>
 
 function seritGoster(){
   if (zatenKurulu()) return;                       // zaten eklemis
-  if (localStorage.getItem("kurulumGizle")) return; // kullanici kapatmis
+  if (Hafiza.oku("kurulumGizle")) return; // kullanici kapatmis
   serit.classList.add("acik");
 }
 
@@ -672,7 +695,7 @@ document.getElementById("kurBtn").onclick = async () => {
 };
 document.getElementById("kurKapat").onclick = () => {
   serit.classList.remove("acik");
-  localStorage.setItem("kurulumGizle", "1");   // bir daha rahatsiz etme
+  Hafiza.yaz("kurulumGizle", "1");   // bir daha rahatsiz etme
 };
 
 /* GUVENLIK AGI: bazi tarayicilar (iPhone/Safari, gomulu tarayicilar, bazi
