@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Kur Pusulası</title>
 <meta name="description" content="Döviz, altın ve ekonomi takibi. Yarın, 1 hafta, 1 ay için istatistiksel kur tahmini; faiz, alarm ve portföy." />
-<meta name="theme-color" content="#0b1020" />
+<meta name="theme-color" content="#ffffff" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" type="image/png" href="ikon-192.png" />
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="stylesheet" href="stil.css?v=14" />
+<link rel="stylesheet" href="stil.css?v=19" />
 </head>
 <body>
 
 <header class="ust">
     <div class="ust-sol">
-        <h1>💱 Kur <span>Pusulası</span></h1>
+        <h1>Kur <span>Pusulası</span></h1>
         <span id="veriDurumu" class="rozet bekle">yükleniyor…</span>
     </div>
     <div class="ust-sag">
-        <button id="yenileBtn" class="ikincil" title="Verileri yenile">🔄</button>
-        <button id="temaBtn" class="ikincil" title="Açık / koyu tema">🌙</button>
-        <button id="ayarBtn" class="ikincil" title="Görünüm ayarları">🎨</button>
-        <button id="kurBtn" class="ikincil" title="Ana ekrana ekle" hidden>⬇️</button>
+        <button id="yenileBtn" class="ikincil" title="Verileri yenile">↻</button>
+        <button id="temaBtn" class="ikincil" title="Açık / koyu tema">◐</button>
+        <button id="ayarBtn" class="ikincil" title="Görünüm ayarları">◈</button>
+        <button id="kurBtn" class="ikincil" title="Ana ekrana ekle" hidden>Yükle</button>
     </div>
 </header>
 
@@ -34,8 +34,8 @@
     <div class="ayar-bolum">
         <div class="ayar-baslik">Ne kadar ayrıntı?</div>
         <div class="secenek-satir">
-            <button class="secenek" data-mod="sade">🌿 Sade<span>sadece ana bilgiler</span></button>
-            <button class="secenek" data-mod="tam">🔬 Tam<span>bütün araçlar</span></button>
+            <button class="secenek" data-mod="sade">Sade<span>sadece ana bilgiler</span></button>
+            <button class="secenek" data-mod="tam">Tam<span>bütün araçlar</span></button>
         </div>
     </div>
     <div class="ayar-bolum">
@@ -47,11 +47,11 @@
 <!-- Gezinti: telefonda EKRANIN ALTINDA sabit durur (başparmak oraya rahat uzanır),
      büyük ekranda üstte hap şeklinde görünür. Simge + yazı ayrı ki alt çubukta alt alta dizilsin. -->
 <nav class="sekmeler" role="tablist">
-    <button class="sekme aktif" data-hedef="sPiyasa" role="tab"><i>📊</i><span>Piyasa</span></button>
-    <button class="sekme" data-hedef="sTahmin" role="tab"><i>🔮</i><span>Tahmin</span></button>
-    <button class="sekme" data-hedef="sFaiz" role="tab"><i>💰</i><span>Faiz</span></button>
-    <button class="sekme gelismis" data-hedef="sEkonomi" role="tab"><i>🌍</i><span>Ekonomi</span></button>
-    <button class="sekme gelismis" data-hedef="sPortfoy" role="tab"><i>💼</i><span>Portföy</span></button>
+    <button class="sekme aktif" data-hedef="sPiyasa" role="tab"><span>Piyasa</span></button>
+    <button class="sekme" data-hedef="sTahmin" role="tab"><span>Tahmin</span></button>
+    <button class="sekme" data-hedef="sFaiz" role="tab"><span>Faiz</span></button>
+    <button class="sekme gelismis" data-hedef="sEkonomi" role="tab"><span>Ekonomi</span></button>
+    <button class="sekme gelismis" data-hedef="sPortfoy" role="tab"><span>Portföy</span></button>
 </nav>
 
 <main>
@@ -83,7 +83,7 @@
                 <option value="ad">İsme göre</option>
             </select>
         </div>
-        <p class="ipucu">👆 Bir karta dokun — o varlığın <b>bütün verileri</b> açılır.</p>
+        <p class="ipucu">Bir karta dokunun — o varlığın <b>bütün verileri</b> açılır.</p>
         <div id="kartlar" class="kart-izgara"></div>
     </div>
 </section>
@@ -91,14 +91,14 @@
 <!-- ============ 2) TAHMİN ============ -->
 <section id="sTahmin" class="sayfa">
     <div class="satir-baslik">
-        <h2>🔮 Tahmin</h2>
+        <h2>Tahmin</h2>
         <select id="tahminVarlik" class="buyuk-secim"></select>
     </div>
 
     <div id="tahminKartlar" class="tahmin-izgara"></div>
 
     <div class="kutu">
-        <h3>📈 Geçmiş + tahmin konisi</h3>
+        <h3>Geçmiş ve tahmin aralığı</h3>
         <div id="tahminGrafik" class="grafik-alan"></div>
         <div class="grafik-aciklama">
             <span><i class="nokta cizgi"></i> gerçekleşen</span>
@@ -110,7 +110,7 @@
 
     <!-- Ayrıntılar: isteyen açar. "gelismis" olanlar sade modda hiç görünmez. -->
     <details class="kutu katlanir gelismis">
-        <summary><span>🎬 Senaryolar</span><span class="ipuc">başka ne olabilir?</span></summary>
+        <summary><span>Senaryolar</span><span class="ipuc">başka ne olabilir?</span></summary>
         <div class="katlanir-ic">
             <p class="kucuk">Tek bir sayıya güvenmeyin. Hem olasılık dilimleri
             (iyimserden kötümsere) hem de <b>"şu olay olursa ne olur"</b> hesapları var.</p>
@@ -126,7 +126,7 @@
     </details>
 
     <details class="kutu katlanir gelismis">
-        <summary><span>🧮 Tahmin nasıl kuruldu?</span><span class="ipuc">yöntem</span></summary>
+        <summary><span>Tahmin nasıl kuruldu?</span><span class="ipuc">yöntem</span></summary>
         <div class="katlanir-ic">
             <div id="yontemTablo"></div>
             <label class="kaydirac-satir">
@@ -139,7 +139,7 @@
     </details>
 
     <details class="kutu katlanir gelismis">
-        <summary><span>🎯 Model karnesi</span><span class="ipuc">geçmişte ne kadar tuttu?</span></summary>
+        <summary><span>Model karnesi</span><span class="ipuc">geçmişte ne kadar tuttu?</span></summary>
         <div class="katlanir-ic">
             <p class="kucuk">İddia etmiyoruz, ölçüyoruz: aynı model geçmişteki her gün için
             çalıştırıldı ve gerçekleşenle karşılaştırıldı.</p>
@@ -148,7 +148,7 @@
     </details>
 
     <details class="kutu katlanir gelismis">
-        <summary><span>🎲 Olasılık hesabı</span><span class="ipuc">"şu seviyeyi geçer mi?"</span></summary>
+        <summary><span>Olasılık hesabı</span><span class="ipuc">"şu seviyeyi geçer mi?"</span></summary>
         <div class="katlanir-ic">
             <div class="form-satir">
                 <label>Hedef seviye<input id="hedefFiyat" type="number" step="0.01" inputmode="decimal" /></label>
@@ -169,10 +169,10 @@
 
 <!-- ============ 3) FAİZ ============ -->
 <section id="sFaiz" class="sayfa">
-    <h2>💰 Faiz ve getiri</h2>
+    <h2>Faiz ve getiri</h2>
 
     <div class="kutu">
-        <h3>🏦 Mevduat (vadeli hesap)</h3>
+        <h3>Mevduat (vadeli hesap)</h3>
         <div class="form-izgara">
             <label>Anapara (TL)<input id="mAna" type="number" value="100000" inputmode="decimal" /></label>
             <label>Yıllık faiz (%)<input id="mFaiz" type="number" value="37" step="0.01" inputmode="decimal" /></label>
@@ -185,7 +185,7 @@
     </div>
 
     <details class="kutu katlanir vurgu" open>
-        <summary><span>⚖️ TL mevduat mı, döviz mi?</span><span class="ipuc">başabaş kuru</span></summary>
+        <summary><span>TL mevduat mı, döviz mi?</span><span class="ipuc">başabaş kuru</span></summary>
         <div class="katlanir-ic">
             <p class="kucuk">Bu hesap tavsiye vermez; sadece <b>kaç TL kur olursa ikisinin
             eşitleneceğini</b> söyler.</p>
@@ -201,7 +201,7 @@
     </details>
 
     <details class="kutu katlanir gelismis">
-        <summary><span>📉 Reel getiri</span><span class="ipuc">enflasyona karşı</span></summary>
+        <summary><span>Reel getiri</span><span class="ipuc">enflasyona karşı</span></summary>
         <div class="katlanir-ic">
             <div class="form-izgara">
                 <label>Nominal getiri (%)<input id="rNominal" type="number" value="37" step="0.01" inputmode="decimal" /></label>
@@ -212,7 +212,7 @@
     </details>
 
     <details class="kutu katlanir gelismis">
-        <summary><span>💳 Kredi taksiti</span><span class="ipuc">aylık ödeme</span></summary>
+        <summary><span>Kredi taksiti</span><span class="ipuc">aylık ödeme</span></summary>
         <div class="katlanir-ic">
             <div class="form-izgara">
                 <label>Kredi tutarı (TL)<input id="kTutar" type="number" value="100000" inputmode="decimal" /></label>
@@ -227,10 +227,10 @@
 
 <!-- ============ 4) EKONOMİ ============ -->
 <section id="sEkonomi" class="sayfa">
-    <h2>🌍 Ekonomi</h2>
+    <h2>Ekonomi</h2>
 
     <div class="kutu">
-        <h3>🏛️ Politika faizleri <span class="rozet bilgi">düzenlenebilir</span></h3>
+        <h3>Politika faizleri <span class="rozet bilgi">düzenlenebilir</span></h3>
         <p class="kucuk">Tahmindeki faiz paritesi bu oranları kullanır. Merkez bankası kararı
         değişince buradan güncelleyin.</p>
         <div id="faizKartlari" class="faiz-izgara"></div>
@@ -238,7 +238,7 @@
     </div>
 
     <details class="kutu katlanir" data-cizim="makro">
-        <summary><span>📊 Türkiye makro göstergeleri</span><span class="ipuc">enflasyon, büyüme, işsizlik</span></summary>
+        <summary><span>Türkiye makro göstergeleri</span><span class="ipuc">enflasyon, büyüme, işsizlik</span></summary>
         <div class="katlanir-ic">
             <div id="makroTablo"></div>
             <div id="makroGrafik" class="grafik-alan kisa"></div>
@@ -246,29 +246,29 @@
     </details>
 
     <details class="kutu katlanir">
-        <summary><span>🇹🇷 Türk lirasının 1 yıllık performansı</span><span class="ipuc">tüm paralara karşı</span></summary>
+        <summary><span>Türk lirasının 1 yıllık performansı</span><span class="ipuc">tüm paralara karşı</span></summary>
         <div class="katlanir-ic"><div id="tlPerformans"></div></div>
     </details>
 
     <details class="kutu katlanir">
-        <summary><span>🥇 Değerli maden ve kripto</span><span class="ipuc">altın, gümüş, bitcoin</span></summary>
+        <summary><span>Değerli maden ve kripto</span><span class="ipuc">altın, gümüş, bitcoin</span></summary>
         <div class="katlanir-ic"><div id="madenTablo"></div></div>
     </details>
 
     <details class="kutu katlanir">
-        <summary><span>🔎 Nereye bakmalı?</span><span class="ipuc">profesyonellerin izlediği göstergeler</span></summary>
+        <summary><span>Nereye bakmalı?</span><span class="ipuc">profesyonellerin izlediği göstergeler</span></summary>
         <div class="katlanir-ic" id="izlenecekler"></div>
     </details>
 </section>
 
 <!-- ============ 5) PORTFÖY ============ -->
 <section id="sPortfoy" class="sayfa">
-    <h2>💼 Portföy</h2>
+    <h2>Portföy</h2>
     <p class="kucuk">Elinizdeki varlıkları girin; toplam değeri, dağılımı ve 1 ay sonrası olası
     aralığı hesaplansın. Veriler yalnızca bu cihazda saklanır.</p>
 
     <div class="kutu">
-        <h3>➕ Varlık ekle</h3>
+        <h3>Varlık ekle</h3>
         <div class="form-izgara">
             <label>Varlık<select id="pVarlik"></select></label>
             <label>Miktar<input id="pMiktar" type="number" step="any" inputmode="decimal" placeholder="1000" /></label>
@@ -278,7 +278,7 @@
     </div>
 
     <details class="kutu katlanir">
-        <summary><span>📈 Fon / özel varlık</span><span class="ipuc">fiyatı elle girilir</span></summary>
+        <summary><span>Fon / özel varlık</span><span class="ipuc">fiyatı elle girilir</span></summary>
         <div class="katlanir-ic">
             <p class="kucuk">Yatırım fonu (TEFAS), hisse gibi varlıkların canlı fiyatı ücretsiz ve
             açık bir kaynaktan alınamıyor. Bu yüzden fiyatı <b>siz girersiniz</b>; uygulama kaç
@@ -296,8 +296,17 @@
     <div id="portfoyOzet"></div>
     <div id="portfoyListe"></div>
 
+    <details class="kutu katlanir" id="otomatikKutu">
+        <summary><span>Otomatik uyarılar</span><span class="ipuc">eşik aşılınca haber ver</span></summary>
+        <div class="katlanir-ic">
+            <p class="kucuk" style="margin-top:0">Elle alarm kurmadan da uyarılırsınız. Uygulama her
+            açıldığında kontrol edilir; bildirim izni verirseniz telefon bildirimi de gelir.</p>
+            <div id="otomatikAyar"></div>
+        </div>
+    </details>
+
     <details class="kutu katlanir" id="alarmKutu">
-        <summary><span>🔔 Kur alarmları</span><span class="ipuc" id="alarmSayaci"></span></summary>
+        <summary><span>Kur alarmları</span><span class="ipuc" id="alarmSayaci"></span></summary>
         <div class="katlanir-ic">
             <p class="kucuk">Belirlediğiniz seviye geçilince uygulama sizi uyarır. Uygulama her
             açıldığında kontrol edilir; bildirim izni verirseniz telefon bildirimi de gelir.</p>
@@ -344,7 +353,7 @@
 </aside>
 
 <footer>
-    <p><b>⚠️ Uyarı:</b> Buradaki tahminler geçmiş verilerden ve faiz farkından üretilen
+    <p><b>Uyarı:</b> Buradaki tahminler geçmiş verilerden ve faiz farkından üretilen
     <b>istatistiksel hesaplardır</b>; kesin bilgi ya da yatırım tavsiyesi değildir.
     Kur hareketleri beklenmedik olaylardan etkilenir.</p>
     <p class="kucuk">Veri: Avrupa Merkez Bankası (Frankfurter) · gold-api.com · CoinGecko ·
@@ -352,7 +361,7 @@
     bankaların alış/satışından farklıdır.</p>
 </footer>
 
-<script src="cekirdek.js?v=14"></script>
-<script src="arayuz.js?v=14"></script>
+<script src="cekirdek.js?v=19"></script>
+<script src="arayuz.js?v=19"></script>
 </body>
 </html>

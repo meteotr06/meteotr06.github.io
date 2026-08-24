@@ -107,9 +107,7 @@ function sparkline(seri, g, y, renk) {
     }).join(" ");
     const artis = temiz[temiz.length - 1] >= temiz[0];
     const c = renk || (artis ? "var(--artis)" : "var(--azalis)");
-    return `<svg class="cizim" viewBox="0 0 ${g} ${y}" preserveAspectRatio="none">
-        <polyline points="${noktalar}" fill="none" stroke="${c}" stroke-width="1.8"
-            stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+    return `<svg class="cizim"viewBox="0 0 ${g} ${y}"preserveAspectRatio="none"> <polyline points="${noktalar}"fill="none"stroke="${c}"stroke-width="1.8"stroke-linejoin="round"stroke-linecap="round"/></svg>`;
 }
 
 // Büyük grafik: geçmiş çizgi + (varsa) ileriye doğru tahmin konisi
@@ -139,16 +137,14 @@ function grafikCiz(hedef, tarihler, seri, tahminler) {
     const x = (i) => solBosluk + i / (toplamNokta - 1) * (G - solBosluk - sagBosluk);
     const y = (v) => ustBosluk + (1 - (v - enAz) / (enCok - enAz)) * (Y - ustBosluk - altBosluk);
 
-    let svg = `<svg viewBox="0 0 ${G} ${Y}" width="${G}" height="${Y}">`;
+    let svg = `<svg viewBox="0 0 ${G} ${Y}"width="${G}"height="${Y}">`;
 
     // Yatay ızgara + fiyat etiketleri
     for (let k = 0; k <= 4; k++) {
         const v = enAz + (enCok - enAz) * k / 4;
         const py = y(v);
-        svg += `<line x1="${solBosluk}" y1="${py.toFixed(1)}" x2="${G - sagBosluk}" y2="${py.toFixed(1)}"
-                 stroke="var(--cizgi)" stroke-width="1" stroke-dasharray="3 4"/>`;
-        svg += `<text x="${solBosluk - 6}" y="${(py + 4).toFixed(1)}" text-anchor="end"
-                 font-size="11" fill="var(--yazi2)">${sayi(v, v > 1000 ? 0 : 2)}</text>`;
+        svg += `<line x1="${solBosluk}"y1="${py.toFixed(1)}"x2="${G - sagBosluk}"y2="${py.toFixed(1)}"stroke="var(--cizgi)"stroke-width="1"stroke-dasharray="3 4"/>`;
+        svg += `<text x="${solBosluk - 6}"y="${(py + 4).toFixed(1)}"text-anchor="end"font-size="11"fill="var(--yazi2)">${sayi(v, v > 1000 ? 0 : 2)}</text>`;
     }
 
     // Tahmin konisi (önce çizilir ki çizginin arkasında kalsın)
@@ -165,33 +161,30 @@ function grafikCiz(hedef, tarihler, seri, tahminler) {
                 const t = gelecek[i];
                 alt += ` ${x(bas + isGunu(t.gun)).toFixed(1)},${y(t[altAd]).toFixed(1)}`;
             }
-            svg += `<polygon points="${ust}${alt} ${x(bas)},${y(spot)}" fill="${dolgu}" stroke="none"/>`;
+            svg += `<polygon points="${ust}${alt} ${x(bas)},${y(spot)}"fill="${dolgu}"stroke="none"/>`;
         };
         koni("alt95", "ust95", "rgba(255,179,71,.16)");
         koni("alt68", "ust68", "rgba(255,179,71,.34)");
 
         let merkezYol = `M ${x(bas)} ${y(spot)}`;
         gelecek.forEach(t => { merkezYol += ` L ${x(bas + isGunu(t.gun)).toFixed(1)} ${y(t.merkez).toFixed(1)}`; });
-        svg += `<path d="${merkezYol}" fill="none" stroke="var(--uyari)" stroke-width="2" stroke-dasharray="5 4"/>`;
+        svg += `<path d="${merkezYol}"fill="none"stroke="var(--uyari)"stroke-width="2"stroke-dasharray="5 4"/>`;
         gelecek.forEach(t => {
-            svg += `<circle cx="${x(bas + isGunu(t.gun)).toFixed(1)}" cy="${y(t.merkez).toFixed(1)}" r="3.5" fill="var(--uyari)"/>`;
+            svg += `<circle cx="${x(bas + isGunu(t.gun)).toFixed(1)}"cy="${y(t.merkez).toFixed(1)}"r="3.5"fill="var(--uyari)"/>`;
         });
-        svg += `<line x1="${x(bas).toFixed(1)}" y1="${ustBosluk}" x2="${x(bas).toFixed(1)}" y2="${Y - altBosluk}"
-                 stroke="var(--yazi2)" stroke-width="1" stroke-dasharray="2 3" opacity=".6"/>`;
-        svg += `<text x="${(x(bas) + 4).toFixed(1)}" y="${ustBosluk + 10}" font-size="10" fill="var(--yazi2)">bugün</text>`;
+        svg += `<line x1="${x(bas).toFixed(1)}"y1="${ustBosluk}"x2="${x(bas).toFixed(1)}"y2="${Y - altBosluk}"stroke="var(--yazi2)"stroke-width="1"stroke-dasharray="2 3"opacity=".6"/>`;
+        svg += `<text x="${(x(bas) + 4).toFixed(1)}"y="${ustBosluk + 10}"font-size="10"fill="var(--yazi2)">bugün</text>`;
     }
 
     // Geçmiş çizgi + altındaki dolgu
     const yol = veriler.map((d, i) => `${i ? "L" : "M"} ${x(i).toFixed(1)} ${y(d.v).toFixed(1)}`).join(" ");
-    svg += `<path d="${yol} L ${x(veriler.length - 1).toFixed(1)} ${Y - altBosluk} L ${x(0).toFixed(1)} ${Y - altBosluk} Z"
-             fill="var(--vurgu2)" opacity=".10"/>`;
-    svg += `<path d="${yol}" fill="none" stroke="var(--vurgu2)" stroke-width="2" stroke-linejoin="round"/>`;
+    svg += `<path d="${yol} L ${x(veriler.length - 1).toFixed(1)} ${Y - altBosluk} L ${x(0).toFixed(1)} ${Y - altBosluk} Z"fill="var(--vurgu2)"opacity=".10"/>`;
+    svg += `<path d="${yol}"fill="none"stroke="var(--vurgu2)"stroke-width="2"stroke-linejoin="round"/>`;
 
     // Tarih etiketleri (baş / orta / son)
     [0, Math.floor(veriler.length / 2), veriler.length - 1].forEach((i, k) => {
         const t = veriler[i].t;
-        svg += `<text x="${x(i).toFixed(1)}" y="${Y - 6}" font-size="10" fill="var(--yazi2)"
-                 text-anchor="${k === 0 ? "start" : k === 2 ? "middle" : "middle"}">${t.slice(8, 10)}.${t.slice(5, 7)}.${t.slice(2, 4)}</text>`;
+        svg += `<text x="${x(i).toFixed(1)}"y="${Y - 6}"font-size="10"fill="var(--yazi2)"text-anchor="${k === 0 ? "start" : k === 2 ? "middle" : "middle"}">${t.slice(8, 10)}.${t.slice(5, 7)}.${t.slice(2, 4)}</text>`;
     });
 
     svg += `</svg>`;
@@ -214,22 +207,14 @@ function oneCikanlarCiz() {
         const s = seriAl(kod);
         if (!s) return;
         const dgs = degisimYuzde(s[s.length - 2], s[s.length - 1]);
-        html += `<button class="mini-kart" data-kod="${kod}">
-            <span class="mk-ad">${v.ad}</span>
-            <span class="mk-deger">${fiyatYaz(kod, guncelFiyat(kod))}</span>
-            <span class="mk-fark ${renkSinif(dgs)}">${okIsareti(dgs)} ${yuzde(dgs)}</span>
-        </button>`;
+        html += `<button class="mini-kart"data-kod="${kod}"> <span class="mk-ad">${v.ad}</span> <span class="mk-deger">${fiyatYaz(kod, guncelFiyat(kod))}</span> <span class="mk-fark ${renkSinif(dgs)}">${okIsareti(dgs)} ${yuzde(dgs)}</span> </button>`;
     });
 
     // Sepet kur: TCMB'nin izlediği yarı dolar + yarı euro ortalaması
     if (durum.veri.sepet) {
         const sp = durum.veri.sepet.filter(x => x);
         const dgs = degisimYuzde(sp[sp.length - 2], sp[sp.length - 1]);
-        html += `<div class="mini-kart" title="Yarı dolar + yarı euro">
-            <span class="mk-ad">Sepet Kur</span>
-            <span class="mk-deger">${sayi(sp[sp.length - 1], 3)} ₺</span>
-            <span class="mk-fark ${renkSinif(dgs)}">${okIsareti(dgs)} ${yuzde(dgs)}</span>
-        </div>`;
+        html += `<div class="mini-kart"title="Yarı dolar + yarı euro"> <span class="mk-ad">Sepet Kur</span> <span class="mk-deger">${sayi(sp[sp.length - 1], 3)} ₺</span> <span class="mk-fark ${renkSinif(dgs)}">${okIsareti(dgs)} ${yuzde(dgs)}</span> </div>`;
     }
 
     $("#oneCikanlar").innerHTML = html;
@@ -252,7 +237,7 @@ function faizHatirlatmasi() {
     if (sonPPK && (!sonGuncelleme || sonGuncelleme < sonPPK)) {
         return {
             tur: "uyari",
-            metin: `🏛️ <b>${tarihYaz(sonPPK)}</b> tarihinde TCMB faiz kararı vardı.
+            metin: ` <b>${tarihYaz(sonPPK)}</b> tarihinde TCMB faiz kararı vardı.
                     Tahminlerin doğru olması için politika faizini kontrol edin.`,
             dugme: "Faize git"
         };
@@ -265,7 +250,7 @@ function faizHatirlatmasi() {
         if (kalan <= 10) {
             return {
                 tur: "bilgi",
-                metin: `🗓️ TCMB faiz kararı <b>${kalan} gün sonra</b> (${tarihYaz(yaklasan)}).
+                metin: ` TCMB faiz kararı <b>${kalan} gün sonra</b> (${tarihYaz(yaklasan)}).
                         Karar sonrası faizi güncellemeyi unutmayın — tahminler buna göre değişir.`
             };
         }
@@ -275,7 +260,7 @@ function faizHatirlatmasi() {
     if (sonGuncelleme) {
         const gun = Math.round((new Date(bugun) - new Date(sonGuncelleme)) / 86400000);
         if (gun > 60) {
-            return { tur: "bilgi", metin: `🏛️ Politika faizini <b>${gun} gündür</b> güncellemediniz. Değiştiyse tahminler sapar.` };
+            return { tur: "bilgi", metin: ` Politika faizini <b>${gun} gündür</b> güncellemediniz. Değiştiyse tahminler sapar.` };
         }
     }
     return null;
@@ -284,37 +269,41 @@ function faizHatirlatmasi() {
 function uyarilariCiz() {
     const parcalar = [];
 
+    // Otomatik eşik uyarıları (yuvarlak seviye, sert hareket, zirve/dip, ortalama)
+    (durum.otomatikUyarilar || []).forEach((u, i) => {
+        parcalar.push(`<div class="uyari alarm">
+            <span>${u.metin}</span>
+            <button class="ikincil" data-oto-kapat="${i}">Tamam</button>
+        </div>`);
+    });
+
     // Tetiklenen alarmlar
     (durum.ayar.alarmlar || []).filter(a => a.tetiklendi && !a.okundu).forEach(a => {
         const v = varlikBul(a.kod);
-        parcalar.push(`<div class="uyari alarm">
-            <span>🔔 <b>${v ? v.ad : a.kod}</b>, belirlediğiniz seviyenin
+        parcalar.push(`<div class="uyari alarm"> <span> <b>${v ? v.ad : a.kod}</b>, belirlediğiniz seviyenin
             ${a.yon === "ust" ? "üstüne çıktı" : "altına indi"}:
-            <b>${fiyatYaz(a.kod, a.gerceklesen || a.seviye)}</b> · ${tarihYaz(a.tetiklendi)}</span>
-            <button class="ikincil" data-alarm-oku="${a.id}">Tamam</button>
-        </div>`);
+ <b>${fiyatYaz(a.kod, a.gerceklesen || a.seviye)}</b> · ${tarihYaz(a.tetiklendi)}</span> <button class="ikincil"data-alarm-oku="${a.id}">Tamam</button> </div>`);
     });
 
     // Faiz hatırlatması
     const fh = faizHatirlatmasi();
     if (fh) {
-        parcalar.push(`<div class="uyari ${fh.tur}">
-            <span>${fh.metin}</span>
-            ${fh.dugme ? `<button class="ikincil" id="faizGitBtn">${fh.dugme}</button>` : ""}
-        </div>`);
+        parcalar.push(`<div class="uyari ${fh.tur}"> <span>${fh.metin}</span> ${fh.dugme ? `<button class="ikincil"id="faizGitBtn">${fh.dugme}</button>` : ""}
+ </div>`);
     }
 
     // Fiyatı eskimiş fonlar
-    const eskiFon = (durum.ayar.fonlar || []).filter(f =>
-        !f.guncelleme || (new Date(isoTarih(new Date())) - new Date(f.guncelleme)) / 86400000 > 14);
+    const eskiFon = (durum.ayar.fonlar || []).filter(f => !f.guncelleme || (new Date(isoTarih(new Date())) - new Date(f.guncelleme)) / 86400000 > 14);
     if (eskiFon.length) {
-        parcalar.push(`<div class="uyari bilgi">
-            <span>📈 <b>${eskiFon.length} fonun</b> fiyatı 2 haftadan eski. Portföy sekmesinden güncelleyin.</span>
-        </div>`);
+        parcalar.push(`<div class="uyari bilgi"> <span> <b>${eskiFon.length} fonun</b> fiyatı 2 haftadan eski. Portföy sekmesinden güncelleyin.</span> </div>`);
     }
 
     $("#uyarilar").innerHTML = parcalar.join("");
 
+    $$("[data-oto-kapat]").forEach(b => b.onclick = () => {
+        durum.otomatikUyarilar.splice(parseInt(b.dataset.otoKapat, 10), 1);
+        uyarilariCiz();
+    });
     $$("[data-alarm-oku]").forEach(b => b.onclick = () => {
         const a = (durum.ayar.alarmlar || []).find(x => x.id === b.dataset.alarmOku);
         if (a) { a.okundu = true; ayarYaz(durum.ayar); uyarilariCiz(); alarmListeCiz(); }
@@ -324,6 +313,52 @@ function uyarilariCiz() {
         sekmeAc("sEkonomi");
         setTimeout(() => $("#faizKartlari").scrollIntoView({ behavior: "smooth", block: "center" }), 150);
     };
+}
+
+// ---------- OTOMATİK UYARILAR ----------
+// Elle alarm kurmaya gerek kalmadan, belirlenen eşikler aşılınca haber verir.
+
+function bildirimGonder(baslik, govde, etiket) {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    try { new Notification(baslik, { body: govde, icon: "ikon-192.png", tag: etiket }); }
+    catch (e) { /* bildirim engellenmişse sessizce geç */ }
+}
+
+async function bildirimIzniIste() {
+    if (!("Notification" in window)) return "yok";
+    if (Notification.permission === "granted") return "verildi";
+    if (Notification.permission === "denied") return "reddedildi";
+    try { return (await Notification.requestPermission()) === "granted" ? "verildi" : "reddedildi"; }
+    catch (e) { return "reddedildi"; }
+}
+
+function otomatikUyarilariKontrolEt() {
+    const a = durum.ayar.otomatik;
+    if (!a || !a.acik) return [];
+
+    durum.ayar.gorulenUyarilar = durum.ayar.gorulenUyarilar || [];
+    const gorulen = new Set(durum.ayar.gorulenUyarilar);
+    const yeni = [];
+
+    (a.izlenen || ["USD"]).forEach(kod => {
+        const seri = seriAl(kod);
+        if (!seri) return;
+        const ozet = varlikOzeti(kod, durum.veri.tarihler, seri);
+        otomatikUyariUret(kod, ozet, seri, a).forEach(u => {
+            if (gorulen.has(u.anahtar)) return;
+            gorulen.add(u.anahtar);
+            yeni.push(u);
+        });
+    });
+
+    if (yeni.length) {
+        // Liste şişmesin: son 200 kayıt yeter
+        durum.ayar.gorulenUyarilar = Array.from(gorulen).slice(-200);
+        ayarYaz(durum.ayar);
+        yeni.forEach(u => bildirimGonder("Kur Pusulası", u.metin.replace(/<[^>]+>/g, ""), u.anahtar));
+    }
+    durum.otomatikUyarilar = (durum.otomatikUyarilar || []).concat(yeni).slice(-6);
+    return yeni;
 }
 
 // ---------- KUR ALARMLARI ----------
@@ -341,7 +376,7 @@ function alarmlariKontrolEt() {
     ayarYaz(durum.ayar);
 
     // Telefon/masaüstü bildirimi (izin verildiyse)
-    if ("Notification" in window && Notification.permission === "granted") {
+    if ("Notification"in window && Notification.permission === "granted") {
         yeni.forEach(a => {
             const v = varlikBul(a.kod);
             try {
@@ -355,24 +390,91 @@ function alarmlariKontrolEt() {
     }
 }
 
+function otomatikAyarCiz() {
+    const a = durum.ayar.otomatik || {};
+    const izlenebilir = ["USD", "EUR", "GBP", "GRAMALTIN", "BILEZIK", "GRAMGUMUS", "BITCOIN"];
+
+    $("#otomatikAyar").innerHTML = `
+        <label class="onay">
+            <input type="checkbox" id="otoAcik" ${a.acik ? "checked" : ""} />
+            Otomatik uyarılar açık
+        </label>
+
+        <div class="ayar-baslik" style="margin-top:14px">Hangi varlıklar izlensin?</div>
+        <div class="secim-etiketleri">
+            ${izlenebilir.map(k => {
+                const v = varlikBul(k);
+                const secili = (a.izlenen || []).includes(k);
+                return `<button class="etiket-dugme ${secili ? "secili" : ""}" data-izle="${k}">${v ? v.ad : k}</button>`;
+            }).join("")}
+        </div>
+
+        <div class="ayar-baslik" style="margin-top:16px">Hangi durumlarda?</div>
+        ${UYARI_KURALLARI.map(k => `
+            <label class="onay">
+                <input type="checkbox" data-kural="${k.kod}" ${a[k.kod] ? "checked" : ""} />
+                <span>${k.ad}<br><span class="not">${k.aciklama}</span></span>
+            </label>
+            ${k.esikli ? `<label style="margin:-4px 0 10px 30px;max-width:180px">Eşik (%)
+                <input type="number" step="0.1" min="0.1" id="otoSertEsik" value="${a.sertEsik !== undefined ? a.sertEsik : k.varsayilanEsik}" />
+            </label>` : ""}
+        `).join("")}
+
+        <div id="bildirimDurum" class="kucuk"></div>
+        <button class="birincil" id="bildirimIzinBtn" style="width:100%;margin-top:10px">Bildirimlere izin ver</button>`;
+
+    const kaydet = () => { ayarYaz(durum.ayar); otomatikAyarCiz(); };
+
+    $("#otoAcik").onchange = (e) => { durum.ayar.otomatik.acik = e.target.checked; kaydet(); };
+
+    $$("[data-izle]").forEach(b => b.onclick = () => {
+        const k = b.dataset.izle;
+        const liste = durum.ayar.otomatik.izlenen || [];
+        durum.ayar.otomatik.izlenen = liste.includes(k) ? liste.filter(x => x !== k) : liste.concat([k]);
+        kaydet();
+    });
+
+    $$("[data-kural]").forEach(c => c.onchange = () => {
+        durum.ayar.otomatik[c.dataset.kural] = c.checked;
+        kaydet();
+    });
+
+    const esik = $("#otoSertEsik");
+    if (esik) esik.onchange = () => {
+        durum.ayar.otomatik.sertEsik = Math.max(0.1, parseFloat(esik.value) || 1);
+        kaydet();
+    };
+
+    // Bildirim izni durumu
+    const d = $("#bildirimDurum");
+    const btn = $("#bildirimIzinBtn");
+    if (!("Notification" in window)) {
+        d.textContent = "Bu tarayıcı bildirimleri desteklemiyor. Uyarılar yine de ekranda görünür.";
+        btn.hidden = true;
+    } else if (Notification.permission === "granted") {
+        d.innerHTML = "Bildirim izni <b>verildi</b> — uyarılar telefon bildirimi olarak da gelir.";
+        btn.hidden = true;
+    } else if (Notification.permission === "denied") {
+        d.innerHTML = "Bildirim izni <b>reddedilmiş</b>. Tarayıcı ayarlarından açabilirsiniz. Uyarılar yine de ekranda görünür.";
+        btn.hidden = true;
+    } else {
+        d.textContent = "Uyarılar şimdilik sadece ekranda görünüyor.";
+        btn.hidden = false;
+        btn.onclick = async () => { await bildirimIzniIste(); otomatikAyarCiz(); };
+    }
+}
+
 function alarmListeCiz() {
     const alarmlar = durum.ayar.alarmlar || [];
-    $("#alarmSayaci").textContent = alarmlar.length ? alarmlar.length + " alarm" : "yok";
+    $("#alarmSayaci").textContent = alarmlar.length ? alarmlar.length + "alarm" : "yok";
     if (!alarmlar.length) { $("#alarmListe").innerHTML = '<p class="kucuk">Henüz alarm kurmadınız.</p>'; return; }
     $("#alarmListe").innerHTML = alarmlar.map(a => {
         const v = varlikBul(a.kod);
         const fiyat = guncelFiyat(a.kod);
         const uzaklik = fiyat ? (a.seviye / fiyat - 1) * 100 : null;
-        return `<div class="portfoy-satir">
-            <span style="font-size:20px">${a.tetiklendi ? "🔔" : "⏳"}</span>
-            <span><b>${v ? v.ad : a.kod}</b><br>
-                <span style="font-size:12px;color:var(--yazi2)">
-                ${a.yon === "ust" ? "üstüne çıkarsa" : "altına inerse"}: ${fiyatYaz(a.kod, a.seviye)}
+        return `<div class="portfoy-satir"> <span class="bayrak">${a.tetiklendi ? "ÇAL" : "BKL"}</span> <span><b>${v ? v.ad : a.kod}</b><br> <span style="font-size:12px;color:var(--yazi2)"> ${a.yon === "ust" ? "üstüne çıkarsa" : "altına inerse"}: ${fiyatYaz(a.kod, a.seviye)}
                 ${a.tetiklendi ? " · <b>gerçekleşti " + tarihYaz(a.tetiklendi) + "</b>"
-                    : uzaklik !== null ? " · " + yuzde(uzaklik) + " uzakta" : ""}</span></span>
-            <span></span>
-            <button class="sil" data-alarm-sil="${a.id}" title="Sil">🗑️</button>
-        </div>`;
+                    : uzaklik !== null ? " · " + yuzde(uzaklik) + "uzakta" : ""}</span></span> <span></span> <button class="sil"data-alarm-sil="${a.id}"title="Sil"></button> </div>`;
     }).join("");
     $$("[data-alarm-sil]").forEach(b => b.onclick = () => {
         durum.ayar.alarmlar = durum.ayar.alarmlar.filter(x => x.id !== b.dataset.alarmSil);
@@ -392,37 +494,10 @@ function anaKartCiz() {
     const vadeler = [{ g: 1, ad: "Yarın" }, { g: 7, ad: "1 Hafta" }, { g: 30, ad: "1 Ay" }];
     const tahminler = vadeler.map(x => tahminYap(s, x.g, tahminAyari(kod, x.g))).filter(Boolean);
 
-    $("#anaKart").innerHTML = `<div class="ana-kart">
-        <div class="ana-ust">
-            <div class="ana-sol">
-                <div class="ana-etiket">${v.bayrak} ${v.ad}</div>
-                <div class="ana-fiyat">${fiyatYaz(kod, fiyat)}</div>
-                <div class="ana-fark ${renkSinif(ozet.gun)}">${okIsareti(ozet.gun)} ${yuzde(ozet.gun)} bugün</div>
-            </div>
-            <select id="anaParaSecim" class="ana-secim" title="Ana parayı değiştir">
-                ${tumVarliklar().map(x => `<option value="${x.kod}" ${x.kod === kod ? "selected" : ""}>${x.bayrak} ${x.kod}</option>`).join("")}
-            </select>
-        </div>
-        <!-- Ek istatistikler tam genişlikte durur (dar sütunda alt satıra kayıyordu)
-             ve sade modda hiç görünmez -->
-        <div class="ana-istatistik gelismis">
-            <span>hafta <b class="${renkSinif(ozet.hafta)}">${yuzde(ozet.hafta)}</b></span>
-            <span>ay <b class="${renkSinif(ozet.ay)}">${yuzde(ozet.ay)}</b></span>
-            <span>yıl <b class="${renkSinif(ozet.yil)}">${yuzde(ozet.yil)}</b></span>
-        </div>
-        <div class="ana-tahminler">
-            ${tahminler.map((t, i) => `<div class="ana-tahmin">
-                <div class="atv">${vadeler[i].ad}</div>
-                <div class="atm">${sayi(t.merkez)}</div>
-                <div class="atf ${renkSinif(t.degisimYuzde)}">${yuzde(t.degisimYuzde)}</div>
-                <div class="atb">${sayi(t.alt68, 2)} – ${sayi(t.ust68, 2)}</div>
-            </div>`).join("")}
-        </div>
-        <div class="ana-alt">
-            <button class="ikincil" id="anaDetayBtn">📋 Tüm veriler</button>
-            <button class="birincil" id="anaAnalizBtn">🧠 Ekonomist analizi</button>
-        </div>
-    </div>`;
+    $("#anaKart").innerHTML = `<div class="ana-kart"> <div class="ana-ust"> <div class="ana-sol"> <div class="ana-etiket">${v.ad}</div> <div class="ana-fiyat">${fiyatYaz(kod, fiyat)}</div> <div class="ana-fark ${renkSinif(ozet.gun)}">${okIsareti(ozet.gun)} ${yuzde(ozet.gun)} bugün</div> </div> <select id="anaParaSecim"class="ana-secim"title="Ana parayı değiştir"> ${tumVarliklar().map(x => `<option value="${x.kod}" ${x.kod === kod ? "selected" : ""}>${x.bayrak}</option>`).join("")}
+ </select> </div> <!-- Ek istatistikler tam genişlikte durur (dar sütunda alt satıra kayıyordu)
+             ve sade modda hiç görünmez --> <div class="ana-istatistik gelismis"> <span>hafta <b class="${renkSinif(ozet.hafta)}">${yuzde(ozet.hafta)}</b></span> <span>ay <b class="${renkSinif(ozet.ay)}">${yuzde(ozet.ay)}</b></span> <span>yıl <b class="${renkSinif(ozet.yil)}">${yuzde(ozet.yil)}</b></span> </div> <div class="ana-tahminler"> ${tahminler.map((t, i) => `<div class="ana-tahmin"> <div class="atv">${vadeler[i].ad}</div> <div class="atm">${sayi(t.merkez)}</div> <div class="atf ${renkSinif(t.degisimYuzde)}">${yuzde(t.degisimYuzde)}</div> <div class="atb">${sayi(t.alt68, 2)} – ${sayi(t.ust68, 2)}</div> </div>`).join("")}
+ </div> <div class="ana-alt"> <button class="ikincil"id="anaDetayBtn"> Tüm veriler</button> <button class="birincil"id="anaAnalizBtn"> Ekonomist analizi</button> </div> </div>`;
 
     $("#anaParaSecim").onchange = (e) => {
         durum.ayar.anaPara = e.target.value;
@@ -452,8 +527,7 @@ function piyasaCiz() {
     }).filter(Boolean);
 
     if (arama) {
-        liste = liste.filter(x =>
-            x.v.ad.toLocaleLowerCase("tr").includes(arama) ||
+        liste = liste.filter(x => x.v.ad.toLocaleLowerCase("tr").includes(arama) ||
             x.v.kod.toLocaleLowerCase("tr").includes(arama) ||
             (arama === "dolar" && x.v.kod === "USD") || (arama === "altın" && x.v.kod.includes("ALTIN")));
     }
@@ -464,18 +538,8 @@ function piyasaCiz() {
     else if (sirala === "ad") liste.sort((a, b) => a.v.ad.localeCompare(b.v.ad, "tr"));
 
     $("#kartlar").innerHTML = liste.map(x => `
-        <button class="varlik-kart" data-kod="${x.v.kod}">
-            <span class="bayrak">${x.v.bayrak}</span>
-            <span>
-                <span class="ad">${x.v.ad}</span><br>
-                <span class="altad">${x.v.kod} · ay ${yuzde(x.ozet.ay)} · yıl ${yuzde(x.ozet.yil)}</span>
-            </span>
-            <span>
-                <span class="fiyat">${fiyatYaz(x.v.kod, x.fiyat)}</span><br>
-                <span class="fark ${renkSinif(x.ozet.gun)}">${okIsareti(x.ozet.gun)} ${yuzde(x.ozet.gun)}</span>
-            </span>
-            ${sparkline(x.s, 84, 34)}
-        </button>`).join("") || '<p class="yukleniyor">Sonuç yok</p>';
+        <button class="varlik-kart"data-kod="${x.v.kod}"> <span class="bayrak">${x.v.bayrak}</span> <span> <span class="ad">${x.v.ad}</span><br> <span class="altad">ay ${yuzde(x.ozet.ay)} · yıl ${yuzde(x.ozet.yil)}</span> </span> <span> <span class="fiyat">${fiyatYaz(x.v.kod, x.fiyat)}</span><br> <span class="fark ${renkSinif(x.ozet.gun)}">${okIsareti(x.ozet.gun)} ${yuzde(x.ozet.gun)}</span> </span> ${sparkline(x.s, 84, 34)}
+ </button>`).join("") || '<p class="yukleniyor">Sonuç yok</p>';
 
     $$("#kartlar .varlik-kart").forEach(b => b.onclick = () => detayAc(b.dataset.kod));
 }
@@ -506,11 +570,10 @@ function detayCiz() {
     const ozet = varlikOzeti(kod, durum.veri.tarihler, s);
     const fiyat = guncelFiyat(kod);
 
-    $("#detayAd").innerHTML = `${v.bayrak} ${v.ad} <span class="rozet">${kod}</span>`;
+    $("#detayAd").innerHTML = `${v.ad} <span class="rozet">${kod}</span>`;
     $("#detayFiyat").textContent = fiyatYaz(kod, fiyat);
     $("#detayDegisim").innerHTML =
-        `<span class="${renkSinif(ozet.gun)}">${okIsareti(ozet.gun)} ${yuzde(ozet.gun)} bugün</span>
-         <span class="not"> · ${tarihYaz(ozet.tarih)} referans kuru</span>`;
+        `<span class="${renkSinif(ozet.gun)}">${okIsareti(ozet.gun)} ${yuzde(ozet.gun)} bugün</span> <span class="not"> · ${tarihYaz(ozet.tarih)} referans kuru</span>`;
 
     // Grafik (seçili aralık) + tahmin konisi
     const gun = durum.detayGun;
@@ -521,11 +584,9 @@ function detayCiz() {
     grafikCiz("#detayGrafik", tarihDilim, seriDilim, tahminler);
 
     // --- Bütün veriler ---
-    const hucre = (etiket, deger, sinif) =>
-        `<div class="veri-hucre"><div class="etiket">${etiket}</div><div class="deger ${sinif || ""}">${deger}</div></div>`;
+    const hucre = (etiket, deger, sinif) => `<div class="veri-hucre"><div class="etiket">${etiket}</div><div class="deger ${sinif || ""}">${deger}</div></div>`;
 
-    let html = `<h3>📊 Değişim</h3><div class="veri-izgara">
-        ${hucre("Bugün", yuzde(ozet.gun), renkSinif(ozet.gun))}
+    let html = `<h3> Değişim</h3><div class="veri-izgara"> ${hucre("Bugün", yuzde(ozet.gun), renkSinif(ozet.gun))}
         ${hucre("1 hafta", yuzde(ozet.hafta), renkSinif(ozet.hafta))}
         ${hucre("1 ay", yuzde(ozet.ay), renkSinif(ozet.ay))}
         ${hucre("3 ay", yuzde(ozet.ucAy), renkSinif(ozet.ucAy))}
@@ -533,56 +594,38 @@ function detayCiz() {
         ${hucre("1 yıl", yuzde(ozet.yil), renkSinif(ozet.yil))}
         ${hucre("Yılbaşından", yuzde(ozet.yilBasi), renkSinif(ozet.yilBasi))}
         ${hucre("Enflasyona karşı (yıl)", yuzde(reelGetiri(ozet.yil || 0, durum.ayar.enflasyon)), renkSinif(reelGetiri(ozet.yil || 0, durum.ayar.enflasyon)))}
-    </div>`;
+ </div>`;
 
-    html += `<h3>📏 Ortalamalar</h3><div class="veri-izgara">
-        ${hucre("7 günlük", fiyatYaz(kod, ozet.ort7), ozet.son > ozet.ort7 ? "yukari" : "asagi")}
+    html += `<h3> Ortalamalar</h3><div class="veri-izgara"> ${hucre("7 günlük", fiyatYaz(kod, ozet.ort7), ozet.son > ozet.ort7 ? "yukari" : "asagi")}
         ${hucre("30 günlük", fiyatYaz(kod, ozet.ort30), ozet.son > ozet.ort30 ? "yukari" : "asagi")}
         ${hucre("90 günlük", fiyatYaz(kod, ozet.ort90), ozet.son > ozet.ort90 ? "yukari" : "asagi")}
         ${hucre("200 günlük", ozet.ort200 ? fiyatYaz(kod, ozet.ort200) : "—", ozet.ort200 && ozet.son > ozet.ort200 ? "yukari" : "asagi")}
-    </div>
-    <p class="kucuk">Fiyat ortalamanın üstündeyse yeşil: o vadede yükseliş eğilimi var demektir.</p>`;
+ </div> <p class="kucuk">Fiyat ortalamanın üstündeyse yeşil: o vadede yükseliş eğilimi var demektir.</p>`;
 
-    html += `<h3>🎯 52 haftalık aralık</h3>
-        <div class="bant"><div class="imlec" style="left:calc(${Math.max(0, Math.min(100, ozet.bandKonumu)).toFixed(1)}% - 2px)"></div></div>
-        <div class="bant-etiket"><span>En düşük ${fiyatYaz(kod, ozet.enDusuk52)}</span><span>En yüksek ${fiyatYaz(kod, ozet.enYuksek52)}</span></div>
-        <p class="kucuk">Şu an aralığın <b>%${sayi(ozet.bandKonumu, 0)}</b> seviyesinde.</p>`;
+    html += `<h3> 52 haftalık aralık</h3> <div class="bant"><div class="imlec"style="left:calc(${Math.max(0, Math.min(100, ozet.bandKonumu)).toFixed(1)}% - 2px)"></div></div> <div class="bant-etiket"><span>En düşük ${fiyatYaz(kod, ozet.enDusuk52)}</span><span>En yüksek ${fiyatYaz(kod, ozet.enYuksek52)}</span></div> <p class="kucuk">Şu an aralığın <b>%${sayi(ozet.bandKonumu, 0)}</b> seviyesinde.</p>`;
 
-    html += `<h3>🌊 Risk ve hareket</h3><div class="veri-izgara">
-        ${hucre("Yıllık oynaklık", "%" + sayi(ozet.yillikOynaklik, 1))}
+    html += `<h3> Risk ve hareket</h3><div class="veri-izgara"> ${hucre("Yıllık oynaklık", "%" + sayi(ozet.yillikOynaklik, 1))}
         ${hucre("Günlük tipik", "±%" + sayi(ozet.yillikOynaklik / Math.sqrt(IS_GUNU_YIL), 2))}
         ${hucre("En sert gün (1 yıl)", yuzde(ozet.enSertGun), renkSinif(ozet.enSertGun))}
-        ${hucre("Art arda", Math.abs(ozet.ardArda) + " gün " + (ozet.ardArda > 0 ? "↑" : "↓"), renkSinif(ozet.ardArda))}
-    </div>`;
+        ${hucre("Art arda", Math.abs(ozet.ardArda) + "gün " + (ozet.ardArda > 0 ? "↑" : "↓"), renkSinif(ozet.ardArda))}
+ </div>`;
 
     // Tahminler
-    html += `<h3>🔮 Tahmin</h3><div class="tablo-sar"><table><thead><tr>
-        <th>Vade</th><th>Merkez</th><th>Değişim</th><th>%68 aralık</th><th>%95 aralık</th></tr></thead><tbody>`;
+    html += `<h3> Tahmin</h3><div class="tablo-sar"><table><thead><tr> <th>Vade</th><th>Merkez</th><th>Değişim</th><th>%68 aralık</th><th>%95 aralık</th></tr></thead><tbody>`;
     tahminler.forEach(t => {
         const ad = t.gun === 1 ? "Yarın" : t.gun === 7 ? "1 hafta" : "1 ay";
-        html += `<tr><td>${ad}</td><td><b>${fiyatYaz(kod, t.merkez)}</b></td>
-            <td class="${renkSinif(t.degisimYuzde)}">${yuzde(t.degisimYuzde)}</td>
-            <td>${sayi(t.alt68)} – ${sayi(t.ust68)}</td>
-            <td>${sayi(t.alt95)} – ${sayi(t.ust95)}</td></tr>`;
+        html += `<tr><td>${ad}</td><td><b>${fiyatYaz(kod, t.merkez)}</b></td> <td class="${renkSinif(t.degisimYuzde)}">${yuzde(t.degisimYuzde)}</td> <td>${sayi(t.alt68)} – ${sayi(t.ust68)}</td> <td>${sayi(t.alt95)} – ${sayi(t.ust95)}</td></tr>`;
     });
     html += `</tbody></table></div>`;
 
     // Sürücüler
     const surucular = surucuAnalizi(kod, ozet, durum.ayar, durum.veri, durum.makro);
-    html += `<h3>🧭 Kuru ne hareket ettiriyor?</h3><div class="surucu-izgara">` +
-        surucular.map(s => `<div class="surucu">
-            <span class="sad">${s.ad}</span>
-            <span class="sdeger ${s.yon === "yukari" ? "yukari" : s.yon === "asagi" ? "asagi" : ""}">${s.deger}</span>
-            <span class="saciklama">${s.aciklama}</span>
-        </div>`).join("") + `</div>`;
+    html += `<h3> Kuru ne hareket ettiriyor?</h3><div class="surucu-izgara">` +
+        surucular.map(s => `<div class="surucu"> <span class="sad">${s.ad}</span> <span class="sdeger ${s.yon === "yukari" ? "yukari" : s.yon === "asagi" ? "asagi" : ""}">${s.deger}</span> <span class="saciklama">${s.aciklama}</span> </div>`).join("") + `</div>`;
 
-    html += `<button class="analiz-btn" id="detayAnalizBtn" style="margin-top:14px">🧠 Ekonomist gibi analiz et</button>
-             <div id="detayAnaliz"></div>`;
+    html += `<button class="analiz-btn"id="detayAnalizBtn"style="margin-top:14px"> Ekonomist gibi analiz et</button> <div id="detayAnaliz"></div>`;
 
-    html += `<div class="panel-dugmeler">
-        <button class="ikincil" id="tahminGitBtn">🔮 Tahmin sekmesinde aç</button>
-        <button class="ikincil" id="alarmKurBtn">🔔 Bu kura alarm kur</button>
-    </div>`;
+    html += `<div class="panel-dugmeler"> <button class="ikincil"id="tahminGitBtn"> Tahmin sekmesinde aç</button> <button class="ikincil"id="alarmKurBtn"> Bu kura alarm kur</button> </div>`;
 
     $("#detayVeriler").innerHTML = html;
 
@@ -612,17 +655,15 @@ function detayCiz() {
 }
 
 function analizHtml(bolumler) {
-    return bolumler.map(b => `<div class="analiz-bolum ${b.onem}">
-        <h4>${b.baslik}</h4>
-        ${b.satirlar.map(s => `<p>${s}</p>`).join("")}
-    </div>`).join("");
+    return bolumler.map(b => `<div class="analiz-bolum ${b.onem}"> <h4>${b.baslik}</h4> ${b.satirlar.map(s => `<p>${s}</p>`).join("")}
+ </div>`).join("");
 }
 
 // ---------- TAHMİN SEKMESİ ----------
 
 function tahminSecimDoldur() {
     const secim = $("#tahminVarlik");
-    secim.innerHTML = tumVarliklar().map(v => `<option value="${v.kod}">${v.bayrak} ${v.ad}</option>`).join("");
+    secim.innerHTML = tumVarliklar().map(v => `<option value="${v.kod}">${v.ad}</option>`).join("");
     secim.value = durum.secili;
     ["#bbVarlik", "#pVarlik", "#aVarlik"].forEach(id => {
         $(id).innerHTML = tumVarliklar().map(v => `<option value="${v.kod}">${v.bayrak} ${v.ad}</option>`).join("");
@@ -639,15 +680,8 @@ function tahminCiz() {
     const tahminler = vadeler.map(x => tahminYap(s, x.g, tahminAyari(kod, x.g))).filter(Boolean);
 
     $("#tahminKartlar").innerHTML = tahminler.map((t, i) => `
-        <div class="tahmin-kart">
-            <div class="vade">${vadeler[i].ad}</div>
-            <div class="merkez">${fiyatYaz(kod, t.merkez)}</div>
-            <div class="fark ${renkSinif(t.degisimYuzde)}">${okIsareti(t.degisimYuzde)} ${yuzde(t.degisimYuzde)} · bugün ${fiyatYaz(kod, t.spot)}</div>
-            <div class="band-satir"><span>%68 olasılıkla</span><b>${sayi(t.alt68)} – ${sayi(t.ust68)}</b></div>
-            <div class="band-satir"><span>%95 olasılıkla</span><b>${sayi(t.alt95)} – ${sayi(t.ust95)}</b></div>
-            <div class="band-satir"><span>Yükselme olasılığı</span><b>%${sayi(seviyeOlasiligi(t, t.spot).ustunde, 0)}</b></div>
-        </div>`).join("") +
-        `<p class="kucuk" style="grid-column:1/-1">⚠️ Bu aralıklar, modelin <b>son ${tahminler[0].kalibreAdet || 80} tahmininde
+        <div class="tahmin-kart"> <div class="vade">${vadeler[i].ad}</div> <div class="merkez">${fiyatYaz(kod, t.merkez)}</div> <div class="fark ${renkSinif(t.degisimYuzde)}">${okIsareti(t.degisimYuzde)} ${yuzde(t.degisimYuzde)} · bugün ${fiyatYaz(kod, t.spot)}</div> <div class="band-satir"><span>%68 olasılıkla</span><b>${sayi(t.alt68)} – ${sayi(t.ust68)}</b></div> <div class="band-satir"><span>%95 olasılıkla</span><b>${sayi(t.alt95)} – ${sayi(t.ust95)}</b></div> <div class="band-satir"><span>Yükselme olasılığı</span><b>%${sayi(seviyeOlasiligi(t, t.spot).ustunde, 0)}</b></div> </div>`).join("") +
+        `<p class="kucuk"style="grid-column:1/-1"> Bu aralıklar, modelin <b>son ${tahminler[0].kalibreAdet || 80} tahmininde
         ne kadar yanıldığına</b> bakılarak çizildi. Piyasa uzun süredir sakin olduğu için bandlar dar.
         Beklenmedik bir haber (faiz kararı, seçim, kriz) gelirse kur bu aralığın <b>dışına çıkabilir</b>.</p>`;
 
@@ -657,45 +691,29 @@ function tahminCiz() {
 
     // Yöntem kırılımı
     const naiveVar = tahminler.some(t => t.naiveModu);
-    $("#yontemTablo").innerHTML = `<div class="tablo-sar"><table><thead><tr>
-        <th>Vade</th><th>Faiz paritesi</th><th>Geçmiş trend</th><th>Sapma düzeltmesi</th><th>Sonuç</th></tr></thead><tbody>` +
-        tahminler.map((t, i) => `<tr>
-            <td>${vadeler[i].ad}${t.naiveModu ? ' <span class="rozet bilgi">naive</span>' : ""}</td>
-            <td>${fiyatYaz(kod, t.parite)}</td>
-            <td>${fiyatYaz(kod, t.trend)}</td>
-            <td class="${renkSinif(t.sapmaDuzeltme)}">${t.sapmaDuzeltme !== undefined ? yuzde(t.sapmaDuzeltme) : "—"}</td>
-            <td><b>${fiyatYaz(kod, t.merkez)}</b></td></tr>`).join("") +
-        `</tbody></table></div>
-        <p class="kucuk"><b>Faiz paritesi:</b> TL faizi %${sayi(durum.ayar.tlFaiz, 2)} · ${varlikBul(kod).ad} tarafı %${sayi(yabanciFaizAl(kod), 2)}.
-        <b>Sapma düzeltmesi:</b> model geçmişte hep aynı yöne kaçıyorsa merkez o kadar geri çekilir —
+    $("#yontemTablo").innerHTML = `<div class="tablo-sar"><table><thead><tr> <th>Vade</th><th>Faiz paritesi</th><th>Geçmiş trend</th><th>Sapma düzeltmesi</th><th>Sonuç</th></tr></thead><tbody>` +
+        tahminler.map((t, i) => `<tr> <td>${vadeler[i].ad}${t.naiveModu ? ' <span class="rozet bilgi">naive</span>' : ""}</td> <td>${fiyatYaz(kod, t.parite)}</td> <td>${fiyatYaz(kod, t.trend)}</td> <td class="${renkSinif(t.sapmaDuzeltme)}">${t.sapmaDuzeltme !== undefined ? yuzde(t.sapmaDuzeltme) : "—"}</td> <td><b>${fiyatYaz(kod, t.merkez)}</b></td></tr>`).join("") +
+        `</tbody></table></div> <p class="kucuk"><b>Faiz paritesi:</b> TL faizi %${sayi(durum.ayar.tlFaiz, 2)} · ${varlikBul(kod).ad} tarafı %${sayi(yabanciFaizAl(kod), 2)}.
+ <b>Sapma düzeltmesi:</b> model geçmişte hep aynı yöne kaçıyorsa merkez o kadar geri çekilir —
         ölçtük, bu düzeltme dolarda hatayı neredeyse yarıya indirdi.</p>` +
         (naiveVar
-            ? `<p class="kucuk" style="color:var(--uyari)"><b>⚠️ Dikkat:</b> Bu varlıkta model, geçmişte
+            ? `<p class="kucuk"style="color:var(--uyari)"><b> Dikkat:</b> Bu varlıkta model, geçmişte
                <i>"fiyat değişmez"</i> varsayımını geçemedi (beceri %${sayi(tahminler.find(t => t.naiveModu).beceri, 0)}).
                Bu yüzden merkez tahmin olarak <b>bugünkü fiyat</b> alındı; sadece olası aralık gösteriliyor.
                Uydurma tahmin vermektense dürüst olmayı tercih ediyoruz.</p>`
-            : `<p class="kucuk" style="color:var(--artis)">✅ Bu varlıkta model, geçmişte basit varsayımı
-               <b>%${sayi(tahminler[tahminler.length - 1].beceri, 0)}</b> geçti — tahmin kullanılıyor.</p>`);
+            : `<p class="kucuk"style="color:var(--artis)"> Bu varlıkta model, geçmişte basit varsayımı
+ <b>%${sayi(tahminler[tahminler.length - 1].beceri, 0)}</b> geçti — tahmin kullanılıyor.</p>`);
 
     // Model karnesi
     $("#karne").innerHTML = '<p class="yukleniyor">Geçmiş veriyle test ediliyor…</p>';
     setTimeout(() => {
         const satirlar = [1, 7, 30].map(g => karneCikar(s, g, ayar)).filter(Boolean);
         if (!satirlar.length) { $("#karne").innerHTML = '<p class="kucuk">Test için yeterli geçmiş veri yok.</p>'; return; }
-        $("#karne").innerHTML = `<div class="tablo-sar"><table><thead><tr>
-            <th>Vade</th><th>Ort. sapma</th><th>Basit tahmin</th><th>Kazanç</th><th>%68 band tuttu</th><th>Yön isabeti</th></tr></thead><tbody>` +
-            satirlar.map(k => `<tr>
-                <td>${k.gun === 1 ? "Yarın" : k.gun === 7 ? "1 hafta" : "1 ay"}</td>
-                <td><b>%${sayi(k.ortalamaHata, 2)}</b></td>
-                <td>%${sayi(k.naiveHata, 2)}</td>
-                <td class="${k.iyilesme > 0 ? "yukari" : "asagi"}">${yuzde(k.iyilesme, 0)}</td>
-                <td>${k.band68 === null ? "—" : "%" + sayi(k.band68, 0)}</td>
-                <td>%${sayi(k.yonBasarisi, 0)}</td></tr>`).join("") +
-            `</tbody></table></div>
-            <p class="kucuk"><b>Nasıl okunur:</b> "Ort. sapma" modelin ortalama hatası. "Basit tahmin",
-            <i>"fiyat aynı kalır"</i> demenin hatası. "Kazanç" pozitifse model basit varsayımdan iyi.
-            "%68 band tuttu" ideal olarak <b>%68 civarında</b> olmalı — düşükse band dar, yüksekse gereksiz geniş demektir.</p>
-            <p class="kucuk">Test ${satirlar[0].deneme} geçmiş gün üzerinde yapıldı. Band testi ayrıca dürüst olsun diye
+        $("#karne").innerHTML = `<div class="tablo-sar"><table><thead><tr> <th>Vade</th><th>Ort. sapma</th><th>Basit tahmin</th><th>Kazanç</th><th>%68 band tuttu</th><th>Yön isabeti</th></tr></thead><tbody>` +
+            satirlar.map(k => `<tr> <td>${k.gun === 1 ? "Yarın" : k.gun === 7 ? "1 hafta" : "1 ay"}</td> <td><b>%${sayi(k.ortalamaHata, 2)}</b></td> <td>%${sayi(k.naiveHata, 2)}</td> <td class="${k.iyilesme > 0 ? "yukari" : "asagi"}">${yuzde(k.iyilesme, 0)}</td> <td>${k.band68 === null ? "—" : "%" + sayi(k.band68, 0)}</td> <td>%${sayi(k.yonBasarisi, 0)}</td></tr>`).join("") +
+            `</tbody></table></div> <p class="kucuk"><b>Nasıl okunur:</b> "Ort. sapma"modelin ortalama hatası. "Basit tahmin",
+            <i>"fiyat aynı kalır"</i> demenin hatası. "Kazanç"pozitifse model basit varsayımdan iyi.
+            "%68 band tuttu"ideal olarak <b>%68 civarında</b> olmalı — düşükse band dar, yüksekse gereksiz geniş demektir.</p> <p class="kucuk">Test ${satirlar[0].deneme} geçmiş gün üzerinde yapıldı. Band testi ayrıca dürüst olsun diye
             ilk %70 ile kurulup <b>son ${satirlar[0].testAdet} günde sınandı</b> — yani bandı hiç görmediği veriyle test ettik.</p>`;
     }, 30);
 
@@ -717,32 +735,21 @@ function senaryoCiz() {
 
     const d = olasilikDilimleri(t);
     // Telefonda tablo dar kalıyor; her senaryo kendi satırında kart olarak gösterilir.
-    const senaryoKart = (ad, deger, aciklama, vurgulu) => `<div class="senaryo ${vurgulu ? "secili" : ""}">
-        <div class="s-ust">
-            <span class="s-ad">${ad}</span>
-            <span class="s-deger">${fiyatYaz(kod, deger)}
-                <b class="${renkSinif(deger / d.spot - 1)}">${yuzde((deger / d.spot - 1) * 100)}</b></span>
-        </div>
-        <div class="s-aciklama">${aciklama}</div></div>`;
+    const senaryoKart = (ad, deger, aciklama, vurgulu) => `<div class="senaryo ${vurgulu ? "secili" : ""}"> <div class="s-ust"> <span class="s-ad">${ad}</span> <span class="s-deger">${fiyatYaz(kod, deger)}
+                <b class="${renkSinif(deger / d.spot - 1)}">${yuzde((deger / d.spot - 1) * 100)}</b></span> </div> <div class="s-aciklama">${aciklama}</div></div>`;
 
-    let html = `<h4 style="margin:6px 0">📉 Olasılık dilimleri</h4>
-        ${senaryoKart("😄 Çok iyimser", d.yuzde5, "Kurun bundan daha düşük kalma ihtimali sadece %5.")}
-        ${senaryoKart("🙂 İyimser", d.yuzde25, "Bu seviyenin altında kalma ihtimali %25.")}
-        ${senaryoKart("😐 Beklenen", d.orta, "Ortanca senaryo — yarı yarıya ihtimal.", true)}
-        ${senaryoKart("🙁 Kötümser", d.yuzde75, "Bu seviyeyi aşma ihtimali %25.")}
-        ${senaryoKart("😨 Çok kötümser", d.yuzde95, "Bunu aşma ihtimali sadece %5.")}
-        <p class="kucuk">Not: "iyimser" TL açısından yazıldı (düşük kur). Dövizi olan için tersi geçerlidir.</p>`;
+    let html = `<h4 style="margin:6px 0"> Olasılık dilimleri</h4> ${senaryoKart("Çok iyimser", d.yuzde5, "Kurun bundan daha düşük kalma ihtimali sadece %5.")}
+        ${senaryoKart("İyimser", d.yuzde25, "Bu seviyenin altında kalma ihtimali %25.")}
+        ${senaryoKart("Beklenen", d.orta, "Ortanca senaryo — yarı yarıya ihtimal.", true)}
+        ${senaryoKart("Kötümser", d.yuzde75, "Bu seviyeyi aşma ihtimali %25.")}
+        ${senaryoKart("Çok kötümser", d.yuzde95, "Bunu aşma ihtimali sadece %5.")}
+        <p class="kucuk">Not: "iyimser"TL açısından yazıldı (düşük kur). Dövizi olan için tersi geçerlidir.</p>`;
 
     const olaylar = olaySenaryolari(s, kod, durum.ayar, gun);
     if (olaylar.length) {
-        html += `<h4 style="margin:16px 0 6px">⚡ Olay senaryoları</h4>` +
-            olaylar.map(o => `<div class="senaryo ${o.ad.includes("Beklenen") ? "secili" : ""}">
-                <div class="s-ust">
-                    <span class="s-ad">${o.ad}</span>
-                    <span class="s-deger">${fiyatYaz(kod, o.deger)}
-                        <b class="${renkSinif(o.degisim)}">${yuzde(o.degisim)}</b></span>
-                </div>
-                <div class="s-aciklama">${o.aciklama}</div></div>`).join("");
+        html += `<h4 style="margin:16px 0 6px"> Olay senaryoları</h4>` +
+            olaylar.map(o => `<div class="senaryo ${o.ad.includes("Beklenen") ? "secili" : ""}"> <div class="s-ust"> <span class="s-ad">${o.ad}</span> <span class="s-deger">${fiyatYaz(kod, o.deger)}
+                        <b class="${renkSinif(o.degisim)}">${yuzde(o.degisim)}</b></span> </div> <div class="s-aciklama">${o.aciklama}</div></div>`).join("");
     }
     $("#senaryoSonuc").innerHTML = html;
 }
@@ -758,10 +765,7 @@ function olasilikHesapla() {
     const ol = seviyeOlasiligi(t, hedef);
     const vadeAd = { 1: "yarın", 7: "1 hafta içinde", 30: "1 ay içinde", 90: "3 ay içinde", 365: "1 yıl içinde" }[gun];
     $("#olasilikSonuc").innerHTML = `
-        <div class="sonuc-satir"><span>${fiyatYaz(kod, hedef)} <b>üstünde</b> olma olasılığı (${vadeAd})</span><b class="yukari">%${sayi(ol.ustunde, 1)}</b></div>
-        <div class="sonuc-satir"><span>${fiyatYaz(kod, hedef)} <b>altında</b> olma olasılığı</span><b class="asagi">%${sayi(ol.altinda, 1)}</b></div>
-        <div class="sonuc-satir"><span>Merkezi tahmin</span><b>${fiyatYaz(kod, t.merkez)}</b></div>
-        <p class="kucuk">Log-normal dağılım varsayımıyla, %${sayi(t.yillikOynaklik, 1)} yıllık oynaklık üzerinden hesaplandı.</p>`;
+        <div class="sonuc-satir"><span>${fiyatYaz(kod, hedef)} <b>üstünde</b> olma olasılığı (${vadeAd})</span><b class="yukari">%${sayi(ol.ustunde, 1)}</b></div> <div class="sonuc-satir"><span>${fiyatYaz(kod, hedef)} <b>altında</b> olma olasılığı</span><b class="asagi">%${sayi(ol.altinda, 1)}</b></div> <div class="sonuc-satir"><span>Merkezi tahmin</span><b>${fiyatYaz(kod, t.merkez)}</b></div> <p class="kucuk">Log-normal dağılım varsayımıyla, %${sayi(t.yillikOynaklik, 1)} yıllık oynaklık üzerinden hesaplandı.</p>`;
 }
 
 // ---------- FAİZ SEKMESİ ----------
@@ -779,13 +783,7 @@ function faizHesapla() {
         parseInt($("#mDonem").value, 10) || 1
     );
     $("#mevduatSonuc").innerHTML = `
-        <div class="sonuc-satir"><span>Brüt faiz</span><b>${paraYaz(m.brutFaiz)}</b></div>
-        <div class="sonuc-satir"><span>Stopaj kesintisi</span><b class="asagi">−${paraYaz(m.stopaj)}</b></div>
-        <div class="sonuc-satir"><span>Net faiz (${m.toplamGun} gün)</span><b class="yukari">${paraYaz(m.netFaiz)}</b></div>
-        <div class="sonuc-satir buyuk"><span>Vade sonu toplam</span><b>${paraYaz(m.vadeSonu)}</b></div>
-        <div class="sonuc-satir"><span>Yıllık net getiri oranı</span><b>${yuzdeOn(m.netYillik)}</b></div>
-        <div class="sonuc-satir"><span>Enflasyon %${sayi(durum.ayar.enflasyon, 2)} ise reel getiri</span>
-            <b class="${reelGetiri(m.netYillik, durum.ayar.enflasyon) > 0 ? "yukari" : "asagi"}">${yuzdeOn(reelGetiri(m.netYillik, durum.ayar.enflasyon))}</b></div>`;
+        <div class="sonuc-satir"><span>Brüt faiz</span><b>${paraYaz(m.brutFaiz)}</b></div> <div class="sonuc-satir"><span>Stopaj kesintisi</span><b class="asagi">−${paraYaz(m.stopaj)}</b></div> <div class="sonuc-satir"><span>Net faiz (${m.toplamGun} gün)</span><b class="yukari">${paraYaz(m.netFaiz)}</b></div> <div class="sonuc-satir buyuk"><span>Vade sonu toplam</span><b>${paraYaz(m.vadeSonu)}</b></div> <div class="sonuc-satir"><span>Yıllık net getiri oranı</span><b>${yuzdeOn(m.netYillik)}</b></div> <div class="sonuc-satir"><span>Enflasyon %${sayi(durum.ayar.enflasyon, 2)} ise reel getiri</span> <b class="${reelGetiri(m.netYillik, durum.ayar.enflasyon) > 0 ? "yukari" : "asagi"}">${yuzdeOn(reelGetiri(m.netYillik, durum.ayar.enflasyon))}</b></div>`;
 
     // Başabaş
     const kod = $("#bbVarlik").value;
@@ -799,41 +797,29 @@ function faizHesapla() {
         let yorum = "";
         if (t) {
             const ol = seviyeOlasiligi(t, bb.kur);
-            yorum = `<div class="sonuc-satir"><span>Modelin ${gun} günlük merkezi tahmini</span><b>${fiyatYaz(kod, t.merkez)}</b></div>
-                <div class="sonuc-satir"><span>Kurun başabaşı geçme olasılığı</span><b>%${sayi(ol.ustunde, 0)}</b></div>
-                <p class="kucuk">${ol.ustunde > 55
+            yorum = `<div class="sonuc-satir"><span>Modelin ${gun} günlük merkezi tahmini</span><b>${fiyatYaz(kod, t.merkez)}</b></div> <div class="sonuc-satir"><span>Kurun başabaşı geçme olasılığı</span><b>%${sayi(ol.ustunde, 0)}</b></div> <p class="kucuk">${ol.ustunde > 55
                     ? "Model, kurun başabaşı geçmesini daha olası buluyor — yani bu senaryoda döviz önde biter."
                     : ol.ustunde < 45
                         ? "Model, kurun başabaşın altında kalmasını daha olası buluyor — yani bu senaryoda TL mevduat önde biter."
                         : "İki seçenek neredeyse başa baş görünüyor."}
-                    <b>Bu bir tahmindir, tavsiye değildir.</b></p>`;
+ <b>Bu bir tahmindir, tavsiye değildir.</b></p>`;
         }
         $("#basabasSonuc").innerHTML = `
-            <div class="sonuc-satir"><span>Bugünkü kur</span><b>${fiyatYaz(kod, spot)}</b></div>
-            <div class="sonuc-satir"><span>TL mevduatın ${gun} günlük net getirisi</span><b>${yuzdeOn(bb.tlGetiri)}</b></div>
-            <div class="sonuc-satir buyuk"><span>Başabaş kur</span><b>${fiyatYaz(kod, bb.kur)}</b></div>
-            <div class="sonuc-satir"><span>Bunun için gereken artış</span><b>${yuzde(bb.gerekliArtis)}</b></div>
-            ${yorum}`;
+            <div class="sonuc-satir"><span>Bugünkü kur</span><b>${fiyatYaz(kod, spot)}</b></div> <div class="sonuc-satir"><span>TL mevduatın ${gun} günlük net getirisi</span><b>${yuzdeOn(bb.tlGetiri)}</b></div> <div class="sonuc-satir buyuk"><span>Başabaş kur</span><b>${fiyatYaz(kod, bb.kur)}</b></div> <div class="sonuc-satir"><span>Bunun için gereken artış</span><b>${yuzde(bb.gerekliArtis)}</b></div> ${yorum}`;
     }
 
     // Reel getiri
     const r = reelGetiri(parseFloat($("#rNominal").value) || 0, parseFloat($("#rEnf").value) || 0);
     const anapara = 100000;
     $("#reelSonuc").innerHTML = `
-        <div class="sonuc-satir buyuk"><span>Reel (gerçek) getiri</span><b class="${r > 0 ? "yukari" : "asagi"}">${yuzdeOn(r)}</b></div>
-        <div class="sonuc-satir"><span>100.000 ₺'nin 1 yıl sonraki alım gücü</span><b>${paraYaz(anapara * (1 + r / 100))}</b></div>
-        <p class="kucuk">${r > 0 ? "Paranız enflasyonun üstünde kazandırıyor — alım gücünüz artıyor."
+        <div class="sonuc-satir buyuk"><span>Reel (gerçek) getiri</span><b class="${r > 0 ? "yukari" : "asagi"}">${yuzdeOn(r)}</b></div> <div class="sonuc-satir"><span>100.000 ₺'nin 1 yıl sonraki alım gücü</span><b>${paraYaz(anapara * (1 + r / 100))}</b></div> <p class="kucuk">${r > 0 ? "Paranız enflasyonun üstünde kazandırıyor — alım gücünüz artıyor."
             : "Nominal olarak kazanıyorsunuz ama alım gücünüz azalıyor."}</p>`;
 
     // Kredi
     const k = krediHesapla(parseFloat($("#kTutar").value) || 0, parseFloat($("#kFaiz").value) || 0,
         parseInt($("#kTaksit").value, 10) || 1, $("#kVergi").checked);
     $("#krediSonuc").innerHTML = `
-        <div class="sonuc-satir buyuk"><span>Aylık taksit</span><b>${paraYaz(k.taksit)}</b></div>
-        <div class="sonuc-satir"><span>Toplam ödeme</span><b>${paraYaz(k.toplamOdeme)}</b></div>
-        <div class="sonuc-satir"><span>Toplam faiz</span><b class="asagi">${paraYaz(k.toplamFaiz)}</b></div>
-        <div class="sonuc-satir"><span>Vergili aylık maliyet</span><b>${yuzdeOn(k.efektifAylik)}</b></div>
-        <div class="sonuc-satir"><span>Yıllık bileşik maliyet</span><b>${yuzdeOn(k.yillikMaliyet)}</b></div>`;
+        <div class="sonuc-satir buyuk"><span>Aylık taksit</span><b>${paraYaz(k.taksit)}</b></div> <div class="sonuc-satir"><span>Toplam ödeme</span><b>${paraYaz(k.toplamOdeme)}</b></div> <div class="sonuc-satir"><span>Toplam faiz</span><b class="asagi">${paraYaz(k.toplamFaiz)}</b></div> <div class="sonuc-satir"><span>Vergili aylık maliyet</span><b>${yuzdeOn(k.efektifAylik)}</b></div> <div class="sonuc-satir"><span>Yıllık bileşik maliyet</span><b>${yuzdeOn(k.yillikMaliyet)}</b></div>`;
 }
 
 // ---------- EKONOMİ SEKMESİ ----------
@@ -841,24 +827,10 @@ function faizHesapla() {
 function ekonomiCiz() {
     // Faiz kartları
     const onemli = ["USD", "EUR", "GBP", "CHF", "JPY"];
-    let html = `<div class="faiz-kart">
-        <div class="fad">🇹🇷 TCMB politika faizi</div>
-        <input type="number" step="0.25" value="${durum.ayar.tlFaiz}" data-faiz="TL" />
-    </div>
-    <div class="faiz-kart">
-        <div class="fad">🏦 TL mevduat faizi</div>
-        <input type="number" step="0.25" value="${durum.ayar.mevduatFaiz}" data-faiz="MEVDUAT" />
-    </div>
-    <div class="faiz-kart">
-        <div class="fad">🔥 Yıllık enflasyon</div>
-        <input type="number" step="0.1" value="${durum.ayar.enflasyon}" data-faiz="ENFLASYON" />
-    </div>`;
+    let html = `<div class="faiz-kart"> <div class="fad"> TCMB politika faizi</div> <input type="number"step="0.25"value="${durum.ayar.tlFaiz}"data-faiz="TL" /> </div> <div class="faiz-kart"> <div class="fad"> TL mevduat faizi</div> <input type="number"step="0.25"value="${durum.ayar.mevduatFaiz}"data-faiz="MEVDUAT" /> </div> <div class="faiz-kart"> <div class="fad"> Yıllık enflasyon</div> <input type="number"step="0.1"value="${durum.ayar.enflasyon}"data-faiz="ENFLASYON" /> </div>`;
     onemli.forEach(kod => {
         const v = varlikBul(kod);
-        html += `<div class="faiz-kart">
-            <div class="fad">${v.bayrak} ${kod} faizi</div>
-            <input type="number" step="0.25" value="${yabanciFaizAl(kod)}" data-faiz="${kod}" />
-        </div>`;
+        html += `<div class="faiz-kart"> <div class="fad">${v.bayrak} ${kod} faizi</div> <input type="number"step="0.25"value="${yabanciFaizAl(kod)}"data-faiz="${kod}" /> </div>`;
     });
     $("#faizKartlari").innerHTML = html;
     $$("#faizKartlari input").forEach(inp => {
@@ -885,14 +857,11 @@ function ekonomiCiz() {
             const son = dizi[dizi.length - 1];
             return `<tr><td>${ad}</td><td><b>${sayi(son.deger, 2)}${ek || ""}</b></td><td>${son.yil}</td></tr>`;
         };
-        $("#makroTablo").innerHTML = `<div class="tablo-sar"><table><thead><tr>
-            <th>Gösterge</th><th>Değer</th><th>Yıl</th></tr></thead><tbody>
-            ${satir("Enflasyon (TÜFE, yıllık ort.)", durum.makro.enflasyon, "%")}
+        $("#makroTablo").innerHTML = `<div class="tablo-sar"><table><thead><tr> <th>Gösterge</th><th>Değer</th><th>Yıl</th></tr></thead><tbody> ${satir("Enflasyon (TÜFE, yıllık ort.)", durum.makro.enflasyon, "%")}
             ${satir("Büyüme (GSYH)", durum.makro.buyume, "%")}
             ${satir("İşsizlik", durum.makro.issizlik, "%")}
             ${satir("Kişi başı gelir", durum.makro.kisiBasiGsyh, " $")}
-            </tbody></table></div>
-            <p class="kucuk">Kaynak: Dünya Bankası (yıllık, resmî). Aylık TÜİK verisinden farklı olabilir.</p>`;
+ </tbody></table></div> <p class="kucuk">Kaynak: Dünya Bankası (yıllık, resmî). Aylık TÜİK verisinden farklı olabilir.</p>`;
         const e = durum.makro.enflasyon;
         grafikCiz("#makroGrafik", e.map(x => x.yil + "-01-01"), e.map(x => x.deger), null);
     } else {
@@ -908,13 +877,7 @@ function ekonomiCiz() {
     }).filter(x => x && x.yil !== null).sort((a, b) => b.yil - a.yil).slice(0, 12);
     const enBuyuk = Math.max(...perf.map(x => Math.abs(x.yil)));
     $("#tlPerformans").innerHTML = perf.map(x => `
-        <div class="sonuc-satir">
-            <span>${x.p.bayrak} ${x.p.ad}</span>
-            <span style="display:flex;align-items:center;gap:8px">
-                <span style="display:inline-block;height:8px;border-radius:4px;background:${x.yil > 0 ? "var(--azalis)" : "var(--artis)"};width:${Math.abs(x.yil) / enBuyuk * 70}px"></span>
-                <b class="${x.yil > 0 ? "asagi" : "yukari"}">${yuzde(x.yil)}</b>
-            </span>
-        </div>`).join("") +
+        <div class="sonuc-satir"> <span>${x.p.bayrak} ${x.p.ad}</span> <span style="display:flex;align-items:center;gap:8px"> <span style="display:inline-block;height:8px;border-radius:4px;background:${x.yil > 0 ? "var(--azalis)" : "var(--artis)"};width:${Math.abs(x.yil) / enBuyuk * 70}px"></span> <b class="${x.yil > 0 ? "asagi" : "yukari"}">${yuzde(x.yil)}</b> </span> </div>`).join("") +
         `<p class="kucuk">Pozitif = o para TL karşısında değer kazandı, yani TL değer kaybetti.
         TL'nin dolar karşısındaki 1 yıllık alım gücü kaybı: <b>%${sayi(perf.find(x => x.p.kod === "USD") ? perf.find(x => x.p.kod === "USD").tlKaybi : 0, 1)}</b>.</p>`;
 
@@ -923,13 +886,10 @@ function ekonomiCiz() {
         const s = seriAl(m.kod);
         if (!s) return "";
         const o = varlikOzeti(m.kod, durum.veri.tarihler, s);
-        return `<tr><td>${m.bayrak} ${m.ad}</td><td><b>${fiyatYaz(m.kod, guncelFiyat(m.kod))}</b></td>
-            <td class="${renkSinif(o.gun)}">${yuzde(o.gun)}</td><td class="${renkSinif(o.yil)}">${yuzde(o.yil)}</td></tr>`;
+        return `<tr><td>${m.bayrak} ${m.ad}</td><td><b>${fiyatYaz(m.kod, guncelFiyat(m.kod))}</b></td> <td class="${renkSinif(o.gun)}">${yuzde(o.gun)}</td><td class="${renkSinif(o.yil)}">${yuzde(o.yil)}</td></tr>`;
     }).join("");
     const oran = durum.madenler.XAU && durum.madenler.XAG ? durum.madenler.XAU / durum.madenler.XAG : null;
-    $("#madenTablo").innerHTML = `<div class="tablo-sar"><table><thead><tr>
-        <th>Varlık</th><th>Fiyat</th><th>Gün</th><th>Yıl</th></tr></thead><tbody>${madenSatir}</tbody></table></div>
-        ${durum.onsGecmis.XAU ? "" : `<p class="kucuk" style="color:var(--uyari)">⚠️ Altının dolar geçmişi henüz
+    $("#madenTablo").innerHTML = `<div class="tablo-sar"><table><thead><tr> <th>Varlık</th><th>Fiyat</th><th>Gün</th><th>Yıl</th></tr></thead><tbody>${madenSatir}</tbody></table></div> ${durum.onsGecmis.XAU ? "" : `<p class="kucuk"style="color:var(--uyari)"> Altının dolar geçmişi henüz
             yüklenmedi. O yüzden aşağıdaki değişim yüzdeleri <b>yalnızca kur hareketini</b> yansıtıyor
             (altının kendi dolar fiyatı sabit varsayıldı). Birkaç saniye içinde tazelenir.</p>`}
         ${oran ? `<p class="kucuk">Altın/Gümüş oranı: <b>${sayi(oran, 1)}</b> — 1 ons altın kaç ons gümüş eder.
@@ -938,11 +898,7 @@ function ekonomiCiz() {
     // İzlenecekler: ücretsiz çekemediğimiz ama profesyonellerin izlediği göstergeler
     $("#izlenecekler").innerHTML = `<p class="kucuk">Bunları ücretsiz ve otomatik çekemiyoruz
         (açık veri yok). Uydurmak yerine <b>nereden bakacağınızı</b> söylüyoruz.</p>` +
-        IZLENECEKLER.map(x => `<div class="analiz-bolum">
-            <h4>${x.ad}</h4>
-            <p>${x.neden}</p>
-            <p class="kucuk">📍 ${x.nereden} — <a href="${x.adres}" target="_blank" rel="noopener" style="color:var(--vurgu2)">bağlantı</a></p>
-        </div>`).join("");
+        IZLENECEKLER.map(x => `<div class="analiz-bolum"> <h4>${x.ad}</h4> <p>${x.neden}</p> <p class="kucuk"> ${x.nereden} — <a href="${x.adres}"target="_blank"rel="noopener"style="color:var(--vurgu2)">bağlantı</a></p> </div>`).join("");
 
     // Faizin en son ne zaman güncellendiği
     $("#faizGuncelBilgi").innerHTML = durum.ayar.faizGuncelleme
@@ -972,7 +928,7 @@ function portfoyKalemleri() {
 
     (durum.ayar.fonlar || []).forEach(f => {
         kalemler.push({
-            tur: "fon", id: f.id, ad: f.ad, simge: "📈",
+            tur: "fon", id: f.id, ad: f.ad, simge: "FON",
             miktar: f.miktar, fiyat: f.fiyat, alis: f.alis,
             deger: f.fiyat * f.miktar, guncelleme: f.guncelleme
         });
@@ -1013,40 +969,19 @@ function portfoyCiz() {
     const usdKur = durum.veri.seriler.USD[durum.veri.seriler.USD.length - 1];
     const kar = toplamMaliyet ? toplam - toplamMaliyet : null;
 
-    $("#portfoyOzet").innerHTML = `<div class="kutu">
-        <div class="sonuc-satir buyuk"><span>Toplam değer</span><b>${paraYaz(toplam)}</b></div>
-        <div class="sonuc-satir"><span>Dolar karşılığı</span><b>${sayi(toplam / usdKur, 2)} $</b></div>
-        ${kar !== null ? `<div class="sonuc-satir"><span>Kâr / zarar</span>
-            <b class="${kar >= 0 ? "yukari" : "asagi"}">${paraYaz(kar)} (${yuzde(kar / toplamMaliyet * 100)})</b></div>` : ""}
-        <div class="sonuc-satir"><span>1 ay sonra merkezi tahmin</span><b>${paraYaz(merkez)}</b></div>
-        <div class="sonuc-satir"><span>1 ay sonra %68 aralık</span><b>${paraYaz(alt)} – ${paraYaz(ust)}</b></div>
-        <div class="dagilim">${kalemler.map(k => `<div style="width:${k.deger / toplam * 100}%;background:${k.renk}"></div>`).join("")}</div>
-        <div class="dagilim-liste">${kalemler.map(k => `<span><i style="background:${k.renk}"></i>${k.ad} %${sayi(k.deger / toplam * 100, 1)}</span>`).join("")}</div>
-        ${tahminsiz > 0 ? `<p class="kucuk">Not: portföyün ${paraYaz(tahminsiz)} kadarlık kısmı (fonlar)
+    $("#portfoyOzet").innerHTML = `<div class="kutu"> <div class="sonuc-satir buyuk"><span>Toplam değer</span><b>${paraYaz(toplam)}</b></div> <div class="sonuc-satir"><span>Dolar karşılığı</span><b>${sayi(toplam / usdKur, 2)} $</b></div> ${kar !== null ? `<div class="sonuc-satir"><span>Kâr / zarar</span> <b class="${kar >= 0 ? "yukari" : "asagi"}">${paraYaz(kar)} (${yuzde(kar / toplamMaliyet * 100)})</b></div>` : ""}
+        <div class="sonuc-satir"><span>1 ay sonra merkezi tahmin</span><b>${paraYaz(merkez)}</b></div> <div class="sonuc-satir"><span>1 ay sonra %68 aralık</span><b>${paraYaz(alt)} – ${paraYaz(ust)}</b></div> <div class="dagilim">${kalemler.map(k => `<div style="width:${k.deger / toplam * 100}%;background:${k.renk}"></div>`).join("")}</div> <div class="dagilim-liste">${kalemler.map(k => `<span><i style="background:${k.renk}"></i>${k.ad} %${sayi(k.deger / toplam * 100, 1)}</span>`).join("")}</div> ${tahminsiz > 0 ? `<p class="kucuk">Not: portföyün ${paraYaz(tahminsiz)} kadarlık kısmı (fonlar)
             fiyat geçmişi olmadığı için tahmine katılmadı, olduğu gibi sayıldı.</p>` : ""}
-    </div>`;
+ </div>`;
 
     $("#portfoyListe").innerHTML = kalemler.map(k => {
         const kazanc = k.alis ? (k.fiyat / k.alis - 1) * 100 : null;
         const eski = k.tur === "fon" && (!k.guncelleme ||
             (new Date(isoTarih(new Date())) - new Date(k.guncelleme)) / 86400000 > 14);
-        return `<div class="portfoy-satir">
-            <span style="font-size:22px">${k.simge}</span>
-            <span><b>${k.ad}</b><br>
-                <span style="font-size:12px;color:var(--yazi2)">
-                ${sayi(k.miktar, 4)} × ${paraYaz(k.fiyat)}
+        return `<div class="portfoy-satir"> <span class="bayrak">${k.simge}</span> <span><b>${k.ad}</b><br> <span style="font-size:12px;color:var(--yazi2)"> ${sayi(k.miktar, 4)} × ${paraYaz(k.fiyat)}
                 ${k.tur === "fon" ? ` · <span class="${eski ? "asagi" : ""}">fiyat ${k.guncelleme ? tarihYaz(k.guncelleme) : "girilmedi"}</span>` : ""}
-                </span></span>
-            <span style="text-align:right"><b>${paraYaz(k.deger)}</b>
-                ${kazanc !== null ? `<br><span class="${kazanc >= 0 ? "yukari" : "asagi"}" style="font-size:12px">${yuzde(kazanc)}</span>` : ""}</span>
-            <button class="sil" data-sil-tur="${k.tur}" data-sil="${k.tur === "fon" ? k.id : k.dizin}" title="Sil">🗑️</button>
-        </div>
-        ${k.tur === "fon" ? `<div class="fon-guncelle">
-            <label>Yeni birim fiyat
-                <input type="number" step="any" inputmode="decimal" placeholder="${sayi(k.fiyat, 4)}" data-fon-fiyat="${k.id}" />
-            </label>
-            <button class="ikincil" data-fon-kaydet="${k.id}">Güncelle</button>
-        </div>` : ""}`;
+ </span></span> <span style="text-align:right"><b>${paraYaz(k.deger)}</b> ${kazanc !== null ? `<br><span class="${kazanc >= 0 ? "yukari" : "asagi"}"style="font-size:12px">${yuzde(kazanc)}</span>` : ""}</span> <button class="sil"data-sil-tur="${k.tur}"data-sil="${k.tur === "fon" ? k.id : k.dizin}"title="Sil"></button> </div> ${k.tur === "fon" ? `<div class="fon-guncelle"> <label>Yeni birim fiyat
+                <input type="number"step="any"inputmode="decimal"placeholder="${sayi(k.fiyat, 4)}"data-fon-fiyat="${k.id}" /> </label> <button class="ikincil"data-fon-kaydet="${k.id}">Güncelle</button> </div>` : ""}`;
     }).join("");
 
     $$("#portfoyListe .sil").forEach(b => b.onclick = () => {
@@ -1072,12 +1007,12 @@ function portfoyCiz() {
 // İki ayar var: kaç ayrıntı görünsün (sade/tam) ve hangi renk.
 
 const RENKLER = [
-    { kod: "varsayilan", ad: "Turkuaz", ornek: "#4dd4c0" },
-    { kod: "okyanus", ad: "Okyanus", ornek: "#38bdf8" },
-    { kod: "orman", ad: "Orman", ornek: "#4ade80" },
-    { kod: "gunbatimi", ad: "Gün batımı", ornek: "#fb923c" },
-    { kod: "lavanta", ad: "Lavanta", ornek: "#c084fc" },
-    { kod: "gri", ad: "Sade gri", ornek: "#94a3b8" }
+    { kod: "varsayilan", ad: "Lacivert", ornek: "#1c5fd6" },
+    { kod: "okyanus", ad: "Petrol", ornek: "#0a7ea4" },
+    { kod: "orman", ad: "Yeşil", ornek: "#15803d" },
+    { kod: "gunbatimi", ad: "Kiremit", ornek: "#c2410c" },
+    { kod: "lavanta", ad: "Mor", ornek: "#7c3aed" },
+    { kod: "gri", ad: "Antrasit", ornek: "#475569" }
 ];
 
 // Hangi cihazdayız? Eşik 900px: bunun altı telefon/tablet, üstü bilgisayar sayılır.
@@ -1094,7 +1029,7 @@ function gorunumAyari() {
 function gorunumUygula() {
     const g = gorunumAyari();
 
-    // Sade mod: "gelismis" işaretli her şey gizlenir
+    // Sade mod: "gelismis"işaretli her şey gizlenir
     document.body.classList.toggle("sade", g.mod !== "tam");
     document.body.dataset.cihaz = cihazTuru();
 
@@ -1117,8 +1052,8 @@ function gorunumUygula() {
     if (etiket) {
         const pc = cihazTuru() === "pc";
         etiket.innerHTML = pc
-            ? `💻 <b>Bilgisayar</b> görünümünü ayarlıyorsunuz. Telefonun ayarı ayrıdır.`
-            : `📱 <b>Telefon</b> görünümünü ayarlıyorsunuz. Bilgisayarın ayarı ayrıdır.`;
+            ? ` <b>Bilgisayar</b> görünümünü ayarlıyorsunuz. Telefonun ayarı ayrıdır.`
+            : ` <b>Telefon</b> görünümünü ayarlıyorsunuz. Bilgisayarın ayarı ayrıdır.`;
     }
 
     // Sade moddayken gizli bir sekmede kalmayalım
@@ -1130,9 +1065,7 @@ function gorunumUygula() {
 }
 
 function ayarPaneliKur() {
-    $("#renkSecenekleri").innerHTML = RENKLER.map(r =>
-        `<button class="renk-nokta" data-renk="${r.kod}" title="${r.ad}"
-                 style="background:${r.ornek}"></button>`).join("");
+    $("#renkSecenekleri").innerHTML = RENKLER.map(r => `<button class="renk-nokta"data-renk="${r.kod}"title="${r.ad}"style="background:${r.ornek}"></button>`).join("");
 
     $$("#ayarPanel .secenek").forEach(b => b.onclick = () => {
         gorunumAyari().mod = b.dataset.mod;   // sadece bu cihazın ayarı değişir
@@ -1156,7 +1089,7 @@ function ayarPaneliKur() {
 
 // ---------- SEKMELER ----------
 
-// Sekme adları ↔ adres çıpası (böylece "…/#tahmin" doğrudan tahmin sekmesini açar)
+// Sekme adları ↔ adres çıpası (böylece "…/#tahmin"doğrudan tahmin sekmesini açar)
 const CIPALAR = { sPiyasa: "piyasa", sTahmin: "tahmin", sFaiz: "faiz", sEkonomi: "ekonomi", sPortfoy: "portfoy" };
 
 function sekmeAc(hedef, cipaYazma) {
@@ -1168,7 +1101,7 @@ function sekmeAc(hedef, cipaYazma) {
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (hedef === "sTahmin") tahminCiz();
     if (hedef === "sEkonomi") ekonomiCiz();
-    if (hedef === "sPortfoy") { portfoyCiz(); alarmListeCiz(); }
+    if (hedef === "sPortfoy") { portfoyCiz(); alarmListeCiz(); otomatikAyarCiz(); }
     if (hedef === "sFaiz") faizHesapla();
 }
 
@@ -1257,13 +1190,12 @@ async function veriYukle(sessiz) {
         if (durum.veri) { rozet.textContent = "çevrimdışı"; rozet.className = "rozet hata"; }
         else {
             rozet.textContent = "bağlantı yok"; rozet.className = "rozet hata";
-            $("#kartlar").innerHTML = `<p class="yukleniyor">İnternet bağlantısı kurulamadı.<br>
-                Bağlanınca 🔄 düğmesine basın.</p>`;
+            $("#kartlar").innerHTML = `<p class="yukleniyor">İnternet bağlantısı kurulamadı.<br> Bağlanınca  düğmesine basın.</p>`;
         }
     }
 }
 
-// Adresteki çıpayı uygula: "#tahmin" sekmeyi açar, "#detay=USD" varlık panelini açar
+// Adresteki çıpayı uygula: "#tahmin"sekmeyi açar, "#detay=USD"varlık panelini açar
 function cipayiUygula() {
     const cipa = (location.hash || "").replace("#", "");
     if (!cipa) return;
@@ -1293,6 +1225,7 @@ function ekraniTazele() {
     oneCikanlarCiz();
     anaKartCiz();
     alarmlariKontrolEt();
+    otomatikUyarilariKontrolEt();
     uyarilariCiz();
     if (!$("#tumListe").hidden) piyasaCiz();
     if ($("#sTahmin").classList.contains("aktif")) tahminCiz();
@@ -1306,11 +1239,11 @@ function ekraniTazele() {
 function baslat() {
     // Tema
     document.documentElement.dataset.tema = durum.ayar.tema;
-    $("#temaBtn").textContent = durum.ayar.tema === "koyu" ? "☀️" : "🌙";
+    $("#temaBtn").textContent = durum.ayar.tema === "koyu" ? "◑" : "◐";
     $("#temaBtn").onclick = () => {
         durum.ayar.tema = durum.ayar.tema === "koyu" ? "acik" : "koyu";
         document.documentElement.dataset.tema = durum.ayar.tema;
-        $("#temaBtn").textContent = durum.ayar.tema === "koyu" ? "☀️" : "🌙";
+        $("#temaBtn").textContent = durum.ayar.tema === "koyu" ? "◑" : "◐";
         ayarYaz(durum.ayar);
         gorunumUygula();
         ekraniTazele();
@@ -1359,7 +1292,7 @@ function baslat() {
         ayarYaz(durum.ayar);
         $("#aSeviye").value = "";
         // Bildirim izni: kullanıcı düğmeye bastığı için tam zamanı
-        if ("Notification" in window && Notification.permission === "default") {
+        if ("Notification"in window && Notification.permission === "default") {
             try { await Notification.requestPermission(); } catch (e) { }
         }
         alarmListeCiz(); alarmlariKontrolEt(); uyarilariCiz();
@@ -1412,12 +1345,12 @@ function baslat() {
     // Tek tuş ekonomist analizi (tahmin sekmesinin en üstüne eklenir)
     const analizBtn = document.createElement("button");
     analizBtn.className = "analiz-btn";
-    analizBtn.textContent = "🧠 Tek tuşla ekonomist analizi";
+    analizBtn.textContent = "Tek tuşla ekonomist analizi";
     analizBtn.onclick = () => {
         const kod = durum.secili;
         const s = seriAl(kod);
         if (!s) return;
-        analizBtn.textContent = "🧠 hesaplanıyor…";
+        analizBtn.textContent = "hesaplanıyor…";
         setTimeout(() => {
             const ozet = varlikOzeti(kod, durum.veri.tarihler, s);
             const tahminler = [1, 7, 30].map(g => tahminYap(s, g, tahminAyari(kod, g))).filter(Boolean);
@@ -1425,12 +1358,9 @@ function baslat() {
             const bolumler = ekonomistAnalizi(kod, ozet, tahminler, karne, durum.ayar, { sonrakiPPK: "10 Eylül 2026" });
             const surucular = surucuAnalizi(kod, ozet, durum.ayar, durum.veri, durum.makro);
             $("#analizSonuc").innerHTML = analizHtml(bolumler) +
-                `<h4 style="margin-top:16px">🧭 Sürücü göstergeler</h4><div class="surucu-izgara">` +
-                surucular.map(x => `<div class="surucu">
-                    <span class="sad">${x.ad}</span>
-                    <span class="sdeger ${x.yon === "yukari" ? "yukari" : x.yon === "asagi" ? "asagi" : ""}">${x.deger}</span>
-                    <span class="saciklama">${x.aciklama}</span></div>`).join("") + `</div>`;
-            analizBtn.textContent = "🧠 Tek tuşla ekonomist analizi";
+                `<h4 style="margin-top:16px"> Sürücü göstergeler</h4><div class="surucu-izgara">` +
+                surucular.map(x => `<div class="surucu"> <span class="sad">${x.ad}</span> <span class="sdeger ${x.yon === "yukari" ? "yukari" : x.yon === "asagi" ? "asagi" : ""}">${x.deger}</span> <span class="saciklama">${x.aciklama}</span></div>`).join("") + `</div>`;
+            analizBtn.textContent = "Tek tuşla ekonomist analizi";
         }, 20);
     };
     const analizKutu = document.createElement("div");
@@ -1470,7 +1400,7 @@ function baslat() {
 
     // Ekran döndürülünce / boyut değişince grafikleri yeniden çiz
     // Bilgisayar <-> telefon sınırı geçilince o cihazın KENDİ ayarına dön.
-    // Neden matchMedia? "resize" olayı her tarayıcıda güvenilir tetiklenmiyor;
+    // Neden matchMedia? "resize"olayı her tarayıcıda güvenilir tetiklenmiyor;
     // eşik değişimini dinlemenin doğru yolu bu (ölçtük, resize ile çalışmıyordu).
     const genisSorgu = window.matchMedia("(min-width: 900px)");
     const cihazDegisti = () => { gorunumUygula(); ekraniTazele(); };
@@ -1484,7 +1414,7 @@ function baslat() {
         zamanlayici = setTimeout(ekraniTazele, 200);
     });
 
-    // "Ana ekrana ekle" daveti
+    // "Ana ekrana ekle"daveti
     let kurulumOlayi = null;
     window.addEventListener("beforeinstallprompt", (e) => {
         e.preventDefault(); kurulumOlayi = e;
@@ -1492,7 +1422,7 @@ function baslat() {
         $("#kurBtn").onclick = async () => { kurulumOlayi.prompt(); $("#kurBtn").hidden = true; };
     });
 
-    if ("serviceWorker" in navigator) {
+    if ("serviceWorker"in navigator) {
         navigator.serviceWorker.register("sw.js").catch(() => { });
     }
 

@@ -19,48 +19,48 @@ const AYAR_22 = 0.916;         // 22 ayar bilezik saflık oranı
 
 // Takip edilen paralar. "faiz" = o paranın yıllık faizi (parite hesabında kullanılır).
 const PARALAR = [
-    { kod: "USD", ad: "Amerikan Doları", simge: "$", bayrak: "🇺🇸", faiz: 4.00 },
-    { kod: "EUR", ad: "Euro", simge: "€", bayrak: "🇪🇺", faiz: 2.00 },
-    { kod: "GBP", ad: "İngiliz Sterlini", simge: "£", bayrak: "🇬🇧", faiz: 4.00 },
-    { kod: "CHF", ad: "İsviçre Frangı", simge: "Fr", bayrak: "🇨🇭", faiz: 0.25 },
-    { kod: "JPY", ad: "Japon Yeni (100)", simge: "¥", bayrak: "🇯🇵", faiz: 0.50, carpan: 100 },
-    { kod: "CAD", ad: "Kanada Doları", simge: "C$", bayrak: "🇨🇦", faiz: 2.75 },
-    { kod: "AUD", ad: "Avustralya Doları", simge: "A$", bayrak: "🇦🇺", faiz: 3.60 },
-    { kod: "SEK", ad: "İsveç Kronu", simge: "kr", bayrak: "🇸🇪", faiz: 2.00 },
-    { kod: "NOK", ad: "Norveç Kronu", simge: "kr", bayrak: "🇳🇴", faiz: 4.00 },
-    { kod: "DKK", ad: "Danimarka Kronu", simge: "kr", bayrak: "🇩🇰", faiz: 2.10 },
-    { kod: "CNY", ad: "Çin Yuanı", simge: "¥", bayrak: "🇨🇳", faiz: 3.00 },
-    { kod: "RON", ad: "Rumen Leyi", simge: "lei", bayrak: "🇷🇴", faiz: 6.50 },
-    { kod: "PLN", ad: "Polonya Zlotisi", simge: "zł", bayrak: "🇵🇱", faiz: 5.00 },
-    { kod: "CZK", ad: "Çek Korunası", simge: "Kč", bayrak: "🇨🇿", faiz: 3.50 },
-    { kod: "HUF", ad: "Macar Forinti", simge: "Ft", bayrak: "🇭🇺", faiz: 6.50 },
-    { kod: "INR", ad: "Hindistan Rupisi", simge: "₹", bayrak: "🇮🇳", faiz: 5.50 },
-    { kod: "KRW", ad: "Güney Kore Wonu", simge: "₩", bayrak: "🇰🇷", faiz: 2.50 },
-    { kod: "SGD", ad: "Singapur Doları", simge: "S$", bayrak: "🇸🇬", faiz: 2.00 },
-    { kod: "HKD", ad: "Hong Kong Doları", simge: "HK$", bayrak: "🇭🇰", faiz: 4.00 },
-    { kod: "NZD", ad: "Yeni Zelanda Doları", simge: "NZ$", bayrak: "🇳🇿", faiz: 3.00 },
-    { kod: "BRL", ad: "Brezilya Reali", simge: "R$", bayrak: "🇧🇷", faiz: 14.00 },
-    { kod: "MXN", ad: "Meksika Pesosu", simge: "$", bayrak: "🇲🇽", faiz: 7.50 },
-    { kod: "ZAR", ad: "Güney Afrika Randı", simge: "R", bayrak: "🇿🇦", faiz: 7.00 },
-    { kod: "ILS", ad: "İsrail Şekeli", simge: "₪", bayrak: "🇮🇱", faiz: 4.50 },
-    { kod: "IDR", ad: "Endonezya Rupiahı (100)", simge: "Rp", bayrak: "🇮🇩", faiz: 5.00, carpan: 100 },
-    { kod: "THB", ad: "Tayland Bahtı", simge: "฿", bayrak: "🇹🇭", faiz: 1.50 },
-    { kod: "MYR", ad: "Malezya Ringgiti", simge: "RM", bayrak: "🇲🇾", faiz: 2.75 },
-    { kod: "PHP", ad: "Filipin Pesosu", simge: "₱", bayrak: "🇵🇭", faiz: 5.00 },
-    { kod: "ISK", ad: "İzlanda Kronu (100)", simge: "kr", bayrak: "🇮🇸", faiz: 7.50, carpan: 100 }
+    { kod: "USD", ad: "Amerikan Doları", simge: "$", bayrak: "USD", faiz: 4.00 },
+    { kod: "EUR", ad: "Euro", simge: "€", bayrak: "EUR", faiz: 2.00 },
+    { kod: "GBP", ad: "İngiliz Sterlini", simge: "£", bayrak: "GBP", faiz: 4.00 },
+    { kod: "CHF", ad: "İsviçre Frangı", simge: "Fr", bayrak: "CHF", faiz: 0.25 },
+    { kod: "JPY", ad: "Japon Yeni (100)", simge: "¥", bayrak: "JPY", faiz: 0.50, carpan: 100 },
+    { kod: "CAD", ad: "Kanada Doları", simge: "C$", bayrak: "CAD", faiz: 2.75 },
+    { kod: "AUD", ad: "Avustralya Doları", simge: "A$", bayrak: "AUD", faiz: 3.60 },
+    { kod: "SEK", ad: "İsveç Kronu", simge: "kr", bayrak: "SEK", faiz: 2.00 },
+    { kod: "NOK", ad: "Norveç Kronu", simge: "kr", bayrak: "NOK", faiz: 4.00 },
+    { kod: "DKK", ad: "Danimarka Kronu", simge: "kr", bayrak: "DKK", faiz: 2.10 },
+    { kod: "CNY", ad: "Çin Yuanı", simge: "¥", bayrak: "CNY", faiz: 3.00 },
+    { kod: "RON", ad: "Rumen Leyi", simge: "lei", bayrak: "RON", faiz: 6.50 },
+    { kod: "PLN", ad: "Polonya Zlotisi", simge: "zł", bayrak: "PLN", faiz: 5.00 },
+    { kod: "CZK", ad: "Çek Korunası", simge: "Kč", bayrak: "CZK", faiz: 3.50 },
+    { kod: "HUF", ad: "Macar Forinti", simge: "Ft", bayrak: "HUF", faiz: 6.50 },
+    { kod: "INR", ad: "Hindistan Rupisi", simge: "₹", bayrak: "INR", faiz: 5.50 },
+    { kod: "KRW", ad: "Güney Kore Wonu", simge: "₩", bayrak: "KRW", faiz: 2.50 },
+    { kod: "SGD", ad: "Singapur Doları", simge: "S$", bayrak: "SGD", faiz: 2.00 },
+    { kod: "HKD", ad: "Hong Kong Doları", simge: "HK$", bayrak: "HKD", faiz: 4.00 },
+    { kod: "NZD", ad: "Yeni Zelanda Doları", simge: "NZ$", bayrak: "NZD", faiz: 3.00 },
+    { kod: "BRL", ad: "Brezilya Reali", simge: "R$", bayrak: "BRL", faiz: 14.00 },
+    { kod: "MXN", ad: "Meksika Pesosu", simge: "$", bayrak: "MXN", faiz: 7.50 },
+    { kod: "ZAR", ad: "Güney Afrika Randı", simge: "R", bayrak: "ZAR", faiz: 7.00 },
+    { kod: "ILS", ad: "İsrail Şekeli", simge: "₪", bayrak: "ILS", faiz: 4.50 },
+    { kod: "IDR", ad: "Endonezya Rupiahı (100)", simge: "Rp", bayrak: "IDR", faiz: 5.00, carpan: 100 },
+    { kod: "THB", ad: "Tayland Bahtı", simge: "฿", bayrak: "THB", faiz: 1.50 },
+    { kod: "MYR", ad: "Malezya Ringgiti", simge: "RM", bayrak: "MYR", faiz: 2.75 },
+    { kod: "PHP", ad: "Filipin Pesosu", simge: "₱", bayrak: "PHP", faiz: 5.00 },
+    { kod: "ISK", ad: "İzlanda Kronu (100)", simge: "kr", bayrak: "ISK", faiz: 7.50, carpan: 100 }
 ];
 
 // Maden ve kripto: fiyatları dolar üzerinden gelir, TL'ye kurla çevrilir.
 // Maden ve kripto DOLAR varlığıdır: TL fiyatı = dolar fiyatı × USD/TRY.
-// Bu yüzden faiz paritesinde "karşı taraf faizi" olarak DOLAR faizi kullanılır (faiz: null bunu söyler).
+// Bu yüzden faiz paritesinde "karşı taraf faizi"olarak DOLAR faizi kullanılır (faiz: null bunu söyler).
 // Sıfır yazsaydık, TL faizinin tamamını altına bindirip fiyatı şişirirdik — ölçtük, model naive'den kötü çıkıyordu.
 const MADENLER = [
-    { kod: "GRAMALTIN", ad: "Gram Altın", simge: "gr", bayrak: "🥇", kaynak: "XAU", tur: "gram", faiz: null },
-    { kod: "CEYREK", ad: "Çeyrek Altın", simge: "ad", bayrak: "🪙", kaynak: "XAU", tur: "ceyrek", faiz: null },
-    { kod: "BILEZIK", ad: "22 Ayar Bilezik (gr)", simge: "gr", bayrak: "💍", kaynak: "XAU", tur: "ayar22", faiz: null },
-    { kod: "ONSALTIN", ad: "Ons Altın (USD)", simge: "$", bayrak: "🏅", kaynak: "XAU", tur: "ons", faiz: null },
-    { kod: "GRAMGUMUS", ad: "Gram Gümüş", simge: "gr", bayrak: "🥈", kaynak: "XAG", tur: "gram", faiz: null },
-    { kod: "BITCOIN", ad: "Bitcoin", simge: "₿", bayrak: "🟠", kaynak: "BTC", tur: "adet", faiz: null }
+    { kod: "GRAMALTIN", ad: "Gram Altın", simge: "gr", bayrak: "ALT", kaynak: "XAU", tur: "gram", faiz: null },
+    { kod: "CEYREK", ad: "Çeyrek Altın", simge: "ad", bayrak: "CYR", kaynak: "XAU", tur: "ceyrek", faiz: null },
+    { kod: "BILEZIK", ad: "22 Ayar Bilezik (gr)", simge: "gr", bayrak: "22A", kaynak: "XAU", tur: "ayar22", faiz: null },
+    { kod: "ONSALTIN", ad: "Ons Altın (USD)", simge: "$", bayrak: "ONS", kaynak: "XAU", tur: "ons", faiz: null },
+    { kod: "GRAMGUMUS", ad: "Gram Gümüş", simge: "gr", bayrak: "GUM", kaynak: "XAG", tur: "gram", faiz: null },
+    { kod: "BITCOIN", ad: "Bitcoin", simge: "₿", bayrak: "BTC", kaynak: "BTC", tur: "adet", faiz: null }
 ];
 
 // Türkiye faizi ve varsayılan ayarlar
@@ -70,14 +70,17 @@ const VARSAYILAN_AYAR = {
     mevduatFaiz: 37.0,          // bankaların verdiği ortalama mevduat faizi (kullanıcı düzenler)
     enflasyon: 34.88,           // yıllık TÜFE (Dünya Bankası 2025)
     pariteAgirlik: 60,          // tahminde faiz paritesinin ağırlığı (%)
-    tema: "koyu",
+    tema: "acik",   // yeni tasarim acik zeminde kuruldu; koyu tema  ile acilir
     // Görünüm ayarı CİHAZA GÖRE AYRI tutulur: bilgisayarda geniş ekran var, her şey sığar;
     // telefonda sade olması daha rahat. Biri değişince diğeri etkilenmez.
     gorunum: {
         pc: { mod: "tam", renk: "varsayilan" },
         mobil: { mod: "sade", renk: "varsayilan" }
     },
-    yabanciFaiz: {}             // kullanıcı düzenlerse burada saklanır
+    yabanciFaiz: {},            // kullanıcı düzenlerse burada saklanır
+    // Otomatik uyarılar: elle alarm kurmadan da dikkat çekici durumları bildirir
+    otomatik: { acik: true, izlenen: ["USD", "EUR", "GRAMALTIN"], yuvarlak: true, sert: true, sertEsik: 1.0, zirve: true, ortalama: false },
+    gorulenUyarilar: []         // aynı olay iki kez bildirilmesin diye
 };
 
 // ---------- 2) KÜÇÜK YARDIMCILAR ----------
@@ -92,10 +95,10 @@ function sayi(deger, basamak) {
     return deger.toLocaleString("tr-TR", { minimumFractionDigits: basamak, maximumFractionDigits: basamak });
 }
 
-// Para her zaman 2 haneli kuruşla yazılır: "486,58 ₺" (otomatik hane sayısı "486,575" veriyordu)
+// Para her zaman 2 haneli kuruşla yazılır: "486,58 ₺" (otomatik hane sayısı "486,575"veriyordu)
 function paraYaz(deger, basamak) { return sayi(deger, basamak === undefined ? 2 : basamak) + " ₺"; }
 
-// Önde % işaretli yüzde: "%31,45" / "-%2,54"  ("%-2,54" yerine, Türkçe okunuşa uygun)
+// Önde % işaretli yüzde: "%31,45" / "-%2,54"  ("%-2,54"yerine, Türkçe okunuşa uygun)
 function yuzdeOn(deger, basamak) {
     if (deger === null || deger === undefined || !isFinite(deger)) return "—";
     return (deger < 0 ? "-" : "") + "%" + sayi(Math.abs(deger), basamak === undefined ? 2 : basamak);
@@ -305,7 +308,7 @@ function madenFiyatiHesapla(maden, onsUsd, usdTry) {
 
 // Maden geçmişi: ons fiyatının geçmişini ücretsiz+CORS'lu bulmak zor.
 // Bu yüzden bugünkü ons fiyatını sabit kabul edip TL geçmişini kurdan üretiyoruz.
-// Dürüst olalım: bu, "altının dolar fiyatı sabit kalsaydı" senaryosudur; arayüzde böyle etiketlenir.
+// Dürüst olalım: bu, "altının dolar fiyatı sabit kalsaydı"senaryosudur; arayüzde böyle etiketlenir.
 function madenGecmisiUret(maden, onsUsd, usdSerisi) {
     if (!onsUsd) return null;
     return usdSerisi.map(usdTry => madenFiyatiHesapla(maden, onsUsd, usdTry));
@@ -400,7 +403,7 @@ function hamTahmin(seri, takvimGun, secenek) {
 // Neden? Ölçtük: 30 günlük tahminde teorik band gerçekte %68 yerine %35 tutuyordu.
 // Çünkü teorik band sadece fiyat oynaklığını sayar; modelin kendi yanılma payını saymaz.
 // Çözüm: modeli geçmişteki her güne uygula, hataları biriktir, bandı o hataların
-// gerçek dağılımından çıkar. Böylece band "modelin ne kadar yanıldığını" gösterir.
+// gerçek dağılımından çıkar. Böylece band "modelin ne kadar yanıldığını"gösterir.
 
 function dilimAl(siraliDizi, oran) {
     if (!siraliDizi.length) return 0;
@@ -423,7 +426,7 @@ function hataKayitlari(seri, takvimGun, secenek) {
         const gercek = temiz[i + tIs];
         kayitlar.push({
             hata: Math.log(gercek / t.merkez),        // modelin log hatası
-            naiveHata: Math.log(gercek / temiz[i]),   // "hiç değişmez" varsayımının hatası
+            naiveHata: Math.log(gercek / temiz[i]),   // "hiç değişmez"varsayımının hatası
             merkez: t.merkez, gercek: gercek, bugun: temiz[i]
         });
     }
@@ -443,7 +446,7 @@ function kalibrasyonAl(anahtar, seri, takvimGun, secenek) {
     // 80, hem USD hem EUR hem altında %68 hedefine en dengeli yaklaşan değer.
     const PENCERE = 80;
     const sonKayitlar = kayitlar.slice(-PENCERE);
-    // BECERİ ÖLÇÜMÜ: model, "fiyat değişmez" varsayımını gerçekten geçiyor mu?
+    // BECERİ ÖLÇÜMÜ: model, "fiyat değişmez"varsayımını gerçekten geçiyor mu?
     // Geçmiyorsa merkez tahmin olarak bugünkü fiyatı kullanmak DAHA DÜRÜST olur.
     // Bunu elle karar vermiyoruz; ölçüp modele kendisi karar verdiriyoruz.
     let toplamModel = 0, toplamNaive = 0, olculen = 0;
@@ -482,7 +485,7 @@ function tahminYap(seri, takvimGun, secenek) {
     if (kal) {
         // 1) SAPMA DÜZELTMESİ: model geçmişte sürekli yukarı/aşağı kaçıyorsa merkezi o kadar kaydır.
         // Ölçtük: faiz paritesi doları sistematik olarak yüksek tahmin ediyor
-        // (finans literatüründe "forward premium sapması" denir). Düzeltince hata neredeyse yarıya indi.
+        // (finans literatüründe "forward premium sapması"denir). Düzeltince hata neredeyse yarıya indi.
         t.hamMerkez = t.merkez;
         t.naiveModu = !!kal.naiveModu;
         t.beceri = kal.beceri;
@@ -516,7 +519,7 @@ function seviyeOlasiligi(tahmin, hedef) {
         let ustunde = 0;
         tahmin.hatalar.forEach(h => { if (h > esik) ustunde++; });
         const n = tahmin.hatalar.length;
-        // Laplace düzeltmesi: 80 örnekte hiç görülmemiş olması "imkânsız" demek değildir.
+        // Laplace düzeltmesi: 80 örnekte hiç görülmemiş olması "imkânsız"demek değildir.
         // Ham oran %0 veya %100 çıkabilir; bu yanıltıcı olur. Yumuşatıp %1–%99 arasına sıkıştırıyoruz.
         let o = (ustunde + 0.5) / (n + 1) * 100;
         o = Math.max(1, Math.min(99, o));
@@ -529,7 +532,7 @@ function seviyeOlasiligi(tahmin, hedef) {
 
 // ---------- 5b) SENARYOLAR: "başka ne olabilir?" ----------
 // Tek bir sayı vermek yanıltıcıdır. Profesyoneller hep senaryo çalışır:
-// olasılık dilimleri (iyimser/kötümser) + "şu olay olursa ne olur" hesapları.
+// olasılık dilimleri (iyimser/kötümser) + "şu olay olursa ne olur"hesapları.
 
 // Olasılık dilimleri: dağılımın %5, %25, %50, %75, %95 noktaları
 function olasilikDilimleri(tahmin) {
@@ -547,7 +550,7 @@ function olasilikDilimleri(tahmin) {
     };
 }
 
-// Geçmişteki en sert 21 iş günlük (≈1 ay) hareketi bulur — "en kötü ay" senaryosu için
+// Geçmişteki en sert 21 iş günlük (≈1 ay) hareketi bulur — "en kötü ay"senaryosu için
 function enSertAylikHareket(seri) {
     const temiz = seri.filter(x => x && isFinite(x));
     let enCok = 0, enAz = 0;
@@ -559,7 +562,7 @@ function enSertAylikHareket(seri) {
     return { yukari: enCok * 100, asagi: enAz * 100 };
 }
 
-// "Şu olay olursa" senaryoları — hepsi hesapla üretilir, uydurma yok
+// "Şu olay olursa"senaryoları — hepsi hesapla üretilir, uydurma yok
 function olaySenaryolari(seri, kod, ayar, takvimGun) {
     const temiz = seri.filter(x => x && isFinite(x));
     if (temiz.length < 60) return [];
@@ -612,7 +615,7 @@ function olaySenaryolari(seri, kod, ayar, takvimGun) {
 }
 
 // ---------- 6) MODEL KARNESİ (GEÇMİŞE DÖNÜK TEST) ----------
-// "Çalışıyor" demek yetmez. Modeli geçmişteki her güne uygulayıp
+// "Çalışıyor"demek yetmez. Modeli geçmişteki her güne uygulayıp
 // gerçekleşenle karşılaştırıyoruz. Kıyas noktası: "yarın da bugünkü kur" (naive) tahmini.
 function k68Kontrol(hata, egitimSirali, altOran, ustOran) {
     return hata >= dilimAl(egitimSirali, altOran) && hata <= dilimAl(egitimSirali, ustOran);
@@ -775,7 +778,7 @@ function reelGetiri(nominalYuzde, enflasyonYuzde) {
 }
 
 // Başabaş kuru: TL mevduatla dövizin eşitlendiği kur seviyesi.
-// Bu bir tavsiye değil; sadece "hangi kurda ikisi aynı parayı getirir" sorusunun cevabı.
+// Bu bir tavsiye değil; sadece "hangi kurda ikisi aynı parayı getirir"sorusunun cevabı.
 function basabasKuru(spot, tlFaiz, dovizFaiz, gun, stopajYuzde) {
     const t = gun / 365;
     const tlNet = tlFaiz / 100 * t * (1 - stopajYuzde / 100);
@@ -816,7 +819,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
 
     // 1) Manşet
     bolumler.push({
-        baslik: "📌 Özet",
+        baslik: "Özet",
         onem: "notr",
         satirlar: [
             `${v.ad} şu an <b>${yaz(ozet.son)}</b> (${tarihYaz(ozet.tarih)} referans kuru).`,
@@ -833,7 +836,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
     else if (!ort30Ust && !ort90Ust) trendMetni = "Fiyat hem 30 hem 90 günlük ortalamasının <b>altında</b> — zayıf seyir.";
     else trendMetni = "Fiyat ortalamaların <b>arasında sıkışmış</b> — yön belirsiz, kararsız bir dönem.";
     bolumler.push({
-        baslik: "📈 Yön (trend)",
+        baslik: "Yön (trend)",
         onem: ort30Ust ? "yukari" : "asagi",
         satirlar: [
             trendMetni,
@@ -852,7 +855,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
     else if (oynaklikOran < 0.7) oynaklikYorum = "Piyasa <b>normalden sakin</b>; dar bantta hareket bekleniyor.";
     else oynaklikYorum = "Oynaklık <b>olağan seviyede</b>.";
     bolumler.push({
-        baslik: "🌊 Oynaklık (risk)",
+        baslik: "Oynaklık (risk)",
         onem: oynaklikOran > 1.3 ? "uyari" : "notr",
         satirlar: [
             `Yıllıklandırılmış oynaklık <b>%${sayi(ozet.yillikOynaklik, 1)}</b> (son bir yıl ortalaması %${sayi(ozet.oynaklikOrtalama, 1)}).`,
@@ -866,11 +869,11 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
     const faizFarki = ayar.tlFaiz - yFaiz;
     const aylikParite = (pariteTahmini(ozet.son, ayar.tlFaiz, yFaiz, 30) / ozet.son - 1) * 100;
     bolumler.push({
-        baslik: "🏛️ Faiz farkı ne diyor?",
+        baslik: "Faiz farkı ne diyor?",
         onem: "notr",
         satirlar: [
             `TL faizi <b>%${sayi(ayar.tlFaiz, 2)}</b>, ${v.ad} tarafının faizi <b>%${sayi(yFaiz, 2)}</b>. Fark: <b>%${sayi(faizFarki, 2)}</b>.`,
-            `Faiz paritesine göre kurun aylık <b>${yuzde(aylikParite)}</b> artması "normal" kabul edilir — bu, arbitrajı engelleyen dengedir.`,
+            `Faiz paritesine göre kurun aylık <b>${yuzde(aylikParite)}</b> artması "normal"kabul edilir — bu, arbitrajı engelleyen dengedir.`,
             `Yıllığa çevrilirse faiz farkı, kurda yıllık yaklaşık <b>%${sayi((Math.pow(1 + aylikParite / 100, 12) - 1) * 100, 1)}</b> artışa denk gelir.`
         ]
     });
@@ -885,7 +888,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
         else if (fark < -0.5) carryYorum = `Modelin 1 aylık merkezi tahmini (<b>${yaz(tAy.merkez)}</b>) başabaş kurun <b>altında</b>: bu senaryo gerçekleşirse TL mevduat önde kalır.`;
         else carryYorum = `Modelin tahmini ile başabaş kur neredeyse <b>aynı</b> — iki seçenek matematiksel olarak başa baş görünüyor.`;
         bolumler.push({
-            baslik: "⚖️ TL mevduat mı, döviz mi?",
+            baslik: "TL mevduat mı, döviz mi?",
             onem: "notr",
             satirlar: [
                 `%${sayi(ayar.mevduatFaiz, 2)} mevduat faiziyle 1 ay sonunda başabaş kur: <b>${yaz(bb.kur)}</b> (bugüne göre ${yuzde(bb.gerekliArtis)}).`,
@@ -899,7 +902,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
     const reel = ozet.yil !== null ? reelGetiri(ozet.yil, ayar.enflasyon) : null;
     if (reel !== null) {
         bolumler.push({
-            baslik: "🔥 Enflasyona karşı",
+            baslik: "Enflasyona karşı",
             onem: reel > 0 ? "yukari" : "asagi",
             satirlar: [
                 `Son bir yılda ${v.ad} ${yuzde(ozet.yil)} artarken enflasyon %${sayi(ayar.enflasyon, 2)} oldu.`,
@@ -913,7 +916,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
     // 7) Tahmin özeti + olasılıklar
     const satirlar = [];
     tahminler.forEach(t => {
-        const ad = t.gun === 1 ? "Yarın" : t.gun === 7 ? "1 hafta" : t.gun === 30 ? "1 ay" : t.gun + " gün";
+        const ad = t.gun === 1 ? "Yarın" : t.gun === 7 ? "1 hafta" : t.gun === 30 ? "1 ay" : t.gun + "gün";
         satirlar.push(`<b>${ad}:</b> merkez ${yaz(t.merkez)} (${yuzde(t.degisimYuzde)}) · %68 olasılıkla ${yaz(t.alt68)} – ${yaz(t.ust68)}`);
     });
     if (tAy) {
@@ -921,16 +924,16 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
         const ol = seviyeOlasiligi(tAy, yuvarlak);
         if (ol) satirlar.push(`1 ay içinde <b>${yaz(yuvarlak)}</b> seviyesinin üstüne çıkma olasılığı: <b>%${sayi(ol.ustunde, 0)}</b>.`);
     }
-    bolumler.push({ baslik: "🔮 Tahmin", onem: "notr", satirlar: satirlar });
+    bolumler.push({ baslik: "Tahmin", onem: "notr", satirlar: satirlar });
 
     // 8) Modelin güvenilirliği — dürüstlük bölümü
     if (karne) {
         let guvenYorum;
-        if (karne.iyilesme > 10) guvenYorum = `Model, "yarın da bugünkü fiyat" varsayımından <b>%${sayi(karne.iyilesme, 0)} daha isabetli</b> çıktı.`;
+        if (karne.iyilesme > 10) guvenYorum = `Model, "yarın da bugünkü fiyat"varsayımından <b>%${sayi(karne.iyilesme, 0)} daha isabetli</b> çıktı.`;
         else if (karne.iyilesme > 0) guvenYorum = `Model basit varsayımdan <b>az farkla (%${sayi(karne.iyilesme, 0)})</b> iyi. Kur tahmini doğası gereği zordur.`;
-        else guvenYorum = `Model bu vadede basit "değişmez" varsayımını <b>geçemedi</b>. Tahmine temkinli yaklaşın.`;
+        else guvenYorum = `Model bu vadede basit "değişmez"varsayımını <b>geçemedi</b>. Tahmine temkinli yaklaşın.`;
         bolumler.push({
-            baslik: "🎓 Bu tahmine ne kadar güvenilir?",
+            baslik: "Bu tahmine ne kadar güvenilir?",
             onem: karne.iyilesme > 0 ? "notr" : "uyari",
             satirlar: [
                 `${karne.gun} günlük vadede geçmişte ${karne.deneme} kez test edildi: ortalama sapma <b>%${sayi(karne.ortalamaHata, 2)}</b>.`,
@@ -950,7 +953,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
         "Fed ve ECB faiz kararları — dolar ve euro tarafının faizini değiştirir."
     ];
     if (bilgi.sonrakiPPK) izle.unshift(`Sıradaki TCMB toplantısı: <b>${bilgi.sonrakiPPK}</b>.`);
-    bolumler.push({ baslik: "👀 Ne izlemeli?", onem: "notr", satirlar: izle });
+    bolumler.push({ baslik: "Ne izlemeli?", onem: "notr", satirlar: izle });
 
     return bolumler;
 }
@@ -1078,6 +1081,107 @@ const IZLENECEKLER = [
     }
 ];
 
+
+// ---------- 9c) OTOMATİK UYARI EŞİKLERİ ----------
+// Kullanıcı elle alarm kurmasa bile "dikkat çekici" durumları yakalar.
+// Hepsi elimizdeki veriden hesaplanır; uydurma yok.
+
+const UYARI_KURALLARI = [
+    { kod: "yuvarlak", ad: "Yuvarlak seviye geçildi", aciklama: "Kur 49, 50 gibi yuvarlak bir seviyeyi geçerse haber ver." },
+    { kod: "sert", ad: "Sert günlük hareket", aciklama: "Günlük değişim belirlediğiniz yüzdeyi aşarsa haber ver.", esikli: true, varsayilanEsik: 1.0 },
+    { kod: "zirve", ad: "52 haftanın zirvesi / dibi", aciklama: "Fiyat son bir yılın en yüksek ya da en düşük seviyesine gelirse haber ver." },
+    { kod: "ortalama", ad: "30 günlük ortalama kırıldı", aciklama: "Fiyat 30 günlük ortalamasının üstüne çıkar ya da altına inerse haber ver." }
+];
+
+// Fiyat büyüklüğüne göre "yuvarlak" sayılacak adım
+function yuvarlakAdim(fiyat) {
+    if (fiyat >= 100000) return 50000;
+    if (fiyat >= 10000) return 1000;
+    if (fiyat >= 1000) return 500;
+    if (fiyat >= 100) return 10;
+    if (fiyat >= 10) return 1;
+    if (fiyat >= 1) return 0.5;
+    return 0.1;
+}
+
+// Bir varlık için tetiklenen uyarıları döndürür.
+// anahtar: aynı olayın tekrar tekrar bildirilmemesi için kimlik.
+function otomatikUyariUret(kod, ozet, seri, ayarlar) {
+    const acik = ayarlar || {};
+    const cikti = [];
+    const temiz = seri.filter(x => x && isFinite(x));
+    if (temiz.length < 30) return cikti;
+
+    const son = ozet.son;
+    const onceki = temiz[temiz.length - 2];
+    const v = varlikBul(kod);
+    const ad = v ? v.ad : kod;
+    const gun = ozet.tarih;
+
+    // 1) Yuvarlak seviye geçişi
+    if (acik.yuvarlak !== false) {
+        const adim = yuvarlakAdim(son);
+        const altSinir = Math.min(onceki, son), ustSinir = Math.max(onceki, son);
+        const ilk = Math.ceil(altSinir / adim) * adim;
+        for (let seviye = ilk; seviye <= ustSinir + 1e-9; seviye += adim) {
+            if (seviye <= altSinir + 1e-9) continue;
+            const yukari = son > onceki;
+            cikti.push({
+                tur: "yuvarlak",
+                anahtar: `yuvarlak|${kod}|${seviye}|${gun}`,
+                metin: `${ad}, <b>${sayi(seviye, seviye >= 100 ? 0 : 2)}</b> seviyesini ${yukari ? "yukarı" : "aşağı"} yönde geçti (${sayi(son)}).`
+            });
+        }
+    }
+
+    // 2) Sert günlük hareket
+    if (acik.sert !== false && ozet.gun !== null) {
+        const esik = acik.sertEsik !== undefined ? acik.sertEsik : 1.0;
+        if (Math.abs(ozet.gun) >= esik) {
+            cikti.push({
+                tur: "sert",
+                anahtar: `sert|${kod}|${gun}`,
+                metin: `${ad} bugün <b>${yuzde(ozet.gun)}</b> hareket etti (eşik %${sayi(esik, 1)}).`
+            });
+        }
+    }
+
+    // 3) 52 haftanın zirvesi / dibi
+    if (acik.zirve !== false) {
+        if (son >= ozet.enYuksek52 - 1e-9) {
+            cikti.push({
+                tur: "zirve",
+                anahtar: `zirve|${kod}|${gun}`,
+                metin: `${ad} <b>son bir yılın en yüksek</b> seviyesinde: ${sayi(son)}.`
+            });
+        } else if (son <= ozet.enDusuk52 + 1e-9) {
+            cikti.push({
+                tur: "zirve",
+                anahtar: `dip|${kod}|${gun}`,
+                metin: `${ad} <b>son bir yılın en düşük</b> seviyesinde: ${sayi(son)}.`
+            });
+        }
+    }
+
+    // 4) 30 günlük ortalamanın kırılması
+    if (acik.ortalama === true && ozet.ort30) {
+        const oncekiOrt = hareketliOrt(temiz.slice(0, -1), 30);
+        if (oncekiOrt) {
+            const oncedenUstte = onceki > oncekiOrt;
+            const simdiUstte = son > ozet.ort30;
+            if (oncedenUstte !== simdiUstte) {
+                cikti.push({
+                    tur: "ortalama",
+                    anahtar: `ortalama|${kod}|${gun}`,
+                    metin: `${ad}, 30 günlük ortalamasının (${sayi(ozet.ort30)}) <b>${simdiUstte ? "üstüne çıktı" : "altına indi"}</b>.`
+                });
+            }
+        }
+    }
+
+    return cikti;
+}
+
 // ---------- 10) KAYIT / ÖNBELLEK ----------
 
 function ayarOku() {
@@ -1087,8 +1191,10 @@ function ayarOku() {
         const v = JSON.parse(ham);
         const ayar = Object.assign({}, VARSAYILAN_AYAR, { portfoy: [] }, v);
 
-        // Eski tek-ayarlı kayıtları yeni (pc/mobil) yapıya taşı
-        if (!ayar.gorunum || !ayar.gorunum.pc) {
+        // Eski tek-ayarlı kayıtları yeni (pc/mobil) yapıya taşı.
+        // DİKKAT: "ayar.gorunum" varsayılandan hep dolu gelir; bakılacak olan
+        // KAYITTAKİ (v) yapıdır. Yoksa eski kullanıcının tercihi sessizce silinir.
+        if (v && !v.gorunum && (v.mod || v.renk)) {
             ayar.gorunum = {
                 pc: { mod: v.mod || "tam", renk: v.renk || "varsayilan" },
                 mobil: { mod: v.mod || "sade", renk: v.renk || "varsayilan" }

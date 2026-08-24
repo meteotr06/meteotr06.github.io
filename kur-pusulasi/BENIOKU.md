@@ -114,6 +114,45 @@ yazarak doğrudan o ekranı açabilirsiniz.
 
 ---
 
+## Telefon kısayolları
+
+Uygulama telefona kurulduktan sonra **simgesine basılı tutunca** hızlı menü çıkar:
+
+| Kısayol | Nereyi açar |
+|---|---|
+| **Tahmin** | Yarın / 1 hafta / 1 ay tahminleri |
+| **Dolar** | Doların bütün verileri |
+| **Altın** | Gram altının bütün verileri |
+| **Faiz** | Mevduat ve başabaş kuru hesabı |
+
+Bunlar `manifest.json` içindeki `shortcuts` bölümünde tanımlıdır; simgeleri
+`simge_olustur.py` mantığıyla üretilmiştir (`kisayol-*.png`).
+
+---
+
+## Otomatik uyarılar (eşikler)
+
+Portföy sekmesindeki **Otomatik uyarılar** bölümü, siz elle alarm kurmasanız bile
+dikkat çekici durumları yakalar. Dört kural var:
+
+| Kural | Ne zaman uyarır |
+|---|---|
+| **Yuvarlak seviye** | Kur 49, 50 gibi yuvarlak bir rakamı geçince |
+| **Sert günlük hareket** | Günlük değişim eşiği aşınca (varsayılan **%1**, değiştirilebilir) |
+| **52 hafta zirvesi / dibi** | Fiyat son bir yılın en yüksek ya da en düşük noktasına gelince |
+| **30 günlük ortalama kırıldı** | Fiyat ortalamasının üstüne çıkınca / altına inince (varsayılan kapalı) |
+
+Hangi varlıkların izleneceğini de seçersiniz (varsayılan: dolar, euro, gram altın).
+Aynı olay iki kez bildirilmez.
+
+**Bildirim izni** verirseniz uyarılar telefon bildirimi olarak da gelir; vermezseniz
+uygulamanın ana ekranında şerit olarak görünür. İzin düğmesi aynı bölümdedir.
+
+> Not: Tarayıcı uygulamaları kapalıyken sürekli fiyat kontrol edemez. Kontrol,
+> uygulamayı her açtığınızda yapılır.
+
+---
+
 ## Kur alarmı
 
 Portföy sekmesindeki **🔔 Kur alarmları** bölümünden ya da bir varlığın detay panelindeki

@@ -1,18 +1,48 @@
 {
     "name": "Kur Pusulası",
     "short_name": "Kur Pusulası",
-    "description": "Döviz, altın ve ekonomi takibi. Yarın, 1 hafta ve 1 ay için istatistiksel kur tahmini; faiz, portföy ve ekonomist analizi.",
+    "description": "Döviz, altın ve ekonomi takibi. Yarın, 1 hafta ve 1 ay için istatistiksel kur tahmini; faiz, alarm ve portföy.",
     "lang": "tr",
     "start_url": "./",
     "scope": "./",
     "display": "standalone",
     "orientation": "any",
-    "background_color": "#0b1020",
-    "theme_color": "#0b1020",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
     "categories": ["finance", "utilities"],
     "icons": [
         { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png" },
         { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png" },
         { "src": "ikon-maskeli.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ],
+    "shortcuts": [
+        {
+            "name": "Tahminler",
+            "short_name": "Tahmin",
+            "description": "Yarın, 1 hafta ve 1 ay tahminlerini aç",
+            "url": "./#tahmin",
+            "icons": [{ "src": "kisayol-tahmin.png", "sizes": "96x96", "type": "image/png" }]
+        },
+        {
+            "name": "Dolar detayı",
+            "short_name": "Dolar",
+            "description": "Doların bütün verilerini aç",
+            "url": "./#detay=USD",
+            "icons": [{ "src": "kisayol-dolar.png", "sizes": "96x96", "type": "image/png" }]
+        },
+        {
+            "name": "Gram altın",
+            "short_name": "Altın",
+            "description": "Gram altının bütün verilerini aç",
+            "url": "./#detay=GRAMALTIN",
+            "icons": [{ "src": "kisayol-altin.png", "sizes": "96x96", "type": "image/png" }]
+        },
+        {
+            "name": "Faiz hesabı",
+            "short_name": "Faiz",
+            "description": "Mevduat ve başabaş kuru hesabı",
+            "url": "./#faiz",
+            "icons": [{ "src": "kisayol-faiz.png", "sizes": "96x96", "type": "image/png" }]
+        }
     ]
 }
