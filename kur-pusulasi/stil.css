@@ -509,3 +509,15 @@ body.sade .gelismis { display: none !important; }
 }
 .etiket-dugme.secili { border-color: var(--vurgu); color: var(--vurgu); font-weight: 600; }
 .onay span .not { display: block; font-weight: 400; margin-top: 1px; }
+
+/* ---------- "Uygulama olarak yükle" kutusu ---------- */
+.kurulum-kutu {
+    background: var(--kart); border: 1px solid var(--vurgu);
+    border-radius: var(--yuvarlak); padding: 14px 16px; margin-bottom: 12px;
+}
+.kurulum-ust { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.kurulum-ust b { font-size: 15px; }
+.kurulum-ust button { min-height: 32px; min-width: 32px; padding: 0 8px; font-size: 14px; }
+.kurulum-kutu .birincil { width: 100%; margin-top: 12px; }
+.kurulum-adim { margin: 8px 0 0; padding-left: 20px; font-size: 13px; color: var(--yazi2); line-height: 1.7; }
+.kurulum-adim b { color: var(--yazi); }

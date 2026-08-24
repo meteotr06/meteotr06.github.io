@@ -315,6 +315,102 @@ function uyarilariCiz() {
     };
 }
 
+// ---------- UYGULAMA OLARAK YÜKLEME ----------
+// Amaç: uygulamayı bilen/bilmeyen herkes tek bakışta kurabilsin.
+// Chrome/Edge tek düğmeyle kurar; Safari (iPhone) kuramaz, ona adım adım anlatırız.
+
+function uygulamaKurulu() {
+    return window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+}
+
+function cihazBilgisi() {
+    const ua = navigator.userAgent || "";
+    const iosCihaz = /iPad|iPhone|iPod/.test(ua) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const safari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|Edg/.test(ua);
+    const android = /Android/.test(ua);
+    const firefox = /Firefox|FxiOS/.test(ua);
+    const masaustu = !iosCihaz && !android;
+    return { ios: iosCihaz, safari: safari, android: android, firefox: firefox, masaustu: masaustu };
+}
+
+function kurulumKutusuCiz() {
+    const kutu = $("#kurulumKutu");
+    if (!kutu) return;
+
+    // Zaten kuruluysa ya da kullanıcı kapattıysa gösterme
+    if (uygulamaKurulu() || durum.ayar.kurulumGizli) { kutu.innerHTML = ""; return; }
+
+    const c = cihazBilgisi();
+    let govde;
+
+    if (durum.kurulumOlayi) {
+        // Tarayıcı kurulumu destekliyor: tek düğme yeter
+        govde = `<p class="kucuk" style="margin:0">Ana ekrana/masaüstüne eklenir, tam ekran açılır
+                 ve internet yokken bile son verilerle çalışır.</p>
+                 <button class="birincil" id="kurBaslatBtn">Uygulama olarak yükle</button>`;
+    } else if (c.ios) {
+        govde = `<p class="kucuk" style="margin:0">iPhone/iPad'de <b>Safari</b> ile açın, sonra:</p>
+                 <ol class="kurulum-adim">
+                    <li>Alttaki <b>Paylaş</b> düğmesine dokunun (kutudan çıkan ok)</li>
+                    <li>Listeyi kaydırıp <b>"Ana Ekrana Ekle"</b>yi seçin</li>
+                    <li><b>Ekle</b> deyin — simge ana ekranınıza düşer</li>
+                 </ol>`;
+    } else if (c.android) {
+        govde = `<p class="kucuk" style="margin:0">Telefonda kurmak için:</p>
+                 <ol class="kurulum-adim">
+                    <li>Tarayıcının sağ üstündeki <b>⋮</b> menüsünü açın</li>
+                    <li><b>"Uygulamayı yükle"</b> ya da <b>"Ana ekrana ekle"</b>yi seçin</li>
+                 </ol>
+                 <p class="kucuk">Chrome kullanıyorsanız birkaç saniye içinde yükleme düğmesi de çıkabilir.</p>`;
+    } else {
+        govde = `<p class="kucuk" style="margin:0">Bilgisayarda kurmak için Chrome ya da Edge kullanın:</p>
+                 <ol class="kurulum-adim">
+                    <li>Adres çubuğunun sağındaki <b>yükleme simgesine</b> tıklayın</li>
+                    <li>Ya da menü → <b>"Uygulamayı yükle"</b></li>
+                 </ol>
+                 <p class="kucuk">Kurulunca Başlat menüsüne eklenir, kendi penceresinde açılır.</p>`;
+    }
+
+    kutu.innerHTML = `<div class="kurulum-kutu">
+        <div class="kurulum-ust">
+            <b>Uygulama olarak kullanın</b>
+            <button class="ikincil" id="kurulumKapatBtn" title="Bir daha gösterme">✕</button>
+        </div>
+        ${govde}
+    </div>`;
+
+    const kapat = $("#kurulumKapatBtn");
+    if (kapat) kapat.onclick = () => {
+        durum.ayar.kurulumGizli = true; ayarYaz(durum.ayar); kurulumKutusuCiz();
+    };
+
+    const baslat = $("#kurBaslatBtn");
+    if (baslat) baslat.onclick = async () => {
+        if (!durum.kurulumOlayi) return;
+        durum.kurulumOlayi.prompt();
+        try { await durum.kurulumOlayi.userChoice; } catch (e) { }
+        durum.kurulumOlayi = null;
+        kurulumKutusuCiz();
+    };
+}
+
+// Bağlantıyı paylaş: telefonda paylaşma menüsü, bilgisayarda panoya kopyala
+async function baglantiyiPaylas(dugme) {
+    const adres = location.origin + location.pathname;
+    const veri = { title: "Kur Pusulası", text: "Döviz, altın ve kur tahmini", url: adres };
+    if (navigator.share) {
+        try { await navigator.share(veri); return; } catch (e) { /* vazgeçti */ return; }
+    }
+    try {
+        await navigator.clipboard.writeText(adres);
+        if (dugme) { const eski = dugme.textContent; dugme.textContent = "Kopyalandı"; setTimeout(() => dugme.textContent = eski, 1800); }
+    } catch (e) {
+        window.prompt("Bağlantıyı kopyalayın:", adres);
+    }
+}
+
 // ---------- OTOMATİK UYARILAR ----------
 // Elle alarm kurmaya gerek kalmadan, belirlenen eşikler aşılınca haber verir.
 
@@ -1227,6 +1323,7 @@ function ekraniTazele() {
     alarmlariKontrolEt();
     otomatikUyarilariKontrolEt();
     uyarilariCiz();
+    kurulumKutusuCiz();
     if (!$("#tumListe").hidden) piyasaCiz();
     if ($("#sTahmin").classList.contains("aktif")) tahminCiz();
     if ($("#sEkonomi").classList.contains("aktif")) ekonomiCiz();
@@ -1415,12 +1512,29 @@ function baslat() {
     });
 
     // "Ana ekrana ekle"daveti
-    let kurulumOlayi = null;
     window.addEventListener("beforeinstallprompt", (e) => {
-        e.preventDefault(); kurulumOlayi = e;
+        e.preventDefault();
+        durum.kurulumOlayi = e;
         $("#kurBtn").hidden = false;
-        $("#kurBtn").onclick = async () => { kurulumOlayi.prompt(); $("#kurBtn").hidden = true; };
+        $("#kurBtn").onclick = async () => {
+            e.prompt();
+            try { await e.userChoice; } catch (x) { }
+            durum.kurulumOlayi = null;
+            $("#kurBtn").hidden = true;
+            kurulumKutusuCiz();
+        };
+        kurulumKutusuCiz();
     });
+
+    // Kurulum bitince kutuyu kaldır
+    window.addEventListener("appinstalled", () => {
+        durum.kurulumOlayi = null;
+        $("#kurBtn").hidden = true;
+        kurulumKutusuCiz();
+    });
+
+    // Paylaş düğmesi (görünüm ayarları panelinde)
+    $("#paylasBtn").onclick = () => baglantiyiPaylas($("#paylasBtn"));
 
     if ("serviceWorker"in navigator) {
         navigator.serviceWorker.register("sw.js").catch(() => { });
