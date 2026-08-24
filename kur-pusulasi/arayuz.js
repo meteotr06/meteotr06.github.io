@@ -453,7 +453,7 @@ function otomatikUyarilariKontrolEt() {
         ayarYaz(durum.ayar);
         yeni.forEach(u => bildirimGonder("Kur Pusulası", u.metin.replace(/<[^>]+>/g, ""), u.anahtar));
     }
-    durum.otomatikUyarilar = (durum.otomatikUyarilar || []).concat(yeni).slice(-6);
+    durum.otomatikUyarilar = (durum.otomatikUyarilar || []).concat(yeni).slice(-3)   // ekran kalabalik olmasin;
     return yeni;
 }
 

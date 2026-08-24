@@ -1093,6 +1093,16 @@ const UYARI_KURALLARI = [
     { kod: "ortalama", ad: "30 günlük ortalama kırıldı", aciklama: "Fiyat 30 günlük ortalamasının üstüne çıkar ya da altına inerse haber ver." }
 ];
 
+// Dün de zirvede/dipte miydi? (art arda gelen "yeni zirve" bildirimlerini susturur)
+function duneKadarZirvedeydi(temiz) {
+    if (temiz.length < 30) return false;
+    const dunkuSeri = temiz.slice(0, -1);
+    const pencere = dunkuSeri.slice(-IS_GUNU_YIL);
+    const dun = dunkuSeri[dunkuSeri.length - 1];
+    const enYuksek = Math.max(...pencere), enDusuk = Math.min(...pencere);
+    return dun >= enYuksek - 1e-9 || dun <= enDusuk + 1e-9;
+}
+
 // Fiyat büyüklüğüne göre "yuvarlak" sayılacak adım
 function yuvarlakAdim(fiyat) {
     if (fiyat >= 100000) return 50000;
@@ -1147,7 +1157,10 @@ function otomatikUyariUret(kod, ozet, seri, ayarlar) {
     }
 
     // 3) 52 haftanın zirvesi / dibi
-    if (acik.zirve !== false) {
+    // DİKKAT: TL sürekli değer kaybettiği için dolar/euro neredeyse HER GÜN
+    // 52 haftanın zirvesinde olur. Bunu her gün bildirmek haber değil gürültüdür.
+    // Bu yüzden sadece "dünkü seviye zirvede DEĞİLKEN" bugün zirveye çıkılırsa bildiririz.
+    if (acik.zirve !== false && !duneKadarZirvedeydi(temiz)) {
         if (son >= ozet.enYuksek52 - 1e-9) {
             cikti.push({
                 tur: "zirve",
