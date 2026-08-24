@@ -2,13 +2,13 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v21";
+const SURUM = "kur-pusulasi-v22";
 const DOSYALAR = [
     "./",
     "./index.html",
-    "./stil.css?v=21",
-    "./cekirdek.js?v=21",
-    "./arayuz.js?v=21",
+    "./stil.css?v=22",
+    "./cekirdek.js?v=22",
+    "./arayuz.js?v=22",
     "./manifest.json",
     "./ikon-192.png",
     "./ikon-512.png",
@@ -16,7 +16,11 @@ const DOSYALAR = [
     "./kisayol-tahmin.png",
     "./kisayol-dolar.png",
     "./kisayol-altin.png",
-    "./kisayol-faiz.png"
+    "./kisayol-faiz.png",
+    "./ekran-telefon-1.png",
+    "./ekran-telefon-2.png",
+    "./ekran-genis-1.png",
+    "./acilis-ekrani.png"
 ];
 
 self.addEventListener("install", (olay) => {

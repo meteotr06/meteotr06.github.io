@@ -1,19 +1,47 @@
 {
-    "name": "Kur Pusulası",
+    "id": "/kur-pusulasi/",
+    "name": "Kur Pusulası — Döviz, Altın ve Tahmin",
     "short_name": "Kur Pusulası",
-    "description": "Döviz, altın ve ekonomi takibi. Yarın, 1 hafta ve 1 ay için istatistiksel kur tahmini; faiz, alarm ve portföy.",
+    "description": "Döviz, altın ve ekonomi takibi. Yarın, 1 hafta ve 1 ay için istatistiksel kur tahmini; faiz hesapları, portföy ve otomatik uyarılar. Reklamsız, ücretsiz, çevrimdışı çalışır.",
     "lang": "tr",
+    "dir": "ltr",
     "start_url": "./",
     "scope": "./",
     "display": "standalone",
+    "display_override": ["standalone", "minimal-ui"],
     "orientation": "any",
     "background_color": "#ffffff",
     "theme_color": "#ffffff",
-    "categories": ["finance", "utilities"],
+    "categories": ["finance", "business", "utilities"],
+    "prefer_related_applications": false,
+    "launch_handler": { "client_mode": "navigate-existing" },
     "icons": [
-        { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png" },
-        { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
         { "src": "ikon-maskeli.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ],
+    "screenshots": [
+        {
+            "src": "ekran-telefon-1.png",
+            "sizes": "412x913",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Ana ekran: dolar kuru ve yarın, 1 hafta, 1 ay tahminleri"
+        },
+        {
+            "src": "ekran-telefon-2.png",
+            "sizes": "412x913",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Tahmin ekranı: olasılık bandı ve geçmiş grafiği"
+        },
+        {
+            "src": "ekran-genis-1.png",
+            "sizes": "1280x804",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Bilgisayar görünümü"
+        }
     ],
     "shortcuts": [
         {
