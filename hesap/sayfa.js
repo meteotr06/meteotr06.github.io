@@ -384,6 +384,7 @@ function gizlilikBaglantisi() {
         <a href="index.html">Bütün araçlar</a> ·
         Bu sitede Google AdSense reklamları gösterilir.`;
     alt.appendChild(p);
+    digerUygulamalar();
     kurulumDugmesi();
 }
 
@@ -510,4 +511,24 @@ function cevrimdisiUyari(aktifYol) {
 
     window.addEventListener("offline", () => goster('<b>İnternet kesildi.</b> Bu sayfa çalışmaya devam ediyor.', true));
     window.addEventListener("online", () => goster('İnternet geri geldi.', false));
+}
+
+// ---------- Diğer uygulamalar ----------
+// Aynı adreste dört uygulama var ama birbirlerini tanıtmıyorlardı.
+// Hem ziyaretçi diğerlerini görsün hem de Google iç bağlantıları saysın.
+const DIGER_UYGULAMALAR = [
+    { ad: "Hava Durumu", adres: "../mobil/", not: "Türkiye geneli, saatlik ve 7 günlük" },
+    { ad: "Kur Pusulası", adres: "../kur-pusulasi/", not: "Döviz, altın ve kur tahmini" },
+    { ad: "Göz Molası", adres: "../goz-molasi/", not: "Ekran başında göz yorgunluğuna karşı" }
+];
+
+function digerUygulamalar() {
+    const alt = document.querySelector("footer");
+    if (!alt || alt.querySelector(".diger-uygulamalar")) return;
+    const k = document.createElement("div");
+    k.className = "diger-uygulamalar";
+    k.innerHTML = `<h2>Diğer ücretsiz uygulamalarım</h2>
+        <div class="diger-izgara">${DIGER_UYGULAMALAR.map(u =>
+            `<a class="diger-kart" href="${u.adres}"><b>${u.ad}</b><span>${u.not}</span></a>`).join("")}</div>`;
+    alt.insertBefore(k, alt.firstChild);
 }

@@ -811,3 +811,18 @@ main:focus { outline: none; }
 }
 .cevrimdisi-serit b { font-weight: 700; }
 @media print { .cevrimdisi-serit { display: none !important; } }
+
+/* ---------- Alt bilgi: diğer uygulamalar ---------- */
+.diger-uygulamalar { margin: 0 0 18px; }
+.diger-uygulamalar h2 { font-size: 15px; margin: 0 0 10px; color: var(--yazi2); font-weight: 600; }
+.diger-izgara { display: grid; gap: 8px; grid-template-columns: 1fr; }
+@media (min-width: 620px) { .diger-izgara { grid-template-columns: repeat(3, 1fr); } }
+.diger-kart {
+    display: block; padding: 12px 14px; border: 1px solid var(--cizgi);
+    border-radius: var(--yuvarlak); background: var(--kart); text-decoration: none;
+    min-height: 44px; transition: border-color .15s, transform .15s;
+}
+.diger-kart:hover { border-color: var(--vurgu); transform: translateY(-1px); }
+.diger-kart b { display: block; color: var(--yazi); font-size: 15px; }
+.diger-kart span { display: block; color: var(--yazi2); font-size: 13px; margin-top: 2px; }
+@media print { .diger-uygulamalar { display: none !important; } }
