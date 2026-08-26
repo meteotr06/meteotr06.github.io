@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Kredi Hesaplama 2026 — Aylık Taksit ve Ödeme Planı</title>
+<meta name="description" content="Kredi taksiti hesaplama: aylık ödeme, toplam faiz ve ay ay ödeme planı. İhtiyaç kredisinde KKDF ve BSMV dahil, gerçek maliyeti gösterir." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM: AdSense yukleyici. Otomatik Reklam acikken Google reklamlari
+     kendisi yerlestirir. Hesap sonuclarinin YANINA degil, altina duser. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kredi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Kredi Hesaplama 2026 — Aylık Taksit ve Ödeme Planı" />
+<meta property="og:description" content="Kredi taksiti hesaplama: aylık ödeme, toplam faiz ve ay ay ödeme planı. İhtiyaç kredisinde KKDF ve BSMV dahil, gerçek maliyeti gösterir." />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kredi-hesaplama.html" />
+<meta name="twitter:card" content="summary" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Kredi Hesaplama</h1>
+    <p class="ozet">Kredi tutarı, faiz oranı ve vadeyi girin; aylık taksitinizi, toplam
+    ödeyeceğiniz faizi ve ay ay ödeme planınızı görün.</p>
+
+    <div class="kaynak-serit" id="kaynakSerit"></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+    <div class="kutu">
+        <div class="form-izgara">
+            <label>Kredi tutarı (TL)
+                <input id="tutar" type="number" step="any" inputmode="decimal" value="100000" />
+            </label>
+            <label>Aylık faiz oranı (%)
+                <input id="faiz" type="number" step="0.01" inputmode="decimal" value="3.29" />
+            </label>
+            <label>Vade (ay)
+                <input id="vade" type="number" inputmode="numeric" value="24" />
+            </label>
+            <label class="onay">
+                <input id="vergi" type="checkbox" checked />
+                <span>KKDF + BSMV ekle<br><span class="not">İhtiyaç kredilerinde zorunlu</span></span>
+            </label>
+        </div>
+    </div>
+
+    <div id="ozet"></div>
+    <div id="dokum"></div>
+    </div>
+
+    <details class="kutu katlanir">
+        <summary><span>Ödeme planı</span><span class="ipuc">ay ay döküm</span></summary>
+        <div class="katlanir-ic">
+            <p class="kucuk" style="margin-top:0">Taksit hep aynı kalır ama içeriği değişir:
+            başta çoğu faize, sonda çoğu anaparaya gider.</p>
+            <div id="plan" class="tablo-sar"></div>
+        </div>
+    </details>
+
+    <section class="anlatim">
+        <h2>Kredi taksiti nasıl hesaplanır?</h2>
+        <p>Bankalar <b>eşit taksitli (annüite)</b> yöntem kullanır: her ay aynı tutarı ödersiniz.
+        Taksitin içindeki dağılım ise değişir — ilk aylarda ödediğinizin büyük kısmı faizdir,
+        anapara yavaş erir. Son aylarda tersine döner.</p>
+        <p>Bu yüzden krediyi erken kapatmak, ödediğiniz taksit sayısıyla orantılı bir indirim
+        getirmez; borcunuzun büyük kısmı hâlâ duruyor olabilir.</p>
+
+        <h2>KKDF ve BSMV nedir?</h2>
+        <p>İhtiyaç kredilerinde bankanın açıkladığı faizin üstüne iki vergi biner:</p>
+        <ul>
+            <li><b>KKDF</b> — Kaynak Kullanımını Destekleme Fonu, faizin %15'i</li>
+            <li><b>BSMV</b> — Banka ve Sigorta Muameleleri Vergisi, faizin %5'i</li>
+        </ul>
+        <p>Yani %3 faiz gördüğünüzde gerçekte ödediğiniz oran %3,60'tır. Konut kredilerinde bu
+        iki vergi alınmaz; o durumda yukarıdaki kutunun işaretini kaldırın.</p>
+
+        <h2>Aylık faiz mi, yıllık faiz mi?</h2>
+        <p>Türkiye'de krediler <b>aylık</b> faizle ilan edilir. Yıllık maliyet, aylık oranın
+        12 ile çarpımı değildir — faiz üstüne faiz işlediği için daha yüksektir. Hesap
+        sonucunda hem aylık hem yıllık bileşik maliyeti gösteriyoruz.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("kredi-hesaplama.html");
+gizlilikBaglantisi();
+
+document.getElementById("kaynakSerit").innerHTML = `
+    <span class="etiket-rozet">Annüite (eşit taksit) yöntemi</span>
+    <span class="etiket-rozet">KKDF <b>%15</b> · BSMV <b>%5</b></span>
+    <span class="etiket-rozet">Ay ay ödeme planı</span>`;
+
+const ALANLAR = ["tutar", "faiz", "vade", "vergi"];
+
+function hesapla() {
+    const tutar = oku("tutar"), faiz = oku("faiz"), vade = Math.round(oku("vade"));
+    if (!tutar || tutar <= 0 || !vade || vade < 1) {
+        document.getElementById("ozet").innerHTML = ""; return;
+    }
+    const k = krediHesapla(tutar, faiz, vade, isaretli("vergi"));
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(k.taksit)}</div>
+        <div class="dev-etiket">aylık taksit · ${vade} ay boyunca</div>
+        ${satir("Kredi tutarı", para(tutar))}
+        ${satir("Toplam geri ödeme", para(k.toplamOdeme))}
+        ${satir("Toplam faiz", para(k.toplamFaiz))}
+        ${satir("Vergili aylık oran", yuzdeOn(k.efektifAylik))}
+        ${satir("Yıllık bileşik maliyet", yuzdeOn(k.yillikMaliyet), "buyuk")}
+        <p class="kucuk">Aldığınız her 100 ₺ için toplam
+        <b>${sayi(k.toplamOdeme / tutar * 100, 1)} ₺</b> geri ödüyorsunuz.</p>
+    </div>`;
+
+    // Adım adım döküm
+    const vergili = isaretli("vergi");
+    const ilk = k.plan[0];
+    const d = dokumKur("Taksit nasıl bulundu?");
+    if (vergili) {
+        d.ekle("Bankanın ilan ettiği faize KKDF (%15) ve BSMV (%5) eklenir.",
+               `${sayi(faiz)} × (1 + 0,15 + 0,05)`, "%" + sayi(k.efektifAylik, 4));
+    } else {
+        d.ekle("Vergisiz oran kullanılıyor (konut kredisi gibi).", `${sayi(faiz)}`, "%" + sayi(k.efektifAylik, 4));
+    }
+    d.ekle("Eşit taksit (annüite) formülü uygulanır.",
+           `${sayi(tutar, 0)} × i × (1+i)^${vade} ÷ ((1+i)^${vade} − 1)`, para(k.taksit));
+    d.ekle("Toplam geri ödeme: taksit × vade.",
+           `${sayi(k.taksit)} × ${vade}`, para(k.toplamOdeme));
+    d.ekle("Toplam faiz: geri ödemeden anapara düşülür.",
+           `${sayi(k.toplamOdeme)} − ${sayi(tutar, 0)}`, para(k.toplamFaiz));
+    d.ekle("İlk taksitin faize giden kısmı.",
+           `${sayi(tutar, 0)} × %${sayi(k.efektifAylik, 4)}`, para(ilk.faiz));
+    d.ekle("İlk taksitin anaparaya giden kısmı.",
+           `${sayi(k.taksit)} − ${sayi(ilk.faiz)}`, para(ilk.anapara));
+    d.ekle("Yıllık bileşik maliyet: aylık oran 12 kez üst üste işler.",
+           `(1 + %${sayi(k.efektifAylik, 4)})^12 − 1`, "%" + sayi(k.yillikMaliyet, 2));
+    document.getElementById("dokum").innerHTML = d.html();
+
+    baglantiyaYaz(ALANLAR);
+
+    document.getElementById("plan").innerHTML = `<table><thead><tr>
+        <th>Ay</th><th>Taksit</th><th>Faiz</th><th>Anapara</th><th>Kalan borç</th>
+        </tr></thead><tbody>` +
+        k.plan.map(s => `<tr>
+            <td>${s.ay}</td><td>${para(s.taksit)}</td><td>${para(s.faiz)}</td>
+            <td>${para(s.anapara)}</td><td><b>${para(s.kalan)}</b></td></tr>`).join("") +
+        `</tbody></table>`;
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+
+dinle(["tutar", "faiz", "vade", "vergi"], hesapla);
+
+eylemleriBagla(() => sonucMetni("Kredi Hesabı"));
+yapisalVeri("Kredi Hesaplama", "Aylık taksit, toplam faiz ve ödeme planı hesaplama aracı.");
+
+sssEkle([
+    { soru: "Bankanın söylediği faizle ödediğim aynı mı?",
+      cevap: "İhtiyaç kredisinde değil. İlan edilen faizin üstüne KKDF (%15) ve BSMV (%5) eklenir. Yani %3 faiz gerçekte %3,60 olarak işler. Konut kredilerinde bu iki vergi alınmaz." },
+    { soru: "Krediyi erken kapatırsam ne kadar kazanırım?",
+      cevap: "Ödeme planındaki 'kalan borç' sütunu, o ay itibarıyla kapatırsanız ödeyeceğiniz anaparayı gösterir. Erken kapatmada kalan dönemlere ait faizden kurtulursunuz; bankalar ayrıca erken kapama komisyonu uygulayabilir." },
+    { soru: "İlk taksitlerde neden borcum azalmıyor?",
+      cevap: "Eşit taksitli kredide taksit sabit kalır ama içeriği değişir. Başlangıçta ödediğinizin büyük kısmı faizdir, anapara az erir. Ödeme planı tablosunda bu dağılımı ay ay görebilirsiniz." },
+    { soru: "Yıllık maliyet neden aylık faizin 12 katı değil?",
+      cevap: "Faiz üstüne faiz işlediği için. %3 aylık faiz, yıllık %36 değil, (1,03)^12 − 1 = %42,6 eder. Vergiler eklenince daha da yükselir." },
+    { soru: "Bu hesap bankanın vereceği rakamla birebir tutar mı?",
+      cevap: "Formül aynıdır ancak bankalar dosya masrafı, sigorta veya farklı gün sayısı uygulayabilir. Sözleşmedeki ödeme planı esastır." }
+]);
+
+ilgiliAraclar("kredi-hesaplama.html");
+
+reklamAlani();
+</script>
+</body>
+</html>

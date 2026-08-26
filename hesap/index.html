@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Hesap Araçları — Net Maaş, Bütçe, Kira Artışı, Kredi ve Birikim Hesaplama 2026</title>
+<meta name="description" content="Ücretsiz hesaplama araçları: 2026 net maaş, aylık bütçe, kira artışı, kredi taksiti, mevduat faizi, birikim ve KDV. Resmî oranlarla, adım adım açıklamalı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM: AdSense yukleyici. Otomatik Reklam acikken Google reklamlari
+     kendisi yerlestirir. Hesap sonuclarinin YANINA degil, altina duser. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Hesap Araçları — Net Maaş, Bütçe, Kira Artışı, Kredi ve Birikim Hesaplama 2026" />
+<meta property="og:description" content="Ücretsiz hesaplama araçları: 2026 net maaş, aylık bütçe, kira artışı, kredi taksiti, mevduat faizi, birikim ve KDV. Resmî oranlarla, adım adım açıklamalı." />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/" />
+<meta name="twitter:card" content="summary" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Hesap Araçları <span class="yil-rozet">2026</span></h1>
+    <p class="ozet">Günlük hayatta en çok gereken hesaplar, tek yerde. Hepsi ücretsiz,
+    resmî 2026 oranlarıyla çalışır. Hiçbir bilgi kaydedilmez, sunucuya gönderilmez —
+    bütün hesap kendi cihazınızda yapılır.</p>
+
+    <div class="arac-izgara" id="aracListesi"></div>
+
+    <section class="anlatim">
+        <h2>Neden bu araçlar?</h2>
+        <p>İnternetteki çoğu hesaplayıcı ya güncel oranları kullanmıyor ya da sonucu tek bir
+        rakam olarak verip nasıl bulduğunu göstermiyor. Buradaki araçlar iki şeyi farklı yapıyor:</p>
+        <ul>
+            <li><b>Kullanılan oranlar açıkça yazılı.</b> Sayfanın altında hangi asgari ücret,
+            hangi vergi dilimi, hangi SGK tavanı kullanıldığı ve ne zaman güncellendiği görünür.</li>
+            <li><b>Hesabın dökümü var.</b> Sadece sonucu değil, hangi kalemden ne kesildiğini
+            satır satır gösterir.</li>
+        </ul>
+
+        <h2>Kullanılan resmî kaynaklar</h2>
+        <p>Gelir vergisi tarifesi Gelir İdaresi Başkanlığı'nın yayımladığı 2026 tarifesinden,
+        asgari ücret ve SGK sınırları ise ilgili resmî düzenlemelerden alınmıştır. Oranlar
+        değiştiğinde araçlar güncellenir; sayfanın altındaki tarih son güncellemeyi gösterir.</p>
+
+        <h2>Bilgileriniz nereye gidiyor?</h2>
+        <p>Hiçbir yere. Girdiğiniz maaş, kredi tutarı gibi bilgiler tarayıcınızdan dışarı
+        çıkmaz; hesap tamamen cihazınızda yapılır. Sunucuya kayıt yoktur.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("index.html");
+gizlilikBaglantisi();
+document.getElementById("aracListesi").innerHTML = ARACLAR.map(a =>
+    `<a class="arac-kart" href="${a.yol}"><b>${a.ad}</b><span>${a.aciklama}</span></a>`).join("");
+
+reklamAlani();
+</script>
+</body>
+</html>

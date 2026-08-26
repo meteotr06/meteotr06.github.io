@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Kira Artışı Hesaplama — Yasal Üst Sınır (TÜFE Ortalaması)</title>
+<meta name="description" content="Kira artışı hesaplama: konut kirasında yasal üst sınır 12 aylık TÜFE ortalamasıdır. Yeni kiranızı hesaplayın, istenen zammın yasal sınırı aşıp aşmadığını görün." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kira-artisi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Kira Artışı Hesaplama — Yasal Üst Sınır (TÜFE Ortalaması)" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kira-artisi-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Kira Artışı Hesaplama</h1>
+    <p class="ozet">Konut kirasında yasal zam sınırı <b>12 aylık TÜFE ortalamasıdır</b>.
+    Mevcut kiranızı ve güncel TÜFE ortalamasını girin; yasal üst sınırı ve istenen zammın
+    bu sınırı aşıp aşmadığını görün.</p>
+
+    <div class="kaynak-serit">
+        <span class="etiket-rozet">Ölçüt: <b>12 aylık TÜFE ortalaması</b></span>
+        <span class="etiket-rozet">Yıllık enflasyon <b>değil</b></span>
+        <span class="etiket-rozet">Oranı TÜİK'ten girin</span>
+    </div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Şu anki aylık kira (TL)
+                    <input id="kira" type="number" step="any" inputmode="decimal" value="20000" />
+                </label>
+                <label>12 aylık TÜFE ortalaması (%)
+                    <input id="tufe" type="number" step="0.01" inputmode="decimal" value="42.5" />
+                </label>
+                <label>Ev sahibinin istediği zam (%)
+                    <input id="istenen" type="number" step="0.01" inputmode="decimal" placeholder="boş = yasal sınır" />
+                </label>
+            </div>
+            <p class="kucuk">Güncel oranı <a href="https://data.tuik.gov.tr" target="_blank" rel="noopener">TÜİK</a>
+            yayımlar; her ayın 3'ünde güncellenir. <b>Yıllık enflasyon oranını değil</b>,
+            "on iki aylık ortalamalara göre değişim" oranını yazın.</p>
+        </div>
+
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Yasal sınır nedir?</h2>
+        <p>Konut kiralarında yıllık artış, <b>bir önceki kira yılında gerçekleşen on iki aylık
+        TÜFE ortalamasını</b> geçemez. Sözleşmede daha yüksek bir oran yazsa bile bu sınır
+        uygulanır; taraflar daha <b>düşük</b> bir oranda anlaşmakta serbesttir.</p>
+
+        <h2>En sık yapılan hata: yanlış oranı kullanmak</h2>
+        <p>TÜİK her ay iki farklı sayı açıklar ve bunlar karıştırılır:</p>
+        <ul>
+            <li><b>Yıllık enflasyon</b> — son 12 ayda fiyatların ne kadar arttığı</li>
+            <li><b>12 aylık ortalamalara göre değişim</b> — kira artışında kullanılan oran</li>
+        </ul>
+        <p>Bu ikisi genelde farklıdır. Kira zammında kullanılması gereken <b>ikincisidir</b>.
+        Yanlış olanı kullanmak, fazla zam ödenmesine ya da istenmesine yol açar.</p>
+
+        <h2>İş yeri kiraları</h2>
+        <p>Bu araç konut kirası içindir. İş yeri kiralarında farklı kurallar ve sözleşme
+        hükümleri geçerli olabilir; tereddüt hâlinde hukuki destek alın.</p>
+
+        <h2>Zam zamanı gelmediyse</h2>
+        <p>Artış, kira yılı dolduğunda uygulanır. Yıl ortasında zam istenemez. Kira sözleşmesinin
+        başlangıç ayı hangisiyse, artış o ay yapılır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("kira-artisi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["kira", "tufe", "istenen"];
+
+function hesapla() {
+    const kira = oku("kira"), tufe = oku("tufe");
+    const istenenHam = document.getElementById("istenen").value;
+    const istenen = istenenHam === "" ? null : oku("istenen");
+    if (!kira || kira <= 0) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    const k = kiraArtisi(kira, tufe, istenen);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(k.yasalKira)}</div>
+        <div class="dev-etiket">yasal olarak istenebilecek en yüksek kira</div>
+        ${satir("Şu anki kira", para(k.mevcut))}
+        ${satir("Yasal artış oranı", yuzdeOn(k.yasalOran))}
+        ${satir("Artış tutarı", "+" + para(k.yasalArtis))}
+        ${satir("Yeni kira (yasal üst sınır)", para(k.yasalKira), "buyuk")}
+        ${istenen !== null ? `
+            ${satir("İstenen zamla kira", para(k.istenenKira))}
+            <p class="kucuk" style="color:${k.asimVar ? "var(--azalis)" : "var(--artis)"}">
+            ${k.asimVar
+                ? `<b>Yasal sınırın üstünde.</b> İstenen kira, yasal üst sınırı aylık
+                   <b>${para(k.asimTutari)}</b> aşıyor. Bu farkı ödemek zorunda değilsiniz.`
+                : `<b>Yasal sınırın içinde.</b> İstenen zam, üst sınırı aşmıyor.`}</p>` : ""}
+        <p class="kucuk">Yıllık olarak cebinizden çıkacak fark:
+        <b>${para(k.yillikFark)}</b>.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Yasal üst sınır oranı: 12 aylık TÜFE ortalaması.", `TÜİK verisi`, "%" + sayi(k.yasalOran));
+    d.ekle("Mevcut kira bu oranla artırılır.",
+           `${sayi(k.mevcut)} × (1 + ${sayi(k.yasalOran / 100, 4)})`, para(k.yasalKira));
+    d.ekle("Aylık artış tutarı.", `${sayi(k.yasalKira)} − ${sayi(k.mevcut)}`, para(k.yasalArtis));
+    if (istenen !== null && k.asimVar) {
+        d.ekle("İstenen zamla kira.", `${sayi(k.mevcut)} × (1 + ${sayi(istenen / 100, 4)})`, para(k.istenenKira));
+        d.ekle("Yasal sınırı aşan kısım.", `${sayi(k.istenenKira)} − ${sayi(k.yasalKira)}`, para(k.asimTutari));
+    }
+    document.getElementById("dokum").innerHTML = d.html();
+
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Kira Artışı Hesabı"));
+yapisalVeri("Kira Artışı Hesaplama", "Konut kirasında yasal zam üst sınırını hesaplayan araç.");
+
+sssEkle([
+    { soru: "Kira zammında hangi oran kullanılır?",
+      cevap: "On iki aylık TÜFE ortalamasına göre değişim oranı kullanılır. Bu, TÜİK'in her ay açıkladığı yıllık enflasyon oranından farklıdır ve genellikle ondan düşüktür." },
+    { soru: "Ev sahibim daha yüksek zam istiyor, ödemek zorunda mıyım?",
+      cevap: "Konut kiralarında yasal üst sınırın üzerindeki artış talebi bağlayıcı değildir. Sözleşmede daha yüksek bir oran yazsa bile sınır uygulanır. Anlaşmazlık sürerse hukuki destek almanız yerinde olur." },
+    { soru: "Daha az zam yapılabilir mi?",
+      cevap: "Evet. Yasal oran bir üst sınırdır, taraflar daha düşük bir artışta anlaşabilir." },
+    { soru: "Zam ne zaman uygulanır?",
+      cevap: "Kira yılı dolduğunda, yani sözleşmenin yıl dönümünde. Yıl ortasında artış istenemez." },
+    { soru: "İş yeri kiram için de geçerli mi?",
+      cevap: "Bu araç konut kirası içindir. İş yeri kiralarında sözleşme hükümleri ve farklı düzenlemeler devreye girebilir." }
+]);
+
+ilgiliAraclar("kira-artisi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

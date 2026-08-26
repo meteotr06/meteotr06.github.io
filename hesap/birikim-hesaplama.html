@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Birikim ve Bileşik Getiri Hesaplama — Reel Karşılığıyla</title>
+<meta name="description" content="Düzenli birikim hesaplama: her ay ayırdığınız para yıllar içinde ne olur? Bileşik getiri, toplam kazanç ve enflasyondan arındırılmış gerçek karşılığı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/birikim-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Birikim ve Bileşik Getiri Hesaplama — Reel Karşılığıyla" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/birikim-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Birikim Hesaplama</h1>
+    <p class="ozet">Her ay bir miktar ayırırsanız yıllar sonra ne olur? Bileşik getiriyle
+    büyüyen tutarı ve — asıl önemlisi — <b>enflasyon düşülünce elinizde gerçekte ne kaldığını</b>
+    hesaplar.</p>
+
+    <div class="kaynak-serit">
+        <span class="etiket-rozet">Bileşik getiri</span>
+        <span class="etiket-rozet">Nominal <b>ve</b> reel sonuç</span>
+        <span class="etiket-rozet">Yıl yıl tablo</span>
+    </div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Başlangıç birikimi (TL)
+                    <input id="baslangic" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+                <label>Her ay eklenecek (TL)
+                    <input id="aylik" type="number" step="any" inputmode="decimal" value="5000" />
+                </label>
+                <label>Yıllık getiri (%)
+                    <input id="getiri" type="number" step="0.01" inputmode="decimal" value="40" />
+                </label>
+                <label>Süre (yıl)
+                    <input id="yil" type="number" inputmode="numeric" value="5" />
+                </label>
+                <label>Yıllık enflasyon (%)
+                    <input id="enflasyon" type="number" step="0.01" inputmode="decimal" value="35" />
+                </label>
+            </div>
+            <p class="kucuk">Getiri oranı tahmindir; mevduat, fon ya da başka bir aracın
+            geçmiş ortalamasını yazabilirsiniz. Gelecekteki getiri garanti değildir.</p>
+        </div>
+
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <details class="kutu katlanir">
+        <summary><span>Yıl yıl birikim</span><span class="ipuc">nominal ve reel</span></summary>
+        <div class="katlanir-ic"><div id="tablo" class="tablo-sar"></div></div>
+    </details>
+
+    <section class="anlatim">
+        <h2>Bileşik getiri nedir?</h2>
+        <p>Kazandığınız getiriyi çekmeyip yeniden değerlendirdiğinizde, sonraki dönemde
+        <b>getiri de getiri kazanır</b>. Kısa vadede etkisi küçüktür; süre uzadıkça hızlanır.
+        Birikimde en güçlü etken genellikle yüksek getiri değil, <b>uzun süredir</b>.</p>
+
+        <h2>Neden reel karşılığı da gösteriyoruz?</h2>
+        <p>Nominal rakam yanıltıcıdır. 5 yıl boyunca ayda 5.000 ₺ ayırıp %40 getiri elde ederseniz
+        hesabınızda büyük bir rakam görürsünüz — ama aynı dönemde fiyatlar da arttıysa, o parayla
+        alabilecekleriniz sandığınız kadar artmamış olabilir. Reel sonuç, <b>bugünün parasıyla</b>
+        ne kadar biriktirdiğinizi söyler.</p>
+        <p>Eğer reel sonuç yatırdığınız toplamın altındaysa, getiriniz enflasyonu geçememiş
+        demektir.</p>
+
+        <h2>Ne kadar süre, ne kadar tutar?</h2>
+        <p>İki değişkeni deneyerek görmek en öğreticisidir: süreyi iki katına çıkarın, sonra
+        aylık tutarı iki katına çıkarın. Uzun vadede sürenin etkisinin daha güçlü olduğunu
+        göreceksiniz.</p>
+
+        <h2>Bu bir yatırım tavsiyesi mi?</h2>
+        <p>Hayır. Araç yalnızca girdiğiniz varsayımların matematiksel sonucunu gösterir.
+        Getiri oranını siz belirlersiniz ve gerçekleşecek getiri farklı olabilir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("birikim-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["baslangic", "aylik", "getiri", "yil", "enflasyon"];
+
+function hesapla() {
+    const bas = oku("baslangic"), aylik = oku("aylik");
+    const getiri = oku("getiri"), yil = Math.max(1, Math.round(oku("yil")));
+    const enf = oku("enflasyon");
+    if (aylik <= 0 && bas <= 0) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    const b = birikimPlani(bas, aylik, getiri, yil, enf);
+    const reelKotu = b.reelBakiye < b.toplamYatirilan;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(b.sonBakiye)}</div>
+        <div class="dev-etiket">${yil} yıl sonunda biriken tutar</div>
+        ${satir("Kendi cebinizden yatırdığınız", para(b.toplamYatirilan))}
+        ${satir("Getiri kazancı", "+" + para(b.toplamKazanc))}
+        ${satir("Toplam", para(b.sonBakiye), "buyuk")}
+        ${satir("Paranız kaça katlandı", sayi(b.katlanma, 2) + " kat")}
+    </div>
+
+    <div class="kutu ${reelKotu ? "" : "one-cikan"}">
+        <h3>Bugünün parasıyla karşılığı</h3>
+        ${satir("Reel (enflasyondan arındırılmış) tutar", para(b.reelBakiye), "buyuk")}
+        ${satir("Reel kazanç", para(b.reelKazanc))}
+        <p class="kucuk" style="color:${reelKotu ? "var(--azalis)" : "var(--artis)"}">
+        ${reelKotu
+            ? `<b>Dikkat:</b> Reel karşılık, yatırdığınız ${para(b.toplamYatirilan)}'nin
+               <b>altında</b>. Rakam büyümüş görünse de bu senaryoda alım gücü kaybediyorsunuz —
+               getiri enflasyonu geçemiyor.`
+            : `Getiriniz enflasyonu geçiyor: alım gücünüz gerçekten artıyor.`}</p>
+    </div>`;
+
+    const aylikOran = Math.pow(1 + getiri / 100, 1 / 12) - 1;
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Yıllık getiri aylık orana çevrilir (bileşik olduğu için 12'ye bölünmez).",
+           `(1 + %${sayi(getiri)})^(1/12) − 1`, "%" + sayi(aylikOran * 100, 4));
+    d.ekle("Her ay: mevcut bakiye bu oranla büyür, sonra yeni katkı eklenir.",
+           `bakiye × (1 + %${sayi(aylikOran * 100, 4)}) + ${sayi(aylik, 0)}`, yil * 12 + " kez");
+    d.ekle("Toplam yatırdığınız para.",
+           `${sayi(bas, 0)} + ${sayi(aylik, 0)} × ${yil * 12}`, para(b.toplamYatirilan));
+    d.ekle("Getiriden gelen kısım.",
+           `${sayi(b.sonBakiye)} − ${sayi(b.toplamYatirilan)}`, para(b.toplamKazanc));
+    d.ekle("Enflasyon etkisi çıkarılır: gelecekteki tutar bugünün parasına çevrilir.",
+           `${sayi(b.sonBakiye)} ÷ (1 + %${sayi(enf)})^${yil}`, para(b.reelBakiye));
+    document.getElementById("dokum").innerHTML = d.html();
+
+    document.getElementById("tablo").innerHTML = `<table><thead><tr>
+        <th>Yıl</th><th>Yatırılan</th><th>Bakiye</th><th>Kazanç</th><th>Bugünün parasıyla</th>
+        </tr></thead><tbody>` +
+        b.yillar.map(y => `<tr>
+            <td>${y.yil}. yıl</td><td>${para(y.yatirilan, 0)}</td>
+            <td><b>${para(y.bakiye, 0)}</b></td><td>${para(y.kazanc, 0)}</td>
+            <td class="${y.reelBakiye < y.yatirilan ? "asagi" : "yukari"}">${para(y.reelBakiye, 0)}</td>
+            </tr>`).join("") + `</tbody></table>`;
+
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Birikim Hesabı"));
+yapisalVeri("Birikim Hesaplama", "Düzenli birikimde bileşik getiri ve enflasyondan arındırılmış reel sonuç hesaplama.");
+
+sssEkle([
+    { soru: "Nominal ve reel arasındaki fark ne?",
+      cevap: "Nominal, hesabınızda görünen rakamdır. Reel ise o rakamın bugünün parasıyla karşılığıdır. Enflasyon yüksekken ikisi çok farklı çıkar; alım gücünüzü gösteren reel sonuçtur." },
+    { soru: "Getiri oranı olarak ne yazmalıyım?",
+      cevap: "Bu size kalmış bir varsayımdır. Mevduat düşünüyorsanız bankanızın verdiği net oranı, fon düşünüyorsanız fonun geçmiş yıllardaki ortalamasını yazabilirsiniz. Geçmiş getiri geleceği garanti etmez." },
+    { soru: "Süre mi önemli, aylık tutar mı?",
+      cevap: "İkisi de önemli ama uzun vadede süre daha güçlüdür, çünkü bileşik getiri zamanla hızlanır. Aynı toplamı daha uzun sürede yatırmak genellikle daha büyük sonuç verir." },
+    { soru: "Reel sonuç yatırdığımdan az çıktı, hata mı var?",
+      cevap: "Hayır. Girdiğiniz getiri oranı enflasyonun altındaysa bu normaldir. Hesabınızdaki rakam büyür ama satın alma gücünüz azalır. Getiri oranını enflasyonun üstüne çıkarınca sonuç değişir." },
+    { soru: "Vergi ve masraflar dahil mi?",
+      cevap: "Hayır. Stopaj, fon giderleri veya komisyonlar hesaba katılmaz. Bunları düşmek isterseniz getiri oranını net olarak girin." }
+]);
+
+ilgiliAraclar("birikim-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

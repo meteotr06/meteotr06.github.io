@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>KDV Hesaplama 2026 — KDV Dahil / Hariç Ayırma</title>
+<meta name="description" content="KDV hesaplama: tutara KDV ekleyin ya da KDV dahil fiyattan KDV'yi ayırın. %1, %10 ve %20 oranları için anında sonuç." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM: AdSense yukleyici. Otomatik Reklam acikken Google reklamlari
+     kendisi yerlestirir. Hesap sonuclarinin YANINA degil, altina duser. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kdv-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="KDV Hesaplama 2026 — KDV Dahil / Hariç Ayırma" />
+<meta property="og:description" content="KDV hesaplama: tutara KDV ekleyin ya da KDV dahil fiyattan KDV'yi ayırın. %1, %10 ve %20 oranları için anında sonuç." />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kdv-hesaplama.html" />
+<meta name="twitter:card" content="summary" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>KDV Hesaplama</h1>
+    <p class="ozet">Tutara KDV ekleyin ya da KDV dahil fiyatın içinden KDV'yi ayırın.</p>
+
+    <div class="kaynak-serit" id="kaynakSerit"></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+    <div class="kutu">
+        <div class="form-izgara">
+            <label>Tutar (TL)
+                <input id="tutar" type="number" step="any" inputmode="decimal" value="1000" />
+            </label>
+            <label>KDV oranı
+                <select id="oran">
+                    <option value="1">%1 — temel gıda, gazete</option>
+                    <option value="10">%10 — gıda, tekstil, ilaç</option>
+                    <option value="20" selected>%20 — genel oran</option>
+                </select>
+            </label>
+            <label>Girdiğim tutar
+                <select id="yon">
+                    <option value="haric" selected>KDV hariç (üstüne ekle)</option>
+                    <option value="dahil">KDV dahil (içinden ayır)</option>
+                </select>
+            </label>
+        </div>
+    </div>
+
+    <div id="ozet"></div>
+    <div id="dokum"></div>
+    </div>
+
+    <details class="kutu katlanir">
+        <summary><span>Tüm oranlar için</span><span class="ipuc">karşılaştırma</span></summary>
+        <div class="katlanir-ic"><div id="tumOranlar" class="tablo-sar"></div></div>
+    </details>
+
+    <section class="anlatim">
+        <h2>KDV nasıl hesaplanır?</h2>
+        <p><b>Üstüne eklemek:</b> KDV hariç tutarı orana göre çarparsınız. 1.000 ₺ mala %20 KDV
+        eklenirse 1.000 × 0,20 = 200 ₺ KDV, toplam 1.200 ₺ olur.</p>
+        <p><b>İçinden ayırmak:</b> Burada en sık yapılan hata, KDV dahil fiyatı 0,20 ile çarpmaktır.
+        Doğrusu bölmektir: 1.200 ÷ 1,20 = 1.000 ₺ (KDV hariç), aradaki 200 ₺ KDV'dir.
+        Yanlış yöntemle 240 ₺ bulunur ki bu hatalıdır.</p>
+
+        <h2>Hangi üründe hangi oran?</h2>
+        <ul>
+            <li><b>%1</b> — ekmek, un, süt gibi temel gıdalar, gazete ve dergi</li>
+            <li><b>%10</b> — birçok gıda ürünü, tekstil, ilaç, sağlık hizmetleri</li>
+            <li><b>%20</b> — genel oran; yukarıdakiler dışında kalan çoğu mal ve hizmet</li>
+        </ul>
+        <p>Ürün grupları zaman zaman değişebilir; tereddüt ederseniz mali müşavirinize danışın.</p>
+
+        <h2>Fatura keserken</h2>
+        <p>Faturada genellikle KDV hariç tutar (matrah), hesaplanan KDV ve toplam ayrı satırlarda
+        gösterilir. Müşteriye söylediğiniz "cebden çıkacak" rakam KDV dahil olandır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("kdv-hesaplama.html");
+gizlilikBaglantisi();
+
+document.getElementById("kaynakSerit").innerHTML = `
+    <span class="etiket-rozet">Oranlar: <b>%1 · %10 · %20</b></span>
+    <span class="etiket-rozet">Dahil ↔ hariç iki yönlü</span>`;
+
+const ALANLAR = ["tutar", "oran", "yon"];
+
+function hesapla() {
+    const tutar = oku("tutar");
+    const oran = parseFloat(document.getElementById("oran").value);
+    const dahil = document.getElementById("yon").value === "dahil";
+    if (!tutar || tutar <= 0) { document.getElementById("ozet").innerHTML = ""; return; }
+
+    const k = kdvHesapla(tutar, oran, dahil);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(dahil ? k.haric : k.dahil)}</div>
+        <div class="dev-etiket">${dahil ? "KDV hariç tutar" : "KDV dahil toplam"}</div>
+        ${satir("KDV hariç (matrah)", para(k.haric))}
+        ${satir("Hesaplanan KDV (%" + sayi(oran, 0) + ")", para(k.kdv))}
+        ${satir("KDV dahil toplam", para(k.dahil), "buyuk")}
+    </div>`;
+
+    // Adım adım döküm
+    const d = dokumKur("KDV nasıl ayrıldı?");
+    if (dahil) {
+        d.ekle("Girilen tutar KDV dahil olduğu için ORANA BÖLÜNÜR (çarpılmaz — en sık yapılan hata budur).",
+               `${sayi(tutar)} ÷ (1 + ${sayi(oran / 100, 2)})`, para(k.haric));
+        d.ekle("KDV, toplamdan matrahın çıkarılmasıyla bulunur.",
+               `${sayi(tutar)} − ${sayi(k.haric)}`, para(k.kdv));
+    } else {
+        d.ekle("Girilen tutar KDV hariç olduğu için oranla çarpılır.",
+               `${sayi(tutar)} × %${sayi(oran, 0)}`, para(k.kdv));
+        d.ekle("Toplam: matrah artı KDV.",
+               `${sayi(tutar)} + ${sayi(k.kdv)}`, para(k.dahil));
+    }
+    d.ekle("Kontrol: matrahın oranla çarpımı KDV'yi vermeli.",
+           `${sayi(k.haric)} × %${sayi(oran, 0)}`, para(k.haric * oran / 100));
+    document.getElementById("dokum").innerHTML = d.html();
+
+    baglantiyaYaz(ALANLAR);
+
+    document.getElementById("tumOranlar").innerHTML = `<table><thead><tr>
+        <th>Oran</th><th>KDV hariç</th><th>KDV</th><th>KDV dahil</th></tr></thead><tbody>` +
+        PARAMETRE.kdvOranlari.map(o => {
+            const h = kdvHesapla(tutar, o, dahil);
+            return `<tr class="${o === oran ? "vurgu-satir" : ""}">
+                <td>%${o}</td><td>${para(h.haric)}</td>
+                <td>${para(h.kdv)}</td><td><b>${para(h.dahil)}</b></td></tr>`;
+        }).join("") + `</tbody></table>`;
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+
+dinle(["tutar", "oran", "yon"], hesapla);
+
+eylemleriBagla(() => sonucMetni("KDV Hesabı"));
+yapisalVeri("KDV Hesaplama", "KDV dahil ve hariç tutar hesaplama aracı.");
+
+sssEkle([
+    { soru: "KDV dahil fiyattan KDV'yi nasıl bulurum?",
+      cevap: "Bölerek. 1.200 TL'lik %20 KDV dahil fiyatta matrah 1.200 ÷ 1,20 = 1.000 TL, KDV ise 200 TL'dir. En sık yapılan hata dahil fiyatı 0,20 ile çarpmaktır; bu 240 TL verir ve yanlıştır." },
+    { soru: "Hangi üründe hangi oran uygulanır?",
+      cevap: "Temel gıda ve basılı yayında %1, birçok gıda ürünü, tekstil ve ilaçta %10, bunların dışında kalan çoğu mal ve hizmette %20 uygulanır. Ürün grupları değişebildiği için tereddütte mali müşavirinize danışın." },
+    { soru: "Faturada hangi tutarı yazmalıyım?",
+      cevap: "Faturada üç satır bulunur: KDV hariç tutar (matrah), hesaplanan KDV ve genel toplam. Müşterinin ödeyeceği rakam KDV dahil olan genel toplamdır." },
+    { soru: "KDV'yi ben mi ödüyorum?",
+      cevap: "KDV'yi nihai tüketici öder. Satıcı topladığı KDV'den, aldığı mal ve hizmetler için ödediği KDV'yi düşer, aradaki farkı devlete beyan eder." }
+]);
+
+ilgiliAraclar("kdv-hesaplama.html");
+
+reklamAlani();
+</script>
+</body>
+</html>

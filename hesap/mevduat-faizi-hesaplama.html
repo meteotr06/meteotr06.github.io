@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Mevduat Faizi Hesaplama 2026 — Vade Sonu Net Getiri</title>
+<meta name="description" content="Vadeli mevduat hesaplama: stopaj düşülmüş net faiz getirisi, vade sonu toplam tutar ve enflasyona karşı gerçek kazanç." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM: AdSense yukleyici. Otomatik Reklam acikken Google reklamlari
+     kendisi yerlestirir. Hesap sonuclarinin YANINA degil, altina duser. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/mevduat-faizi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Mevduat Faizi Hesaplama 2026 — Vade Sonu Net Getiri" />
+<meta property="og:description" content="Vadeli mevduat hesaplama: stopaj düşülmüş net faiz getirisi, vade sonu toplam tutar ve enflasyona karşı gerçek kazanç." />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/mevduat-faizi-hesaplama.html" />
+<meta name="twitter:card" content="summary" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Mevduat Faizi Hesaplama</h1>
+    <p class="ozet">Paranızı vadeli hesaba koyduğunuzda <b>elinize net ne geçer?</b>
+    Bankaların açıkladığı faiz brüttür; stopaj düşülünce azalır.</p>
+
+    <div class="kaynak-serit" id="kaynakSerit"></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+    <div class="kutu">
+        <div class="form-izgara">
+            <label>Anapara (TL)
+                <input id="anapara" type="number" step="any" inputmode="decimal" value="100000" />
+            </label>
+            <label>Yıllık brüt faiz (%)
+                <input id="faiz" type="number" step="0.01" inputmode="decimal" value="37" />
+            </label>
+            <label>Vade (gün)
+                <input id="vade" type="number" inputmode="numeric" value="32" />
+            </label>
+            <label>Stopaj (%)
+                <input id="stopaj" type="number" step="0.1" inputmode="decimal" value="15" />
+            </label>
+            <label class="onay">
+                <input id="bilesik" type="checkbox" />
+                <span>Vade sonunda yenile<br><span class="not">Faiz de yeniden yatırılır</span></span>
+            </label>
+            <label>Kaç kez yenilensin
+                <input id="donem" type="number" inputmode="numeric" value="12" disabled />
+            </label>
+        </div>
+    </div>
+
+    <div id="ozet"></div>
+    <div id="dokum"></div>
+    </div>
+
+    <details class="kutu katlanir">
+        <summary><span>Enflasyona karşı</span><span class="ipuc">gerçekten kazandınız mı?</span></summary>
+        <div class="katlanir-ic">
+            <div class="form-izgara">
+                <label>Yıllık enflasyon (%)
+                    <input id="enflasyon" type="number" step="0.01" inputmode="decimal" value="34.88" />
+                </label>
+            </div>
+            <div id="reel" class="sonuc-kutu"></div>
+        </div>
+    </details>
+
+    <section class="anlatim">
+        <h2>Brüt faiz ile net faiz arasındaki fark</h2>
+        <p>Banka size <b>brüt</b> oran söyler. Vade sonunda faiz gelirinden <b>stopaj</b>
+        (gelir vergisi kesintisi) düşülür ve kalanı alırsınız. Stopaj oranı vadeye göre değişir:
+        vade uzadıkça oran genelde düşer. Güncel oranı bankanızdan teyit edip yukarıdaki kutuya
+        yazın.</p>
+
+        <h2>Bileşik faiz ne demek?</h2>
+        <p>Vade bitince paranızı çekmeyip faiziyle birlikte yeniden yatırırsanız, bir sonraki
+        dönemde <b>faiz de faiz kazanır</b>. Buna bileşik faiz denir. Kısa vadelerde etkisi
+        küçüktür ama bir yıl boyunca 12 kez yenilenirse fark belirgin hâle gelir.</p>
+
+        <h2>Asıl soru: reel getiri</h2>
+        <p>%37 faiz aldınız ama enflasyon %35'se, paranızın <b>alım gücü</b> neredeyse hiç
+        artmamıştır. Gerçek kazancı görmek için nominal getiriyi enflasyondan arındırmak gerekir.
+        Yukarıdaki "Enflasyona karşı" bölümü bunu hesaplar.</p>
+        <p>Reel getiri negatifse, hesabınızdaki rakam büyürken satın alabildiğiniz mal miktarı
+        azalıyor demektir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("mevduat-faizi-hesaplama.html");
+gizlilikBaglantisi();
+
+document.getElementById("kaynakSerit").innerHTML = `
+    <span class="etiket-rozet">Basit ve bileşik faiz</span>
+    <span class="etiket-rozet">Stopaj düşülmüş <b>net</b> getiri</span>
+    <span class="etiket-rozet">Enflasyona göre reel getiri</span>`;
+
+const ALANLAR = ["anapara", "faiz", "vade", "stopaj", "bilesik", "donem", "enflasyon"];
+
+function hesapla() {
+    const bilesik = isaretli("bilesik");
+    document.getElementById("donem").disabled = !bilesik;
+
+    const anapara = oku("anapara"), faiz = oku("faiz");
+    const vade = Math.round(oku("vade")) || 1, stopaj = oku("stopaj");
+    const donem = Math.max(1, Math.round(oku("donem")));
+    if (!anapara || anapara <= 0) { document.getElementById("ozet").innerHTML = ""; return; }
+
+    const m = mevduatHesapla(anapara, faiz, vade, stopaj, bilesik, donem);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(m.vadeSonu)}</div>
+        <div class="dev-etiket">${m.toplamGun} gün sonra elinize geçecek toplam</div>
+        ${satir("Anapara", para(anapara))}
+        ${satir("Brüt faiz", para(m.brutFaiz))}
+        ${satir("Stopaj kesintisi", "−" + para(m.stopaj))}
+        ${satir("Net faiz geliri", para(m.netFaiz), "buyuk")}
+        ${satir("Yıllık net getiri oranı", yuzdeOn(m.netYillik))}
+        ${bilesik ? `<p class="kucuk">${m.donem} dönem üst üste yenilendi.</p>` : ""}
+    </div>`;
+
+    // Adım adım döküm
+    const gunlukOran = faiz / 100 * vade / 365;
+    const d = dokumKur("Faiz nasıl hesaplandı?");
+    d.ekle("Vadeye düşen faiz oranı bulunur (yıllık oran gün sayısına bölünür).",
+           `%${sayi(faiz)} × ${vade} ÷ 365`, "%" + sayi(gunlukOran * 100, 4));
+    d.ekle("Brüt faiz: anapara bu oranla çarpılır.",
+           `${sayi(anapara, 0)} × %${sayi(gunlukOran * 100, 4)}`, para(m.brutFaiz / (bilesik ? m.donem : 1)));
+    d.ekle("Stopaj kesilir (faiz gelirinden alınan vergi).",
+           `${sayi(m.brutFaiz)} × %${sayi(stopaj)}`, "−" + para(m.stopaj));
+    d.ekle("Net faiz geliri.",
+           `${sayi(m.brutFaiz)} − ${sayi(m.stopaj)}`, para(m.netFaiz));
+    if (bilesik) {
+        d.ekle(`Vade ${m.donem} kez yenilendi; her seferinde net faiz anaparaya eklendi.`,
+               `${m.donem} dönem × ${vade} gün`, m.toplamGun + " gün");
+    }
+    d.ekle("Vade sonunda elinize geçen toplam.",
+           `${sayi(anapara, 0)} + ${sayi(m.netFaiz)}`, para(m.vadeSonu));
+    document.getElementById("dokum").innerHTML = d.html();
+
+    baglantiyaYaz(ALANLAR);
+    reelHesapla(m.netYillik);
+}
+
+function reelHesapla(netYillik) {
+    const enf = oku("enflasyon");
+    const r = reelGetiri(netYillik, enf);
+    document.getElementById("reel").innerHTML =
+        satir("Net yıllık getiriniz", yuzdeOn(netYillik)) +
+        satir("Yıllık enflasyon", yuzdeOn(enf)) +
+        satir("Reel (gerçek) getiri", yuzdeOn(r), "buyuk") +
+        `<p class="kucuk">${r > 0
+            ? "Paranız enflasyonun üstünde kazandırıyor — alım gücünüz artıyor."
+            : "Rakam büyüyor ama alım gücünüz azalıyor: faiz enflasyonun altında kalmış."}</p>`;
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+
+dinle(["anapara", "faiz", "vade", "stopaj", "bilesik", "donem"], hesapla);
+document.getElementById("enflasyon").addEventListener("input", hesapla);
+
+eylemleriBagla(() => sonucMetni("Mevduat Hesabı"));
+yapisalVeri("Mevduat Faizi Hesaplama", "Vadeli mevduatta stopaj düşülmüş net getiri ve reel kazanç hesaplama.");
+
+sssEkle([
+    { soru: "Stopaj oranı kaç olmalı?",
+      cevap: "Vadeye göre değişir; kısa vadelerde daha yüksek, uzun vadelerde daha düşük uygulanır. Oranlar dönem dönem değiştiği için hesabı yaparken bankanızdan aldığınız güncel oranı yazmanız en doğrusudur." },
+    { soru: "Banka %40 faiz diyor ama elime daha az geçiyor, neden?",
+      cevap: "İlan edilen oran yıllık ve brüttür. Önce vadeye düşen kısmı hesaplanır (32 günlük vadede yıllık oranın yaklaşık on ikide biri), sonra faiz gelirinden stopaj kesilir. Kalan tutar elinize geçer." },
+    { soru: "Bileşik faiz gerçekten fark yaratır mı?",
+      cevap: "Kısa vadede az, uzun vadede belirgin. Faizi çekmeyip anaparaya eklerseniz sonraki dönemde faiz de faiz kazanır. Bir yıl boyunca 12 kez yenilenen bir hesapta bu fark açıkça görünür." },
+    { soru: "Reel getiri negatif çıktı, ne demek?",
+      cevap: "Hesabınızdaki rakam büyürken alım gücünüzün azaldığı anlamına gelir. Faiziniz enflasyonun altında kalmışsa, vade sonunda daha çok paranız olur ama o parayla daha az şey alabilirsiniz." },
+    { soru: "Mevduat mı, döviz mi, altın mı?",
+      cevap: "Bu araç yalnızca mevduatı hesaplar ve yatırım tavsiyesi vermez. Karşılaştırma yapmak isterseniz reel getiri bölümü, kazancınızın enflasyon karşısındaki gerçek durumunu gösterir." }
+]);
+
+ilgiliAraclar("mevduat-faizi-hesaplama.html");
+
+reklamAlani();
+</script>
+</body>
+</html>

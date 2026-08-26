@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para</title>
+<meta name="description" content="Aylık bütçe hesaplama: kira, market, yakıt, faturalar ve diğer giderleri girin; ay sonunda ne kaldığını, nereye gittiğini ve kalan parayla neler yapılabileceğini hesaplayın." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM: AdSense yukleyici. Otomatik Reklam acikken Google reklamlari
+     kendisi yerlestirir. Hesap sonuclarinin YANINA degil, altina duser. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/butce-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para" />
+<meta property="og:description" content="Aylık bütçe hesaplama: kira, market, yakıt, faturalar ve diğer giderleri girin; ay sonunda ne kaldığını, nereye gittiğini ve kalan parayla neler yapılabileceğini hesaplayın." />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/butce-hesaplama.html" />
+<meta name="twitter:card" content="summary" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Aylık Bütçe Hesaplama</h1>
+    <p class="ozet">Gelirinizi ve giderlerinizi girin; ay sonunda <b>ne kaldığını</b>,
+    paranızın <b>nereye gittiğini</b> ve kalanla <b>neler yapabileceğinizi</b> görün.
+    Girdiğiniz bilgiler sadece bu cihazda kalır.</p>
+
+    <div class="kaynak-serit">
+        <span class="etiket-rozet">20 gider kalemi</span>
+        <span class="etiket-rozet">50 / 30 / 20 karşılaştırması</span>
+        <span class="etiket-rozet">Veriler <b>cihazınızda</b> kalır</span>
+    </div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen butce-duzen">
+    <div class="kutu">
+        <h3>Gelir</h3>
+        <div class="form-izgara">
+            <label>Net maaş (TL)
+                <input id="maas" type="number" step="any" inputmode="decimal" value="58000" />
+            </label>
+            <label>Ek gelir (TL)
+                <input id="ekGelir" type="number" step="any" inputmode="decimal" value="0" />
+            </label>
+        </div>
+        <p class="kucuk">Net maaşınızı bilmiyorsanız
+        <a href="net-maas-hesaplama.html">brütten hesaplayın</a>.</p>
+    </div>
+
+    <div id="giderAlani"></div>
+
+    <div id="ozet"></div>
+
+    <details class="kutu katlanir" open id="oneriKutu">
+        <summary><span>Kalan parayla ne yapabilirsiniz?</span><span class="ipuc">hesaplı seçenekler</span></summary>
+        <div class="katlanir-ic">
+            <div class="form-izgara">
+                <label>Mevduat faizi (%)
+                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="37" />
+                </label>
+                <label>Yıllık enflasyon (%)
+                    <input id="enflasyon" type="number" step="0.01" inputmode="decimal" value="34.88" />
+                </label>
+                <label>Kalan kredi borcu (TL)
+                    <input id="kalanBorc" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+                <label>Kredinin aylık faizi (%)
+                    <input id="krediFaiz" type="number" step="0.01" inputmode="decimal" value="3.29" />
+                </label>
+            </div>
+            <div id="oneriler"></div>
+        </div>
+    </details>
+    </div>
+
+    <section class="anlatim">
+        <h2>50 / 30 / 20 kuralı nedir?</h2>
+        <p>Kişisel finansta yaygın bir başparmak kuralıdır: gelirin <b>%50'si zorunlu
+        ihtiyaçlara</b> (kira, fatura, market, ulaşım), <b>%30'u isteklere</b> (dışarıda yemek,
+        eğlence, abonelikler), <b>%20'si birikime</b> ayrılır.</p>
+        <p>Bu bir yasa değil, ölçü. Türkiye'de kiraların gelire oranı yüksek olduğu için çoğu
+        bütçede ihtiyaç kalemi %50'yi aşar. Yine de nereden saptığınızı görmek yön verir.</p>
+
+        <h2>Acil durum fonu ne kadar olmalı?</h2>
+        <p>Yaygın öneri, <b>3–6 aylık zorunlu giderinizi</b> nakde yakın bir yerde tutmaktır.
+        İşsizlik, sağlık sorunu ya da beklenmedik masrafta krediye muhtaç olmamanızı sağlar.
+        Yatırım yapmadan önce kurulması önerilen ilk adım budur.</p>
+
+        <h2>Önce borç mu kapatılmalı, önce birikim mi?</h2>
+        <p>Karşılaştırma basittir: <b>borcunuzun faizi, mevduatın net getirisinden yüksekse</b>
+        borcu kapatmak matematiksel olarak daha kârlıdır. Kredi kartı borcu neredeyse her zaman
+        bu gruba girer. Aşağıdaki hesap ikisini yan yana gösterir.</p>
+
+        <h2>Bu bir yatırım tavsiyesi mi?</h2>
+        <p>Hayır. Buradaki seçenekler <b>hesaptır</b>: aynı parayı farklı yerlerde tutunca ne
+        olacağını sayıyla gösterir. Hangisinin size uygun olduğuna siz karar verirsiniz.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("butce-hesaplama.html");
+gizlilikBaglantisi();
+
+// --- Gider alanlarını gruplara ayırıp kur ---
+const gruplar = {};
+GIDER_KALEMLERI.forEach(k => { (gruplar[k.grup] = gruplar[k.grup] || []).push(k); });
+
+document.getElementById("giderAlani").innerHTML = Object.keys(gruplar).map(g => `
+    <details class="kutu katlanir" ${g === "Konut" ? "open" : ""}>
+        <summary><span>${g}</span><span class="ipuc" data-toplam="${g}"></span></summary>
+        <div class="katlanir-ic">
+            <div class="form-izgara">
+                ${gruplar[g].map(k => `<label>${k.ad}
+                    <input id="g_${k.kod}" type="number" step="any" inputmode="decimal"
+                           placeholder="0" data-gider="${k.kod}" />
+                </label>`).join("")}
+            </div>
+        </div>
+    </details>`).join("");
+
+// --- Kayıtlı değerleri geri yükle ---
+const kayit = ayarOku();
+if (kayit.butce) {
+    Object.keys(kayit.butce).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = kayit.butce[id];
+    });
+}
+
+function girdileriTopla() {
+    const giderler = {};
+    document.querySelectorAll("[data-gider]").forEach(el => {
+        giderler[el.dataset.gider] = oku(el.id);
+    });
+    return giderler;
+}
+
+function kaydet() {
+    const a = ayarOku();
+    a.butce = {};
+    document.querySelectorAll("[data-gider], #maas, #ekGelir, #faiz, #enflasyon, #kalanBorc, #krediFaiz")
+        .forEach(el => { if (el.value !== "") a.butce[el.id] = el.value; });
+    ayarYaz(a);
+}
+
+const RENKLER = ["#1c5fd6", "#0a7ea4", "#15803d", "#c2410c", "#7c3aed", "#475569"];
+
+function hesapla() {
+    const gelir = oku("maas") + oku("ekGelir");
+    const b = butceOzeti(gelir, girdileriTopla());
+
+    // Grup başlıklarına toplamı yaz
+    document.querySelectorAll("[data-toplam]").forEach(el => {
+        const t = b.gruplar[el.dataset.toplam] || 0;
+        el.textContent = t > 0 ? para(t) : "";
+    });
+
+    if (gelir <= 0) { document.getElementById("ozet").innerHTML = ""; return; }
+
+    const gruplarListe = Object.keys(b.gruplar).sort((x, y) => b.gruplar[y] - b.gruplar[x]);
+    const dagilim = gruplarListe.map((g, i) =>
+        `<div style="width:${b.gruplar[g] / Math.max(b.toplamGider, 1) * 100}%;background:${RENKLER[i % RENKLER.length]}"></div>`).join("");
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger ${b.kalan >= 0 ? "yukari" : "asagi"}">${para(b.kalan)}</div>
+        <div class="dev-etiket">${b.kalan >= 0 ? "ay sonunda kalan" : "ay sonunda AÇIK"}</div>
+        ${satir("Toplam gelir", para(b.gelir))}
+        ${satir("Toplam gider", "−" + para(b.toplamGider))}
+        ${satir("Kalan", para(b.kalan), "buyuk")}
+        ${satir("Tasarruf oranı", yuzdeOn(b.tasarrufOrani, 1))}
+        ${b.toplamGider > 0 ? `
+        <div class="dagilim">${dagilim}</div>
+        <div class="dagilim-liste">${gruplarListe.map((g, i) =>
+            `<span><i style="background:${RENKLER[i % RENKLER.length]}"></i>${g} ${para(b.gruplar[g])}</span>`).join("")}</div>
+        ${b.enBuyuk ? `<p class="kucuk">En büyük kaleminiz <b>${b.enBuyuk.ad}</b>:
+            ${para(b.enBuyuk.tutar)} — gelirinizin %${sayi(b.enBuyuk.tutar / gelir * 100, 1)}'i.</p>` : ""}` : ""}
+    </div>
+
+    <div class="kutu">
+        <h3>50 / 30 / 20 karşılaştırması</h3>
+        ${satir("Zorunlu ihtiyaçlar (hedef %50)", para(b.ihtiyac) + " · " + yuzdeOn(b.ihtiyacOran, 0))}
+        ${satir("İstekler (hedef %30)", para(b.istek) + " · " + yuzdeOn(b.istekOran, 0))}
+        ${satir("Birikim (hedef %20)", para(Math.max(0, b.kalan)) + " · " + yuzdeOn(Math.max(0, b.tasarrufOrani), 0))}
+        <p class="kucuk">${b.tasarrufOrani >= 20
+            ? "Birikim oranınız hedefin üstünde — iyi durumdasınız."
+            : b.kalan < 0
+                ? "Gideriniz gelirinizi aşıyor. Önce en büyük kalemden başlayıp kısmayı deneyin."
+                : "Birikim oranınız %20'nin altında. İstekler kaleminden kısmak en kolay yer."}</p>
+    </div>`;
+
+    onerileriCiz(b);
+    kaydet();
+}
+
+function onerileriCiz(b) {
+    const kalan = b.kalan;
+    const kutu = document.getElementById("oneriler");
+    if (kalan <= 0) {
+        kutu.innerHTML = `<p class="kucuk">Ay sonunda para kalmadığı için birikim seçeneği
+        hesaplanamıyor. Önce açığı kapatmak gerekiyor.</p>`;
+        return;
+    }
+
+    const faiz = oku("faiz"), enf = oku("enflasyon");
+    const aylikGider = b.toplamGider;
+    const acilHedef = aylikGider * 3;
+    const acilAy = aylikGider > 0 ? Math.ceil(acilHedef / kalan) : 0;
+
+    const bir = duzenliBirikim(kalan, faiz, 12, 15);
+    const netYillik = faiz * 0.85;
+    const reel = reelGetiri(netYillik, enf);
+    const yastikKaybi = kalan * 12 * (enf / 100) / (1 + enf / 100);
+
+    let html = `
+    <div class="oneri">
+        <b>1 · Acil durum fonu</b>
+        <p>Zorunlu giderleriniz aylık ${para(aylikGider)}. 3 aylık güvenlik yastığı
+        <b>${para(acilHedef)}</b> eder. Her ay ${para(kalan)} ayırırsanız
+        <b>${acilAy} ayda</b> tamamlanır.</p>
+        <p class="not">Yatırım yapmadan önce önerilen ilk adım budur.</p>
+    </div>
+
+    <div class="oneri">
+        <b>2 · Her ay mevduata koyarsanız</b>
+        ${satir("12 ay boyunca yatırılan", para(bir.yatirilan))}
+        ${satir("Faiz kazancı (stopaj düşülmüş)", para(bir.kazanc))}
+        ${satir("Yıl sonunda toplam", para(bir.bakiye), "buyuk")}
+        <p class="not">%${sayi(faiz, 2)} brüt faiz, %15 stopaj varsayıldı.
+        Enflasyona göre reel getiri: <b>${yuzdeOn(reel)}</b>${reel < 0 ? " — yani alım gücü olarak kayıp." : "."}</p>
+    </div>
+
+    <div class="oneri">
+        <b>3 · Hiçbir şey yapmazsanız</b>
+        <p>Bu parayı 12 ay boyunca yastık altında tutarsanız, %${sayi(enf, 2)} enflasyonda
+        yaklaşık <b>${para(yastikKaybi)}</b> alım gücü kaybedersiniz.</p>
+    </div>`;
+
+    // Kredi varsa: erken kapatma karşılaştırması
+    const borc = oku("kalanBorc"), kf = oku("krediFaiz");
+    const taksit = oku("g_kredi");
+    if (borc > 0 && taksit > 0) {
+        const e = erkenKapatma(borc, kf, taksit, kalan);
+        if (e) {
+            const borcFaizi = kf * 12;
+            html += `<div class="oneri ${borcFaizi > netYillik ? "vurgulu" : ""}">
+                <b>4 · Krediyi erken kapatmak</b>
+                ${satir("Normal bitiş", e.normalAy + " ay")}
+                ${satir("Her ay " + para(kalan) + " ek ödeyince", e.hizliAy + " ay")}
+                ${satir("Kazanılan süre", e.kazanilanAy + " ay")}
+                ${satir("Faizden tasarruf", para(e.faizTasarrufu), "buyuk")}
+                <p class="not">${borcFaizi > netYillik
+                    ? `Kredinizin yıllık faizi (~%${sayi(borcFaizi, 0)}) mevduatın net getirisinden
+                       (%${sayi(netYillik, 1)}) <b>yüksek</b>. Matematiksel olarak borcu kapatmak
+                       biriktirmekten kârlı görünüyor.`
+                    : `Kredi faiziniz mevduat getirisinin altında; bu durumda biriktirmek
+                       matematiksel olarak daha avantajlı olabilir.`}</p>
+            </div>`;
+        }
+    } else if (taksit > 0) {
+        html += `<div class="oneri"><b>4 · Krediyi erken kapatmak</b>
+            <p class="not">Kredi taksiti girmişsiniz. Erken kapatma hesabı için yukarıya
+            <b>kalan borç</b> tutarını da yazın.</p></div>`;
+    }
+
+    html += `<p class="kucuk"><b>Not:</b> Bunlar tavsiye değil hesaptır. Aynı paranın farklı
+        yerlerde ne yapacağını gösterir; kararı siz verirsiniz.</p>`;
+    kutu.innerHTML = html;
+}
+
+// Bütün alanları dinle
+const izlenecek = ["maas", "ekGelir", "faiz", "enflasyon", "kalanBorc", "krediFaiz"]
+    .concat(GIDER_KALEMLERI.map(k => "g_" + k.kod));
+
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(izlenecek, hesapla);
+
+eylemleriBagla(() => {
+    const satirlar = ["Aylık Bütçe Özeti", ""];
+    document.querySelectorAll("#ozet .sonuc-satir").forEach(s => {
+        const p = s.innerText.split("\n").filter(Boolean);
+        if (p.length >= 2) satirlar.push(p[0] + ": " + p[p.length - 1]);
+    });
+    return satirlar.join("\n");
+});
+
+yapisalVeri("Aylık Bütçe Hesaplama",
+    "Gelir ve giderleri girip ay sonunda kalan parayı ve değerlendirme seçeneklerini hesaplayan araç.");
+
+sssEkle([
+    { soru: "Girdiğim bilgiler bir yere gidiyor mu?",
+      cevap: "Hayır. Maaşınız ve giderleriniz yalnızca kendi tarayıcınızda saklanır, hiçbir sunucuya gönderilmez. Aynı cihazda tekrar açtığınızda kaldığınız yerden devam edersiniz." },
+    { soru: "Giderlerimin hepsini bilmiyorum, yine de kullanabilir miyim?",
+      cevap: "Evet. Bildiğiniz kalemleri girmeniz yeterli; boş bıraktıklarınız sıfır sayılır. Sonuç yine de paranızın nereye gittiğine dair fikir verir. Faturalarınızın son üç ayının ortalamasını almak daha doğru sonuç verir." },
+    { soru: "Yıllık ödemeleri (sigorta, MTV, aidat) nasıl gireyim?",
+      cevap: "On ikiye bölüp aylık karşılığını yazın. Örneğin yılda 12.000 TL sigorta ödüyorsanız aylık 1.000 TL olarak girin. Böylece o ay geldiğinde sürpriz olmaz." },
+    { soru: "Zorunlu giderim %50'yi çok aşıyor, kötü mü?",
+      cevap: "Türkiye'de kira ve gıda payının yüksekliği nedeniyle çoğu bütçede bu oran aşılır. 50/30/20 bir hedef değil ölçüdür; asıl bakılacak şey ay sonunda artı mı eksi mi kaldığınızdır." },
+    { soru: "Önce borcumu mu kapatmalıyım, birikim mi yapmalıyım?",
+      cevap: "Ölçüt faizdir: borcunuzun yıllık faizi mevduatın net getirisinden yüksekse borcu kapatmak matematiksel olarak kazançlıdır. Sayfadaki hesap ikisini yan yana gösterir. Yine de önce küçük bir acil durum fonu oluşturmak yaygın bir öneridir." }
+]);
+
+ilgiliAraclar("butce-hesaplama.html");
+
+reklamAlani();
+</script>
+</body>
+</html>
