@@ -112,6 +112,7 @@ function iskeletKur(aktifYol) {
         document.getElementById("temaBtn").textContent = a.tema === "koyu" ? "◑" : "◐";
         ayarYaz(a);
     };
+    cevrimdisiUyari(aktifYol);
 }
 
 // ---------- Sonuç satırları ----------
@@ -383,4 +384,130 @@ function gizlilikBaglantisi() {
         <a href="index.html">Bütün araçlar</a> ·
         Bu sitede Google AdSense reklamları gösterilir.`;
     alt.appendChild(p);
+    kurulumDugmesi();
+}
+
+// ================= UYGULAMA OLARAK KURULUM =================
+// Site tarayıcıdan da çalışır; isteyen telefonuna/bilgisayarına kurup
+// simgesinden açabilir. Çevrimdışıyken de son açtığı sayfalar gelir.
+
+let kurulumOlayi = null;
+
+// Tarayıcı "bu site kurulabilir" dediğinde kendi düğmemizi gösterebilmek için
+// olayı yakalayıp saklıyoruz.
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    kurulumOlayi = e;
+    const b = document.getElementById("kurBtn");
+    if (b) b.hidden = false;
+});
+
+window.addEventListener("appinstalled", () => {
+    kurulumOlayi = null;
+    const b = document.getElementById("kurBtn");
+    if (b) b.hidden = true;
+    try { localStorage.setItem("hesapKurulu", "1"); } catch (e) { }
+});
+
+function uygulamaKurulu() {
+    if (window.matchMedia("(display-mode: standalone)").matches) return true;
+    if (window.navigator.standalone) return true;   // iOS
+    try { return localStorage.getItem("hesapKurulu") === "1"; } catch (e) { return false; }
+}
+
+// Alt bilgiye "Uygulama olarak kur" düğmesi ekler.
+// Kurulamayan tarayıcıda (iOS Safari) düğme yerine nasıl yapılacağını anlatır.
+function kurulumDugmesi() {
+    const alt = document.querySelector("footer");
+    if (!alt || alt.querySelector(".kurulum-serit") || uygulamaKurulu()) return;
+
+    const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const s = document.createElement("div");
+    s.className = "kurulum-serit";
+    s.innerHTML = `
+        <span class="kurulum-yazi"><b>Telefonunuza kurun.</b>
+        Simgeden tek dokunuşla açılır, internet olmadan da çalışır.</span>
+        <button type="button" id="kurBtn" class="ikincil" hidden>Uygulama olarak kur</button>
+        <button type="button" id="kurNasil" class="ikincil">Nasıl kurulur?</button>`;
+    alt.insertBefore(s, alt.firstChild);
+
+    document.getElementById("kurBtn").addEventListener("click", async () => {
+        if (!kurulumOlayi) return;
+        kurulumOlayi.prompt();
+        const sonuc = await kurulumOlayi.userChoice;
+        if (sonuc.outcome === "accepted") {
+            try { localStorage.setItem("hesapKurulu", "1"); } catch (e) { }
+        }
+        kurulumOlayi = null;
+        document.getElementById("kurBtn").hidden = true;
+    });
+
+    document.getElementById("kurNasil").addEventListener("click", () => {
+        const yardim = document.getElementById("kurulumYardim");
+        if (yardim) { yardim.hidden = !yardim.hidden; return; }
+        const y = document.createElement("div");
+        y.id = "kurulumYardim";
+        y.className = "kurulum-yardim";
+        y.innerHTML = iOS ? `
+            <p><b>iPhone / iPad (Safari)</b></p>
+            <ol>
+                <li>Alttaki <b>Paylaş</b> düğmesine dokunun (kutudan çıkan ok).</li>
+                <li>Listeyi kaydırıp <b>Ana Ekrana Ekle</b>'yi seçin.</li>
+                <li><b>Ekle</b>'ye dokunun. Simge ana ekranınıza gelir.</li>
+            </ol>` : `
+            <p><b>Android (Chrome)</b></p>
+            <ol>
+                <li>Sağ üstteki <b>⋮</b> menüsüne dokunun.</li>
+                <li><b>Uygulamayı yükle</b> ya da <b>Ana ekrana ekle</b>'yi seçin.</li>
+            </ol>
+            <p><b>Bilgisayar (Chrome / Edge)</b></p>
+            <ol>
+                <li>Adres çubuğunun sağındaki <b>kurulum simgesine</b> tıklayın.</li>
+                <li>Ya da menüden <b>Uygulamayı yükle</b>'yi seçin.</li>
+            </ol>`;
+        document.querySelector(".kurulum-serit").appendChild(y);
+    });
+}
+
+// Çevrimdışı katmanını kaydet. Hata olursa site normal çalışmaya devam eder.
+function cevrimdisiKur() {
+    if (!("serviceWorker" in navigator)) return;
+    if (location.protocol !== "https:" && location.hostname !== "localhost") return;
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(() => { });
+    });
+}
+
+cevrimdisiKur();
+
+// ---------- Çevrimdışı uyarısı ----------
+// İnternet yokken kayıtlı olmayan bir sayfaya girilirse ana sayfa açılır.
+// Adres çubuğu başka sayfayı gösterdiği için kullanıcı şaşırmasın diye söylüyoruz.
+function cevrimdisiUyari(aktifYol) {
+    const istenen = location.pathname.split("/").pop() || "index.html";
+    const yanlisSayfa = istenen !== aktifYol && istenen !== "";
+
+    const goster = (metin, kalici) => {
+        let s = document.getElementById("cevrimdisiSerit");
+        if (!s) {
+            s = document.createElement("div");
+            s.id = "cevrimdisiSerit";
+            s.className = "cevrimdisi-serit";
+            s.setAttribute("role", "status");
+            document.body.insertBefore(s, document.body.firstChild);
+        }
+        s.innerHTML = metin;
+        s.hidden = false;
+        if (!kalici) setTimeout(() => { s.hidden = true; }, 6000);
+    };
+
+    if (!navigator.onLine && yanlisSayfa) {
+        goster('<b>İnternet yok.</b> Aradığınız sayfa daha önce açılmadığı için kaydedilmemiş — ' +
+               'bunun yerine araç listesi gösteriliyor. Daha önce açtığınız araçlar çevrimdışı da çalışır.', true);
+    } else if (!navigator.onLine) {
+        goster('<b>İnternet yok.</b> Bu araç çevrimdışı çalışmaya devam ediyor.', true);
+    }
+
+    window.addEventListener("offline", () => goster('<b>İnternet kesildi.</b> Bu sayfa çalışmaya devam ediyor.', true));
+    window.addEventListener("online", () => goster('İnternet geri geldi.', false));
 }

@@ -789,3 +789,25 @@ main:focus { outline: none; }
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
     overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
+
+/* ---------- Uygulama olarak kurulum şeridi ---------- */
+.kurulum-serit {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin: 0 0 14px; padding: 14px; border: 1px solid var(--cizgi);
+    border-radius: var(--yuvarlak); background: var(--kart-ust);
+}
+.kurulum-yazi { flex: 1 1 240px; font-size: 14px; color: var(--yazi); }
+.kurulum-serit button { min-height: 40px; }
+.kurulum-yardim { flex: 1 1 100%; font-size: 14px; color: var(--yazi2); }
+.kurulum-yardim p { margin: 10px 0 4px; color: var(--yazi); }
+.kurulum-yardim ol { margin: 0 0 6px; padding-left: 20px; }
+.kurulum-yardim li { margin: 3px 0; }
+@media print { .kurulum-serit { display: none !important; } }
+
+/* İnternet kesildiğinde en üstte çıkan bilgi şeridi */
+.cevrimdisi-serit {
+    background: var(--uyari); color: #fff; font-size: 14px; line-height: 1.45;
+    padding: 10px 14px; text-align: center;
+}
+.cevrimdisi-serit b { font-weight: 700; }
+@media print { .cevrimdisi-serit { display: none !important; } }
