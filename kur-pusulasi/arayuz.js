@@ -43,18 +43,33 @@ function seriAl(kod) {
         }
         return cikti;
     }
+    // Kripto icin kur turevi seri KULLANMIYORUZ.
+    // Altinda makul: ons fiyati gorece durgun, TL fiyatinin hareketi cogunlukla kurdan gelir.
+    // Kriptoda degil: Dogecoin'in yillik degisimi kurun degisimi DEGILDIR.
+    // Gercek gecmis gelmediyse yuzde gostermek yerine "bilinmiyor" demek dogrusu.
+    if (m.coingecko) return null;
     return madenGecmisiUret(m, durum.madenler[m.kaynak], usdSerisi);
 }
 
+// Bu varligin gercek gecmisi elimizde mi?
+function gecmisVarMi(kod) {
+    const m = MADENLER.find(x => x.kod === kod);
+    if (!m) return true;                       // dovizlerin gecmisi ECB'den geliyor
+    return !!durum.onsGecmis[m.kaynak];
+}
+
 function guncelFiyat(kod) {
+    // Maden/kripto için anlık fiyat, kurdan daha tazedir.
+    // ÖNEMLİ: bunu seriden ÖNCE deniyoruz — geçmişi henüz gelmemiş bir kriptonun
+    // da fiyatı bilinir; sırf geçmişi yok diye kartı gizlemek yanlış olur.
+    const m = MADENLER.find(x => x.kod === kod);
+    if (m && durum.madenler[m.kaynak] && durum.veri) {
+        const usdSon = durum.veri.seriler.USD[durum.veri.seriler.USD.length - 1];
+        const f = madenFiyatiHesapla(m, durum.madenler[m.kaynak], usdSon);
+        if (f) return f;
+    }
     const s = seriAl(kod);
     if (!s || !s.length) return null;
-    // Maden/kripto için anlık fiyat, kurdan daha tazedir
-    const m = MADENLER.find(x => x.kod === kod);
-    if (m && durum.madenler[m.kaynak]) {
-        const usdSon = durum.veri.seriler.USD[durum.veri.seriler.USD.length - 1];
-        return madenFiyatiHesapla(m, durum.madenler[m.kaynak], usdSon);
-    }
     return s[s.length - 1];
 }
 
@@ -617,9 +632,15 @@ function piyasaCiz() {
 
     let liste = tumVarliklar().map(v => {
         const s = seriAl(v.kod);
-        if (!s || s.length < 3) return null;
+        const fiyat = guncelFiyat(v.kod);
+        if (!s || s.length < 3) {
+            // Gecmisi henuz gelmemis kripto: fiyati var, yuzdesi yok.
+            // Yanlis yuzde gostermektense bos birakiyoruz.
+            if (fiyat) return { v: v, s: null, ozet: { gun: null, ay: null, yil: null }, fiyat: fiyat };
+            return null;
+        }
         const ozet = varlikOzeti(v.kod, durum.veri.tarihler, s);
-        return { v: v, s: s, ozet: ozet, fiyat: guncelFiyat(v.kod) };
+        return { v: v, s: s, ozet: ozet, fiyat: fiyat };
     }).filter(Boolean);
 
     if (arama) {
@@ -634,7 +655,7 @@ function piyasaCiz() {
     else if (sirala === "ad") liste.sort((a, b) => a.v.ad.localeCompare(b.v.ad, "tr"));
 
     $("#kartlar").innerHTML = liste.map(x => `
-        <button class="varlik-kart"data-kod="${x.v.kod}"> <span class="bayrak">${x.v.bayrak}</span> <span> <span class="ad">${x.v.ad}</span><br> <span class="altad">ay ${yuzde(x.ozet.ay)} · yıl ${yuzde(x.ozet.yil)}</span> </span> <span> <span class="fiyat">${fiyatYaz(x.v.kod, x.fiyat)}</span><br> <span class="fark ${renkSinif(x.ozet.gun)}">${okIsareti(x.ozet.gun)} ${yuzde(x.ozet.gun)}</span> </span> ${sparkline(x.s, 84, 34)}
+        <button class="varlik-kart"data-kod="${x.v.kod}"> <span class="bayrak">${x.v.bayrak}</span> <span> <span class="ad">${x.v.ad}</span><br> <span class="altad">${x.s ? `ay ${yuzde(x.ozet.ay)} · yıl ${yuzde(x.ozet.yil)}` : "geçmiş yükleniyor…"}</span> </span> <span> <span class="fiyat">${fiyatYaz(x.v.kod, x.fiyat)}</span><br> <span class="fark ${x.s ? renkSinif(x.ozet.gun) : ""}">${x.s ? okIsareti(x.ozet.gun) + " " + yuzde(x.ozet.gun) : "—"}</span> </span> ${x.s ? sparkline(x.s, 84, 34) : ""}
  </button>`).join("") || '<p class="yukleniyor">Sonuç yok</p>';
 
     $$("#kartlar .varlik-kart").forEach(b => b.onclick = () => detayAc(b.dataset.kod));
@@ -1207,28 +1228,61 @@ function sekmeAc(hedef, cipaYazma) {
 // Neden CoinGecko? Ücretsiz, anahtarsız ve tarayıcıdan çağrılmasına izin veriyor (CORS açık).
 // Altın için PAX Gold (PAXG) kullanılır: 1 token = 1 ons altın karşılığıdır, fiyatı altını takip eder.
 // Son nokta, anlık ons fiyatına oranlanarak hizalanır ki grafikte kopukluk olmasın.
+const GECMIS_ONBELLEK = "kurGecmisOnbellek";
+
+// CoinGecko ucretsiz katmaninda dakikada birkac istek hakki var. 8 varligin
+// gecmisini her acilista cekince sinira takiliyor ve yarisi gelmiyordu.
+// Cozum: ham dolar serisini gunluk onbellege almak.
+function gecmisOnbellekOku(ad) {
+    try {
+        const t = JSON.parse(localStorage.getItem(GECMIS_ONBELLEK) || "{}");
+        const k = t[ad];
+        if (!k) return null;
+        const bugun = new Date().toISOString().slice(0, 10);
+        return k.tarih === bugun ? k.veri : null;      // gunde bir tazelenir
+    } catch (e) { return null; }
+}
+
+function gecmisOnbellekYaz(ad, veri) {
+    try {
+        const t = JSON.parse(localStorage.getItem(GECMIS_ONBELLEK) || "{}");
+        t[ad] = { tarih: new Date().toISOString().slice(0, 10), veri: veri };
+        localStorage.setItem(GECMIS_ONBELLEK, JSON.stringify(t));
+    } catch (e) { /* depo doluysa sessizce gec */ }
+}
+
 async function dolarGecmisiCek(coingeckoAdi, tarihler, anlikFiyat) {
     try {
-        const y = await fetch(`https://api.coingecko.com/api/v3/coins/${coingeckoAdi}/market_chart?vs_currency=usd&days=365&interval=daily`);
-        if (!y.ok) return null;
-        const v = await y.json();
-        if (!v.prices || v.prices.length < 100) return null;
-
-        const harita = {};
-        v.prices.forEach(p => { harita[new Date(p[0]).toISOString().slice(0, 10)] = p[1]; });
-
-        // Bizim iş günü eksenimize oturt (o gün yoksa bir öncekini taşı)
-        let sonBilinen = null;
-        const dizi = tarihler.map(t => { if (harita[t]) sonBilinen = harita[t]; return sonBilinen; });
-
-        // Anlık fiyata hizala (kaynaklar arası küçük farkı gider)
-        const sonDeger = dizi.filter(x => x).pop();
-        if (anlikFiyat && sonDeger) {
-            const oran = anlikFiyat / sonDeger;
-            return dizi.map(x => x ? x * oran : null);
-        }
-        return dizi;
+        const onbellekli = gecmisOnbellekOku(coingeckoAdi);
+        const ham = onbellekli || await (async () => {
+            const y = await fetch(`https://api.coingecko.com/api/v3/coins/${coingeckoAdi}/market_chart?vs_currency=usd&days=365&interval=daily`);
+            if (!y.ok) return null;
+            const v = await y.json();
+            if (v.prices && v.prices.length >= 100) { gecmisOnbellekYaz(coingeckoAdi, v.prices); return v.prices; }
+            return null;
+        })();
+        if (!ham) return null;
+        return dolarSerisiHizala(ham, tarihler, anlikFiyat);
     } catch (e) { return null; }
+}
+
+// Ham CoinGecko serisini ([[zaman, fiyat], ...]) bizim tarih eksenimize oturtur.
+// Fetch'ten ayrildi ki onbellekten gelen veri de ayni yoldan gecsin.
+function dolarSerisiHizala(hamFiyatlar, tarihler, anlikFiyat) {
+    const harita = {};
+    hamFiyatlar.forEach(p => { harita[new Date(p[0]).toISOString().slice(0, 10)] = p[1]; });
+
+    // Bizim iş günü eksenimize oturt (o gün yoksa bir öncekini taşı)
+    let sonBilinen = null;
+    const dizi = tarihler.map(t => { if (harita[t]) sonBilinen = harita[t]; return sonBilinen; });
+
+    // Anlık fiyata hizala (kaynaklar arası küçük farkı gider)
+    const sonDeger = dizi.filter(x => x).pop();
+    if (anlikFiyat && sonDeger) {
+        const oran = anlikFiyat / sonDeger;
+        return dizi.map(x => x ? x * oran : null);
+    }
+    return dizi;
 }
 
 async function veriYukle(sessiz) {
@@ -1264,16 +1318,28 @@ async function veriYukle(sessiz) {
             }
         });
 
-        // Altın ve bitcoinin gerçek dolar geçmişi (olmazsa kur türevi seriye düşer)
-        Promise.all([
-            dolarGecmisiCek("pax-gold", kur.tarihler, durum.madenler.XAU),
-            dolarGecmisiCek("bitcoin", kur.tarihler, durum.madenler.BTC)
-        ]).then(([altin, btc]) => {
+        // Altın ve kriptoların gerçek dolar geçmişi (olmazsa kur türevi seriye düşer).
+        // CoinGecko ücretsiz katmanında istek sınırı var; art arda değil SIRAYLA
+        // ve aralıklı çekiyoruz ki 429 yiyip hepsini kaybetmeyelim.
+        (async () => {
+            const isler = [{ cg: "pax-gold", kaynak: "XAU" }].concat(
+                MADENLER.filter(m => m.coingecko).map(m => ({ cg: m.coingecko, kaynak: m.kaynak })));
             let degisti = false;
-            if (altin && altin.filter(Boolean).length > 150) { durum.onsGecmis.XAU = altin; degisti = true; }
-            if (btc && btc.filter(Boolean).length > 150) { durum.onsGecmis.BTC = btc; degisti = true; }
+            for (const is of isler) {
+                const onbelleklıMi = !!gecmisOnbellekOku(is.cg);
+                const seri = await dolarGecmisiCek(is.cg, kur.tarihler, durum.madenler[is.kaynak]);
+                if (seri && seri.filter(Boolean).length > 150) {
+                    durum.onsGecmis[is.kaynak] = seri;
+                    degisti = true;
+                    if (onbelleklıMi) continue;               // önbellekten geldi, beklemeye gerek yok
+                    ekraniTazele();                            // ağdan gelen her seriyi hemen göster
+                }
+                // Ağa gittiysek nefes al: CoinGecko ücretsiz katmanı dakikada
+                // birkaç isteğe izin veriyor, art arda gidince yarısı düşüyordu.
+                if (!onbelleklıMi) await new Promise(r => setTimeout(r, 6000));
+            }
             if (degisti) ekraniTazele();
-        });
+        })();
 
         durum.cevrimdisi = false;
         rozet.textContent = tarihYaz(kur.sonTarih);

@@ -11,6 +11,7 @@ const ONBELLEK_ADI = "kurPusulasiOnbellek";
 // Ücretsiz, anahtar istemeyen kaynaklar
 const FRANKFURTER = "https://api.frankfurter.dev/v1";   // Avrupa Merkez Bankası günlük referans kurları
 const MADEN_API = "https://api.gold-api.com/price/";     // altın/gümüş/bitcoin anlık
+const KRIPTO_API = "https://api.coingecko.com/api/v3";   // kripto anlık + geçmiş (ücretsiz, anahtarsız)
 const DUNYA_BANKASI = "https://api.worldbank.org/v2/country/TR/indicator/";
 
 const ONS_GRAM = 31.1034768;   // 1 ons kaç gram (altın/gümüş çevirisi için)
@@ -60,8 +61,22 @@ const MADENLER = [
     { kod: "BILEZIK", ad: "22 Ayar Bilezik (gr)", simge: "gr", bayrak: "22A", kaynak: "XAU", tur: "ayar22", faiz: null },
     { kod: "ONSALTIN", ad: "Ons Altın (USD)", simge: "$", bayrak: "ONS", kaynak: "XAU", tur: "ons", faiz: null },
     { kod: "GRAMGUMUS", ad: "Gram Gümüş", simge: "gr", bayrak: "GUM", kaynak: "XAG", tur: "gram", faiz: null },
-    { kod: "BITCOIN", ad: "Bitcoin", simge: "₿", bayrak: "BTC", kaynak: "BTC", tur: "adet", faiz: null }
+    { kod: "BITCOIN", ad: "Bitcoin", simge: "₿", bayrak: "BTC", kaynak: "BTC", tur: "adet", faiz: null, coingecko: "bitcoin" },
+    // Kripto: fiyatlar CoinGecko'dan tek istekte gelir (ucretsiz, anahtar gerekmez).
+    // Hepsi "dolar varligi" sayilir -> faiz: null (bkz. yukaridaki not).
+    { kod: "ETHEREUM", ad: "Ethereum", simge: "Ξ", bayrak: "ETH", kaynak: "ETH", tur: "adet", faiz: null, coingecko: "ethereum" },
+    { kod: "XRP", ad: "XRP", simge: "X", bayrak: "XRP", kaynak: "XRP", tur: "adet", faiz: null, coingecko: "ripple" },
+    { kod: "SOLANA", ad: "Solana", simge: "S", bayrak: "SOL", kaynak: "SOL", tur: "adet", faiz: null, coingecko: "solana" },
+    { kod: "BNB", ad: "BNB", simge: "B", bayrak: "BNB", kaynak: "BNB", tur: "adet", faiz: null, coingecko: "binancecoin" },
+    { kod: "DOGECOIN", ad: "Dogecoin", simge: "D", bayrak: "DOGE", kaynak: "DOGE", tur: "adet", faiz: null, coingecko: "dogecoin" },
+    { kod: "AVALANCHE", ad: "Avalanche", simge: "A", bayrak: "AVAX", kaynak: "AVAX", tur: "adet", faiz: null, coingecko: "avalanche-2" }
 ];
+
+// Hangi varliklar kripto? (bazi yerlerde ayirmak gerekiyor)
+function kriptoMu(kod) {
+    const m = MADENLER.find(x => x.kod === kod);
+    return !!(m && m.coingecko);
+}
 
 // Türkiye faizi ve varsayılan ayarlar
 const VARSAYILAN_AYAR = {
@@ -283,13 +298,39 @@ function dxyHesapla(euroTabanliKurlar) {
 // Anlık maden/kripto fiyatları (dolar cinsinden)
 async function madenFiyatCek() {
     const sonuc = {};
-    const kaynaklar = ["XAU", "XAG", "BTC"];
-    await Promise.all(kaynaklar.map(async (k) => {
+
+    // Altin, gumus ve bitcoin: gold-api (her biri ayri istek)
+    const madenKaynak = ["XAU", "XAG", "BTC"];
+    const madenIsi = madenKaynak.map(async (k) => {
         try {
             const y = await fetch(MADEN_API + k);
             if (y.ok) { const v = await y.json(); sonuc[k] = v.price; }
         } catch (e) { /* internet yoksa sessizce geç, önbellek kullanılır */ }
-    }));
+    });
+
+    // Kriptolar: CoinGecko'dan TEK istekte hepsi (ucretsiz, anahtar yok, CORS acik)
+    const kriptolar = MADENLER.filter(m => m.coingecko);
+    const kriptoIsi = (async () => {
+        if (!kriptolar.length) return;
+        try {
+            const idler = kriptolar.map(m => m.coingecko).join(",");
+            const y = await fetch(KRIPTO_API + "/simple/price?ids=" + idler +
+                                  "&vs_currencies=usd&include_24hr_change=true");
+            if (!y.ok) return;
+            const v = await y.json();
+            kriptolar.forEach(m => {
+                const d = v[m.coingecko];
+                if (d && typeof d.usd === "number") {
+                    sonuc[m.kaynak] = d.usd;
+                    if (typeof d.usd_24h_change === "number") {
+                        sonuc["_degisim_" + m.kaynak] = d.usd_24h_change;
+                    }
+                }
+            });
+        } catch (e) { /* sessizce geç */ }
+    })();
+
+    await Promise.all(madenIsi.concat([kriptoIsi]));
     return sonuc;
 }
 
