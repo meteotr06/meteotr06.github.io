@@ -498,6 +498,10 @@ function reklamAlani() {
     const k = document.createElement("div");
     k.className = "reklam";
     k.innerHTML = `<span class="reklam-etiket">Reklam</span>
+        <!-- ONAY GELINCE: AdSense panelinden "Goruntulu reklam" birimi ac ve
+             asagiya data-ad-slot="..." ekle. SLOT OLMADAN MANUEL BIRIM DOLMAZ.
+             Slot ID'si ancak hesap onaylandiktan sonra uretilir; simdi eklenecek
+             bir deger yok. Ayrinti icin KARARLAR.md madde 13. -->
         <div class="reklam-yuva"><ins class="adsbygoogle"
              style="display:block" data-ad-format="auto"
              data-ad-client="ca-pub-4471538043632173"

@@ -2,13 +2,13 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v30";
+const SURUM = "kur-pusulasi-v31";
 const DOSYALAR = [
     "./",
     "./index.html",
-    "./stil.css?v=30",
-    "./cekirdek.js?v=30",
-    "./arayuz.js?v=30",
+    "./stil.css?v=31",
+    "./cekirdek.js?v=31",
+    "./arayuz.js?v=31",
     "./manifest.json",
     "./ikon-192.png",
     "./ikon-512.png",
