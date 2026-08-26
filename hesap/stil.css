@@ -329,6 +329,10 @@ tr.vurgu-satir td { background: var(--kart-ust); font-weight: 600; }
 label { display: block; font-size: 13px; color: var(--yazi2); font-weight: 500; }
 label input, label select { margin-top: 5px; }
 label.onay { display: flex; align-items: center; gap: 10px; color: var(--yazi); font-size: 14px; min-height: 42px; }
+/* Uzun aciklamali onay kutusu (orn. emlak vergisi muafiyet sarti) sarsin */
+.form-izgara label.onay { grid-column: 1 / -1; align-items: flex-start; padding: 4px 0; }
+.form-izgara label.onay span { line-height: 1.45; }
+.form-izgara label.onay input { margin-top: 2px; }
 label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex: 0 0 auto; }
 
 .sonuc-kutu { margin-top: 14px; border-top: 1px solid var(--cizgi); padding-top: 4px; }

@@ -1298,3 +1298,105 @@ function sureTopla(satirlar) {
     c.ortalamaDakika = gecerli.length ? toplam / gecerli.length : 0;
     return c;
 }
+
+// ---------- 32) TAPU HARCI ----------
+// Harçlar Kanunu 4 sayılı tarife: satış bedelinin binde 20'si alıcıdan,
+// binde 20'si satıcıdan. Toplam %4. Oran 2026'da değişmedi.
+// ÖNEMLİ: Matrah, beyan edilen satış bedelidir AMA belediyenin emlak vergi
+// değerinin (rayiç) altında olamaz. Düşük beyan cezaya yol açar.
+
+const TAPU = {
+    aliciOran: 0.02,            // binde 20
+    saticiOran: 0.02,           // binde 20
+    donerSermaye: 2534,         // 2026: 2.227 + 307 ilave (büyükşehirde bölge katsayısıyla artabilir)
+    guncelleme: "2026"
+};
+
+function tapuHarci(satisBedeli, emlakVergiDegeri, aliciHepsiniOdesin) {
+    // Matrah ikisinden BÜYÜK olanı: beyan rayicin altında olamaz
+    const matrah = Math.max(satisBedeli || 0, emlakVergiDegeri || 0);
+    const dusukBeyan = (emlakVergiDegeri || 0) > (satisBedeli || 0);
+
+    const aliciHarc = matrah * TAPU.aliciOran;
+    const saticiHarc = matrah * TAPU.saticiOran;
+    const toplamHarc = aliciHarc + saticiHarc;
+
+    const aliciOdeme = (aliciHepsiniOdesin ? toplamHarc : aliciHarc) + TAPU.donerSermaye;
+    const saticiOdeme = aliciHepsiniOdesin ? 0 : saticiHarc;
+
+    return {
+        matrah: matrah, dusukBeyan: dusukBeyan,
+        satisBedeli: satisBedeli || 0, emlakVergiDegeri: emlakVergiDegeri || 0,
+        aliciHarc: aliciHarc, saticiHarc: saticiHarc, toplamHarc: toplamHarc,
+        donerSermaye: TAPU.donerSermaye,
+        aliciOdeme: aliciOdeme, saticiOdeme: saticiOdeme,
+        genelToplam: toplamHarc + TAPU.donerSermaye,
+        // Düşük beyanla "kazanılacak" tutar — ceza riskini göstermek için
+        beyanFarki: dusukBeyan ? 0 : Math.max(0, (satisBedeli || 0) - (emlakVergiDegeri || 0)) * 0.04
+    };
+}
+
+// ---------- 33) EMLAK VERGİSİ ----------
+// Emlak Vergisi Kanunu: mesken binde 1, işyeri binde 2, arsa binde 3, arazi binde 1.
+// Büyükşehir belediyesi sınırları içinde bu oranlar İKİ KAT uygulanır.
+// İki eşit taksit: 1. taksit Mart-Mayıs, 2. taksit Kasım.
+
+const EMLAK = {
+    oranlar: {                  // [normal, büyükşehir]
+        mesken: [0.001, 0.002],
+        isyeri: [0.002, 0.004],
+        arsa:   [0.003, 0.006],
+        arazi:  [0.001, 0.002]
+    },
+    adlar: { mesken: "Mesken (konut)", isyeri: "İş yeri", arsa: "Arsa", arazi: "Arazi" },
+    // Değerli Konut Vergisi — 31.12.2025 Resmî Gazete, Emlak Vergisi K. Genel Tebliği No: 88
+    dkvEsik: 17711000,
+    dkvDilimler: [
+        { ustSinir: 26567000, birikmis: 0,      taban: 17711000, oran: 0.003 },
+        { ustSinir: 35425000, birikmis: 26568,  taban: 26567000, oran: 0.006 },
+        { ustSinir: Infinity, birikmis: 79716,  taban: 35425000, oran: 0.010 }
+    ],
+    guncelleme: "2026"
+};
+
+function degerliKonutVergisi(vergiDegeri, tekKonutMu) {
+    if (vergiDegeri <= EMLAK.dkvEsik) return { kapsamda: false, vergi: 0, sebep: "esikAlti" };
+    // Türkiye'de tek meskeni olan, değeri ne olursa olsun muaf
+    if (tekKonutMu) return { kapsamda: true, vergi: 0, sebep: "tekKonutMuafiyeti" };
+
+    for (const d of EMLAK.dkvDilimler) {
+        if (vergiDegeri <= d.ustSinir) {
+            return {
+                kapsamda: true, muaf: false,
+                vergi: d.birikmis + (vergiDegeri - d.taban) * d.oran,
+                dilimOrani: d.oran, dilimTabani: d.taban, dilimBirikmis: d.birikmis
+            };
+        }
+    }
+    return { kapsamda: false, vergi: 0 };
+}
+
+function emlakVergisi(tur, vergiDegeri, buyuksehirMi, muafiyetVarMi) {
+    const oranCifti = EMLAK.oranlar[tur] || EMLAK.oranlar.mesken;
+    const oran = oranCifti[buyuksehirMi ? 1 : 0];
+    // Emekli/dul/yetim/malul/gazi + tek konut + brüt 200 m² altı => oran SIFIR
+    const muaf = !!muafiyetVarMi && tur === "mesken";
+    const yillik = muaf ? 0 : (vergiDegeri || 0) * oran;
+
+    const dkv = tur === "mesken"
+        ? degerliKonutVergisi(vergiDegeri || 0, !!muafiyetVarMi)
+        : { kapsamda: false, vergi: 0 };
+
+    return {
+        tur: tur, turAd: EMLAK.adlar[tur] || tur,
+        vergiDegeri: vergiDegeri || 0,
+        buyuksehir: !!buyuksehirMi,
+        oran: oran, oranBinde: oran * 1000,
+        normalOran: oranCifti[0],
+        muaf: muaf,
+        yillik: yillik,
+        taksit: yillik / 2,
+        dkv: dkv,
+        toplamYillik: yillik + (dkv.vergi || 0)
+    };
+}

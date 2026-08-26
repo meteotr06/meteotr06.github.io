@@ -32,7 +32,9 @@ const ARACLAR = [
     { yol: "boya-fayans-hesaplama.html", ad: "Boya ve Fayans", aciklama: "Oda kaç litre boya, kaç karo", grup: "Ev ve Yaşam", anahtar: "boya litre fayans karo seramik metrekare oda duvar tavan badana tadilat m2" },
     { yol: "alan-cevre-hacim-hesaplama.html", ad: "Alan, Çevre, Hacim", aciklama: "Kare, daire, üçgen, silindir…", grup: "Genel", anahtar: "alan çevre hacim geometri kare dikdörtgen üçgen daire yamuk küp silindir küre koni metrekare metreküp yüzey heron pi yarıçap" },
     { yol: "ortalama-standart-sapma-hesaplama.html", ad: "Ortalama ve Sapma", aciklama: "Medyan, mod, standart sapma", grup: "Okul", anahtar: "ortalama medyan mod standart sapma varyans istatistik çeyrek aykırı değer aritmetik dizi excel" },
-    { yol: "saat-sure-hesaplama.html", ad: "Saat ve Süre", aciklama: "Mesai süresi, süre toplama", grup: "Genel", anahtar: "saat süre mesai vardiya çalışma dakika ondalık gece vardiyası mola bordro puantaj zaman fark" }
+    { yol: "saat-sure-hesaplama.html", ad: "Saat ve Süre", aciklama: "Mesai süresi, süre toplama", grup: "Genel", anahtar: "saat süre mesai vardiya çalışma dakika ondalık gece vardiyası mola bordro puantaj zaman fark" },
+    { yol: "tapu-harci-hesaplama.html", ad: "Tapu Harcı", aciklama: "Alıcı ve satıcı ne kadar öder", grup: "Ev ve Yaşam", anahtar: "tapu harcı ev alım satım gayrimenkul konut arsa devir rayiç döner sermaye binde 20 masraf" },
+    { yol: "emlak-vergisi-hesaplama.html", ad: "Emlak Vergisi", aciklama: "Konut, iş yeri, arsa; taksitler", grup: "Ev ve Yaşam", anahtar: "emlak vergisi bina arsa arazi işyeri belediye taksit muafiyet emekli değerli konut vergisi büyükşehir" }
 ];
 
 const KAYIT = "hesapAraclariAyar";
