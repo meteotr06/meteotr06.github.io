@@ -666,3 +666,101 @@ function issizlikMaasi(son4AyBrutOrtalama, primGunu) {
         hakEdiyorMu: primGunu >= 600
     };
 }
+
+// ---------- 14) YAKIT MALİYETİ ----------
+// Aracın "100 km'de kaç litre" değeri üzerinden yol maliyeti.
+
+function yakitMaliyeti(mesafeKm, tuketim100, litreFiyat, gidisDonus, kisiSayisi) {
+    const mesafe = mesafeKm * (gidisDonus ? 2 : 1);
+    const litre = mesafe * tuketim100 / 100;
+    const tutar = litre * litreFiyat;
+    const kisi = Math.max(1, kisiSayisi || 1);
+    return {
+        mesafe: mesafe, litre: litre, tutar: tutar,
+        kmBasina: mesafe > 0 ? tutar / mesafe : 0,
+        kisiBasina: tutar / kisi, kisiSayisi: kisi
+    };
+}
+
+// ---------- 15) ELEKTRİK TÜKETİMİ ----------
+// Bir cihaz ayda kaç lira yakıyor? Birim fiyatı kullanıcı faturasından girer;
+// tarifeler bölgeye ve döneme göre değiştiği için buraya sabit yazmıyoruz.
+
+function elektrikMaliyeti(gucWatt, gunlukSaat, birimFiyat, cihazAdedi) {
+    const adet = Math.max(1, cihazAdedi || 1);
+    const gunlukKwh = (gucWatt * gunlukSaat * adet) / 1000;
+    return {
+        gunlukKwh: gunlukKwh, aylikKwh: gunlukKwh * 30, yillikKwh: gunlukKwh * 365,
+        gunluk: gunlukKwh * birimFiyat,
+        aylik: gunlukKwh * 30 * birimFiyat,
+        yillik: gunlukKwh * 365 * birimFiyat,
+        adet: adet
+    };
+}
+
+// ---------- 16) YÜZDE HESAPLARI ----------
+
+function yuzdeHesap(tur, a, b) {
+    switch (tur) {
+        case "yuzdesi":      // A'nın %B'si kaçtır
+            return { sonuc: a * b / 100, aciklama: `${sayi(a)} sayısının %${sayi(b)}'i` };
+        case "yuzdeKaci":    // A, B'nin yüzde kaçıdır
+            return { sonuc: b !== 0 ? a / b * 100 : 0, aciklama: `${sayi(a)}, ${sayi(b)} sayısının yüzde kaçı`, yuzdeMi: true };
+        case "degisim":      // A'dan B'ye yüzde değişim
+            return { sonuc: a !== 0 ? (b - a) / a * 100 : 0, aciklama: `${sayi(a)} → ${sayi(b)} değişimi`, yuzdeMi: true };
+        case "artir":        // A'yı %B artır
+            return { sonuc: a * (1 + b / 100), aciklama: `${sayi(a)} sayısını %${sayi(b)} artır` };
+        case "azalt":        // A'yı %B azalt
+            return { sonuc: a * (1 - b / 100), aciklama: `${sayi(a)} sayısını %${sayi(b)} azalt` };
+        default:
+            return { sonuc: 0, aciklama: "" };
+    }
+}
+
+// ---------- 17) TARİH VE YAŞ ----------
+
+function tarihFarki(bas, bit) {
+    const a = new Date(bas + "T00:00:00Z"), b = new Date(bit + "T00:00:00Z");
+    const gun = Math.round((b - a) / 86400000);
+    const isaret = gun < 0 ? -1 : 1;
+    const mutlak = Math.abs(gun);
+
+    // Tam yıl/ay/gün ayrıştırması (takvime uygun)
+    let ilk = gun < 0 ? b : a, son = gun < 0 ? a : b;
+    let yil = son.getUTCFullYear() - ilk.getUTCFullYear();
+    let ay = son.getUTCMonth() - ilk.getUTCMonth();
+    let g = son.getUTCDate() - ilk.getUTCDate();
+    if (g < 0) {
+        ay--;
+        const oncekiAy = new Date(Date.UTC(son.getUTCFullYear(), son.getUTCMonth(), 0));
+        g += oncekiAy.getUTCDate();
+    }
+    if (ay < 0) { yil--; ay += 12; }
+
+    return {
+        gun: mutlak, isaret: isaret,
+        hafta: Math.floor(mutlak / 7), kalanGun: mutlak % 7,
+        yilAyGun: { yil: yil, ay: ay, gun: g },
+        saat: mutlak * 24, dakika: mutlak * 1440,
+        isGunu: isGunuSay(gun < 0 ? bit : bas, gun < 0 ? bas : bit)
+    };
+}
+
+// Hafta sonlarını çıkararak iş günü sayar (resmî tatiller hariç değildir)
+function isGunuSay(bas, bit) {
+    let d = new Date(bas + "T00:00:00Z");
+    const son = new Date(bit + "T00:00:00Z");
+    let sayac = 0;
+    while (d < son) {
+        const h = d.getUTCDay();
+        if (h !== 0 && h !== 6) sayac++;
+        d = new Date(d.getTime() + 86400000);
+    }
+    return sayac;
+}
+
+function tarihEkle(baslangic, gunSayisi) {
+    const d = new Date(baslangic + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + gunSayisi);
+    return d.toISOString().slice(0, 10);
+}

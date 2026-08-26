@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Tarih ve Yaş Hesaplama — İki Tarih Arası Kaç Gün?</title>
+<meta name="description" content="İki tarih arası gün hesaplama ve yaş hesaplama. Kaç gün, kaç hafta, kaç iş günü kaldığını hesaplayın; belirli gün sonrasının tarihini bulun." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/tarih-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Tarih ve Yaş Hesaplama — İki Tarih Arası Kaç Gün?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/tarih-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=3" />
+</head>
+<body>
+
+<main>
+    <h1>Tarih ve Yaş Hesaplama</h1>
+    <p class="ozet">İki tarih arasında <b>kaç gün</b> olduğunu, <b>yaşınızı</b> ve bir tarihten <b>kaç gün sonra</b> hangi güne denk geldiğini hesaplayın.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Gün · hafta · iş günü</span><span class="etiket-rozet">Yaş hesabı</span><span class="etiket-rozet">İleri tarih bulma</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Başlangıç tarihi
+                    <input id="bas" type="date" value="1990-05-15" />
+                </label>
+                <label>Bitiş tarihi
+                    <input id="bit" type="date" value="2026-08-26" />
+                </label>
+                <label>Bu tarihe kaç gün eklensin?
+                    <input id="eklenecek" type="number" inputmode="numeric" value="100" />
+                </label>
+            </div>
+            <p class="kucuk">Doğum gününüzü başlangıca, bugünü bitişe yazarsanız <b>yaşınızı</b> gün gün görürsünüz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Yaş nasıl hesaplanır?</h2>
+        <p>Doğum tarihinizi başlangıca, bugünün tarihini bitişe yazın. Sonuç hem toplam gün
+        hem de <b>yıl / ay / gün</b> olarak görünür. Hesap artık yılları dikkate alır, bu yüzden
+        "365'e böl" yönteminden daha doğrudur.</p>
+
+        <h2>İş günü hesabı</h2>
+        <p>İş günü sayımında cumartesi ve pazar günleri çıkarılır. <b>Resmî tatiller ve dinî
+        bayramlar düşülmez</b>; bunlar her yıl değiştiği için otomatik hesaplamıyoruz. Bir teslim
+        tarihi belirliyorsanız araya giren tatilleri elle çıkarmayı unutmayın.</p>
+
+        <h2>Ne işe yarar?</h2>
+        <ul>
+            <li>Doğum günü, yıl dönümü ve geri sayımlar</li>
+            <li>Sözleşme, kira ve garanti sürelerinin bitişi</li>
+            <li>İhbar süresi, deneme süresi, izin planlaması</li>
+            <li>Bir işlemin son gününü bulmak (örneğin "30 gün içinde başvuru")</li>
+        </ul>
+    </section>
+</main>
+
+<script src="hesap.js?v=3"></script>
+<script src="sayfa.js?v=3"></script>
+<script>
+iskeletKur("tarih-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["bas", "bit", "eklenecek"];
+
+const GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+
+function hesapla() {
+    const bas = document.getElementById("bas").value;
+    const bit = document.getElementById("bit").value;
+    const ek = Math.round(oku("eklenecek"));
+    if (!bas || !bit) { document.getElementById("ozet").innerHTML = ""; return; }
+
+    const f = tarihFarki(bas, bit);
+    const y = f.yilAyGun;
+    const gelecek = tarihEkle(bit, ek);
+    const gelecekGun = GUNLER[new Date(gelecek + "T00:00:00Z").getUTCDay()];
+    const basGun = GUNLER[new Date(bas + "T00:00:00Z").getUTCDay()];
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${sayi(f.gun, 0)} gün</div>
+        <div class="dev-etiket">iki tarih arasındaki fark${f.isaret < 0 ? " (bitiş, başlangıçtan önce)" : ""}</div>
+        ${satir("Yıl / ay / gün olarak", `${y.yil} yıl ${y.ay} ay ${y.gun} gün`)}
+        ${satir("Hafta olarak", `${f.hafta} hafta ${f.kalanGun} gün`)}
+        ${satir("İş günü (hafta sonu hariç)", sayi(f.isGunu, 0) + " gün")}
+        ${satir("Saat olarak", sayi(f.saat, 0) + " saat")}
+        ${satir("Başlangıç günü", basGun)}
+    </div>
+
+    <div class="kutu">
+        <h3>${ek >= 0 ? ek + " gün sonrası" : Math.abs(ek) + " gün öncesi"}</h3>
+        ${satir("Tarih", gelecek.split("-").reverse().join(".") )}
+        ${satir("Hangi gün", gelecekGun, "buyuk")}
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("İki tarih arasındaki gün sayısı bulunur.", `${bas} → ${bit}`, sayi(f.gun, 0) + " gün");
+    d.ekle("Takvime göre yıl, ay ve gün ayrıştırılır (artık yıllar dahil).",
+           `${sayi(f.gun, 0)} gün`, `${y.yil} yıl ${y.ay} ay ${y.gun} gün`);
+    d.ekle("Hafta sonları çıkarılarak iş günü sayılır.",
+           `cumartesi ve pazar hariç`, sayi(f.isGunu, 0) + " gün");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Tarih Hesabı"));
+yapisalVeri("Tarih Hesabı", "İki tarih arası gün hesaplama ve yaş hesaplama. Kaç gün, kaç hafta, kaç iş günü kaldığını hesaplayın; belirli gün sonrasının tarihini bulun.");
+
+sssEkle([
+    { soru: "Yaş hesabında artık yıllar dikkate alınıyor mu?",
+      cevap: "Evet. Hesap takvim üzerinden yapılır, dört yılda bir gelen 29 Şubat günleri de sayılır. Bu yüzden 'gün sayısını 365'e bölmek' yönteminden daha doğru sonuç verir." },
+    { soru: "İş günü hesabına resmî tatiller dahil mi?",
+      cevap: "Hayır. Yalnızca cumartesi ve pazar çıkarılır. Resmî ve dinî tatiller her yıl değiştiği için otomatik düşülmez; kritik bir tarih hesaplıyorsanız o yılın tatil günlerini elle çıkarın." },
+    { soru: "Bitiş tarihi başlangıçtan önce olursa ne olur?",
+      cevap: "Sorun olmaz, fark yine hesaplanır ve bunun geçmişe dönük olduğu belirtilir." }
+]);
+
+ilgiliAraclar("tarih-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

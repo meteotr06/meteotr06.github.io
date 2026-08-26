@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Elektrik Tüketimi Hesaplama — Cihaz Ayda Kaç Lira Yakıyor?</title>
+<meta name="description" content="Elektrik tüketimi hesaplama: klima, buzdolabı, ısıtıcı gibi cihazların günlük, aylık ve yıllık elektrik maliyetini kWh üzerinden hesaplayın." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/elektrik-tuketimi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Elektrik Tüketimi Hesaplama — Cihaz Ayda Kaç Lira Yakıyor?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/elektrik-tuketimi-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=3" />
+</head>
+<body>
+
+<main>
+    <h1>Elektrik Tüketimi Hesaplama</h1>
+    <p class="ozet">Bir cihaz ayda kaç lira yakıyor? Cihazın <b>gücünü (watt)</b>, günde kaç saat çalıştığını ve faturanızdaki <b>birim fiyatı</b> girin.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">kWh üzerinden</span><span class="etiket-rozet">Birim fiyatı <b>faturanızdan</b></span><span class="etiket-rozet">Günlük / aylık / yıllık</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Cihazın gücü (Watt)
+                    <input id="guc" type="number" step="any" inputmode="decimal" value="1500" />
+                </label>
+                <label>Günde çalışma süresi (saat)
+                    <input id="saat" type="number" step="0.1" inputmode="decimal" value="8" />
+                </label>
+                <label>Elektrik birim fiyatı (TL / kWh)
+                    <input id="birim" type="number" step="0.01" inputmode="decimal" value="3.20" />
+                </label>
+                <label>Cihaz adedi
+                    <input id="adet" type="number" inputmode="numeric" value="1" />
+                </label>
+            </div>
+            <p class="kucuk"><b>Birim fiyatı faturanızdan alın.</b> Tarifeler bölgeye, aboneliğe (mesken/ticarethane) ve döneme göre değişir; buraya sabit bir rakam yazmak yanıltıcı olurdu. Faturada "birim fiyat" ya da "TL/kWh" olarak geçer.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>kWh nedir?</h2>
+        <p>Kilovatsaat, <b>1000 watt gücündeki bir cihazın 1 saatte harcadığı enerjidir</b>.
+        Faturanız bu birim üzerinden kesilir. 2000 watt'lık bir ısıtıcı 1 saatte 2 kWh,
+        100 watt'lık bir televizyon 10 saatte 1 kWh harcar.</p>
+
+        <h2>Cihazımın gücünü nereden öğrenirim?</h2>
+        <p>Cihazın arkasındaki ya da altındaki etikette yazar (W veya kW olarak). Kullanım
+        kılavuzunda da bulunur. Klima gibi cihazlarda "soğutma kapasitesi" (BTU) ile
+        "çekilen güç" (W) farklıdır; hesapta <b>çekilen gücü</b> kullanın.</p>
+
+        <h2>Birim fiyatı neden ben giriyorum?</h2>
+        <p>Elektrik tarifesi bölgeye, abonelik türüne (mesken, ticarethane), tek/çok zamanlı
+        sayaca ve döneme göre değişir. Buraya sabit bir rakam yazsaydık çoğu kullanıcı için
+        yanlış olurdu. Faturanızdaki gerçek birim fiyatı girmek en doğru sonucu verir.</p>
+
+        <h2>En çok ne yakıyor?</h2>
+        <p>Genel kural: <b>ısıtan ve soğutan</b> cihazlar en çok elektrik harcar. Elektrikli
+        ısıtıcı, şofben, su ısıtıcısı, klima ve çamaşır/bulaşık makinesi listenin başındadır.
+        Aydınlatma ve elektronik cihazlar bunların yanında küçük kalır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=3"></script>
+<script src="sayfa.js?v=3"></script>
+<script>
+iskeletKur("elektrik-tuketimi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["guc", "saat", "birim", "adet"];
+
+const ORNEK_CIHAZLAR = [
+    { ad: "LED ampul", guc: 10 }, { ad: "Buzdolabı", guc: 150 },
+    { ad: "Televizyon", guc: 100 }, { ad: "Bilgisayar", guc: 250 },
+    { ad: "Çamaşır makinesi", guc: 2000 }, { ad: "Bulaşık makinesi", guc: 1800 },
+    { ad: "Klima", guc: 1500 }, { ad: "Elektrikli ısıtıcı", guc: 2000 },
+    { ad: "Su ısıtıcı (kettle)", guc: 2200 }, { ad: "Şofben / termosifon", guc: 3000 }
+];
+
+function hesapla() {
+    const guc = oku("guc"), saat = oku("saat");
+    const birim = oku("birim"), adet = Math.max(1, Math.round(oku("adet")));
+    if (!guc || guc <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+
+    const e = elektrikMaliyeti(guc, saat, birim, adet);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(e.aylik)}</div>
+        <div class="dev-etiket">aylık elektrik maliyeti</div>
+        ${satir("Günlük tüketim", sayi(e.gunlukKwh, 2) + " kWh · " + para(e.gunluk))}
+        ${satir("Aylık tüketim", sayi(e.aylikKwh, 1) + " kWh · " + para(e.aylik), "buyuk")}
+        ${satir("Yıllık tüketim", sayi(e.yillikKwh, 0) + " kWh · " + para(e.yillik))}
+    </div>
+
+    <div class="kutu">
+        <h3>Yaygın cihazlar ne yakar?</h3>
+        <p class="kucuk" style="margin-top:0">Aynı süre ve birim fiyatla aylık maliyet:</p>
+        <div class="tablo-sar"><table><thead><tr><th>Cihaz</th><th>Güç</th><th>Aylık</th></tr></thead><tbody>
+        ${ORNEK_CIHAZLAR.map(c => {
+            const m = elektrikMaliyeti(c.guc, saat, birim, 1);
+            return `<tr class="${Math.abs(c.guc - guc) < 1 ? "vurgu-satir" : ""}">
+                <td>${c.ad}</td><td>${c.guc} W</td><td><b>${para(m.aylik)}</b></td></tr>`;
+        }).join("")}
+        </tbody></table></div>
+        <p class="kucuk">Buzdolabı gibi sürekli çalışan cihazlar termostatla çalışır; gerçek
+        tüketimleri bu tablodan düşüktür.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Watt kilovata çevrilir ve süreyle çarpılır: günlük kWh.",
+           `${sayi(guc, 0)} W × ${sayi(saat, 1)} saat × ${adet} ÷ 1000`, sayi(e.gunlukKwh, 2) + " kWh");
+    d.ekle("Günlük maliyet: kWh × birim fiyat.",
+           `${sayi(e.gunlukKwh, 2)} × ${sayi(birim, 2)}`, para(e.gunluk));
+    d.ekle("Aylık maliyet (30 gün).", `${sayi(e.gunluk)} × 30`, para(e.aylik));
+    d.ekle("Yıllık maliyet (365 gün).", `${sayi(e.gunluk)} × 365`, para(e.yillik));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Elektrik Maliyeti Hesabı"));
+yapisalVeri("Elektrik Maliyeti Hesabı", "Elektrik tüketimi hesaplama: klima, buzdolabı, ısıtıcı gibi cihazların günlük, aylık ve yıllık elektrik maliyetini kWh üzerinden hesaplayın.");
+
+sssEkle([
+    { soru: "Faturamdaki birim fiyat hangisi?",
+      cevap: "Faturada genelde 'Tek Zamanlı Aktif Enerji Bedeli' ya da 'TL/kWh' olarak geçer. Dağıtım bedeli, vergi ve fonlar da eklenince gerçek maliyet biraz yükselir; en doğru sonuç için toplam fatura tutarını toplam kWh'e bölerek bulacağınız değeri kullanabilirsiniz." },
+    { soru: "Buzdolabım 24 saat çalışıyor, 24 saat mi yazmalıyım?",
+      cevap: "Hayır. Buzdolabı sürekli fişte olsa da kompresörü aralıklı çalışır; günlük fiili çalışma genelde 8-10 saat civarındadır. Daha doğru sonuç için 8-10 saat yazın." },
+    { soru: "Klima çok mu yakıyor?",
+      cevap: "Isıtan ve soğutan her cihaz gibi evet. Ancak inverter klimalar hedefe ulaşınca düşük güçte çalışır; ortalama tüketim etiket gücünden düşük olur. Sıcaklığı 1 derece değiştirmek tüketimi belirgin etkiler." },
+    { soru: "Prizde takılı duran cihaz elektrik harcar mı?",
+      cevap: "Evet, az miktarda. Bekleme (standby) tüketimi cihaz başına küçüktür ama ev genelinde toplandığında aylık faturada fark edilir hâle gelebilir." }
+]);
+
+ilgiliAraclar("elektrik-tuketimi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

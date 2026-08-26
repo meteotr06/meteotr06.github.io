@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Yüzde Hesaplama — Yüzde Kaçı, Yüzde Artış ve İndirim</title>
+<meta name="description" content="Yüzde hesaplama aracı: bir sayının yüzde kaçı, iki sayı arasındaki yüzde değişim, yüzde artırma ve indirim hesabı. Adım adım gösterimli." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/yuzde-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Yüzde Hesaplama — Yüzde Kaçı, Yüzde Artış ve İndirim" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/yuzde-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=3" />
+</head>
+<body>
+
+<main>
+    <h1>Yüzde Hesaplama</h1>
+    <p class="ozet">Yüzde hesaplarının hepsi tek yerde: <b>bir sayının yüzde kaçı</b>, <b>yüzde artış/azalış</b>, <b>indirim</b> ve <b>zam</b>.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">5 farklı hesap</span><span class="etiket-rozet">Adım adım gösterim</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Ne hesaplamak istiyorsunuz?
+                    <select id="tur">
+                        <option value="yuzdesi" selected>A sayısının %B'si kaçtır?</option>
+                        <option value="yuzdeKaci">A, B sayısının yüzde kaçıdır?</option>
+                        <option value="degisim">A'dan B'ye yüzde kaç değişti?</option>
+                        <option value="artir">A sayısını %B artır (zam)</option>
+                        <option value="azalt">A sayısını %B azalt (indirim)</option>
+                    </select>
+                </label>
+                <label id="etiketA">A sayısı
+                    <input id="a" type="number" step="any" inputmode="decimal" value="2500" />
+                </label>
+                <label id="etiketB">B değeri
+                    <input id="b" type="number" step="any" inputmode="decimal" value="20" />
+                </label>
+            </div>
+            <p class="kucuk">Örnek: 2.500 TL'lik ürüne %20 indirim → üstteki listeden 'azalt'ı seçin.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>En sık yapılan yüzde hatası</h2>
+        <p>Bir fiyat önce %20 artıp sonra %20 inerse <b>başladığı yere dönmez</b>.
+        100 TL, %20 artınca 120 olur; 120'nin %20'si 24'tür, düşünce 96 kalır. Çünkü ikinci
+        yüzde daha büyük bir sayı üzerinden hesaplanır.</p>
+
+        <h2>Yüzde puan ile yüzde farkı</h2>
+        <p>Faiz %10'dan %12'ye çıkarsa, bu <b>2 puanlık</b> bir artıştır ama <b>%20'lik</b> bir
+        artıştır. Haberlerde bu ikisi karıştırılır. "Puan" mutlak farkı, "yüzde" oransal
+        değişimi anlatır.</p>
+
+        <h2>İndirim üstüne indirim</h2>
+        <p>%50 indirim üstüne %20 daha indirim, toplam %70 indirim demek değildir.
+        100 → 50 → 40 olur; yani toplam indirim %60'tır. İkinci indirim, indirimli fiyat
+        üzerinden uygulanır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=3"></script>
+<script src="sayfa.js?v=3"></script>
+<script>
+iskeletKur("yuzde-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["tur", "a", "b"];
+
+const ETIKETLER = {
+    yuzdesi:  ["A sayısı", "Yüzde (%)"],
+    yuzdeKaci:["A sayısı (pay)", "B sayısı (bütün)"],
+    degisim:  ["Eski değer", "Yeni değer"],
+    artir:    ["Sayı", "Artış oranı (%)"],
+    azalt:    ["Sayı", "İndirim oranı (%)"]
+};
+
+function hesapla() {
+    const tur = document.getElementById("tur").value;
+    const a = oku("a"), b = oku("b");
+
+    // Alan başlıkları seçime göre değişsin — kullanıcı ne yazacağını bilsin
+    const et = ETIKETLER[tur];
+    document.getElementById("etiketA").childNodes[0].nodeValue = et[0] + " ";
+    document.getElementById("etiketB").childNodes[0].nodeValue = et[1] + " ";
+
+    const s = yuzdeHesap(tur, a, b);
+    const bicim = s.yuzdeMi ? yuzdeOn(s.sonuc) : sayi(s.sonuc);
+
+    let ek = "";
+    if (tur === "azalt") ek = satir("İndirim tutarı", sayi(a - s.sonuc));
+    if (tur === "artir") ek = satir("Artış tutarı", sayi(s.sonuc - a));
+    if (tur === "degisim") ek = satir("Fark", sayi(b - a));
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${bicim}</div>
+        <div class="dev-etiket">${s.aciklama}</div>
+        ${ek}
+    </div>`;
+
+    const d = dokumKur("İşlem nasıl yapıldı?");
+    if (tur === "yuzdesi") d.ekle("Sayı, yüzde oranıyla çarpılıp 100'e bölünür.", `${sayi(a)} × ${sayi(b)} ÷ 100`, sayi(s.sonuc));
+    if (tur === "yuzdeKaci") d.ekle("Pay bütüne bölünüp 100 ile çarpılır.", `${sayi(a)} ÷ ${sayi(b)} × 100`, yuzdeOn(s.sonuc));
+    if (tur === "degisim") d.ekle("Fark, eski değere bölünüp 100 ile çarpılır.", `(${sayi(b)} − ${sayi(a)}) ÷ ${sayi(a)} × 100`, yuzdeOn(s.sonuc));
+    if (tur === "artir") d.ekle("Sayı, (1 + oran) ile çarpılır.", `${sayi(a)} × (1 + ${sayi(b)} ÷ 100)`, sayi(s.sonuc));
+    if (tur === "azalt") d.ekle("Sayı, (1 − oran) ile çarpılır.", `${sayi(a)} × (1 − ${sayi(b)} ÷ 100)`, sayi(s.sonuc));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Yüzde Hesabı"));
+yapisalVeri("Yüzde Hesabı", "Yüzde hesaplama aracı: bir sayının yüzde kaçı, iki sayı arasındaki yüzde değişim, yüzde artırma ve indirim hesabı. Adım adım gösterimli.");
+
+sssEkle([
+    { soru: "Bir sayının yüzde kaçı olduğunu nasıl bulurum?",
+      cevap: "Payı bütüne bölüp 100 ile çarparsınız. Örneğin 40, 200'ün yüzde kaçı: 40 ÷ 200 × 100 = %20. Yukarıdaki listeden 'A, B sayısının yüzde kaçıdır' seçeneğini kullanabilirsiniz." },
+    { soru: "%20 indirimli fiyattan asıl fiyatı nasıl bulurum?",
+      cevap: "İndirimli fiyatı 0,80'e bölersiniz. 800 TL'lik indirimli ürünün asıl fiyatı 800 ÷ 0,80 = 1.000 TL'dir. Çarpmak değil bölmek gerekir." },
+    { soru: "Yüzde artış ve yüzde puan aynı şey mi?",
+      cevap: "Hayır. %10'dan %12'ye çıkış 2 puanlık artıştır ama oransal olarak %20'lik artıştır. Özellikle faiz ve enflasyon haberlerinde bu ayrım önemlidir." }
+]);
+
+ilgiliAraclar("yuzde-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

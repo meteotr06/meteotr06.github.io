@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Yakıt Maliyeti Hesaplama — Yol Kaç Lira Tutar?</title>
+<meta name="description" content="Yakıt hesaplama: gideceğiniz yol kaç litre yakıt ve kaç lira tutar? Kişi başı maliyet ve kilometre başına gider dahil." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/yakit-maliyeti-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Yakıt Maliyeti Hesaplama — Yol Kaç Lira Tutar?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/yakit-maliyeti-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=3" />
+</head>
+<body>
+
+<main>
+    <h1>Yakıt Maliyeti Hesaplama</h1>
+    <p class="ozet">Gideceğiniz mesafeyi ve aracınızın ortalama tüketimini girin; <b>kaç litre yakıt</b> harcayacağınızı ve <b>kaç lira</b> tutacağını hesaplayalım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Kişi başı maliyet</span><span class="etiket-rozet">Km başına gider</span><span class="etiket-rozet">Gidiş-dönüş seçeneği</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Mesafe (km)
+                    <input id="mesafe" type="number" step="any" inputmode="decimal" value="450" />
+                </label>
+                <label>Ortalama tüketim (L / 100 km)
+                    <input id="tuketim" type="number" step="0.1" inputmode="decimal" value="6.5" />
+                </label>
+                <label>Yakıt fiyatı (TL / litre)
+                    <input id="fiyat" type="number" step="0.01" inputmode="decimal" value="48" />
+                </label>
+                <label>Yolcu sayısı (masraf paylaşımı)
+                    <input id="kisi" type="number" inputmode="numeric" value="1" />
+                </label>
+                <label class="onay"><input id="gidisDonus" type="checkbox" />
+                    <span>Gidiş-dönüş<br><span class="not">Mesafe iki katı sayılır</span></span>
+                </label>
+            </div>
+            <p class="kucuk">Tüketim değerini aracınızın gösterge panelindeki ortalamadan alabilirsiniz. Şehir içi tüketim, şehirler arasından genelde <b>%20–40 daha yüksektir</b>.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Tüketim değerini nereden bulurum?</h2>
+        <p>En doğrusu aracınızın <b>gösterge panelindeki ortalama tüketim</b> değeridir. Yoksa
+        deponuzu doldurup kilometre sayacını sıfırlayın; bir sonraki dolumda aldığınız litreyi
+        gittiğiniz kilometreye bölüp 100 ile çarpın.</p>
+        <p>Katalog değerleri gerçek kullanımın altında kalır. Şehir içinde trafik, klima ve kısa
+        mesafeler tüketimi <b>%20–40</b> artırabilir.</p>
+
+        <h2>Masrafı paylaşırken</h2>
+        <p>Arkadaşlarınızla yola çıkıyorsanız "kişi başına" satırı işinizi görür. Adil bir hesap
+        için köprü, otoyol ve otopark ücretlerini de ekleyip toplamı bölmek gerekir; bu araç
+        yalnızca yakıtı hesaplar.</p>
+
+        <h2>Yakıt tasarrufu</h2>
+        <p>Sabit hızda gitmek, lastik basıncını doğru tutmak, gereksiz yükten kurtulmak ve
+        yüksek devirde gezmemek tüketimi hissedilir biçimde düşürür. 120 yerine 100 km/s hızla
+        gitmek uzun yolda genelde <b>%10–15</b> kazandırır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=3"></script>
+<script src="sayfa.js?v=3"></script>
+<script>
+iskeletKur("yakit-maliyeti-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["mesafe", "tuketim", "fiyat", "kisi", "gidisDonus"];
+
+function hesapla() {
+    const mesafe = oku("mesafe"), tuketim = oku("tuketim");
+    const fiyat = oku("fiyat"), kisi = Math.max(1, Math.round(oku("kisi")));
+    if (!mesafe || mesafe <= 0 || !tuketim || tuketim <= 0) {
+        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const y = yakitMaliyeti(mesafe, tuketim, fiyat, isaretli("gidisDonus"), kisi);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(y.tutar)}</div>
+        <div class="dev-etiket">toplam yakıt masrafı · ${sayi(y.mesafe, 0)} km</div>
+        ${satir("Toplam mesafe", sayi(y.mesafe, 0) + " km")}
+        ${satir("Harcanacak yakıt", sayi(y.litre, 2) + " litre")}
+        ${satir("Kilometre başına", para(y.kmBasina))}
+        ${satir("Toplam masraf", para(y.tutar), "buyuk")}
+        ${kisi > 1 ? satir("Kişi başına (" + kisi + " kişi)", para(y.kisiBasina), "buyuk") : ""}
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Harcanacak yakıt: mesafe × tüketim ÷ 100.",
+           `${sayi(y.mesafe, 0)} × ${sayi(tuketim, 1)} ÷ 100`, sayi(y.litre, 2) + " litre");
+    d.ekle("Toplam masraf: litre × litre fiyatı.",
+           `${sayi(y.litre, 2)} × ${sayi(fiyat, 2)}`, para(y.tutar));
+    if (kisi > 1) d.ekle("Yolcu sayısına bölünür.", `${sayi(y.tutar)} ÷ ${kisi}`, para(y.kisiBasina));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Yakıt Maliyeti Hesabı"));
+yapisalVeri("Yakıt Maliyeti Hesabı", "Yakıt hesaplama: gideceğiniz yol kaç litre yakıt ve kaç lira tutar? Kişi başı maliyet ve kilometre başına gider dahil.");
+
+sssEkle([
+    { soru: "Şehir içi ve şehirler arası tüketim neden farklı?",
+      cevap: "Şehir içinde sürekli durup kalkma, rölanti ve klima kullanımı yakıtı artırır. Şehirler arası sabit hızda motor daha verimli çalışır. İki durum için ayrı ayrı hesaplamak daha doğru sonuç verir." },
+    { soru: "LPG'li araçta nasıl hesaplarım?",
+      cevap: "LPG tüketimi benzine göre yaklaşık %15-20 daha yüksektir. Aracınızın LPG modundaki ortalama tüketimini ve LPG litre fiyatını girmeniz yeterli." },
+    { soru: "Hesap neden gerçekte ödediğimden farklı çıkıyor?",
+      cevap: "Yol eğimi, yük, hız, klima, lastik basıncı ve trafik tüketimi değiştirir. Gösterge panelindeki ortalama tüketimi kullanmak sonucu gerçeğe en çok yaklaştıran yöntemdir." }
+]);
+
+ilgiliAraclar("yakit-maliyeti-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>
