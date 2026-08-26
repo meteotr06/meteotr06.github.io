@@ -636,9 +636,19 @@ async function haritayiAc(){
     }
     const kutu = document.getElementById("haritaKutu");
     kutu.classList.add("acik");
-    harita = L.map(kutu).setView([sonYer.e, sonYer.b], 8);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      { maxZoom:18, attribution:"© OpenStreetMap" }).addTo(harita);
+    harita = L.map(kutu, { attributionControl:false }).setView([sonYer.e, sonYer.b], 8);
+    // Harita zemini: once OpenStreetMap. Bazi aglar OSM'i engelleyebilir;
+    // cok doseme hatasi olursa OTOMATIK olarak Google zeminine gecilir.
+    let taban = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { maxZoom:18, subdomains:["a","b","c"] }).addTo(harita);
+    let hata = 0;
+    taban.on("tileerror", () => {
+      if (++hata === 4){          // OSM erisilemiyor -> yedege gec
+        harita.removeLayer(taban);
+        taban = L.tileLayer("https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+          { maxZoom:19, subdomains:["0","1","2","3"] }).addTo(harita);
+      }
+    });
     // secili yer isaretcisi: resim dosyasi gerekmeyen sik bir nokta (divIcon)
     const pin = L.divIcon({ className:"secili-pin",
       html:'<div class="secili-nokta"></div>', iconSize:[22,22], iconAnchor:[11,11] });
@@ -661,7 +671,10 @@ async function haritayiAc(){
       sicZaman = setTimeout(haritaSicakliklari, 500);
     });
     setTimeout(() => { harita.invalidateSize(); haritaSicakliklari(); }, 250);
-  } catch { btn.textContent = "Harita yüklenemedi"; }
+  } catch (e) {
+    btn.textContent = "Harita yüklenemedi — tekrar dokunun";
+    harita = null;   // tekrar denenebilsin
+  }
 }
 
 /* Windows hava uygulamasindaki gibi: haritada GORUNEN illerin sicakligini

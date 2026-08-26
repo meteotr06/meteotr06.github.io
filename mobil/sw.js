@@ -7,7 +7,7 @@
 /* DIKKAT: index.html / yerler.js degistiginde bu SURUM NUMARASINI artirin.
    Yoksa telefona kurmus kullanicilar eski surumu gormeye devam eder
    (onbellekten servis edilir). Numara degisince eski onbellek silinir. */
-const ONBELLEK = "hava-durumu-20260826-1544";
+const ONBELLEK = "hava-durumu-20260826-1550";
 const DOSYALAR = [
   "index.html",
   "yerler.js",
@@ -36,10 +36,35 @@ self.addEventListener("activate", olay => {
 });
 
 self.addEventListener("fetch", olay => {
-  const url = new URL(olay.request.url);
-  // hava verisi HER ZAMAN agdan gelsin (onbellekten eski veri gostermeyelim)
-  if (url.hostname.includes("open-meteo.com")) return;
+  const istek = olay.request;
+  const url = new URL(istek.url);
+
+  // Dis servisler (hava verisi, radar, harita dosemeleri) HER ZAMAN agdan gelsin
+  if (url.origin !== location.origin) return;
+
+  // HTML/sayfa istegi: ONCE AG -> en guncel surum gelir (harita/yenilikler
+  // aninda goruur). Internet yoksa onbellekten ac. Boylece kullanici ASLA
+  // eski surumde takili kalmaz.
+  const sayfaMi = istek.mode === "navigate" || istek.destination === "document"
+    || url.pathname === "/" || url.pathname.endsWith("/")
+    || url.pathname.endsWith(".html");
+  if (sayfaMi) {
+    olay.respondWith(
+      fetch(istek).then(cevap => {
+        const kopya = cevap.clone();
+        caches.open(ONBELLEK).then(o => o.put(istek, kopya));
+        return cevap;
+      }).catch(() => caches.match(istek).then(c => c || caches.match("index.html")))
+    );
+    return;
+  }
+
+  // Diger dosyalar (js/css/png): once onbellek (hizli), yoksa agdan al + sakla
   olay.respondWith(
-    caches.match(olay.request).then(c => c || fetch(olay.request))
+    caches.match(istek).then(c => c || fetch(istek).then(cevap => {
+      const kopya = cevap.clone();
+      caches.open(ONBELLEK).then(o => o.put(istek, kopya));
+      return cevap;
+    }))
   );
 });
