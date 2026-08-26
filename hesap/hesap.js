@@ -1599,3 +1599,113 @@ function dogumIzni(dogumTarihi, cogulMu, calisilacakHafta) {
         kazanilanHafta: sonrasi - (8 + aktarilan)
     };
 }
+
+// ---------- 38) KİRA GELİRİ VERGİSİ (GMSİ) ----------
+// DİKKAT: Kira geliri "ücret dışı" gelirdir; vergi tarifesi ÜCRETTEN FARKLIDIR.
+// Üçüncü dilim ücrette 1.500.000, ücret dışında 1.000.000'da biter.
+// Doğrulama: kanunun yazdığı birikmiş tutarlar dilimlerden birebir çıkıyor —
+//   ücret     : 5.300.000'de 1.697.500 TL
+//   ücret dışı: 5.300.000'de 1.737.500 TL
+
+const KIRA_VERGI = {
+    konutIstisna: 58000,        // 2026 konut kira geliri istisnası
+    goturuGiderOran: 0.15,      // istisna düşüldükten SONRA kalanın %15'i
+    // Ücret DIŞI gelir tarifesi 2026
+    dilimler: [
+        [190000, 0.15],
+        [400000, 0.20],
+        [1000000, 0.27],
+        [5300000, 0.35],
+        [Infinity, 0.40]
+    ],
+    guncelleme: "2026"
+};
+
+function ucretDisiVergi(matrah) {
+    if (matrah <= 0) return { vergi: 0, dokum: [] };
+    let kalan = matrah, alt = 0, toplam = 0;
+    const dokum = [];
+    for (const [ust, oran] of KIRA_VERGI.dilimler) {
+        if (kalan <= 0) break;
+        const dilimTutar = Math.min(kalan, ust - alt);
+        const v = dilimTutar * oran;
+        dokum.push({ alt: alt, ust: ust, oran: oran, tutar: dilimTutar, vergi: v });
+        toplam += v; kalan -= dilimTutar; alt = ust;
+    }
+    return { vergi: toplam, dokum: dokum, ortalamaOran: matrah > 0 ? toplam / matrah * 100 : 0 };
+}
+
+function kiraGeliriVergisi(yillikKira, yontem, gercekGider, istisnaVarMi) {
+    yillikKira = yillikKira || 0;
+    const istisna = istisnaVarMi === false ? 0 : Math.min(yillikKira, KIRA_VERGI.konutIstisna);
+    const istisnaSonrasi = Math.max(0, yillikKira - istisna);
+
+    // Götürü giderde oran, istisna DÜŞÜLDÜKTEN SONRAKİ tutara uygulanır
+    const gider = yontem === "gercek"
+        ? Math.min(istisnaSonrasi, gercekGider || 0)
+        : istisnaSonrasi * KIRA_VERGI.goturuGiderOran;
+
+    const matrah = Math.max(0, istisnaSonrasi - gider);
+    const v = ucretDisiVergi(matrah);
+
+    // İstisna sınırının altındaysa beyan gerekmez
+    const beyanGerekli = yillikKira > KIRA_VERGI.konutIstisna || istisnaVarMi === false;
+
+    return {
+        yillikKira: yillikKira, aylikKira: yillikKira / 12,
+        istisna: istisna, istisnaSonrasi: istisnaSonrasi,
+        yontem: yontem, gider: gider,
+        matrah: matrah,
+        vergi: v.vergi, dilimDokum: v.dokum, ortalamaOran: v.ortalamaOran,
+        taksit: v.vergi / 2,
+        netKalan: yillikKira - v.vergi,
+        beyanGerekli: beyanGerekli,
+        // Diğer yöntemle karşılaştırma
+        digerYontemGider: yontem === "gercek" ? istisnaSonrasi * KIRA_VERGI.goturuGiderOran : (gercekGider || 0)
+    };
+}
+
+// ---------- 39) GEBELİK HAFTASI VE TAHMİNİ DOĞUM TARİHİ ----------
+// Naegele kuralı: tahmini doğum = son adet tarihi + 280 gün (40 hafta).
+// Tıbbi teşhis değildir; hekimin ultrason ölçümü esastır.
+
+const GEBELIK = { toplamGun: 280, toplamHafta: 40 };
+
+function gebelikHesap(sonAdetTarihi, bugunTarihi) {
+    const sat = new Date(sonAdetTarihi);
+    if (isNaN(sat.getTime())) return null;
+    const bugun = bugunTarihi ? new Date(bugunTarihi) : new Date();
+    bugun.setHours(0, 0, 0, 0); sat.setHours(0, 0, 0, 0);
+
+    const dogum = gunEkle(sat, GEBELIK.toplamGun);
+    const gecen = Math.floor((bugun - sat) / 86400000);
+    const hafta = Math.floor(gecen / 7);
+    const gun = gecen % 7;
+    const kalanGun = Math.ceil((dogum - bugun) / 86400000);
+
+    const donem = hafta < 14 ? 1 : hafta < 28 ? 2 : 3;
+    const donemAd = ["", "1. üç ay (ilk trimester)", "2. üç ay (ikinci trimester)", "3. üç ay (üçüncü trimester)"][donem];
+
+    // Doğum izni bu tarihten başlar (tekil gebelikte 8 hafta önce)
+    const izinTekil = gunEkle(dogum, -8 * 7);
+    const izinCogul = gunEkle(dogum, -10 * 7);
+
+    return {
+        sonAdet: sat, tahminiDogum: dogum, bugun: bugun,
+        gecenGun: gecen, hafta: hafta, gun: gun,
+        metin: hafta + " hafta " + gun + " gün",
+        kalanGun: kalanGun, kalanHafta: Math.floor(kalanGun / 7),
+        yuzde: Math.max(0, Math.min(100, gecen / GEBELIK.toplamGun * 100)),
+        donem: donem, donemAd: donemAd,
+        izinTekil: izinTekil, izinCogul: izinCogul,
+        gecerli: gecen >= 0 && gecen <= 320,
+        dogduMu: gecen > GEBELIK.toplamGun
+    };
+}
+
+// Tahmini doğum tarihinden geriye: son adet ne zamandı?
+function gebelikGeriye(tahminiDogum) {
+    const d = new Date(tahminiDogum);
+    if (isNaN(d.getTime())) return null;
+    return gunEkle(d, -GEBELIK.toplamGun);
+}
