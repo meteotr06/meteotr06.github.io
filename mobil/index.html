@@ -605,14 +605,11 @@ function goster(yer, v, hk, modeller){
 
   document.getElementById("haritaBtn").onclick = haritayiAc;
   document.getElementById("radarBtn").onclick = radarDegistir;
-  // harita bolumu gorunur alana girince KENDILIGINDEN acilsin (dokunma gerekmez)
-  const haritaBolum = document.querySelector(".harita-dugmeler");
-  if (haritaBolum && "IntersectionObserver" in window){
-    const goz = new IntersectionObserver((g) => {
-      if (g[0].isIntersecting && !harita){ goz.disconnect(); haritayiAc(); }
-    }, { rootMargin:"150px" });
-    goz.observe(haritaBolum);
-  }
+  // HARITA KESIN GORUNSUN: icerik gelince kisa bir gecikmeyle kendiliginden ac.
+  // (Once hava durumu gorunsun diye 900 ms bekliyoruz; Leaflet artik yerelde,
+  //  hizli. Kullanici dokunmak/kaydirmak zorunda kalmaz.)
+  clearTimeout(window.__haritaZaman);
+  window.__haritaZaman = setTimeout(() => { if (!harita) haritayiAc(); }, 900);
   // veriyi tazele (sayfayi yeniden yuklemeden)
   document.getElementById("yenileBtn").onclick = () => yukle(sonYer);
 }
