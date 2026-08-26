@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Yıllık İzin Hesaplama — Kaç Gün İznim Var?</title>
+<meta name="description" content="Yıllık ücretli izin hesaplama: kıdeminize göre kaç gün izin hakkınız var, kullanılmayan izin ücreti ne kadar tutar." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/yillik-izin-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Yıllık İzin Hesaplama — Kaç Gün İznim Var?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/yillik-izin-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Yıllık İzin Hesaplama</h1>
+    <p class="ozet">Kıdeminize göre <b>kaç gün yıllık izin</b> hakkınız olduğunu ve kullanmadığınız izinlerin işten ayrılırken <b>ne kadar ücrete</b> döneceğini hesaplayın.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">İş Kanunu md. 53</span><span class="etiket-rozet">1–5 yıl <b>14 gün</b></span><span class="etiket-rozet">5–15 yıl <b>20 gün</b></span><span class="etiket-rozet">15+ yıl <b>26 gün</b></span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Çalışma süreniz (yıl)
+                    <input id="hizmet" type="number" step="0.1" inputmode="decimal" value="6" />
+                </label>
+                <label>Yaşınız
+                    <input id="yas" type="number" inputmode="numeric" value="30" />
+                </label>
+                <label>Kullanılmayan izin (gün)
+                    <input id="kalanIzin" type="number" step="1" inputmode="numeric" value="0" />
+                </label>
+                <label>Giydirilmiş brüt ücret (TL)
+                    <input id="ucret" type="number" step="any" inputmode="decimal" value="60000" />
+                </label>
+                <label>Gelir vergisi diliminiz
+                    <select id="dilim">
+                        <option value="15" selected>%15</option><option value="20">%20</option>
+                        <option value="27">%27</option><option value="35">%35</option><option value="40">%40</option>
+                    </select>
+                </label>
+            </div>
+            <p class="kucuk">Bunlar <b>yasal en az</b> sürelerdir. Sözleşmenizde veya toplu iş sözleşmesinde daha fazlası yazıyorsa o geçerlidir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Kaç gün izin hakkım var?</h2>
+        <p>İş Kanunu'na göre en az süreler şunlardır:</p>
+        <ul>
+            <li><b>1 – 5 yıl</b> arası kıdem → 14 gün</li>
+            <li><b>5 – 15 yıl</b> arası kıdem → 20 gün</li>
+            <li><b>15 yıl ve üzeri</b> → 26 gün</li>
+        </ul>
+        <p>18 yaşından küçük ve 50 yaşından büyük çalışanlara kıdemi ne olursa olsun
+        <b>en az 20 gün</b> verilir. Yer altı işlerinde süreler dörder gün artar.</p>
+
+        <h2>İzin günleri nasıl sayılır?</h2>
+        <p>Yıllık izin <b>iş günü</b> olarak hesaplanır; izin süresine denk gelen hafta tatili ve
+        genel tatil günleri bu sayıya dahil edilmez, izne eklenir.</p>
+
+        <h2>Kullanmadığım izinler yanar mı?</h2>
+        <p>Hayır. Kullanılmayan yıllık izinler birikir ve iş sözleşmesi sona erdiğinde
+        <b>ücrete çevrilerek</b> ödenir. Ancak çalışırken "izin kullanmayayım, parasını alayım"
+        demek mümkün değildir — izin dinlenme hakkıdır.</p>
+
+        <h2>Deneme süresi ve 1 yıl şartı</h2>
+        <p>Yıllık izin hakkı, işe başlangıçtan itibaren <b>bir yıl</b> çalışmakla doğar. Deneme
+        süresi de bu bir yılın içinde sayılır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("yillik-izin-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["hizmet", "yas", "kalanIzin", "ucret", "dilim"];
+
+function hesapla() {
+    const hizmet = oku("hizmet"), yas = oku("yas");
+    const kalan = oku("kalanIzin"), ucret = oku("ucret");
+    const dilim = parseFloat(document.getElementById("dilim").value);
+
+    const iz = yillikIzin(hizmet, yas);
+    const uc = kalan > 0 && ucret > 0 ? izinUcreti(kalan, ucret, dilim) : null;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${iz.gun} gün</div>
+        <div class="dev-etiket">yıllık ücretli izin hakkınız</div>
+        ${satir("Çalışma süreniz", sayi(hizmet, 1) + " yıl")}
+        ${satir("Yasal izin süresi", iz.gun + " gün")}
+        ${!iz.hakEdiyorMu ? `<p class="kucuk" style="color:var(--azalis)"><b>1 yılı doldurmadınız.</b> Yıllık izin hakkı, işe başladıktan sonra bir yıl çalışmakla doğar.</p>` : ""}
+        ${iz.yasKuraliUygulandi ? `<p class="kucuk" style="color:var(--vurgu)">18 yaşından küçük veya 50 yaşından büyük çalışanlara en az <b>20 gün</b> izin verilir; bu kural uygulandı.</p>` : ""}
+    </div>
+    ${uc ? `<div class="kutu">
+        <h3>Kullanılmayan izin ücreti</h3>
+        ${satir("Günlük giydirilmiş ücret", para(uc.gunluk))}
+        ${satir(kalan + " gün karşılığı brüt", para(uc.brut))}
+        ${satir("SGK + işsizlik", "−" + para(uc.sgk))}
+        ${satir("Gelir vergisi", "−" + para(uc.gelirVergisi))}
+        ${satir("Damga vergisi", "−" + para(uc.damga))}
+        ${satir("Net izin ücreti", para(uc.net), "buyuk")}
+        <p class="kucuk">Bu ücret yalnızca <b>işten ayrılırken</b> ödenir. Çalışırken izin parası alıp izne çıkmamak yasal değildir.</p>
+    </div>` : ""}`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Kıdeme göre yasal izin süresi belirlenir (İş Kanunu md. 53).",
+           `${sayi(hizmet, 1)} yıl kıdem`, iz.gun + " gün");
+    if (uc) {
+        d.ekle("Günlük ücret bulunur.", `${sayi(ucret, 0)} ÷ 30`, para(uc.gunluk));
+        d.ekle("Kullanılmayan gün sayısıyla çarpılır.", `${sayi(uc.gunluk)} × ${kalan}`, para(uc.brut));
+        d.ekle("Kesintiler düşülür.", `${sayi(uc.brut)} − ${sayi(uc.sgk + uc.gelirVergisi + uc.damga)}`, para(uc.net));
+    }
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Yıllık İzin Hesabı"));
+yapisalVeri("Yıllık İzin Hesabı", "Yıllık ücretli izin hesaplama: kıdeminize göre kaç gün izin hakkınız var, kullanılmayan izin ücreti ne kadar tutar.");
+
+sssEkle([
+    { soru: "İzin günlerine hafta sonu dahil mi?",
+      cevap: "Hayır. Yıllık izin iş günü olarak hesaplanır. İzninizin içine denk gelen hafta tatili ve resmî tatil günleri izinden sayılmaz, sürenize eklenir." },
+    { soru: "İznimi kullanmazsam param yanar mı?",
+      cevap: "Yanmaz. Kullanılmayan izinler birikir ve işten ayrıldığınızda giydirilmiş ücretiniz üzerinden ücrete çevrilir. Zamanaşımı iş sözleşmesinin sona ermesinden itibaren işlemeye başlar." },
+    { soru: "Çalışırken iznimi paraya çevirebilir miyim?",
+      cevap: "Hayır. Yıllık izin dinlenme hakkıdır; iş devam ederken ücrete çevrilmesi yasal değildir. Ücret ancak sözleşme sona erdiğinde ödenir." },
+    { soru: "İzin ücretinden vergi kesilir mi?",
+      cevap: "Evet. Kıdem tazminatından farklı olarak izin ücreti normal ücret sayılır; SGK, işsizlik, gelir vergisi ve damga vergisi kesilir." },
+    { soru: "İşveren iznimi istediği zaman kullandırabilir mi?",
+      cevap: "İzin zamanını işveren belirler ancak işçinin talebini dikkate almak zorundadır. İzin bölünebilir, fakat bir bölümü en az 10 gün olmalıdır." }
+]);
+
+ilgiliAraclar("yillik-izin-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Ne Kadar Kredi Çekebilirim? — Gelire Göre Kredi Limiti Hesaplama</title>
+<meta name="description" content="Gelirinize göre çekebileceğiniz en yüksek kredi tutarını hesaplayın. Bankaların taksit/gelir oranı kuralı, mevcut taksitleriniz ve vade dahil." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/ne-kadar-kredi-cekebilirim.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Ne Kadar Kredi Çekebilirim? — Gelire Göre Kredi Limiti Hesaplama" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/ne-kadar-kredi-cekebilirim.html" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Ne Kadar Kredi Çekebilirim?</h1>
+    <p class="ozet">Bankalar taksitinizin gelirinize oranına sınır koyar. Gelirinizi girin; bu sınıra göre <b>çekebileceğiniz en yüksek kredi tutarını</b> hesaplayalım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Taksit/gelir oranı kuralı</span><span class="etiket-rozet">KKDF + BSMV dahil</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Aylık net geliriniz (TL)
+                    <input id="gelir" type="number" step="any" inputmode="decimal" value="60000" />
+                </label>
+                <label>Hâlihazırdaki aylık taksitler (TL)
+                    <input id="mevcut" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+                <label>Aylık faiz oranı (%)
+                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="3.29" />
+                </label>
+                <label>Vade (ay)
+                    <input id="vade" type="number" inputmode="numeric" value="36" />
+                </label>
+                <label>Taksit/gelir sınırı (%)
+                    <input id="sinir" type="number" step="1" inputmode="numeric" value="50" />
+                </label>
+                <label class="onay"><input id="vergi" type="checkbox" checked />
+                    <span>KKDF + BSMV ekle<br><span class="not">İhtiyaç kredisi</span></span>
+                </label>
+            </div>
+            <p class="kucuk">Bankalar genelde taksit toplamının gelirin <b>%50</b>'sini aşmamasını ister. Bazı bankalar %60'a kadar çıkabilir; kendi bankanızın oranını yazabilirsiniz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Bankalar neye bakar?</h2>
+        <p>En temel ölçüt <b>taksit/gelir oranıdır</b>: aylık kredi taksitlerinizin toplamı,
+        belgelenen gelirinizin belli bir yüzdesini aşmamalıdır. Yaygın uygulama %50'dir.
+        Mevcut kredi ve kredi kartı taksitleriniz de bu hesaba dahil edilir.</p>
+        <p>Bunun dışında bankalar kredi notunuza, çalışma sürenize ve gelirinizi nasıl
+        belgelediğinize de bakar. Bu araç yalnızca gelir/taksit tarafını hesaplar.</p>
+
+        <h2>Vade uzatınca daha çok kredi çıkıyor, iyi mi?</h2>
+        <p>Vadeyi uzatmak taksiti düşürdüğü için çekebileceğiniz tutarı artırır — ama toplam
+        ödediğiniz faiz de ciddi biçimde artar. Vadeyi 12 ay ve 60 ay yapıp "toplam faiz"
+        satırını karşılaştırın, farkı hemen görürsünüz.</p>
+
+        <h2>Gelirimi nasıl belgelerim?</h2>
+        <p>Ücretliyseniz maaş bordrosu ve SGK hizmet dökümü, esnafsanız vergi levhası ve gelir
+        tablosu istenir. Belgelenemeyen gelir hesaba katılmaz.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("ne-kadar-kredi-cekebilirim.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["gelir", "mevcut", "faiz", "vade", "sinir", "vergi"];
+
+function hesapla() {
+    const gelir = oku("gelir"), mevcut = oku("mevcut");
+    const faiz = oku("faiz"), vade = Math.max(1, Math.round(oku("vade")));
+    const sinir = oku("sinir") || 50;
+    if (!gelir || gelir <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+
+    const k = krediKapasitesi(gelir, mevcut, faiz, vade, sinir, isaretli("vergi"));
+    const yetersiz = k.taksitKapasitesi <= 0;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(k.anapara)}</div>
+        <div class="dev-etiket">çekebileceğiniz en yüksek kredi (${vade} ay vade)</div>
+        ${satir("Aylık geliriniz", para(gelir))}
+        ${satir("Taksit sınırı (%" + sayi(sinir, 0) + ")", para(gelir * sinir / 100))}
+        ${mevcut > 0 ? satir("Mevcut taksitleriniz", "−" + para(mevcut)) : ""}
+        ${satir("Yeni krediye ayrılabilecek taksit", para(k.taksitKapasitesi), "buyuk")}
+        ${satir("Toplam geri ödeme", para(k.toplamOdeme))}
+        ${satir("Toplam faiz", para(k.toplamFaiz))}
+        ${yetersiz ? `<p class="kucuk" style="color:var(--azalis)"><b>Mevcut taksitleriniz sınırı doldurmuş.</b> Bu gelirle yeni kredi çekmeniz zor görünüyor.</p>`
+            : `<p class="kucuk">Taksitleri ödedikten sonra elinizde <b>${para(k.kalanGelir)}</b> kalır.</p>`}
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Gelirin belirlenen oranı taksit üst sınırıdır.", `${sayi(gelir, 0)} × %${sayi(sinir, 0)}`, para(gelir * sinir / 100));
+    if (mevcut > 0) d.ekle("Mevcut taksitler düşülür.", `${sayi(gelir * sinir / 100)} − ${sayi(mevcut)}`, para(k.taksitKapasitesi));
+    d.ekle("Faize vergiler eklenir.", `%${sayi(faiz)} × 1,20`, "%" + sayi(k.efektifAylik, 4));
+    d.ekle("Bu taksitle kaç lira kredi ödenebileceği bulunur (annüite tersine çevrilir).",
+           `${sayi(k.taksitKapasitesi)} × ((1+i)^${vade} − 1) ÷ (i × (1+i)^${vade})`, para(k.anapara));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Kredi Limiti Hesabı"));
+yapisalVeri("Kredi Limiti Hesabı", "Gelirinize göre çekebileceğiniz en yüksek kredi tutarını hesaplayın. Bankaların taksit/gelir oranı kuralı, mevcut taksitleriniz ve vade dahil.");
+
+sssEkle([
+    { soru: "Bankalar gerçekten %50 kuralını uyguluyor mu?",
+      cevap: "Yaygın uygulama budur ancak banka ve ürüne göre değişir; bazı bankalar %60'a kadar çıkabilir, konut kredisinde oran farklı hesaplanabilir. Kendi bankanızın oranını öğrenip yukarıdaki kutuya yazabilirsiniz." },
+    { soru: "Kredi kartı borcum hesaba katılır mı?",
+      cevap: "Evet. Kredi kartlarının asgari ödeme tutarları ve varsa taksitli harcamalarınız mevcut yük olarak değerlendirilir. Yukarıdaki 'mevcut taksitler' alanına bunları da ekleyin." },
+    { soru: "Bu tutarı kesin alabilir miyim?",
+      cevap: "Hayır, bu bir üst sınır tahminidir. Banka ayrıca kredi notunuza, çalışma sürenize ve gelir belgenize bakar. Kredi notu düşükse bu tutarın altında teklif gelebilir veya başvuru reddedilebilir." },
+    { soru: "Vadeyi uzatmak mantıklı mı?",
+      cevap: "Taksiti düşürür ama toplam faizi büyütür. Bütçeniz zorlanmıyorsa kısa vade her zaman daha ucuzdur. Aracı iki farklı vadeyle çalıştırıp toplam faiz farkını görmenizi öneririz." }
+]);
+
+ilgiliAraclar("ne-kadar-kredi-cekebilirim.html");
+reklamAlani();
+</script>
+</body>
+</html>

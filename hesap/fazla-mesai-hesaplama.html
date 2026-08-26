@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Fazla Mesai Ücreti Hesaplama — Saat Ücreti ve 1,5 Kat</title>
+<meta name="description" content="Fazla mesai ücreti hesaplama: saat ücretiniz, 1,5 kat fazla çalışma, 1,25 kat fazla sürelerle çalışma ve tatil günü çalışması. Kesintiler dahil net tutar." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/fazla-mesai-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Fazla Mesai Ücreti Hesaplama — Saat Ücreti ve 1,5 Kat" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/fazla-mesai-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Fazla Mesai Hesaplama</h1>
+    <p class="ozet">Aylık brüt ücretinizi ve fazla çalıştığınız saatleri girin; <b>saat ücretinizi</b> ve kesintiler düşülmüş net fazla mesai alacağınızı hesaplayalım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Saat ücreti = brüt ÷ <b>225</b></span><span class="etiket-rozet">Fazla çalışma <b>1,5 kat</b></span><span class="etiket-rozet">Fazla süreli <b>1,25 kat</b></span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Aylık brüt ücret (TL)
+                    <input id="brut" type="number" step="any" inputmode="decimal" value="60000" />
+                </label>
+                <label>Fazla çalışma (saat)
+                    <input id="fazlaCalisma" type="number" step="any" inputmode="decimal" value="10" />
+                </label>
+                <label>Fazla sürelerle çalışma (saat)
+                    <input id="fazlaSure" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+                <label>Tatil / bayram çalışması (saat)
+                    <input id="tatil" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+                <label>Gelir vergisi diliminiz
+                    <select id="dilim">
+                        <option value="15" selected>%15</option><option value="20">%20</option>
+                        <option value="27">%27</option><option value="35">%35</option><option value="40">%40</option>
+                    </select>
+                </label>
+            </div>
+            <p class="kucuk"><b>Fazla çalışma</b>: haftalık 45 saati aşan kısım (1,5 kat). <b>Fazla sürelerle çalışma</b>: sözleşmeniz 45 saatten azsa aradaki fark (1,25 kat).</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Saat ücreti neden 225'e bölünür?</h2>
+        <p>Yasal haftalık çalışma süresi 45 saattir. Aylık karşılığı 30 gün × 7,5 saat = <b>225
+        saat</b> kabul edilir. Bu yüzden saat ücretiniz aylık brüt ücretin 225'e bölünmesiyle
+        bulunur. 240'a ya da çalıştığınız gerçek saate bölmek yanlış sonuç verir.</p>
+
+        <h2>Fazla çalışma ile fazla sürelerle çalışma farkı</h2>
+        <ul>
+            <li><b>Fazla çalışma</b> — haftalık 45 saati aşan çalışma. Saat ücretinin <b>1,5 katı</b> ödenir.</li>
+            <li><b>Fazla sürelerle çalışma</b> — sözleşmenizde haftalık süre 45 saatten azsa (örneğin 40),
+            40 ile 45 arasındaki kısım. Saat ücretinin <b>1,25 katı</b> ödenir.</li>
+        </ul>
+
+        <h2>Yıllık sınır var mı?</h2>
+        <p>Fazla çalışma yılda <b>270 saati</b> aşamaz. Ayrıca fazla çalışma için işçinin yazılı
+        onayı gerekir. Onay her yıl yenilenir.</p>
+
+        <h2>Ücret yerine izin istenebilir mi?</h2>
+        <p>Evet. İşçi isterse fazla çalıştığı her saat için <b>1 saat 30 dakika</b> serbest zaman
+        kullanabilir. Bu talebi işverene yazılı bildirmesi gerekir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("fazla-mesai-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["brut", "fazlaCalisma", "fazlaSure", "tatil", "dilim"];
+
+function hesapla() {
+    const brut = oku("brut");
+    const dilim = parseFloat(document.getElementById("dilim").value);
+    const saatler = { fazlaCalisma: oku("fazlaCalisma"), fazlaSure: oku("fazlaSure"), tatil: oku("tatil") };
+    if (!brut || brut <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+
+    const m = fazlaMesai(brut, saatler, dilim);
+    const toplamSaat = saatler.fazlaCalisma + saatler.fazlaSure + saatler.tatil;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(m.net)}</div>
+        <div class="dev-etiket">net fazla mesai alacağınız (${sayi(toplamSaat, 1)} saat)</div>
+        ${satir("Normal saat ücretiniz", para(m.saatUcreti))}
+        ${m.kalemler.map(k => satir(k.ad + " · " + sayi(k.saat, 1) + " saat × " + para(k.birim), para(k.tutar))).join("")}
+        ${satir("Brüt toplam", para(m.brut), "buyuk")}
+        ${satir("SGK + işsizlik (%15)", "−" + para(m.sgk))}
+        ${satir("Gelir vergisi (%" + sayi(dilim, 0) + ")", "−" + para(m.gelirVergisi))}
+        ${satir("Damga vergisi", "−" + para(m.damga))}
+        ${satir("Net", para(m.net), "buyuk")}
+    </div>`;
+
+    const d = dokumKur("Saat ücreti nasıl bulundu?");
+    d.ekle("Aylık brüt, 225 saate bölünür (30 gün × 7,5 saat).", `${sayi(brut, 0)} ÷ 225`, para(m.saatUcreti));
+    m.kalemler.forEach(k => {
+        d.ekle(k.ad + " için saat ücreti " + sayi(k.carpan, 2) + " ile çarpılır.",
+               `${sayi(m.saatUcreti)} × ${sayi(k.carpan, 2)} × ${sayi(k.saat, 1)} saat`, para(k.tutar));
+    });
+    d.ekle("Kesintiler düşülür (SGK, işsizlik, gelir vergisi, damga).",
+           `${sayi(m.brut)} − ${sayi(m.sgk + m.gelirVergisi + m.damga)}`, para(m.net));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Fazla Mesai Hesabı"));
+yapisalVeri("Fazla Mesai Hesabı", "Fazla mesai ücreti hesaplama: saat ücretiniz, 1,5 kat fazla çalışma, 1,25 kat fazla sürelerle çalışma ve tatil günü çalışması. Kesintiler dahil net tutar.");
+
+sssEkle([
+    { soru: "Saat ücretim nasıl hesaplanır?",
+      cevap: "Aylık brüt ücretiniz 225'e bölünür. 225 sayısı, haftalık 45 saatlik yasal çalışma süresinin aylık karşılığıdır (30 gün × 7,5 saat)." },
+    { soru: "Maaşıma fazla mesai dahil deniyor, doğru mu?",
+      cevap: "Yılda 270 saate kadar fazla çalışmanın ücrete dahil olduğu sözleşmeler yapılabilir; bu durumda ayrıca ödeme istenemez. Ancak 270 saati aşan kısım için ücret ödenmesi gerekir." },
+    { soru: "Bayramda çalıştım, ne kadar almalıyım?",
+      cevap: "Genel tatil günlerinde çalışılırsa, o güne ait ücrete ek olarak bir günlük ücret daha ödenir. Bu araçta tatil çalışması 2 kat olarak hesaplanır." },
+    { soru: "Fazla mesai ücretinden vergi kesilir mi?",
+      cevap: "Evet. Fazla mesai ücreti de normal ücret gibidir: SGK, işsizlik, gelir vergisi ve damga vergisi kesilir. Bu yüzden brüt ile net arasında belirgin fark olur." }
+]);
+
+ilgiliAraclar("fazla-mesai-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

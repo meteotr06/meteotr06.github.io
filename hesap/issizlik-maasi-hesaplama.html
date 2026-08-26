@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>İşsizlik Maaşı Hesaplama 2026 — Ne Kadar, Kaç Ay?</title>
+<meta name="description" content="İşsizlik ödeneği hesaplama: son 4 ayın ortalamasına göre aylık tutar, tavan sınırı ve prim gününüze göre kaç ay alacağınız." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/issizlik-maasi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="İşsizlik Maaşı Hesaplama 2026 — Ne Kadar, Kaç Ay?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/issizlik-maasi-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>İşsizlik Maaşı Hesaplama</h1>
+    <p class="ozet">Son 4 ayın brüt ortalamasını ve prim gün sayınızı girin; <b>aylık ne kadar</b> ve <b>kaç ay</b> işsizlik ödeneği alacağınızı hesaplayalım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Ortalamanın <b>%40</b>'ı</span><span class="etiket-rozet">Tavan: asgari ücretin <b>%80</b>'i</span><span class="etiket-rozet">Sadece damga kesilir</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Son 4 ayın brüt ücret ortalaması (TL)
+                    <input id="ortalama" type="number" step="any" inputmode="decimal" value="50000" />
+                </label>
+                <label>Son 3 yıldaki prim gün sayınız
+                    <input id="prim" type="number" inputmode="numeric" value="1080" />
+                </label>
+            </div>
+            <p class="kucuk">Prim gün sayınızı <b>e-Devlet → SGK Tescil ve Hizmet Dökümü</b> ekranından öğrenebilirsiniz. Ödenek için <b>son 120 gün kesintisiz</b> çalışmış ve son 3 yılda en az <b>600 gün</b> prim ödemiş olmak gerekir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>İşsizlik ödeneği ne kadar?</h2>
+        <p>Son dört ayın prime esas günlük kazanç ortalamasının <b>%40'ı</b> ödenir. Ancak
+        ödenek, <b>brüt asgari ücretin %80'ini</b> geçemez. Yüksek maaşlı çalışanlarda bu tavan
+        neredeyse her zaman devreye girer.</p>
+        <p>Ödenekten yalnızca <b>damga vergisi</b> kesilir; gelir vergisi ve SGK primi kesilmez.</p>
+
+        <h2>Kaç ay alınır?</h2>
+        <ul>
+            <li>Son 3 yılda <b>600 gün</b> prim → 180 gün (6 ay)</li>
+            <li>Son 3 yılda <b>900 gün</b> prim → 240 gün (8 ay)</li>
+            <li>Son 3 yılda <b>1080 gün</b> prim → 300 gün (10 ay)</li>
+        </ul>
+
+        <h2>Kimler alabilir?</h2>
+        <p>Şu üç şartın hepsi gerekir:</p>
+        <ul>
+            <li>İş sözleşmesi <b>kendi isteği dışında</b> sona ermiş olmalı (istifa hariç)</li>
+            <li>Son <b>120 gün</b> kesintisiz hizmet akdine tabi çalışmış olmak</li>
+            <li>Son 3 yılda en az <b>600 gün</b> işsizlik sigortası primi ödemiş olmak</li>
+        </ul>
+        <p>Başvuru, işten ayrılıştan itibaren <b>30 gün içinde</b> İŞKUR'a yapılmalıdır.
+        Geç başvuruda gecikilen süre toplam ödenekten düşülür.</p>
+
+        <h2>Ödenek kesilir mi?</h2>
+        <p>İşe girerseniz, İŞKUR'un teklif ettiği uygun işi haklı sebep olmadan reddederseniz
+        veya yaşlılık aylığı almaya başlarsanız ödenek kesilir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("issizlik-maasi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["ortalama", "prim"];
+
+function hesapla() {
+    const ort = oku("ortalama"), prim = Math.round(oku("prim"));
+    if (!ort || ort <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+
+    const i = issizlikMaasi(ort, prim);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(i.hakEdiyorMu ? i.aylikNet : 0)}</div>
+        <div class="dev-etiket">aylık net işsizlik ödeneği</div>
+        ${satir("Günlük kazanç ortalaması", para(i.gunlukKazanc))}
+        ${satir("Ödenek (ortalamanın %40'ı)", para(i.hamAylik))}
+        ${i.tavanUygulandi ? satir("Yasal tavan", para(i.tavan)) : ""}
+        ${satir("Aylık brüt ödenek", para(i.aylikBrut))}
+        ${satir("Damga vergisi", "−" + para(i.damga))}
+        ${satir("Aylık net ödenek", para(i.aylikNet), "buyuk")}
+        ${satir("Ödeme süresi", i.sureGun > 0 ? i.sureGun + " gün (" + sayi(i.sureAy, 0) + " ay)" : "hak doğmuyor")}
+        ${satir("Toplam alacağınız", para(i.hakEdiyorMu ? i.toplamNet : 0), "buyuk")}
+        ${i.tavanUygulandi ? `<p class="kucuk" style="color:var(--uyari)"><b>Tavan uygulandı.</b> Hesaplanan ${para(i.hamAylik)} yasal üst sınırı aştığı için ödenek ${para(i.tavan)} ile sınırlandı.</p>` : ""}
+        ${!i.hakEdiyorMu ? `<p class="kucuk" style="color:var(--azalis)"><b>600 günün altında.</b> İşsizlik ödeneği için son 3 yılda en az 600 gün prim ödemiş olmak gerekir.</p>` : ""}
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Son 4 ayın brüt ortalaması günlüğe çevrilir.", `${sayi(ort, 0)} ÷ 30`, para(i.gunlukKazanc));
+    d.ekle("Günlük ödenek, kazancın %40'ıdır; 30 günle çarpılır.", `${sayi(i.gunlukKazanc)} × %40 × 30`, para(i.hamAylik));
+    d.ekle("Tavan: brüt asgari ücretin %80'i.", `${sayi(PARAMETRE.asgariBrut, 0)} × %80`, para(i.tavan));
+    d.ekle(i.tavanUygulandi ? "Hesap tavanı aştığı için tavan uygulanır." : "Hesap tavanın altında, kendi tutarınız ödenir.",
+           `min(${sayi(i.hamAylik)} ; ${sayi(i.tavan)})`, para(i.aylikBrut));
+    d.ekle("Sadece damga vergisi kesilir (gelir vergisi ve SGK KESİLMEZ).",
+           `${sayi(i.aylikBrut)} × binde 7,59`, "−" + para(i.damga));
+    d.ekle("Prim gününe göre ödeme süresi belirlenir.", `${prim} gün prim`, i.sureGun + " gün");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("İşsizlik Maaşı Hesabı"));
+yapisalVeri("İşsizlik Maaşı Hesabı", "İşsizlik ödeneği hesaplama: son 4 ayın ortalamasına göre aylık tutar, tavan sınırı ve prim gününüze göre kaç ay alacağınız.");
+
+sssEkle([
+    { soru: "İstifa edersem işsizlik maaşı alabilir miyim?",
+      cevap: "Kural olarak hayır. Ödenek, iş sözleşmesinin kendi isteğiniz dışında sona ermesi hâlinde verilir. Ancak haklı nedenle fesih (ücretin ödenmemesi, sigortasız çalıştırma gibi) durumunda hak doğabilir." },
+    { soru: "Ne zaman başvurmalıyım?",
+      cevap: "İşten ayrılıştan itibaren 30 gün içinde İŞKUR'a başvurmanız gerekir. e-Devlet üzerinden de yapılabilir. Geç başvurursanız geciken süre toplam ödeme süresinden düşülür." },
+    { soru: "Maaşım yüksek ama ödenek düşük çıktı, neden?",
+      cevap: "Ödeneğin bir üst sınırı var: brüt asgari ücretin %80'i. Ortalamanızın %40'ı bu sınırı aşıyorsa, ödenek tavana çekilir. Bu yüzden yüksek maaşlılarda ödenek maaşla orantılı artmaz." },
+    { soru: "Ödenek alırken sağlık hizmetinden yararlanır mıyım?",
+      cevap: "Evet. İşsizlik ödeneği aldığınız sürece genel sağlık sigortası primleriniz İŞKUR tarafından ödenir." },
+    { soru: "Kıdem tazminatı alırsam ödenek kesilir mi?",
+      cevap: "Hayır. Kıdem tazminatı ile işsizlik ödeneği birbirinden bağımsızdır; ikisini birlikte alabilirsiniz." }
+]);
+
+ilgiliAraclar("issizlik-maasi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

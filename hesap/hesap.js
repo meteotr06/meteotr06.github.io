@@ -548,3 +548,121 @@ function ihbarTazminati(giydirilmisBrut, toplamGun, gelirVergisiOrani) {
         net: brut - gv - damga
     };
 }
+
+// ---------- 10) NE KADAR KREDİ ÇEKEBİLİRİM ----------
+// Bankalar taksitin gelire oranına sınır koyar (yaygın uygulama: en fazla %50).
+// Buradan geriye doğru gidip alınabilecek en yüksek anaparayı buluruz.
+
+function krediKapasitesi(aylikGelir, mevcutTaksitler, aylikFaiz, vade, oranSiniri, vergiVar) {
+    const sinir = (oranSiniri === undefined ? 50 : oranSiniri) / 100;
+    const kapasite = Math.max(0, aylikGelir * sinir - (mevcutTaksitler || 0));
+    const i = (aylikFaiz / 100) * (vergiVar ? (1 + PARAMETRE.kkdf + PARAMETRE.bsmv) : 1);
+
+    let anapara;
+    if (i === 0) anapara = kapasite * vade;
+    else anapara = kapasite * (Math.pow(1 + i, vade) - 1) / (i * Math.pow(1 + i, vade));
+
+    return {
+        taksitKapasitesi: kapasite,
+        anapara: anapara,
+        toplamOdeme: kapasite * vade,
+        toplamFaiz: kapasite * vade - anapara,
+        efektifAylik: i * 100,
+        oranSiniri: sinir * 100,
+        kalanGelir: aylikGelir - kapasite - (mevcutTaksitler || 0)
+    };
+}
+
+// ---------- 11) FAZLA MESAİ ----------
+// Saat ücreti = aylık brüt ÷ 225  (30 gün × 7,5 saat)
+// Haftalık 45 saati aşan çalışma "fazla çalışma"dır: saat ücretinin 1,5 katı.
+// Sözleşmede haftalık süre 45'ten azsa, aradaki fark "fazla sürelerle
+// çalışma"dır ve 1,25 kat ödenir. İkisi karıştırılır.
+
+const MESAI_TURLERI = [
+    { kod: "fazlaCalisma", ad: "Fazla çalışma (45 saat üstü)", carpan: 1.5 },
+    { kod: "fazlaSure", ad: "Fazla sürelerle çalışma (45 saat altı sözleşme)", carpan: 1.25 },
+    { kod: "tatil", ad: "Genel tatil / bayram günü çalışması", carpan: 2.0 }
+];
+
+function fazlaMesai(aylikBrut, saatler, gelirVergisiOrani) {
+    const saatUcreti = aylikBrut / 225;
+    const kalemler = [];
+    let brutToplam = 0;
+
+    MESAI_TURLERI.forEach(t => {
+        const saat = saatler[t.kod] || 0;
+        if (saat <= 0) return;
+        const tutar = saatUcreti * t.carpan * saat;
+        brutToplam += tutar;
+        kalemler.push({ ad: t.ad, saat: saat, carpan: t.carpan, birim: saatUcreti * t.carpan, tutar: tutar });
+    });
+
+    const gv = brutToplam * (gelirVergisiOrani / 100);
+    const sgk = brutToplam * (PARAMETRE.sgkIsciOran + PARAMETRE.issizlikIsciOran);
+    const damga = brutToplam * PARAMETRE.damgaOran;
+
+    return {
+        saatUcreti: saatUcreti, kalemler: kalemler,
+        brut: brutToplam, sgk: sgk, gelirVergisi: gv, damga: damga,
+        net: brutToplam - sgk - gv - damga
+    };
+}
+
+// ---------- 12) YILLIK İZİN ----------
+// İş Kanunu md. 53: kıdeme göre en az izin süreleri.
+// 18 yaşından küçük ve 50 yaşından büyük çalışanlarda en az 20 gün.
+
+function yillikIzin(hizmetYili, yas) {
+    let gun;
+    if (hizmetYili < 1) gun = 0;
+    else if (hizmetYili <= 5) gun = 14;
+    else if (hizmetYili <= 15) gun = 20;
+    else gun = 26;
+
+    const yasKurali = (yas > 0 && (yas < 18 || yas > 50));
+    if (yasKurali && gun > 0 && gun < 20) gun = 20;
+
+    return {
+        gun: gun, yasKuraliUygulandi: yasKurali && gun === 20 && hizmetYili <= 5,
+        hakEdiyorMu: hizmetYili >= 1
+    };
+}
+
+// Kullanılmayan izin, işten ayrılırken ücrete çevrilir (izin ücreti)
+function izinUcreti(gunSayisi, giydirilmisBrut, gelirVergisiOrani) {
+    const gunluk = giydirilmisBrut / 30;
+    const brut = gunluk * gunSayisi;
+    const sgk = brut * (PARAMETRE.sgkIsciOran + PARAMETRE.issizlikIsciOran);
+    const gv = brut * (gelirVergisiOrani / 100);
+    const damga = brut * PARAMETRE.damgaOran;
+    return { gunluk: gunluk, brut: brut, sgk: sgk, gelirVergisi: gv, damga: damga,
+             net: brut - sgk - gv - damga };
+}
+
+// ---------- 13) İŞSİZLİK MAAŞI ----------
+// Günlük ödenek = son 4 ayın günlük prime esas kazanç ortalaması × %40
+// Aylık ödenek, brüt asgari ücretin %80'ini geçemez.
+// Sadece damga vergisi kesilir.
+
+function issizlikMaasi(son4AyBrutOrtalama, primGunu) {
+    const gunlukKazanc = son4AyBrutOrtalama / 30;
+    const hamAylik = gunlukKazanc * 0.40 * 30;
+    const tavan = PARAMETRE.asgariBrut * 0.80;
+    const aylik = Math.min(hamAylik, tavan);
+    const damga = aylik * PARAMETRE.damgaOran;
+
+    let sure = 0;
+    if (primGunu >= 1080) sure = 300;
+    else if (primGunu >= 900) sure = 240;
+    else if (primGunu >= 600) sure = 180;
+
+    return {
+        gunlukKazanc: gunlukKazanc,
+        hamAylik: hamAylik, tavan: tavan, tavanUygulandi: hamAylik > tavan,
+        aylikBrut: aylik, damga: damga, aylikNet: aylik - damga,
+        sureGun: sure, sureAy: sure / 30,
+        toplamNet: (aylik - damga) * (sure / 30),
+        hakEdiyorMu: primGunu >= 600
+    };
+}

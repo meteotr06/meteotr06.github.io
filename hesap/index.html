@@ -29,7 +29,7 @@
     resmî 2026 oranlarıyla çalışır. Hiçbir bilgi kaydedilmez, sunucuya gönderilmez —
     bütün hesap kendi cihazınızda yapılır.</p>
 
-    <div class="arac-izgara" id="aracListesi"></div>
+    <div id="aracListesi"></div>
 
     <section class="anlatim">
         <h2>Neden bu araçlar?</h2>
@@ -58,8 +58,14 @@
 <script>
 iskeletKur("index.html");
 gizlilikBaglantisi();
-document.getElementById("aracListesi").innerHTML = ARACLAR.map(a =>
-    `<a class="arac-kart" href="${a.yol}"><b>${a.ad}</b><span>${a.aciklama}</span></a>`).join("");
+// Araçları gruplara ayırıp başlıklı listele — 12 kartı düz sıralamak kafa karıştırıyordu
+const gruplar = {};
+ARACLAR.forEach(a => { (gruplar[a.grup || "Diğer"] = gruplar[a.grup || "Diğer"] || []).push(a); });
+document.getElementById("aracListesi").innerHTML = Object.keys(gruplar).map(g => `
+    <h2 class="grup-baslik">${g}</h2>
+    <div class="arac-izgara">${gruplar[g].map(a =>
+        `<a class="arac-kart" href="${a.yol}"><b>${a.ad}</b><span>${a.aciklama}</span></a>`).join("")}</div>
+`).join("");
 
 reklamAlani();
 </script>

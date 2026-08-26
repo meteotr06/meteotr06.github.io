@@ -3,14 +3,18 @@
 // Hesap yok — hesap hesap.js'de. Burada sadece ekran işi var.
 
 const ARACLAR = [
-    { yol: "net-maas-hesaplama.html", ad: "Net Maaş", aciklama: "Brütten nete, 12 ayın tamamı" },
-    { yol: "butce-hesaplama.html", ad: "Bütçe", aciklama: "Gelir, gider ve kalanla ne yapılır" },
-    { yol: "kidem-tazminati-hesaplama.html", ad: "Kıdem Tazminatı", aciklama: "Kıdem + ihbar, tavan dahil" },
-    { yol: "kredi-hesaplama.html", ad: "Kredi Taksiti", aciklama: "Aylık taksit ve ödeme planı" },
-    { yol: "mevduat-faizi-hesaplama.html", ad: "Mevduat Faizi", aciklama: "Vade sonu net getiri" },
-    { yol: "kdv-hesaplama.html", ad: "KDV", aciklama: "Dahil / hariç ayırma" },
-    { yol: "kira-artisi-hesaplama.html", ad: "Kira Artışı", aciklama: "Yasal üst sınır (TÜFE)" },
-    { yol: "birikim-hesaplama.html", ad: "Birikim", aciklama: "Bileşik getiri ve reel karşılık" }
+    { yol: "net-maas-hesaplama.html", ad: "Net Maaş", aciklama: "Brütten nete, 12 ayın tamamı", grup: "Maaş ve Çalışma" },
+    { yol: "butce-hesaplama.html", ad: "Bütçe", aciklama: "Gelir, gider ve kalanla ne yapılır", grup: "Ev ve Yaşam" },
+    { yol: "kidem-tazminati-hesaplama.html", ad: "Kıdem Tazminatı", aciklama: "Kıdem + ihbar, tavan dahil", grup: "Maaş ve Çalışma" },
+    { yol: "kredi-hesaplama.html", ad: "Kredi Taksiti", aciklama: "Aylık taksit ve ödeme planı", grup: "Kredi ve Borç" },
+    { yol: "mevduat-faizi-hesaplama.html", ad: "Mevduat Faizi", aciklama: "Vade sonu net getiri", grup: "Birikim" },
+    { yol: "kdv-hesaplama.html", ad: "KDV", aciklama: "Dahil / hariç ayırma", grup: "Ticaret" },
+    { yol: "kira-artisi-hesaplama.html", ad: "Kira Artışı", aciklama: "Yasal üst sınır (TÜFE)", grup: "Ev ve Yaşam" },
+    { yol: "birikim-hesaplama.html", ad: "Birikim", aciklama: "Bileşik getiri ve reel karşılık", grup: "Birikim" },
+    { yol: "ne-kadar-kredi-cekebilirim.html", ad: "Kredi Limiti", aciklama: "Gelire göre çekilebilir tutar", grup: "Kredi ve Borç" },
+    { yol: "fazla-mesai-hesaplama.html", ad: "Fazla Mesai", aciklama: "Saat ücreti ve 1,5 kat", grup: "Maaş ve Çalışma" },
+    { yol: "yillik-izin-hesaplama.html", ad: "Yıllık İzin", aciklama: "Kaç gün, ne kadar ücret", grup: "Maaş ve Çalışma" },
+    { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma" }
 ];
 
 const KAYIT = "hesapAraclariAyar";
@@ -28,6 +32,13 @@ function iskeletKur(aktifYol) {
     const ayar = ayarOku();
     if (ayar.tema === "koyu") document.documentElement.dataset.tema = "koyu";
 
+    // ERİŞİLEBİLİRLİK: klavyeyle gezenler menüyü atlayıp doğrudan içeriğe geçebilsin
+    const atla = document.createElement("a");
+    atla.href = "#icerik";
+    atla.className = "atlama-baglantisi";
+    atla.textContent = "İçeriğe geç";
+    document.body.insertBefore(atla, document.body.firstChild);
+
     const ust = document.createElement("header");
     ust.className = "ust";
     ust.innerHTML = `
@@ -35,16 +46,33 @@ function iskeletKur(aktifYol) {
             <a href="index.html" class="marka">Hesap <span>Araçları</span></a>
         </div>
         <div class="ust-sag">
-            <button id="temaBtn" class="ikincil" title="Açık / koyu tema">${ayar.tema === "koyu" ? "◑" : "◐"}</button>
+            <button id="temaBtn" class="ikincil" type="button"
+                    aria-label="Açık veya koyu temaya geç" title="Açık / koyu tema">${ayar.tema === "koyu" ? "◑" : "◐"}</button>
         </div>`;
-    document.body.insertBefore(ust, document.body.firstChild);
+    document.body.insertBefore(ust, atla.nextSibling);
 
     // Araçlar arası gezinti — her sayfadan diğerine tek dokunuş
     const gez = document.createElement("nav");
     gez.className = "arac-gezinti";
-    gez.innerHTML = ARACLAR.map(a =>
-        `<a href="${a.yol}" class="${a.yol === aktifYol ? "aktif" : ""}">${a.ad}</a>`).join("");
+    gez.setAttribute("aria-label", "Hesaplama araçları");
+    // 12 aracin hepsini menuye koymak menuyu okunmaz hale getiriyordu.
+    // Menude en cok kullanilan 5 arac + aktif sayfa durur; gerisi "Tum araclar"da.
+    const ONCELIKLI = ["net-maas-hesaplama.html", "butce-hesaplama.html", "kredi-hesaplama.html",
+                       "kira-artisi-hesaplama.html", "kidem-tazminati-hesaplama.html"];
+    const gosterilecek = ARACLAR.filter(a => ONCELIKLI.includes(a.yol) || a.yol === aktifYol);
+    gez.innerHTML = gosterilecek.map(a =>
+        `<a href="${a.yol}" class="${a.yol === aktifYol ? "aktif" : ""}"${a.yol === aktifYol ? ' aria-current="page"' : ""}>${a.ad}</a>`).join("") +
+        `<a href="index.html" class="tum-araclar">Tüm araçlar (${ARACLAR.length})</a>`;
     document.body.insertBefore(gez, ust.nextSibling);
+
+    // Ana içerik işareti ve canlı sonuç bildirimi (ekran okuyucular için)
+    const anaAlan = document.querySelector("main");
+    if (anaAlan) { anaAlan.id = "icerik"; anaAlan.setAttribute("tabindex", "-1"); }
+    const sonucAlani = document.getElementById("ozet");
+    if (sonucAlani) {
+        sonucAlani.setAttribute("role", "status");
+        sonucAlani.setAttribute("aria-live", "polite");
+    }
 
     const alt = document.createElement("footer");
     alt.innerHTML = `
@@ -162,10 +190,12 @@ function baglantidanOku(alanlar) {
 function eylemCubugu(sonucGetir) {
     const c = document.createElement("div");
     c.className = "eylem-cubugu";
+    c.setAttribute("role", "group");
+    c.setAttribute("aria-label", "Sonuç işlemleri");
     c.innerHTML = `
-        <button class="ikincil" id="kopyalaBtn">Sonucu kopyala</button>
-        <button class="ikincil" id="paylasBtn">Bağlantıyı paylaş</button>
-        <button class="ikincil" id="yazdirBtn">Yazdır</button>`;
+        <button class="ikincil" type="button" id="kopyalaBtn">Sonucu kopyala</button>
+        <button class="ikincil" type="button" id="paylasBtn">Bağlantıyı paylaş</button>
+        <button class="ikincil" type="button" id="yazdirBtn">Yazdır</button>`;
     return c;
 }
 
@@ -254,7 +284,12 @@ function yapisalVeri(ad, aciklama) {
 
 // ---------- 6) İlgili araçlar ----------
 function ilgiliAraclar(aktifYol) {
-    const digerleri = ARACLAR.filter(a => a.yol !== aktifYol);
+    // Ayni gruptan olanlar once gelsin, en fazla 4 tane goster
+    const aktif = ARACLAR.find(a => a.yol === aktifYol);
+    const grup = aktif ? aktif.grup : null;
+    const digerleri = ARACLAR.filter(a => a.yol !== aktifYol)
+        .sort((a, b) => (b.grup === grup) - (a.grup === grup))
+        .slice(0, 4);
     const b = document.createElement("section");
     b.className = "kutu";
     b.innerHTML = `<h3>Bunlar da işinize yarayabilir</h3>

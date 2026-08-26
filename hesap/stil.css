@@ -13,7 +13,7 @@
     --kart-ust: #f2f4f7;       /* ikinci düzey yüzey */
     --cizgi: #e3e6eb;          /* saç teli ayraç */
     --yazi: #0f172a;
-    --yazi2: #6b7382;
+    --yazi2: #656c7a;   /* ölçüldü: zemine karşı kontrast 4,9 (AA sınırı 4,5) */
     --vurgu: #1c5fd6;          /* kurumsal mavi */
     --vurgu2: #123f96;
     --artis: #067647;
@@ -693,3 +693,63 @@ h1 { font-size: 24px; margin: 4px 0 8px; font-weight: 700; letter-spacing: -.5px
 .reklam-yuva { min-height: 90px; }
 .gizlilik-bag a { color: var(--vurgu); }
 @media print { .reklam { display: none !important; } }
+
+/* ---------- Ana sayfa: gruplu araç listesi ---------- */
+.grup-baslik { font-size: 15px; margin: 22px 0 10px; color: var(--yazi2);
+               text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+.grup-baslik:first-child { margin-top: 0; }
+.arac-gezinti a.tum-araclar { color: var(--vurgu); font-weight: 600; }
+
+/* ================= ERİŞİLEBİLİRLİK =================
+   Hedef: gören-görmeyen, fareli-klavyeli, genç-yaşlı herkes kullanabilsin. */
+
+/* Klavyeyle gezenler menüyü atlayıp içeriğe geçebilsin */
+.atlama-baglantisi {
+    position: absolute; left: -9999px; top: 0; z-index: 100;
+    background: var(--vurgu); color: #fff; padding: 12px 18px;
+    border-radius: 0 0 8px 0; font-weight: 600; text-decoration: none;
+}
+.atlama-baglantisi:focus { left: 0; }
+
+/* Odak her yerde AÇIKÇA görünsün — klavye kullananın nerede olduğunu bilmesi şart */
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, summary:focus-visible, details:focus-visible {
+    outline: 3px solid var(--vurgu);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+main:focus { outline: none; }
+
+/* Dokunma hedefleri: yaşlı ve titreyen eller için en az 44px */
+.arac-gezinti a { min-height: 44px; display: flex; align-items: center; }
+.sss-madde > summary, details.katlanir > summary { min-height: 48px; }
+
+/* Yazı boyutunu tarayıcıdan büyütenler bozulmasın */
+@media (min-width: 900px) {
+    .anlatim p, .anlatim li, .sss-cevap { font-size: 15px; }
+}
+
+/* Kontrast tercih edenler için */
+@media (prefers-contrast: more) {
+    :root { --cizgi: #94a3b8; --yazi2: #475569; }
+    html[data-tema="koyu"] { --cizgi: #64748b; --yazi2: #cbd5e1; }
+    .kutu, .arac-kart { border-width: 2px; }
+}
+
+/* Ekran okuyucuya özel, gözle görünmeyen metin */
+.sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* Çok küçük ekranlar (320px) bozulmasın */
+@media (max-width: 360px) {
+    main { padding: 12px 12px 24px; }
+    h1 { font-size: 21px; }
+    .dev-deger { font-size: 34px; }
+    .kutu { padding: 13px; }
+}
+
+/* Dokunma hedefleri en az 40px — ölçümde 3 düğme altında kalmıştı */
+.eylem-cubugu button, .aralik-dugmeler button, .uyari button,
+.etiket-dugme, .portfoy-satir .sil { min-height: 40px; }
