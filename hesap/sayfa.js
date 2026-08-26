@@ -53,7 +53,13 @@ const ARACLAR = [
 const REHBERLER = [
     { yol: "isten-cikarildim-haklarim.html", ad: "İşten çıkarıldım, haklarım neler?",
       aciklama: "Kıdem, ihbar, izin, fazla mesai ve işsizlik maaşı — hangi durumda hangisi",
-      anahtar: "işten çıkarıldım kovuldum haklarım kıdem ihbar tazminat işsizlik maaşı istifa ibraname arabuluculuk fesih" }
+      anahtar: "işten çıkarıldım kovuldum haklarım kıdem ihbar tazminat işsizlik maaşı istifa ibraname arabuluculuk fesih" },
+    { yol: "ev-alirken-rehberi.html", ad: "Ev alırken: baştan sona",
+      aciklama: "Bütçe, kredi, tapu harcı, görünmeyen masraflar ve tapuda kontrol listesi",
+      anahtar: "ev almak konut satın alma tapu masraf ekspertiz emlakçı komisyon dask iskan kat mülkiyeti irtifak düşük beyan peşinat" },
+    { yol: "bordro-nasil-okunur.html", ad: "Bordronuzu nasıl okursunuz?",
+      aciklama: "Kesintiler, kümülatif matrah ve maaşın yıl içinde neden azaldığı",
+      anahtar: "bordro maaş kesinti sgk işsizlik gelir vergisi damga kümülatif matrah vergi dilimi asgari ücret istisnası işveren maliyeti" }
 ];
 
 function rehberleriCiz(hedefId) {
