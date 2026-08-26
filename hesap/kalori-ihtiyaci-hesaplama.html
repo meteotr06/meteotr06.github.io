@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Günlük Kalori İhtiyacı Hesaplama — Bazal Metabolizma ve TDEE</title>
+<meta name="description" content="Günlük kalori ihtiyacı hesaplama: bazal metabolizma hızı, aktivite düzeyine göre günlük kalori ve kilo verme/alma hedefleri." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kalori-ihtiyaci-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Günlük Kalori İhtiyacı Hesaplama — Bazal Metabolizma ve TDEE" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kalori-ihtiyaci-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=4" />
+</head>
+<body>
+
+<main>
+    <h1>Günlük Kalori İhtiyacı</h1>
+    <p class="ozet">Boy, kilo, yaş ve hareket düzeyinize göre <b>günde kaç kaloriye ihtiyacınız olduğunu</b> hesaplayın.</p>
+    <div class="uyari bilgi" style="margin-bottom:16px">
+        <span><b>Önemli:</b> Bu sonuç bir <b>tahmindir</b> ve kişiden kişiye %10–15 sapabilir.
+        Beslenme programı ya da kilo hedefi belirlemeden önce bir <b>diyetisyene veya hekime</b>
+        danışın. Aşırı düşük kalorili beslenme sağlığa zararlıdır.</span>
+    </div>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Mifflin-St Jeor denklemi</span><span class="etiket-rozet">5 aktivite düzeyi</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Cinsiyet
+                    <select id="cinsiyet">
+                        <option value="erkek" selected>Erkek</option>
+                        <option value="kadin">Kadın</option>
+                    </select>
+                </label>
+                <label>Yaş
+                    <input id="yas" type="number" inputmode="numeric" value="30" />
+                </label>
+                <label>Boy (cm)
+                    <input id="boy" type="number" step="any" inputmode="decimal" value="178" />
+                </label>
+                <label>Kilo (kg)
+                    <input id="kilo" type="number" step="any" inputmode="decimal" value="82" />
+                </label>
+                <label>Hareket düzeyi
+                    <select id="aktivite">
+                        <option value="1.2">Hareketsiz (masa başı, spor yok)</option>
+                        <option value="1.375">Az hareketli (haftada 1-3 gün)</option>
+                        <option value="1.55" selected>Orta hareketli (haftada 3-5 gün)</option>
+                        <option value="1.725">Çok hareketli (haftada 6-7 gün)</option>
+                        <option value="1.9">Aşırı hareketli (ağır iş / iki antrenman)</option>
+                    </select>
+                </label>
+            </div>
+            <p class="kucuk">Hareket düzeyini abartmamak önemli: çoğu kişi kendini olduğundan hareketli sanır ve hedefi kaçırır.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Bazal metabolizma nedir?</h2>
+        <p>Hiç hareket etmeseniz bile vücudunuzun yaşamak için harcadığı enerjidir: nefes almak,
+        kalbin çalışması, vücut sıcaklığını korumak. Günlük harcamanın <b>en büyük payını</b> bu
+        oluşturur; spor genelde sanıldığından küçük bir dilimdir.</p>
+
+        <h2>Hangi formül kullanılıyor?</h2>
+        <p><b>Mifflin-St Jeor</b> denklemi kullanılıyor. Beslenme alanında en yaygın kabul gören
+        ve ortalama olarak en doğru sonucu veren formüldür. Yine de kişisel farklar nedeniyle
+        gerçek ihtiyacınız bu tahminden %10–15 sapabilir.</p>
+
+        <h2>Kilo vermek için ne kadar açık?</h2>
+        <p>1 kilogram yağ yaklaşık <b>7.700 kcal</b> enerjiye denktir. Günde 500 kcal açık
+        vermek haftada yaklaşık yarım kilo kaybettirir. Daha hızlı gitmeye çalışmak genellikle
+        kas kaybına ve programı sürdürememeye yol açar.</p>
+        <p>Günlük alımın <b>bazal metabolizmanın altına düşmemesi</b> önerilir.</p>
+
+        <h2>Neden tartı bazen oynamıyor?</h2>
+        <p>Vücut ağırlığı su, tuz, bağırsak içeriği ve hormonlarla günlük 1-2 kg dalgalanır.
+        Haftalık ortalamaya bakmak, günlük tartıdan çok daha anlamlıdır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=4"></script>
+<script src="sayfa.js?v=4"></script>
+<script>
+iskeletKur("kalori-ihtiyaci-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["cinsiyet", "yas", "boy", "kilo", "aktivite"];
+
+function hesapla() {
+    const cinsiyet = document.getElementById("cinsiyet").value;
+    const yas = oku("yas"), boy = oku("boy"), kilo = oku("kilo");
+    const akt = parseFloat(document.getElementById("aktivite").value);
+    if (!boy || boy <= 0 || !kilo || kilo <= 0 || !yas || yas <= 0) {
+        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const k = kaloriIhtiyaci(kilo, boy, yas, cinsiyet, akt);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${sayi(k.gunluk, 0)} kcal</div>
+        <div class="dev-etiket">kilonuzu korumak için günlük ihtiyacınız</div>
+        ${satir("Bazal metabolizma (hiç hareket etmeseniz)", sayi(k.bazal, 0) + " kcal")}
+        ${satir("Hareket düzeyiyle günlük ihtiyaç", sayi(k.gunluk, 0) + " kcal", "buyuk")}
+    </div>
+
+    <div class="kutu">
+        <h3>Hedefe göre kalori</h3>
+        ${satir("Kilo korumak", sayi(k.gunluk, 0) + " kcal")}
+        ${satir("Yavaş kilo vermek (haftada ~0,5 kg)", sayi(k.kiloVerme, 0) + " kcal")}
+        ${satir("Hızlı kilo vermek (haftada ~1 kg)", sayi(k.hizliVerme, 0) + " kcal")}
+        ${satir("Kilo almak (haftada ~0,5 kg)", sayi(k.kiloAlma, 0) + " kcal")}
+        <p class="kucuk">${k.hizliVerme < k.bazal
+            ? `<b>Dikkat:</b> Hızlı verme hedefi (${sayi(k.hizliVerme, 0)} kcal) bazal metabolizmanızın
+               (${sayi(k.bazal, 0)} kcal) altında kalıyor. Bu düzeyde beslenme genellikle önerilmez;
+               mutlaka bir uzmana danışın.`
+            : "1 kg yağ yaklaşık 7.700 kcal'e denktir; günde 500 kcal açık haftada yaklaşık yarım kilo verdirir."}</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Mifflin-St Jeor denklemiyle bazal metabolizma bulunur.",
+           `10×${sayi(kilo,1)} + 6,25×${sayi(boy,0)} − 5×${sayi(yas,0)} ${cinsiyet === "erkek" ? "+ 5" : "− 161"}`,
+           sayi(k.bazal, 0) + " kcal");
+    d.ekle("Hareket düzeyi katsayısıyla çarpılır.",
+           `${sayi(k.bazal, 0)} × ${sayi(akt, 3)}`, sayi(k.gunluk, 0) + " kcal");
+    d.ekle("Kilo vermek için günlük 500 kcal açık verilir.",
+           `${sayi(k.gunluk, 0)} − 500`, sayi(k.kiloVerme, 0) + " kcal");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Kalori İhtiyacı Hesabı"));
+yapisalVeri("Kalori İhtiyacı Hesabı", "Günlük kalori ihtiyacı hesaplama: bazal metabolizma hızı, aktivite düzeyine göre günlük kalori ve kilo verme/alma hedefleri.");
+
+sssEkle([
+    { soru: "Bu sayı kesin mi?",
+      cevap: "Hayır, tahmindir. Mifflin-St Jeor formülü ortalamada iyi sonuç verir ama metabolizma hızı kişiden kişiye değişir. Sonucu bir başlangıç noktası olarak alıp 2-3 hafta içindeki kilo değişiminize göre ayarlamak daha doğrudur." },
+    { soru: "Hareket düzeyimi nasıl seçmeliyim?",
+      cevap: "Çoğu kişi kendini olduğundan hareketli sanır. Masa başında çalışıyor ve haftada 3 gün spor yapıyorsanız 'orta hareketli' uygundur. Emin değilseniz bir alt seçeneği işaretleyin." },
+    { soru: "Bazal metabolizmamın altında beslenebilir miyim?",
+      cevap: "Genellikle önerilmez. Çok düşük kalorili beslenme kas kaybına, halsizliğe ve besin eksikliklerine yol açabilir. Böyle bir programı ancak bir hekim veya diyetisyen gözetiminde uygulamalısınız." },
+    { soru: "Kalori saymak şart mı?",
+      cevap: "Şart değil ama bir dönem saymak, porsiyonlar hakkında fikir verir. Uzun vadede sürdürülebilir olan, kalori saymak yerine beslenme alışkanlığını değiştirmektir." }
+]);
+
+ilgiliAraclar("kalori-ihtiyaci-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

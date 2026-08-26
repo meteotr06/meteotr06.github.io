@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Vade Farkı Hesaplama — Taksitli Almak Kaç Lira Pahalı?</title>
+<meta name="description" content="Peşin fiyat ile taksitli toplam arasındaki farkı ve bunun gizli faiz oranını hesaplayın. Taksitle almak mı, peşin almak mı avantajlı?" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/vade-farki-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Vade Farkı Hesaplama — Taksitli Almak Kaç Lira Pahalı?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/vade-farki-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=4" />
+</head>
+<body>
+
+<main>
+    <h1>Vade Farkı Hesaplama</h1>
+    <p class="ozet">"Peşin şu kadar, taksitle bu kadar" — aradaki fark aslında <b>gizli bir faizdir</b>. Bu aracın yaptığı iş o faizi ortaya çıkarmak.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Gizli faiz oranı</span><span class="etiket-rozet">Mevduatla karşılaştırma</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Peşin fiyat (TL)
+                    <input id="pesin" type="number" step="any" inputmode="decimal" value="30000" />
+                </label>
+                <label>Aylık taksit tutarı (TL)
+                    <input id="taksit" type="number" step="any" inputmode="decimal" value="2900" />
+                </label>
+                <label>Taksit sayısı
+                    <input id="sayi" type="number" inputmode="numeric" value="12" />
+                </label>
+                <label>Mevduat faiziniz (%, yıllık)
+                    <input id="mevduat" type="number" step="0.01" inputmode="decimal" value="37" />
+                </label>
+            </div>
+            <p class="kucuk">Mevduat faizi alanı karşılaştırma içindir: paranız bankada bu oranla çalışıyorsa, taksitli almak mantıklı olabilir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>"Vade farksız 12 taksit" gerçekten farksız mı?</h2>
+        <p>Çoğu zaman değil. Peşin alana indirim yapılıyorsa, taksitli fiyat aslında zamlı
+        demektir. Gerçek karşılaştırma <b>peşin fiyat ile taksitli toplam</b> arasında yapılır.
+        Aradaki fark, size açıkça söylenmeyen bir faizdir.</p>
+
+        <h2>Faiz her zaman kötü müdür?</h2>
+        <p>Hayır. Enflasyonun ve mevduat faizinin yüksek olduğu dönemlerde, parayı bankada
+        tutup taksitle almak <b>matematiksel olarak kârlı</b> olabilir. Ölçüt basittir:
+        taksidin gizli faizi, paranızın bankada kazanacağından düşükse taksit avantajlıdır.</p>
+
+        <h2>Dikkat edilecek noktalar</h2>
+        <ul>
+            <li>Peşin fiyatı <b>pazarlıkla</b> öğrenin; etikette yazan çoğu zaman taksitli fiyattır</li>
+            <li>Kredi kartı taksidi, kartın limitini uzun süre bloke eder</li>
+            <li>Taksit sayısı arttıkça gizli faiz genelde büyür</li>
+        </ul>
+    </section>
+</main>
+
+<script src="hesap.js?v=4"></script>
+<script src="sayfa.js?v=4"></script>
+<script>
+iskeletKur("vade-farki-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["pesin", "taksit", "sayi", "mevduat"];
+
+function hesapla() {
+    const pesin = oku("pesin"), taksit = oku("taksit");
+    const sayiT = Math.max(1, Math.round(oku("sayi"))), mevduat = oku("mevduat");
+    if (!pesin || pesin <= 0 || !taksit || taksit <= 0) {
+        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const v = vadeFarki(pesin, taksit, sayiT);
+    const mevduatNet = mevduat * 0.85;   // stopaj sonrası kabaca
+    const taksitAvantajli = v.yillikFaiz < mevduatNet;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(v.fark)}</div>
+        <div class="dev-etiket">taksitli almanın ek maliyeti</div>
+        ${satir("Peşin fiyat", para(v.pesin))}
+        ${satir("Taksitli toplam", para(v.taksitli))}
+        ${satir("Vade farkı", para(v.fark) + " · " + yuzdeOn(v.farkYuzde))}
+        ${satir("Gizli aylık faiz", yuzdeOn(v.aylikFaiz))}
+        ${satir("Yıllık karşılığı", yuzdeOn(v.yillikFaiz), "buyuk")}
+    </div>
+
+    <div class="kutu">
+        <h3>Peşin mi, taksitli mi?</h3>
+        ${satir("Taksidin gizli yıllık faizi", yuzdeOn(v.yillikFaiz))}
+        ${satir("Mevduatın net yıllık getirisi", yuzdeOn(mevduatNet))}
+        <p class="kucuk" style="color:${taksitAvantajli ? "var(--artis)" : "var(--azalis)"}">
+        ${v.fark <= 0
+            ? "<b>Vade farkı yok.</b> Taksitli fiyat peşin fiyata eşit ya da daha düşük — taksit avantajlı."
+            : taksitAvantajli
+                ? `<b>Taksit avantajlı görünüyor.</b> Taksidin gizli faizi (${yuzdeOn(v.yillikFaiz)}),
+                   paranızın bankada kazanacağından (${yuzdeOn(mevduatNet)}) düşük. Parayı bankada
+                   tutup taksitle almak matematiksel olarak kârlı çıkıyor.`
+                : `<b>Peşin almak avantajlı görünüyor.</b> Taksidin gizli faizi (${yuzdeOn(v.yillikFaiz)}),
+                   mevduatın getirisinden (${yuzdeOn(mevduatNet)}) yüksek. Paranız varsa peşin ödemek
+                   daha kârlı.`}
+        <br><b>Bu bir hesaptır, tavsiye değildir.</b></p>
+    </div>`;
+
+    const d = dokumKur("Gizli faiz nasıl bulundu?");
+    d.ekle("Taksitlerin toplamı hesaplanır.", `${sayi(taksit)} × ${sayiT}`, para(v.taksitli));
+    d.ekle("Peşin fiyattan farkı alınır.", `${sayi(v.taksitli)} − ${sayi(pesin)}`, para(v.fark));
+    d.ekle("Bu farkı üreten aylık faiz oranı sayısal olarak çözülür (iç verim oranı).",
+           `${sayi(taksit)} taksit ile ${sayi(pesin)} bugünkü değere eşitlenir`, "%" + sayi(v.aylikFaiz, 2));
+    d.ekle("Aylık oran yıllığa çevrilir (bileşik).",
+           `(1 + %${sayi(v.aylikFaiz, 2)})^12 − 1`, "%" + sayi(v.yillikFaiz, 2));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Vade Farkı Hesabı"));
+yapisalVeri("Vade Farkı Hesabı", "Peşin fiyat ile taksitli toplam arasındaki farkı ve bunun gizli faiz oranını hesaplayın. Taksitle almak mı, peşin almak mı avantajlı?");
+
+sssEkle([
+    { soru: "Gizli faiz nasıl hesaplanıyor?",
+      cevap: "Taksit ödemelerinin bugünkü değerini peşin fiyata eşitleyen aylık oran sayısal olarak bulunur. Buna iç verim oranı denir; bankaların kredi faizini hesaplarken kullandığı yöntemin aynısıdır." },
+    { soru: "Peşin fiyatı bilmiyorum, ne yapmalıyım?",
+      cevap: "Satıcıya 'peşin ödesem kaça olur' diye sormanız yeterli. Çoğu yerde peşin fiyat, taksitli toplamdan belirgin biçimde düşüktür; aradaki farkı görmeden karar vermeyin." },
+    { soru: "Taksitli almak her zaman kötü mü?",
+      cevap: "Hayır. Mevduat faizi taksidin gizli faizinden yüksekse, parayı bankada tutup taksitle almak kazançlıdır. Bu araç iki oranı yan yana koyarak kararı size bırakır." }
+]);
+
+ilgiliAraclar("vade-farki-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

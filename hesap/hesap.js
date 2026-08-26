@@ -764,3 +764,99 @@ function tarihEkle(baslangic, gunSayisi) {
     d.setUTCDate(d.getUTCDate() + gunSayisi);
     return d.toISOString().slice(0, 10);
 }
+
+// ---------- 18) TAKSİT / VADE FARKI ----------
+// "Peşin şu kadar, taksitle bu kadar" — aradaki fark aslında gizli bir faizdir.
+// Bu faizi ortaya çıkarıp mevduat getirisiyle karşılaştırılabilir hale getiriyoruz.
+
+function vadeFarki(pesinFiyat, taksitTutari, taksitSayisi) {
+    const toplam = taksitTutari * taksitSayisi;
+    const fark = toplam - pesinFiyat;
+
+    // Gizli aylık faiz: annüite denklemini sayısal olarak çözeriz
+    let alt = 0, ust = 1, oran = 0;
+    if (fark > 0 && pesinFiyat > 0) {
+        for (let i = 0; i < 100; i++) {
+            oran = (alt + ust) / 2;
+            const bugunkuDeger = oran === 0
+                ? taksitTutari * taksitSayisi
+                : taksitTutari * (1 - Math.pow(1 + oran, -taksitSayisi)) / oran;
+            if (bugunkuDeger > pesinFiyat) alt = oran; else ust = oran;
+        }
+    }
+
+    return {
+        pesin: pesinFiyat, taksitli: toplam, fark: fark,
+        farkYuzde: pesinFiyat > 0 ? fark / pesinFiyat * 100 : 0,
+        aylikFaiz: oran * 100,
+        yillikFaiz: (Math.pow(1 + oran, 12) - 1) * 100,
+        taksit: taksitTutari, sayi: taksitSayisi
+    };
+}
+
+// ---------- 19) VÜCUT KİTLE İNDEKSİ ----------
+// BMI bir TARAMA göstergesidir, teşhis değildir. Kas kütlesini,
+// yaşı ve vücut tipini ayırt etmez — sayfada bunu açıkça yazıyoruz.
+
+const BMI_ARALIKLARI = [
+    { ust: 18.5, ad: "Zayıf", renk: "uyari" },
+    { ust: 25, ad: "Normal", renk: "artis" },
+    { ust: 30, ad: "Fazla kilolu", renk: "uyari" },
+    { ust: 35, ad: "Obez (1. derece)", renk: "azalis" },
+    { ust: 40, ad: "Obez (2. derece)", renk: "azalis" },
+    { ust: Infinity, ad: "İleri derecede obez", renk: "azalis" }
+];
+
+function vucutKitleIndeksi(kiloKg, boyCm) {
+    const m = boyCm / 100;
+    if (m <= 0) return null;
+    const bki = kiloKg / (m * m);
+    const aralik = BMI_ARALIKLARI.find(a => bki < a.ust);
+    return {
+        bki: bki, kategori: aralik.ad, renk: aralik.renk,
+        idealAlt: 18.5 * m * m, idealUst: 24.9 * m * m,
+        hedefFark: bki < 18.5 ? 18.5 * m * m - kiloKg : (bki >= 25 ? kiloKg - 24.9 * m * m : 0)
+    };
+}
+
+// ---------- 20) GÜNLÜK KALORİ İHTİYACI ----------
+// Mifflin-St Jeor denklemi — beslenme alanında en yaygın kabul gören formül.
+// Sonuç bir TAHMİNDİR; kişiye göre %10-15 sapabilir.
+
+const AKTIVITE = [
+    { kod: 1.2, ad: "Hareketsiz (masa başı, spor yok)" },
+    { kod: 1.375, ad: "Az hareketli (haftada 1-3 gün hafif spor)" },
+    { kod: 1.55, ad: "Orta hareketli (haftada 3-5 gün spor)" },
+    { kod: 1.725, ad: "Çok hareketli (haftada 6-7 gün spor)" },
+    { kod: 1.9, ad: "Aşırı hareketli (ağır iş veya günde iki antrenman)" }
+];
+
+function kaloriIhtiyaci(kiloKg, boyCm, yas, cinsiyet, aktiviteKatsayi) {
+    const temel = 10 * kiloKg + 6.25 * boyCm - 5 * yas + (cinsiyet === "erkek" ? 5 : -161);
+    const gunluk = temel * aktiviteKatsayi;
+    return {
+        bazal: temel, gunluk: gunluk,
+        kiloVerme: gunluk - 500,      // haftada ~0,5 kg
+        hizliVerme: gunluk - 1000,    // haftada ~1 kg
+        kiloAlma: gunluk + 500
+    };
+}
+
+// ---------- 21) SINAV NETİ ----------
+// Net = doğru − (yanlış ÷ bölen). Bölen sınava göre değişir (genelde 4, bazen 3).
+
+function sinavNeti(dersler, bolen) {
+    const b = bolen || 4;
+    let toplamNet = 0, toplamDogru = 0, toplamYanlis = 0, toplamSoru = 0;
+    const satirlar = dersler.map(d => {
+        const net = d.dogru - d.yanlis / b;
+        toplamNet += net; toplamDogru += d.dogru; toplamYanlis += d.yanlis;
+        toplamSoru += d.soru || (d.dogru + d.yanlis + (d.bos || 0));
+        return { ad: d.ad, dogru: d.dogru, yanlis: d.yanlis, bos: d.bos || 0, net: net };
+    });
+    return {
+        satirlar: satirlar, toplamNet: toplamNet,
+        toplamDogru: toplamDogru, toplamYanlis: toplamYanlis, toplamSoru: toplamSoru,
+        basariYuzde: toplamSoru > 0 ? toplamNet / toplamSoru * 100 : 0, bolen: b
+    };
+}

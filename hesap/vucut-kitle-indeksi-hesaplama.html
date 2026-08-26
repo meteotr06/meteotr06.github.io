@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Vücut Kitle İndeksi (BKİ) Hesaplama — İdeal Kilo Aralığı</title>
+<meta name="description" content="Vücut kitle indeksi hesaplama: boy ve kilonuza göre BKİ değeriniz, hangi aralıkta olduğunuz ve ideal kilo aralığınız." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/vucut-kitle-indeksi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Vücut Kitle İndeksi (BKİ) Hesaplama — İdeal Kilo Aralığı" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/vucut-kitle-indeksi-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=4" />
+</head>
+<body>
+
+<main>
+    <h1>Vücut Kitle İndeksi Hesaplama</h1>
+    <p class="ozet">Boy ve kilonuzu girin; <b>vücut kitle indeksinizi</b> ve boyunuza göre ideal kilo aralığını hesaplayalım.</p>
+    <div class="uyari bilgi" style="margin-bottom:16px">
+        <span><b>Önemli:</b> BKİ bir <b>tarama göstergesidir, teşhis değildir.</b> Kas kütlesini,
+        yaşı, cinsiyeti ve vücut tipini ayırt etmez. Sporcularda yanıltıcı çıkabilir.
+        Sağlığınızla ilgili karar vermeden önce bir hekime danışın.</span>
+    </div>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Dünya Sağlık Örgütü aralıkları</span><span class="etiket-rozet">İdeal kilo aralığı</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Boyunuz (cm)
+                    <input id="boy" type="number" step="any" inputmode="decimal" value="178" />
+                </label>
+                <label>Kilonuz (kg)
+                    <input id="kilo" type="number" step="any" inputmode="decimal" value="82" />
+                </label>
+            </div>
+            <p class="kucuk">Ölçümü sabah aç karnına yapmak günlük dalgalanmayı azaltır.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>BKİ nasıl hesaplanır?</h2>
+        <p>Kilonuz (kg), boyunuzun metre cinsinden karesine bölünür. Örneğin 82 kg ve 1,78 m
+        için: 82 ÷ (1,78 × 1,78) = <b>25,9</b>.</p>
+
+        <h2>BKİ neyi göstermez?</h2>
+        <p>BKİ yalnızca boy ve kiloya bakar. Şunları <b>ayırt edemez</b>:</p>
+        <ul>
+            <li><b>Kas ile yağı</b> — kaslı bir sporcunun BKİ'si yüksek çıkar ama fazla kilolu değildir</li>
+            <li><b>Yağın nerede olduğunu</b> — bel çevresindeki yağ, kalçadakinden daha risklidir</li>
+            <li><b>Yaş ve cinsiyet farklarını</b> — yaşlılarda ve kadınlarda vücut bileşimi farklıdır</li>
+        </ul>
+        <p>Bu yüzden BKİ tek başına bir sağlık ölçüsü değildir. <b>Bel çevresi</b>, kan değerleri
+        ve genel yaşam tarzı birlikte değerlendirilmelidir.</p>
+
+        <h2>Çocuklar için geçerli mi?</h2>
+        <p>Hayır. 18 yaş altında BKİ, yaşa ve cinsiyete göre hazırlanmış <b>persentil eğrileriyle</b>
+        değerlendirilir. Buradaki aralıklar yalnızca yetişkinler içindir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=4"></script>
+<script src="sayfa.js?v=4"></script>
+<script>
+iskeletKur("vucut-kitle-indeksi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["boy", "kilo"];
+
+function hesapla() {
+    const boy = oku("boy"), kilo = oku("kilo");
+    if (!boy || boy <= 0 || !kilo || kilo <= 0) {
+        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const v = vucutKitleIndeksi(kilo, boy);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger ${v.renk === "artis" ? "yukari" : v.renk === "azalis" ? "asagi" : ""}">${sayi(v.bki, 1)}</div>
+        <div class="dev-etiket">vücut kitle indeksiniz · <b>${v.kategori}</b></div>
+        ${satir("Boyunuza göre ideal aralık", sayi(v.idealAlt, 1) + " – " + sayi(v.idealUst, 1) + " kg")}
+        ${v.hedefFark > 0.5 ? satir(v.bki < 18.5 ? "Alt sınıra kalan" : "Üst sınırın üstünde", sayi(v.hedefFark, 1) + " kg", "buyuk") : ""}
+    </div>
+
+    <div class="kutu">
+        <h3>BKİ aralıkları</h3>
+        <div class="tablo-sar"><table><thead><tr><th>Aralık</th><th>Sınıf</th></tr></thead><tbody>
+            <tr class="${v.bki < 18.5 ? "vurgu-satir" : ""}"><td>18,5 altı</td><td>Zayıf</td></tr>
+            <tr class="${v.bki >= 18.5 && v.bki < 25 ? "vurgu-satir" : ""}"><td>18,5 – 24,9</td><td>Normal</td></tr>
+            <tr class="${v.bki >= 25 && v.bki < 30 ? "vurgu-satir" : ""}"><td>25,0 – 29,9</td><td>Fazla kilolu</td></tr>
+            <tr class="${v.bki >= 30 && v.bki < 35 ? "vurgu-satir" : ""}"><td>30,0 – 34,9</td><td>Obez (1. derece)</td></tr>
+            <tr class="${v.bki >= 35 ? "vurgu-satir" : ""}"><td>35,0 ve üstü</td><td>Obez (2. derece ve ileri)</td></tr>
+        </tbody></table></div>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Boy metreye çevrilir.", `${sayi(boy, 0)} ÷ 100`, sayi(boy / 100, 2) + " m");
+    d.ekle("Kilo, boyun karesine bölünür.",
+           `${sayi(kilo, 1)} ÷ (${sayi(boy / 100, 2)} × ${sayi(boy / 100, 2)})`, sayi(v.bki, 1));
+    d.ekle("İdeal aralık: BKİ 18,5 ve 24,9 değerlerine karşılık gelen kilolar.",
+           `18,5 × boy²  ve  24,9 × boy²`, sayi(v.idealAlt, 1) + " – " + sayi(v.idealUst, 1) + " kg");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Vücut Kitle İndeksi"));
+yapisalVeri("Vücut Kitle İndeksi", "Vücut kitle indeksi hesaplama: boy ve kilonuza göre BKİ değeriniz, hangi aralıkta olduğunuz ve ideal kilo aralığınız.");
+
+sssEkle([
+    { soru: "BKİ'm yüksek çıktı, hasta mıyım?",
+      cevap: "BKİ bir teşhis aracı değildir; yalnızca boy-kilo ilişkisini gösteren bir tarama göstergesidir. Kas kütlesi fazla olan kişilerde yanıltıcı sonuç verir. Sağlık durumunuzu değerlendirmek için hekime başvurmanız gerekir." },
+    { soru: "Sporcuyum, BKİ'm neden yüksek?",
+      cevap: "Kas, yağdan daha ağırdır. Düzenli antrenman yapan kişilerde BKİ 25'in üzerine çıkabilir; bu fazla kilolu oldukları anlamına gelmez. Vücut yağ oranı ölçümü daha doğru bilgi verir." },
+    { soru: "İdeal kilo aralığı nasıl bulunuyor?",
+      cevap: "BKİ'nin 18,5 ile 24,9 arasında kaldığı kilo aralığı hesaplanır. Bu aralık bir hedef değil, referanstır; kişisel hedefinizi bir uzmanla belirlemek daha doğrudur." },
+    { soru: "Çocuğum için kullanabilir miyim?",
+      cevap: "Hayır. 18 yaş altı için yaşa ve cinsiyete özel büyüme eğrileri kullanılır. Bu aracın aralıkları yalnızca yetişkinler için geçerlidir." }
+]);
+
+ilgiliAraclar("vucut-kitle-indeksi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

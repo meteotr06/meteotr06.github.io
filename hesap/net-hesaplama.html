@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Net Hesaplama — Sınav Neti (Doğru, Yanlış, Boş)</title>
+<meta name="description" content="Sınav net hesaplama: doğru ve yanlış sayısına göre netinizi hesaplayın. 4 yanlış 1 doğruyu götürür kuralı ve ders ders döküm." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/net-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Net Hesaplama — Sınav Neti (Doğru, Yanlış, Boş)" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/net-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=4" />
+</head>
+<body>
+
+<main>
+    <h1>Sınav Neti Hesaplama</h1>
+    <p class="ozet">Doğru ve yanlış sayınızı girin; <b>netinizi</b> ders ders ve toplam olarak hesaplayalım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Net = doğru − yanlış ÷ 4</span><span class="etiket-rozet">Ders ders döküm</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Yanlış kaç doğruyu götürüyor?
+                    <select id="bolen">
+                        <option value="4" selected>4 yanlış = 1 doğru (yaygın)</option>
+                        <option value="3">3 yanlış = 1 doğru</option>
+                    </select>
+                </label>
+                <label>1. ders adı
+                    <input id="ad1" type="text" value="Türkçe" />
+                </label>
+                <label>Doğru
+                    <input id="d1" type="number" inputmode="numeric" value="30" />
+                </label>
+                <label>Yanlış
+                    <input id="y1" type="number" inputmode="numeric" value="8" />
+                </label>
+                <label>2. ders adı
+                    <input id="ad2" type="text" value="Matematik" />
+                </label>
+                <label>Doğru
+                    <input id="d2" type="number" inputmode="numeric" value="22" />
+                </label>
+                <label>Yanlış
+                    <input id="y2" type="number" inputmode="numeric" value="12" />
+                </label>
+                <label>3. ders adı
+                    <input id="ad3" type="text" value="Fen" />
+                </label>
+                <label>Doğru
+                    <input id="d3" type="number" inputmode="numeric" value="0" />
+                </label>
+                <label>Yanlış
+                    <input id="y3" type="number" inputmode="numeric" value="0" />
+                </label>
+            </div>
+            <p class="kucuk">Kullanmadığınız ders satırlarını sıfır bırakın. Boş sorular neti etkilemez.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Net nasıl hesaplanır?</h2>
+        <p>Doğru sayısından, yanlış sayısının dörtte biri düşülür:
+        <b>Net = Doğru − (Yanlış ÷ 4)</b>. Bazı sınavlarda bölen 3'tür. Boş bırakılan sorular
+        neti etkilemez.</p>
+        <p>Örnek: 30 doğru, 8 yanlış → 30 − (8 ÷ 4) = <b>28 net</b>.</p>
+
+        <h2>Boş bırakmak mı, işaretlemek mi?</h2>
+        <p>Matematiksel olarak: 4 seçenekli bir soruda hiçbir şık elenemiyorsa rastgele işaretlemenin
+        beklenen getirisi <b>sıfırdır</b> — kazanç ile kayıp birbirini götürür. Ama <b>bir şıkkı bile
+        eleyebiliyorsanız</b> işaretlemek istatistiksel olarak kazançlı hale gelir.</p>
+        <p>Beş seçenekli sınavlarda da mantık aynıdır: elenen şık sayısı arttıkça işaretlemek
+        daha avantajlı olur.</p>
+
+        <h2>Net mi, puan mı?</h2>
+        <p>Bu araç <b>net</b> hesaplar. Sınav puanı ise netlerin katsayılarla çarpılıp
+        eklenmesiyle bulunur ve bu katsayılar her sınavda, her yıl değişebilir. Puan hesabı için
+        sınavı düzenleyen kurumun o yıla ait kılavuzuna bakmalısınız.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=4"></script>
+<script src="sayfa.js?v=4"></script>
+<script>
+iskeletKur("net-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["bolen", "ad1", "d1", "y1", "ad2", "d2", "y2", "ad3", "d3", "y3"];
+
+function hesapla() {
+    const bolen = parseFloat(document.getElementById("bolen").value);
+    const dersler = [1, 2, 3].map(i => ({
+        ad: document.getElementById("ad" + i).value || (i + ". ders"),
+        dogru: Math.max(0, Math.round(oku("d" + i))),
+        yanlis: Math.max(0, Math.round(oku("y" + i)))
+    })).filter(d => d.dogru > 0 || d.yanlis > 0);
+
+    if (!dersler.length) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+
+    const n = sinavNeti(dersler, bolen);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${sayi(n.toplamNet, 2)}</div>
+        <div class="dev-etiket">toplam netiniz</div>
+        ${satir("Toplam doğru", n.toplamDogru)}
+        ${satir("Toplam yanlış", n.toplamYanlis)}
+        ${satir("Götürdüğü net", "−" + sayi(n.toplamYanlis / bolen, 2))}
+        ${satir("Toplam net", sayi(n.toplamNet, 2), "buyuk")}
+    </div>
+
+    <div class="kutu">
+        <h3>Ders ders</h3>
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Ders</th><th>Doğru</th><th>Yanlış</th><th>Net</th></tr></thead><tbody>
+            ${n.satirlar.map(s => `<tr><td>${s.ad}</td><td>${s.dogru}</td>
+                <td>${s.yanlis}</td><td><b>${sayi(s.net, 2)}</b></td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="kucuk">Matematiksel gerçek: <b>${bolen} yanlış, 1 doğrunuzu siler.</b>
+        ${n.toplamYanlis} yanlışınız ${sayi(n.toplamYanlis / bolen, 2)} netinizi götürdü.</p>
+    </div>`;
+
+    const d = dokumKur("Net nasıl hesaplanır?");
+    n.satirlar.forEach(s => {
+        d.ekle(`${s.ad}: doğrudan, yanlışın ${bolen}'te biri düşülür.`,
+               `${s.dogru} − ${s.yanlis} ÷ ${bolen}`, sayi(s.net, 2));
+    });
+    d.ekle("Dersler toplanır.", n.satirlar.map(s => sayi(s.net, 2)).join(" + "), sayi(n.toplamNet, 2));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Net Hesabı"));
+yapisalVeri("Net Hesabı", "Sınav net hesaplama: doğru ve yanlış sayısına göre netinizi hesaplayın. 4 yanlış 1 doğruyu götürür kuralı ve ders ders döküm.");
+
+sssEkle([
+    { soru: "Kaç yanlış bir doğruyu götürür?",
+      cevap: "Yaygın uygulamada 4 yanlış 1 doğruyu götürür. Bazı sınavlarda bu oran 3'tür. Sınavınızın kılavuzunda hangi oranın uygulandığı yazar; yukarıdaki listeden seçebilirsiniz." },
+    { soru: "Boş bıraktığım sorular netimi düşürür mü?",
+      cevap: "Hayır. Boş sorular ne kazandırır ne kaybettirir; yalnızca yanlışlar net düşürür." },
+    { soru: "Emin değilsem işaretlemeli miyim?",
+      cevap: "Hiçbir şıkkı eleyemiyorsanız rastgele işaretlemenin uzun vadede getirisi sıfırdır. Ancak bir veya daha fazla şıkkı eleyebiliyorsanız işaretlemek istatistiksel olarak kazançlıdır." },
+    { soru: "Bu araç sınav puanımı hesaplıyor mu?",
+      cevap: "Hayır, yalnızca net hesaplar. Puan hesabında netler derslere göre farklı katsayılarla çarpılır ve bu katsayılar yıldan yıla değişir; doğru sonuç için sınav kılavuzuna bakmanız gerekir." }
+]);
+
+ilgiliAraclar("net-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>
