@@ -1400,3 +1400,117 @@ function emlakVergisi(tur, vergiDegeri, buyuksehirMi, muafiyetVarMi) {
         toplamYillik: yillik + (dkv.vergi || 0)
     };
 }
+
+// ---------- 34) KÂR MARJI VE SATIŞ FİYATI ----------
+// Esnafın en çok karıştırdığı şey: "%50 kâr koydum" derken maliyetin %50'sini
+// eklemek (markup) ile satışın %50'sini kâr saymak (marj) AYNI ŞEY DEĞİLDİR.
+//   Maliyet 100'e %50 eklersen satış 150 olur; kâr 50, ama satışın %33,3'ü.
+//   Satışın %50'si kâr olsun istiyorsan satış 200 olmalı.
+
+function karMarji(maliyet, deger, yontem, kdvOran) {
+    maliyet = maliyet || 0;
+    deger = deger || 0;
+    const kdv = (kdvOran || 0) / 100;
+    let satis;
+
+    if (yontem === "marj") {            // deger = satış üzerinden kâr yüzdesi
+        const m = Math.min(99.99, deger) / 100;
+        satis = maliyet / (1 - m);
+    } else if (yontem === "markup") {   // deger = maliyet üzerine eklenen yüzde
+        satis = maliyet * (1 + deger / 100);
+    } else {                            // yontem === "fiyat": satış fiyatı verildi
+        satis = deger;
+    }
+
+    const kar = satis - maliyet;
+    const marj = satis > 0 ? kar / satis * 100 : 0;        // satış üzerinden
+    const markup = maliyet > 0 ? kar / maliyet * 100 : 0;  // maliyet üzerine
+
+    return {
+        maliyet: maliyet, satis: satis, kar: kar,
+        marj: marj, markup: markup,
+        kdvTutar: satis * kdv,
+        kdvliSatis: satis * (1 + kdv),
+        zararda: kar < 0,
+        // Aynı kârı korumak için indirimden sonra kaç adet fazla satmak gerekir
+        basaBasKatsayi: marj > 0 ? 100 / marj : 0
+    };
+}
+
+// İndirim sonrası aynı KÂRI korumak için satışın ne kadar artması gerekir?
+// Esnafın "indirim yapayım, ciro artar" varsayımının gerçek bedeli.
+function indirimEtkisi(maliyet, satis, indirimYuzde) {
+    const eskiKar = satis - maliyet;
+    const yeniSatis = satis * (1 - (indirimYuzde || 0) / 100);
+    const yeniKar = yeniSatis - maliyet;
+    return {
+        eskiKar: eskiKar, yeniSatis: yeniSatis, yeniKar: yeniKar,
+        karKaybi: eskiKar - yeniKar,
+        // Aynı toplam kâra ulaşmak için gereken adet çarpanı
+        gerekenArtis: yeniKar > 0 ? (eskiKar / yeniKar - 1) * 100 : Infinity,
+        zararaGecti: yeniKar < 0
+    };
+}
+
+// ---------- 35) İSKONTO (ARDIŞIK İNDİRİM) ----------
+// %20 + %10 iskonto, %30 DEĞİLDİR. İkinci indirim, birinciden kalan tutara uygulanır:
+//   100 → %20 indirim → 80 → %10 indirim → 72. Yani toplam %28.
+
+function iskonto(listeFiyat, oranlar, kdvOran) {
+    listeFiyat = listeFiyat || 0;
+    const gecerli = (oranlar || []).filter(o => o > 0);
+    let fiyat = listeFiyat;
+    const adimlar = [];
+    gecerli.forEach(o => {
+        const dusen = fiyat * o / 100;
+        adimlar.push({ oran: o, oncesi: fiyat, dusen: dusen, sonrasi: fiyat - dusen });
+        fiyat -= dusen;
+    });
+    const toplamIndirim = listeFiyat - fiyat;
+    const kdv = (kdvOran || 0) / 100;
+    return {
+        listeFiyat: listeFiyat, netFiyat: fiyat,
+        toplamIndirim: toplamIndirim,
+        gercekOran: listeFiyat > 0 ? toplamIndirim / listeFiyat * 100 : 0,
+        // İnsanların yanlışlıkla topladığı oran
+        toplananOran: gecerli.reduce((t, o) => t + o, 0),
+        adimlar: adimlar,
+        kdvTutar: fiyat * kdv,
+        kdvliNet: fiyat * (1 + kdv)
+    };
+}
+
+// Net fiyattan geriye: toplam iskonto oranı kaçmış?
+function iskontoOraniBul(listeFiyat, netFiyat) {
+    if (!listeFiyat || listeFiyat <= 0) return 0;
+    return (listeFiyat - netFiyat) / listeFiyat * 100;
+}
+
+// ---------- 36) DOĞALGAZ FATURASI ----------
+// Sayaç m³ ölçer ama fatura kWh üzerinden kesilir. Çevrim, gazın
+// "üst ısıl değeri" ile yapılır ve bölgeye/aya göre değişir; faturanızda yazar.
+
+function dogalgazFaturasi(m3, isilDeger, birimFiyatKwh, sabitBedel, kdvOran) {
+    m3 = m3 || 0;
+    const kat = isilDeger || 10.64;          // kWh/m³ — faturada "üst ısıl değer"
+    const kwh = m3 * kat;
+    const tuketim = kwh * (birimFiyatKwh || 0);
+    const araToplam = tuketim + (sabitBedel || 0);
+    const kdv = araToplam * ((kdvOran || 0) / 100);
+    return {
+        m3: m3, isilDeger: kat, kwh: kwh,
+        tuketimBedeli: tuketim, sabitBedel: sabitBedel || 0,
+        araToplam: araToplam, kdv: kdv,
+        toplam: araToplam + kdv,
+        m3BasinaMaliyet: m3 > 0 ? (araToplam + kdv) / m3 : 0
+    };
+}
+
+// Sayaç okumasından tüketim: endeks farkı (sayaç devrederse dikkat)
+function sayacFarki(ilk, son, basamak) {
+    ilk = ilk || 0; son = son || 0;
+    if (son >= ilk) return son - ilk;
+    // Sayaç turladı: 999999 -> 000012 gibi
+    const tur = Math.pow(10, basamak || String(Math.floor(ilk)).length);
+    return (tur - ilk) + son;
+}

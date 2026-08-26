@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Doğalgaz Faturası Hesaplama — m³'ten kWh'a, Sayaçtan Faturaya</title>
+<meta name="description" content="Doğalgaz faturası hesaplama: sayaç m³ ölçer, fatura kWh üzerinden kesilir. Üst ısıl değerle çevirip tüketim bedelini ve KDV'li toplamı hesaplayın." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/dogalgaz-faturasi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Doğalgaz Faturası Hesaplama — m³'ten kWh'a, Sayaçtan Faturaya" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/dogalgaz-faturasi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/dogalgaz-faturasi-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Doğalgaz Faturası Hesaplama — m³'ten kWh'a, Sayaçtan Faturaya" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/dogalgaz-faturasi-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=16" />
+</head>
+<body>
+
+<main>
+    <h1>Doğalgaz Faturası Hesaplama</h1>
+    <p class="ozet">Sayaç <b>m³</b> ölçer ama fatura <b>kWh</b> üzerinden kesilir. Aradaki çevrimi yapıp faturanızı önceden hesaplayın.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">m³ → kWh çevrimi</span><span class="etiket-rozet">Sayaç okumasından</span><span class="etiket-rozet">Fiyatları siz girersiniz</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Önceki sayaç değeri (m³)
+                    <input id="ilk" type="number" step="any" inputmode="decimal" value="1200" />
+                </label>
+                <label>Şimdiki sayaç değeri (m³)
+                    <input id="son" type="number" step="any" inputmode="decimal" value="1450" />
+                </label>
+                <label>Üst ısıl değer (kWh/m³)
+                    <input id="isil" type="number" step="0.01" inputmode="decimal" value="10.64" />
+                </label>
+                <label>Birim fiyat (TL/kWh)
+                    <input id="fiyat" type="number" step="any" inputmode="decimal" value="1.85" />
+                </label>
+                <label>Sabit / abonelik bedeli (TL)
+                    <input id="sabit" type="number" step="any" inputmode="decimal" value="25" />
+                </label>
+                <label>KDV oranı (%)
+                    <input id="kdv" type="number" step="any" inputmode="decimal" value="20" />
+                </label>
+            </div>
+            <p class="kucuk"><b>Üst ısıl değer</b> ve <b>birim fiyat</b> faturanızın üzerinde yazar;
+            bölgeye ve aya göre değiştiği için buraya kendi faturanızdaki değerleri girin.
+            Varsayılanlar sadece örnektir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Sayaç m³ ölçüyor, fatura neden kWh?</h2>
+        <p>Çünkü doğalgazın <b>enerjisi</b> satılır, hacmi değil. Aynı 1 m³ gaz, bileşimine ve
+        basıncına göre farklı miktarda ısı verebilir. Bu yüzden faturada m³ önce <b>kWh</b>'a
+        çevrilir, fiyat kWh üzerinden uygulanır.</p>
+
+        <h2>Üst ısıl değer nedir?</h2>
+        <p>1 m³ gazın kaç kWh enerji verdiğidir. Türkiye'de genelde <b>10,5 – 10,8 kWh/m³</b>
+        aralığındadır ama <b>bölgeye ve aya göre değişir</b>. Kesin değeri faturanızın üzerinde
+        yazar — buraya onu girin.</p>
+        <p>Örnek: 250 m³ × 10,64 = <b>2.660 kWh</b>. Faturaya giren rakam budur.</p>
+
+        <h2>Sayaç turlarsa ne olur?</h2>
+        <p>Sayaç son basamağını doldurunca başa döner (9990 → 0020 gibi). Bu durumda basit
+        çıkarma eksi sonuç verir. Araç bunu fark eder ve turlamayı hesaba katarak doğru
+        tüketimi bulur.</p>
+
+        <h2>Faturam neden beklediğimden yüksek?</h2>
+        <ul>
+            <li><b>Sabit bedel</b> — tüketiminiz az olsa da ödenir; az kullanılan aylarda
+            m³ başına maliyeti yukarı çeker</li>
+            <li><b>Gün sayısı</b> — bazı faturalar 28, bazıları 33 günü kapsar</li>
+            <li><b>Isıl değer değişimi</b> — aynı m³ farklı kWh'a denk gelebilir</li>
+            <li><b>Tahmini okuma</b> — sayaç okunamadıysa tahmini fatura kesilir, sonraki ay
+            düzeltilir</li>
+        </ul>
+
+        <h2>Neden fiyatları ben giriyorum?</h2>
+        <p>Doğalgaz birim fiyatı dağıtım şirketine, bölgeye ve döneme göre değişir; sık de
+        güncellenir. Size <b>yanlış bir fiyat</b> göstermektense, faturanızdaki gerçek değeri
+        girmenizi istiyoruz. Böylece sonuç her zaman doğru olur.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=16"></script>
+<script src="sayfa.js?v=16"></script>
+<script>
+iskeletKur("dogalgaz-faturasi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["ilk", "son", "isil", "fiyat", "sabit", "kdv"];
+
+function hesapla() {
+    const ilk = oku("ilk"), son = oku("son");
+    const m3 = sayacFarki(ilk, son);
+    const g = dogalgazFaturasi(m3, oku("isil"), oku("fiyat"), oku("sabit"), oku("kdv"));
+    const turladi = son < ilk;
+
+    if (!m3) {
+        document.getElementById("ozet").innerHTML = `<div class="kutu"><p class="kucuk">Sayaç değerlerini girin.</p></div>`;
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(g.toplam)}</div>
+        <div class="dev-etiket">tahmini fatura tutarı</div>
+        ${satir("Tüketim", sayi(g.m3, 2) + " m³")}
+        ${satir("Enerji karşılığı", sayi(g.kwh, 1) + " kWh")}
+        ${satir("Tüketim bedeli", para(g.tuketimBedeli))}
+        ${g.sabitBedel > 0 ? satir("Sabit / abonelik", para(g.sabitBedel)) : ""}
+        ${satir("Ara toplam", para(g.araToplam))}
+        ${satir("KDV", para(g.kdv))}
+        ${satir("Genel toplam", para(g.toplam), "buyuk")}
+        ${turladi ? `<p class="kucuk">Şimdiki değer öncekinden küçük — <b>sayaç turlamış</b>
+            kabul edildi ve tüketim ona göre hesaplandı.</p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h3>Birim maliyetiniz</h3>
+        ${satir("1 m³ doğalgaz size", para(g.m3BasinaMaliyet), "buyuk")}
+        ${satir("1 kWh size", para(g.kwh > 0 ? g.toplam / g.kwh : 0))}
+        ${satir("Günlük ortalama (30 gün)", para(g.toplam / 30))}
+        <p class="kucuk">Sabit bedel tüketime bölündüğü için az kullandığınız aylarda
+        m³ başına maliyet <b>yükselir</b>.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Sayaç farkı tüketimi verir.", `${sayi(son, 2)} − ${sayi(ilk, 2)}`, sayi(g.m3, 2) + " m³");
+    d.ekle("m³, üst ısıl değerle kWh'a çevrilir.",
+           `${sayi(g.m3, 2)} × ${sayi(g.isilDeger, 2)}`, sayi(g.kwh, 1) + " kWh");
+    d.ekle("Tüketim bedeli: kWh × birim fiyat.",
+           `${sayi(g.kwh, 1)} × ${sayi(oku("fiyat"), 4)}`, para(g.tuketimBedeli));
+    if (g.sabitBedel > 0)
+        d.ekle("Sabit bedel eklenir.", `${sayi(g.tuketimBedeli)} + ${sayi(g.sabitBedel)}`, para(g.araToplam));
+    d.ekle("KDV ara toplama uygulanır.",
+           `${sayi(g.araToplam)} × ${sayi(oku("kdv") / 100, 2)}`, para(g.kdv));
+    d.ekle("Genel toplam.", `${sayi(g.araToplam)} + ${sayi(g.kdv)}`, para(g.toplam));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Doğalgaz Faturası"));
+yapisalVeri("Doğalgaz Faturası", "Doğalgaz faturası hesaplama: sayaç m³ ölçer, fatura kWh üzerinden kesilir. Üst ısıl değerle çevirip tüketim bedelini ve KDV'li toplamı hesaplayın.");
+
+sssEkle([
+    { soru: "1 m³ doğalgaz kaç kWh?",
+      cevap: "Yaklaşık 10,5-10,8 kWh arasındadır; kesin değer gazın üst ısıl değerine bağlıdır ve bölgeye, aya göre değişir. Faturanızın üzerinde yazar." },
+    { soru: "Faturada neden kWh yazıyor, sayacım m³ gösteriyor?",
+      cevap: "Doğalgazda enerji satılır, hacim değil. Sayacın ölçtüğü m³ değeri üst ısıl değerle çarpılarak kWh'a çevrilir ve fiyat kWh üzerinden uygulanır." },
+    { soru: "Sayacım başa döndü, tüketimi nasıl hesaplarım?",
+      cevap: "Şimdiki değer öncekinden küçükse sayaç turlamıştır. Araç bunu kendiliğinden fark eder ve doğru tüketimi hesaplar." },
+    { soru: "Hiç kullanmasam da fatura gelir mi?",
+      cevap: "Evet, sabit/abonelik bedeli tüketimden bağımsız olarak tahakkuk eder. Bu yüzden az kullanılan aylarda m³ başına maliyet yükselir." }
+]);
+
+ilgiliAraclar("dogalgaz-faturasi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

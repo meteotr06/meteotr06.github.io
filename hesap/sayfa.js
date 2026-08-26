@@ -34,7 +34,10 @@ const ARACLAR = [
     { yol: "ortalama-standart-sapma-hesaplama.html", ad: "Ortalama ve Sapma", aciklama: "Medyan, mod, standart sapma", grup: "Okul", anahtar: "ortalama medyan mod standart sapma varyans istatistik çeyrek aykırı değer aritmetik dizi excel" },
     { yol: "saat-sure-hesaplama.html", ad: "Saat ve Süre", aciklama: "Mesai süresi, süre toplama", grup: "Genel", anahtar: "saat süre mesai vardiya çalışma dakika ondalık gece vardiyası mola bordro puantaj zaman fark" },
     { yol: "tapu-harci-hesaplama.html", ad: "Tapu Harcı", aciklama: "Alıcı ve satıcı ne kadar öder", grup: "Ev ve Yaşam", anahtar: "tapu harcı ev alım satım gayrimenkul konut arsa devir rayiç döner sermaye binde 20 masraf" },
-    { yol: "emlak-vergisi-hesaplama.html", ad: "Emlak Vergisi", aciklama: "Konut, iş yeri, arsa; taksitler", grup: "Ev ve Yaşam", anahtar: "emlak vergisi bina arsa arazi işyeri belediye taksit muafiyet emekli değerli konut vergisi büyükşehir" }
+    { yol: "emlak-vergisi-hesaplama.html", ad: "Emlak Vergisi", aciklama: "Konut, iş yeri, arsa; taksitler", grup: "Ev ve Yaşam", anahtar: "emlak vergisi bina arsa arazi işyeri belediye taksit muafiyet emekli değerli konut vergisi büyükşehir" },
+    { yol: "kar-marji-hesaplama.html", ad: "Kâr Marjı", aciklama: "Satış fiyatı, marj ve markup", grup: "Ticaret", anahtar: "kâr marjı markup satış fiyatı maliyet esnaf ticaret e-ticaret komisyon kârlılık fiyatlandırma zarar" },
+    { yol: "iskonto-hesaplama.html", ad: "İskonto", aciklama: "Ardışık indirimde gerçek oran", grup: "Ticaret", anahtar: "iskonto indirim ardışık kademeli liste fiyatı net fiyat bayi toptan kampanya ihale teklif" },
+    { yol: "dogalgaz-faturasi-hesaplama.html", ad: "Doğalgaz Faturası", aciklama: "m³'ten kWh'a, sayaçtan faturaya", grup: "Ev ve Yaşam", anahtar: "doğalgaz fatura m3 metreküp kwh sayaç ısıl değer kombi ısınma abonelik igdaş başkentgaz" }
 ];
 
 const KAYIT = "hesapAraclariAyar";

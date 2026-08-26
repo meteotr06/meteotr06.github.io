@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>İskonto Hesaplama — Ardışık İndirimler ve Gerçek Oran</title>
+<meta name="description" content="İskonto hesaplama: ardışık indirimlerde gerçek oran. %20 + %10 iskonto %30 değil %28'dir. Liste fiyatından net fiyata, KDV dahil." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/iskonto-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="İskonto Hesaplama — Ardışık İndirimler ve Gerçek Oran" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/iskonto-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/iskonto-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="İskonto Hesaplama — Ardışık İndirimler ve Gerçek Oran" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/iskonto-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=16" />
+</head>
+<body>
+
+<main>
+    <h1>İskonto Hesaplama</h1>
+    <p class="ozet">Ardışık iskontolarda oranlar <b>toplanmaz</b>. %20 + %10 iskonto, %30 değil <b>%28</b>'dir — ikinci indirim kalan tutara uygulanır.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">4 kademeye kadar</span><span class="etiket-rozet">Gerçek oranı gösterir</span><span class="etiket-rozet">KDV dahil net</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Liste fiyatı (TL)
+                    <input id="liste" type="number" step="any" inputmode="decimal" value="1000" />
+                </label>
+                <label>1. iskonto (%)
+                    <input id="i1" type="number" step="any" inputmode="decimal" value="20" />
+                </label>
+                <label>2. iskonto (%)
+                    <input id="i2" type="number" step="any" inputmode="decimal" value="10" />
+                </label>
+                <label>3. iskonto (%)
+                    <input id="i3" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+                <label>4. iskonto (%)
+                    <input id="i4" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+                <label>KDV oranı (%)
+                    <input id="kdv" type="number" step="any" inputmode="decimal" value="20" />
+                </label>
+            </div>
+            <p class="kucuk">Kullanmadığınız kademeleri <b>0</b> bırakın. Sıra önemli değildir — sonuç aynı çıkar.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Neden %20 + %10 = %28?</h2>
+        <p>Çünkü ikinci indirim liste fiyatına değil, <b>birinci indirimden kalan tutara</b>
+        uygulanır:</p>
+        <ul>
+            <li>1000 ₺ → %20 indirim → <b>800 ₺</b></li>
+            <li>800 ₺ → %10 indirim → <b>720 ₺</b> (80 değil, 800'ün %10'u)</li>
+            <li>Toplam indirim 280 ₺, yani <b>%28</b></li>
+        </ul>
+        <p>Oranları toplayıp %30 deseydiniz 700 ₺ bulurdunuz — <b>20 ₺ yanılırdınız</b>.
+        Büyük tutarlarda bu fark ciddi paralara denk gelir.</p>
+
+        <h2>%50 + %50 bedava mı?</h2>
+        <p>Hayır. 1000 ₺ → %50 → 500 ₺ → %50 → <b>250 ₺</b>. Toplam indirim %75'tir, %100 değil.
+        Ardışık indirimlerle fiyat <b>hiçbir zaman sıfıra inmez</b>.</p>
+
+        <h2>Sıra değişirse sonuç değişir mi?</h2>
+        <p>Hayır. Önce %20 sonra %10 ile önce %10 sonra %20 aynı sonucu verir; çarpma işlemi
+        sıradan bağımsızdır. Ama <b>tek seferde %30</b> ile <b>ardışık %20+%10</b> farklıdır.</p>
+
+        <h2>Nerede karşınıza çıkar?</h2>
+        <ul>
+            <li><b>Toptan alım</b> — bayi iskontosu + peşin iskontosu + ciro primi üst üste biner</li>
+            <li><b>Kampanya</b> — "%30 indirim + kasada ekstra %10"</li>
+            <li><b>İhale ve teklif</b> — liste fiyatı üzerinden kademeli indirim standarttır</li>
+        </ul>
+        <p>Karşı taraf "toplam %30 indirim yaptım" diyorsa, ardışık uyguluyorsa aslında %28
+        yapmıştır. Bu aracı açıp gerçek oranı gösterebilirsiniz.</p>
+
+        <h2>KDV ne zaman eklenir?</h2>
+        <p>İskonto <b>her zaman KDV hariç</b> tutara uygulanır, KDV en sona eklenir.
+        Ters yaparsanız sonuç yanlış çıkmaz ama faturada uyumsuzluk olur.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=16"></script>
+<script src="sayfa.js?v=16"></script>
+<script>
+iskeletKur("iskonto-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["liste", "i1", "i2", "i3", "i4", "kdv"];
+
+function hesapla() {
+    const liste = oku("liste");
+    const oranlar = ["i1","i2","i3","i4"].map(id => oku(id));
+    const kdvOran = oku("kdv");
+    if (!liste || liste <= 0) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const s = iskonto(liste, oranlar, kdvOran);
+    const fark = s.toplananOran - s.gercekOran;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.netFiyat)}</div>
+        <div class="dev-etiket">net fiyat (KDV hariç)</div>
+        ${satir("Liste fiyatı", para(s.listeFiyat))}
+        ${satir("Toplam indirim", "−" + para(s.toplamIndirim))}
+        ${satir("Net fiyat", para(s.netFiyat), "buyuk")}
+        ${satir("KDV (%" + sayi(kdvOran, 0) + ")", para(s.kdvTutar))}
+        ${satir("Ödenecek (KDV dahil)", para(s.kdvliNet))}
+    </div>
+
+    ${s.adimlar.length > 1 ? `<div class="kutu">
+        <h3>Gerçek indirim oranı</h3>
+        ${satir("Oranların toplamı (yanlış)", yuzdeOn(s.toplananOran))}
+        ${satir("Gerçek indirim oranı", yuzdeOn(s.gercekOran), "buyuk")}
+        ${satir("Aradaki fark", yuzdeOn(fark))}
+        <p class="kucuk">İkinci iskonto, birinciden <b>kalan tutara</b> uygulanır; bu yüzden
+        oranlar toplanmaz. ${sayi(s.listeFiyat)} ₺'lik üründe aradaki fark
+        <b>${para(s.listeFiyat * fark / 100)}</b> eder.</p>
+    </div>
+
+    <div class="kutu">
+        <h3>Adım adım</h3>
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Kademe</th><th>Öncesi</th><th>İndirim</th><th>Sonrası</th></tr></thead><tbody>
+            ${s.adimlar.map((a, n) => `<tr>
+                <td>${n + 1}. — %${sayi(a.oran, 2)}</td>
+                <td>${para(a.oncesi)}</td>
+                <td>−${para(a.dusen)}</td>
+                <td><b>${para(a.sonrasi)}</b></td></tr>`).join("")}
+        </tbody></table></div>
+    </div>` : ""}`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    s.adimlar.forEach((a, n) => d.ekle(
+        `${n + 1}. iskonto, o anki tutara uygulanır.`,
+        `${sayi(a.oncesi)} × (1 − ${sayi(a.oran / 100, 4)})`, para(a.sonrasi)));
+    if (s.adimlar.length > 1)
+        d.ekle("Gerçek indirim oranı: toplam düşen ÷ liste fiyatı.",
+               `${sayi(s.toplamIndirim)} ÷ ${sayi(s.listeFiyat)}`, yuzdeOn(s.gercekOran));
+    d.ekle("KDV net fiyatın üstüne eklenir.", `${sayi(s.netFiyat)} × ${sayi(kdvOran / 100, 2)}`, para(s.kdvTutar));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("İskonto"));
+yapisalVeri("İskonto", "İskonto hesaplama: ardışık indirimlerde gerçek oran. %20 + %10 iskonto %30 değil %28'dir. Liste fiyatından net fiyata, KDV dahil.");
+
+sssEkle([
+    { soru: "%20 + %10 iskonto yüzde kaç eder?",
+      cevap: "%28 eder, %30 değil. İkinci indirim birinciden kalan tutara uygulanır: 1000 → 800 → 720. Toplam indirim 280 TL, yani %28." },
+    { soru: "%50 + %50 indirim ürünü bedava yapar mı?",
+      cevap: "Hayır. 1000 TL önce 500'e, sonra 250'ye iner. Toplam indirim %75'tir. Ardışık indirimlerle fiyat hiçbir zaman sıfıra ulaşmaz." },
+    { soru: "İskontoların sırası sonucu değiştirir mi?",
+      cevap: "Hayır, çarpma işlemi sıradan bağımsızdır. Önce %20 sonra %10 ile tersi aynı sonucu verir." },
+    { soru: "KDV iskontodan önce mi sonra mı eklenir?",
+      cevap: "Sonra. İskonto KDV hariç tutara uygulanır, KDV en son net tutarın üzerine eklenir." }
+]);
+
+ilgiliAraclar("iskonto-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

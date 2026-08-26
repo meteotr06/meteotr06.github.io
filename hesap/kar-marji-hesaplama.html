@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Kâr Marjı ve Satış Fiyatı Hesaplama — Marj mı Markup mu?</title>
+<meta name="description" content="Kâr marjı hesaplama: maliyetten satış fiyatı, kâr marjı ve markup farkı, KDV dahil fiyat. İndirimin kârı ne kadar götürdüğünü gösterir." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kar-marji-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Kâr Marjı ve Satış Fiyatı Hesaplama — Marj mı Markup mu?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kar-marji-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/kar-marji-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Kâr Marjı ve Satış Fiyatı Hesaplama — Marj mı Markup mu?" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kar-marji-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=16" />
+</head>
+<body>
+
+<main>
+    <h1>Kâr Marjı ve Satış Fiyatı</h1>
+    <p class="ozet">Maliyetinizi girin, satış fiyatınızı bulalım. <b>En sık yapılan hata:</b> maliyete %50 eklemek, satışın %50'si kâr demek değildir.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Marj ve markup <b>birlikte</b></span><span class="etiket-rozet">KDV dahil fiyat</span><span class="etiket-rozet">İndirimin kâra etkisi</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Birim maliyet (TL)
+                    <input id="maliyet" type="number" step="any" inputmode="decimal" value="100" />
+                </label>
+                <label>Hesaplama yöntemi
+                    <select id="yontem">
+                        <option value="markup" selected>Maliyetin üzerine % ekle (markup)</option>
+                        <option value="marj">Satışın % kadarı kâr olsun (marj)</option>
+                        <option value="fiyat">Satış fiyatını ben gireyim</option>
+                    </select>
+                </label>
+                <label id="etDeger">Oran (%)
+                    <input id="deger" type="number" step="any" inputmode="decimal" value="50" />
+                </label>
+                <label>KDV oranı (%)
+                    <input id="kdv" type="number" step="any" inputmode="decimal" value="20" />
+                </label>
+                <label>Deneme indirimi (%)
+                    <input id="indirim" type="number" step="any" inputmode="decimal" value="10" />
+                </label>
+            </div>
+            <p class="kucuk">Maliyete <b>her şeyi</b> katın: alış fiyatı, nakliye, komisyon, ambalaj, fire.
+            Unutulan gider doğrudan kârdan düşer.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Marj mı, markup mu? En pahalı karışıklık</h2>
+        <p>İkisi de "kâr" der ama aynı şey değildir:</p>
+        <ul>
+            <li><b>Markup</b> — kârın <b>maliyete</b> oranı. "100'e aldım, %50 koyup 150'ye sattım."</li>
+            <li><b>Marj</b> — kârın <b>satışa</b> oranı. Aynı örnekte 50 kâr, 150 satışın %33,3'ü.</li>
+        </ul>
+        <p>Yani <b>maliyete %50 eklemek, %50 marj değildir; %33,3 marjdır.</b>
+        Satışın gerçekten yarısı kâr olsun istiyorsanız maliyetin <b>iki katına</b> satmalısınız.</p>
+        <p>Bu karışıklık yüzünden çok esnaf kazandığını sandığından az kazanır. Araç ikisini de
+        aynı anda gösterir, karıştırmanız mümkün değil.</p>
+
+        <h2>Maliyete neleri katmalısınız?</h2>
+        <p>Sadece alış fiyatı değil. Unutulan her kalem doğrudan kârdan düşer:</p>
+        <ul>
+            <li>Nakliye ve kargo</li>
+            <li>Pazaryeri / kredi kartı komisyonu (e-ticarette %10-20'yi bulabilir)</li>
+            <li>Ambalaj ve etiket</li>
+            <li>Fire, iade, hasar</li>
+            <li>Depolama</li>
+        </ul>
+
+        <h2>"İndirim yapayım, ciro artar" tuzağı</h2>
+        <p>İndirim doğrudan kârdan gider, cirodan değil. 100 maliyetli, 150'ye sattığınız üründe
+        kârınız 50'dir. <b>%10 indirim</b> yaparsanız kâr 35'e düşer — yani <b>kârınızın %30'unu</b>
+        vermiş olursunuz. Aynı parayı kazanmak için <b>%43 daha fazla adet</b> satmanız gerekir.</p>
+        <p>%30 indirimde kâr 5'e iner; aynı kâr için satışı <b>on katına</b> çıkarmanız gerekir.
+        Araç bu sayıyı sizin rakamlarınızla hesaplıyor — indirim kararını ona göre verin.</p>
+
+        <h2>KDV kârın parçası değildir</h2>
+        <p>Müşteriden aldığınız KDV sizin paranız değil, devletin. Kâr hesabı <b>her zaman KDV
+        hariç</b> tutarlar üzerinden yapılır. Etiket fiyatını belirlerken KDV'yi en sona ekleyin.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=16"></script>
+<script src="sayfa.js?v=16"></script>
+<script>
+iskeletKur("kar-marji-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["maliyet", "yontem", "deger", "kdv", "indirim"];
+
+function hesapla() {
+    const maliyet = oku("maliyet");
+    const yontem = document.getElementById("yontem").value;
+    const deger = oku("deger");
+    const kdvOran = oku("kdv");
+    const ind = oku("indirim");
+
+    // Etiket yöntemle birlikte değişsin
+    const et = document.getElementById("etDeger");
+    et.childNodes[0].nodeValue = (yontem === "fiyat" ? "Satış fiyatı (TL)" : "Oran (%)") + " ";
+
+    if (!maliyet || maliyet <= 0) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const k = karMarji(maliyet, deger, yontem, kdvOran);
+    const i = indirimEtkisi(maliyet, k.satis, ind);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(k.satis)}</div>
+        <div class="dev-etiket">satış fiyatı (KDV hariç)</div>
+        ${satir("Birim maliyet", para(k.maliyet))}
+        ${satir("Kâr", para(k.kar), k.zararda ? "" : "buyuk")}
+        ${satir("Satış fiyatı (KDV hariç)", para(k.satis), "buyuk")}
+        ${satir("KDV (%" + sayi(kdvOran, 0) + ")", para(k.kdvTutar))}
+        ${satir("Etiket fiyatı (KDV dahil)", para(k.kdvliSatis))}
+        ${k.zararda ? `<p class="kucuk" style="color:var(--azalis)"><b>Zarardasınız.</b>
+            Bu fiyat maliyetin altında.</p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h3>Aynı kâr, iki farklı yüzde</h3>
+        ${satir("Kâr marjı (satış üzerinden)", yuzdeOn(k.marj), "buyuk")}
+        ${satir("Markup (maliyet üzerine)", yuzdeOn(k.markup))}
+        <p class="kucuk">İkisi <b>aynı kârı</b> anlatır ama farklı sayı verir.
+        Maliyet ${sayi(k.maliyet)} ₺, satış ${sayi(k.satis)} ₺, kâr ${sayi(k.kar)} ₺:
+        bu kâr <b>satışın %${sayi(k.marj, 1)} kadarı</b>, ama <b>maliyetin %${sayi(k.markup, 1)} kadarı</b>.
+        Tedarikçiyle konuşurken hangisini kastettiğinizi netleştirin.</p>
+    </div>
+
+    ${ind > 0 ? `<div class="kutu">
+        <h3>%${sayi(ind, 0)} indirim yaparsanız</h3>
+        ${satir("Yeni satış fiyatı", para(i.yeniSatis))}
+        ${satir("Eski kâr", para(i.eskiKar))}
+        ${satir("Yeni kâr", para(i.yeniKar), "buyuk")}
+        ${satir("Kaybedilen kâr", "−" + para(i.karKaybi))}
+        <p class="kucuk" style="color:${i.zararaGecti ? "var(--azalis)" : "var(--uyari)"}">
+        ${i.zararaGecti
+            ? "<b>Bu indirimde zarar edersiniz.</b> Satış fiyatı maliyetin altına düşüyor."
+            : `Aynı toplam kâra ulaşmak için <b>%${sayi(i.gerekenArtis, 1)} daha fazla adet</b>
+               satmanız gerekir. "İndirim yapayım, ciro artar" derken bu sayıya bakın.`}</p>
+    </div>` : ""}`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    if (yontem === "markup")
+        d.ekle("Maliyetin üzerine oran eklenir.", `${sayi(maliyet)} × (1 + ${sayi(deger/100, 4)})`, para(k.satis));
+    else if (yontem === "marj")
+        d.ekle("Satışın yüzdesi kâr olacaksa maliyet (1 − oran)'a bölünür.",
+               `${sayi(maliyet)} ÷ (1 − ${sayi(deger/100, 4)})`, para(k.satis));
+    else
+        d.ekle("Satış fiyatı doğrudan girildi.", sayi(deger), para(k.satis));
+    d.ekle("Kâr = satış − maliyet.", `${sayi(k.satis)} − ${sayi(k.maliyet)}`, para(k.kar));
+    d.ekle("Marj: kârın SATIŞA oranı.", `${sayi(k.kar)} ÷ ${sayi(k.satis)}`, yuzdeOn(k.marj));
+    d.ekle("Markup: kârın MALİYETE oranı.", `${sayi(k.kar)} ÷ ${sayi(k.maliyet)}`, yuzdeOn(k.markup));
+    d.ekle("KDV satış fiyatının üstüne eklenir.", `${sayi(k.satis)} × ${sayi(kdvOran/100, 2)}`, para(k.kdvTutar));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Kâr Marjı"));
+yapisalVeri("Kâr Marjı", "Kâr marjı hesaplama: maliyetten satış fiyatı, kâr marjı ve markup farkı, KDV dahil fiyat. İndirimin kârı ne kadar götürdüğünü gösterir.");
+
+sssEkle([
+    { soru: "Kâr marjı ile markup arasındaki fark nedir?",
+      cevap: "Marj kârın satış fiyatına oranı, markup ise maliyete oranıdır. 100 maliyetli ürünü 150'ye satarsanız markup %50, marj %33,3'tür. Aynı kârı iki farklı şekilde ifade ederler." },
+    { soru: "%50 kâr için ürünü kaça satmalıyım?",
+      cevap: "Neyi kastettiğinize bağlı. Maliyetin %50 fazlasına satmak isterseniz 1,5 katı. Satışın yarısı kâr olsun isterseniz maliyetin 2 katı. Araç ikisini de gösterir." },
+    { soru: "Maliyete neleri eklemeliyim?",
+      cevap: "Alış fiyatının yanında nakliye, komisyon, ambalaj, fire ve iade payını da ekleyin. E-ticarette pazaryeri komisyonu tek başına %10-20 olabilir; hesaba katılmazsa kâr sandığınızın çok altında çıkar." },
+    { soru: "İndirim yaparsam ne kadar zarar ederim?",
+      cevap: "İndirim doğrudan kârdan düşer. Kârınız satışın üçte biriyse %10 indirim kârınızın yaklaşık %30'unu götürür. Araç, aynı kâra ulaşmak için kaç kat fazla satmanız gerektiğini gösteriyor." },
+    { soru: "KDV'yi kâra dahil eder miyim?",
+      cevap: "Hayır. Müşteriden tahsil ettiğiniz KDV devletindir, sizin geliriniz değildir. Kâr hesabı KDV hariç tutarlar üzerinden yapılır." }
+]);
+
+ilgiliAraclar("kar-marji-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>
