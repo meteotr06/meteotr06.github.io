@@ -19,7 +19,7 @@
 <meta property="og:description" content="Ücretsiz hesaplama araçları: 2026 net maaş, aylık bütçe, kira artışı, kredi taksiti, mevduat faizi, birikim ve KDV. Resmî oranlarla, adım adım açıklamalı." />
 <meta property="og:url" content="https://meteotr06.github.io/hesap/" />
 <meta name="twitter:card" content="summary" />
-<link rel="stylesheet" href="stil.css?v=7" />
+<link rel="stylesheet" href="stil.css?v=8" />
 </head>
 <body>
 
@@ -28,6 +28,16 @@
     <p class="ozet">Günlük hayatta en çok gereken hesaplar, tek yerde. Hepsi ücretsiz,
     resmî 2026 oranlarıyla çalışır. Hiçbir bilgi kaydedilmez, sunucuya gönderilmez —
     bütün hesap kendi cihazınızda yapılır.</p>
+
+    <div class="arama-kutu" role="search">
+        <label class="gorsel-gizli" for="aramaGirdi">Araç ara</label>
+        <span class="arama-simge" aria-hidden="true">⌕</span>
+        <input id="aramaGirdi" type="search" autocomplete="off" enterkeyhint="go"
+               placeholder="Ne hesaplamak istiyorsunuz? (maaş, kira, boya…)" />
+        <button type="button" id="aramaTemizle" class="arama-temizle" hidden
+                aria-label="Aramayı temizle">×</button>
+    </div>
+    <p id="aramaDurum" class="kucuk arama-durum" aria-live="polite"></p>
 
     <div id="aracListesi"></div>
 
@@ -53,19 +63,92 @@
     </section>
 </main>
 
-<script src="hesap.js?v=7"></script>
-<script src="sayfa.js?v=7"></script>
+<script src="hesap.js?v=8"></script>
+<script src="sayfa.js?v=8"></script>
 <script>
 iskeletKur("index.html");
 gizlilikBaglantisi();
 // Araçları gruplara ayırıp başlıklı listele — 12 kartı düz sıralamak kafa karıştırıyordu
-const gruplar = {};
-ARACLAR.forEach(a => { (gruplar[a.grup || "Diğer"] = gruplar[a.grup || "Diğer"] || []).push(a); });
-document.getElementById("aracListesi").innerHTML = Object.keys(gruplar).map(g => `
-    <h2 class="grup-baslik">${g}</h2>
-    <div class="arac-izgara">${gruplar[g].map(a =>
-        `<a class="arac-kart" href="${a.yol}"><b>${a.ad}</b><span>${a.aciklama}</span></a>`).join("")}</div>
-`).join("");
+const liste = document.getElementById("aracListesi");
+const girdi = document.getElementById("aramaGirdi");
+const temizleBtn = document.getElementById("aramaTemizle");
+const durum = document.getElementById("aramaDurum");
+
+function kart(a) {
+    return `<a class="arac-kart" href="${a.yol}"><b>${a.ad}</b><span>${a.aciklama}</span></a>`;
+}
+
+// Aramada eşleşen araçlar puanlanır: addeki eşleşme en değerli, anahtar kelime en az.
+function puanla(a, kelimeler, sira) {
+    const ad = sadelestir(a.ad), acik = sadelestir(a.aciklama);
+    const grup = sadelestir(a.grup), anah = sadelestir(a.anahtar);
+    const adSozcuk = ad.split(/\s+/);
+    let puan = 0;
+    for (const k of kelimeler) {
+        // "maas" yazan hem "Maaş Zammı"nı hem "Net Maaş"ı aynı güçte bulmalı:
+        // addeki HERHANGİ bir sözcüğün başında geçmesi tam puan alır.
+        // 3 harften kisa aramada kelime ICINDE arama yapilmaz:
+        // yoksa "ev" yazan "Mevduat"i bulur, sonuc coplenir.
+        const ic = k.length >= 3;
+        if (adSozcuk.some(w => w.startsWith(k))) puan += 100;
+        else if (ic && ad.indexOf(k) >= 0) puan += 60;
+        else if (acik.split(/\s+/).some(w => w.startsWith(k))) puan += 30;
+        else if (ic && acik.indexOf(k) >= 0) puan += 20;
+        else if (grup.split(/\s+/).some(w => w.startsWith(k))) puan += 15;
+        else if (anah.split(/\s+/).some(w => w.startsWith(k))) puan += 10;
+        else if (ic && anah.indexOf(k) >= 0) puan += 5;
+        else return 0;   // kelimelerden biri hiç geçmiyorsa eşleşme yok
+    }
+    // Eşit puanda liste sırası belirler; ARACLAR en çok aranandan başlar.
+    return puan * 100 + (ARACLAR.length - sira);
+}
+
+function ciz() {
+    const sorgu = sadelestir(girdi.value).trim();
+    temizleBtn.hidden = girdi.value === "";
+
+    if (!sorgu) {                       // arama yoksa: gruplu tam liste
+        const gruplar = {};
+        ARACLAR.forEach(a => { (gruplar[a.grup || "Diğer"] = gruplar[a.grup || "Diğer"] || []).push(a); });
+        liste.innerHTML = Object.keys(gruplar).map(g => `
+            <h2 class="grup-baslik">${g}</h2>
+            <div class="arac-izgara">${gruplar[g].map(kart).join("")}</div>`).join("");
+        durum.textContent = ARACLAR.length + " araç";
+        return;
+    }
+
+    const kelimeler = sorgu.split(/\s+/).filter(Boolean);
+    const bulunan = ARACLAR.map((a, i) => ({ a: a, p: puanla(a, kelimeler, i) }))
+                           .filter(x => x.p > 0)
+                           .sort((x, y) => y.p - x.p);
+
+    if (!bulunan.length) {
+        liste.innerHTML = `<div class="kutu"><p>Bu aramaya uygun araç bulunamadı.</p>
+            <p class="kucuk">Başka bir kelime deneyin — örneğin <b>maaş</b>, <b>kredi</b>,
+            <b>kira</b>, <b>altın</b>, <b>kalori</b> ya da <b>boya</b>.
+            Aradığınız araç yoksa eklenmesini isteyebilirsiniz.</p></div>`;
+        durum.textContent = "Sonuç yok";
+        return;
+    }
+
+    liste.innerHTML = `<h2 class="grup-baslik">Arama sonucu</h2>
+        <div class="arac-izgara">${bulunan.map(x => kart(x.a)).join("")}</div>`;
+    durum.textContent = bulunan.length + " araç bulundu — Enter ile ilkini açın";
+}
+
+girdi.addEventListener("input", ciz);
+girdi.addEventListener("keydown", e => {
+    if (e.key === "Enter") { const ilk = liste.querySelector(".arac-kart"); if (ilk) ilk.click(); }
+    if (e.key === "Escape") { girdi.value = ""; ciz(); }
+});
+temizleBtn.addEventListener("click", () => { girdi.value = ""; ciz(); girdi.focus(); });
+
+// "/" tusu aramaya odaklanir (klavye kullananlar icin), mobilde klavye kendiliginden acilmaz
+document.addEventListener("keydown", e => {
+    if (e.key === "/" && document.activeElement !== girdi) { e.preventDefault(); girdi.focus(); }
+});
+
+ciz();
 
 reklamAlani();
 </script>

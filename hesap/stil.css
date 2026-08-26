@@ -765,3 +765,27 @@ main:focus { outline: none; }
 }
 @media (min-width: 700px) { .yazi-sonuc { font-size: 32px; } }
 @media (max-width: 380px) { .yazi-sonuc { font-size: 21px; } }
+
+/* ---------- Ana sayfa arama kutusu ---------- */
+.arama-kutu {
+    position: relative; display: flex; align-items: center;
+    margin: 18px 0 6px; border: 1px solid var(--cizgi); border-radius: 12px;
+    background: var(--kart); transition: border-color .15s, box-shadow .15s;
+}
+.arama-kutu:focus-within { border-color: var(--vurgu); box-shadow: 0 0 0 3px color-mix(in srgb, var(--vurgu) 20%, transparent); }
+.arama-simge { padding: 0 4px 0 14px; font-size: 20px; color: var(--yazi2); line-height: 1; }
+.arama-kutu input {
+    flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
+    padding: 14px 8px; font-size: 16px; color: var(--yazi); font-family: inherit;
+}
+.arama-kutu input::-webkit-search-cancel-button { display: none; }
+.arama-temizle {
+    border: 0; background: transparent; color: var(--yazi2); cursor: pointer;
+    font-size: 24px; line-height: 1; padding: 0 14px; min-height: 44px; min-width: 44px;
+}
+.arama-temizle:hover { color: var(--yazi); }
+.arama-durum { margin: 0 0 4px; min-height: 18px; }
+.gorsel-gizli {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}

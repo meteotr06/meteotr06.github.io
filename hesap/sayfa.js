@@ -3,33 +3,33 @@
 // Hesap yok — hesap hesap.js'de. Burada sadece ekran işi var.
 
 const ARACLAR = [
-    { yol: "net-maas-hesaplama.html", ad: "Net Maaş", aciklama: "Brütten nete, 12 ayın tamamı", grup: "Maaş ve Çalışma" },
-    { yol: "butce-hesaplama.html", ad: "Bütçe", aciklama: "Gelir, gider ve kalanla ne yapılır", grup: "Ev ve Yaşam" },
-    { yol: "kidem-tazminati-hesaplama.html", ad: "Kıdem Tazminatı", aciklama: "Kıdem + ihbar, tavan dahil", grup: "Maaş ve Çalışma" },
-    { yol: "kredi-hesaplama.html", ad: "Kredi Taksiti", aciklama: "Aylık taksit ve ödeme planı", grup: "Kredi ve Borç" },
-    { yol: "mevduat-faizi-hesaplama.html", ad: "Mevduat Faizi", aciklama: "Vade sonu net getiri", grup: "Birikim" },
-    { yol: "kdv-hesaplama.html", ad: "KDV", aciklama: "Dahil / hariç ayırma", grup: "Ticaret" },
-    { yol: "yakit-maliyeti-hesaplama.html", ad: "Yakıt Maliyeti", aciklama: "Yol kaç lira tutar", grup: "Ev ve Yaşam" },
-    { yol: "elektrik-tuketimi-hesaplama.html", ad: "Elektrik Tüketimi", aciklama: "Cihaz ayda kaç lira", grup: "Ev ve Yaşam" },
-    { yol: "yuzde-hesaplama.html", ad: "Yüzde Hesaplama", aciklama: "İndirim, zam, değişim", grup: "Genel" },
-    { yol: "tarih-hesaplama.html", ad: "Tarih ve Yaş", aciklama: "İki tarih arası, yaş", grup: "Genel" },
-    { yol: "vade-farki-hesaplama.html", ad: "Vade Farkı", aciklama: "Peşin mi taksit mi", grup: "Kredi ve Borç" },
-    { yol: "vucut-kitle-indeksi-hesaplama.html", ad: "Vücut Kitle İndeksi", aciklama: "BKİ ve ideal kilo", grup: "Sağlık" },
-    { yol: "kalori-ihtiyaci-hesaplama.html", ad: "Kalori İhtiyacı", aciklama: "Günlük kalori ve hedefler", grup: "Sağlık" },
-    { yol: "net-hesaplama.html", ad: "Sınav Neti", aciklama: "Doğru, yanlış, net", grup: "Okul" },
-    { yol: "kredi-karti-asgari-odeme-hesaplama.html", ad: "Kart Asgari Ödeme", aciklama: "Borç kaç ayda biter", grup: "Kredi ve Borç" },
-    { yol: "maas-zammi-hesaplama.html", ad: "Maaş Zammı", aciklama: "Zam enflasyonu karşıladı mı", grup: "Maaş ve Çalışma" },
-    { yol: "altin-hesaplama.html", ad: "Altın Hesaplama", aciklama: "Çeyrek, gram, ayar", grup: "Birikim" },
-    { yol: "kira-artisi-hesaplama.html", ad: "Kira Artışı", aciklama: "Yasal üst sınır (TÜFE)", grup: "Ev ve Yaşam" },
-    { yol: "birikim-hesaplama.html", ad: "Birikim", aciklama: "Bileşik getiri ve reel karşılık", grup: "Birikim" },
-    { yol: "ne-kadar-kredi-cekebilirim.html", ad: "Kredi Limiti", aciklama: "Gelire göre çekilebilir tutar", grup: "Kredi ve Borç" },
-    { yol: "fazla-mesai-hesaplama.html", ad: "Fazla Mesai", aciklama: "Saat ücreti ve 1,5 kat", grup: "Maaş ve Çalışma" },
-    { yol: "yillik-izin-hesaplama.html", ad: "Yıllık İzin", aciklama: "Kaç gün, ne kadar ücret", grup: "Maaş ve Çalışma" },
-    { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma" },
-    { yol: "birim-cevirme.html", ad: "Birim Çevirme", aciklama: "Uzunluk, ağırlık, sıcaklık, alan", grup: "Genel" },
-    { yol: "sayi-yaziyla-yazma.html", ad: "Sayı Yazıyla", aciklama: "Çek ve senet için tutar yazımı", grup: "Genel" },
-    { yol: "not-ortalamasi-hesaplama.html", ad: "Not Ortalaması", aciklama: "Kredili ağırlıklı ortalama", grup: "Okul" },
-    { yol: "boya-fayans-hesaplama.html", ad: "Boya ve Fayans", aciklama: "Oda kaç litre boya, kaç karo", grup: "Ev ve Yaşam" }
+    { yol: "net-maas-hesaplama.html", ad: "Net Maaş", aciklama: "Brütten nete, 12 ayın tamamı", grup: "Maaş ve Çalışma", anahtar: "brüt net maaş bordro sgk gelir vergisi damga kesinti asgari ücret 2026 işçi çalışan" },
+    { yol: "butce-hesaplama.html", ad: "Bütçe", aciklama: "Gelir, gider ve kalanla ne yapılır", grup: "Ev ve Yaşam", anahtar: "aylık bütçe gider gelir tasarruf harcama para yönetimi 50 30 20 kural" },
+    { yol: "kidem-tazminati-hesaplama.html", ad: "Kıdem Tazminatı", aciklama: "Kıdem + ihbar, tavan dahil", grup: "Maaş ve Çalışma", anahtar: "kıdem ihbar tazminat işten çıkarma ayrılma tavan yıl hizmet" },
+    { yol: "kredi-hesaplama.html", ad: "Kredi Taksiti", aciklama: "Aylık taksit ve ödeme planı", grup: "Kredi ve Borç", anahtar: "kredi taksit ihtiyaç konut taşıt faiz annüite ödeme planı kkdf bsmv banka" },
+    { yol: "mevduat-faizi-hesaplama.html", ad: "Mevduat Faizi", aciklama: "Vade sonu net getiri", grup: "Birikim", anahtar: "mevduat vadeli hesap faiz getiri stopaj banka birikim tl" },
+    { yol: "kdv-hesaplama.html", ad: "KDV", aciklama: "Dahil / hariç ayırma", grup: "Ticaret", anahtar: "kdv katma değer vergisi dahil hariç fatura yüzde 20 10 1 ticaret" },
+    { yol: "yakit-maliyeti-hesaplama.html", ad: "Yakıt Maliyeti", aciklama: "Yol kaç lira tutar", grup: "Ev ve Yaşam", anahtar: "yakıt benzin mazot motorin lpg yol masrafı km litre araç seyahat tatil" },
+    { yol: "elektrik-tuketimi-hesaplama.html", ad: "Elektrik Tüketimi", aciklama: "Cihaz ayda kaç lira", grup: "Ev ve Yaşam", anahtar: "elektrik kwh fatura tüketim cihaz klima kombi buzdolabı watt enerji" },
+    { yol: "yuzde-hesaplama.html", ad: "Yüzde Hesaplama", aciklama: "İndirim, zam, değişim", grup: "Genel", anahtar: "yüzde indirim zam artış azalış oran hesaplama kaçtır kaç yüzde" },
+    { yol: "tarih-hesaplama.html", ad: "Tarih ve Yaş", aciklama: "İki tarih arası, yaş", grup: "Genel", anahtar: "tarih gün hesaplama yaş kaç gün kaldı iki tarih arası doğum günü" },
+    { yol: "vade-farki-hesaplama.html", ad: "Vade Farkı", aciklama: "Peşin mi taksit mi", grup: "Kredi ve Borç", anahtar: "vade farkı peşin taksit hangisi kârlı alışveriş fiyat karşılaştırma" },
+    { yol: "vucut-kitle-indeksi-hesaplama.html", ad: "Vücut Kitle İndeksi", aciklama: "BKİ ve ideal kilo", grup: "Sağlık", anahtar: "vki bki kilo boy ideal kilo obezite zayıf fazla kilolu sağlık" },
+    { yol: "kalori-ihtiyaci-hesaplama.html", ad: "Kalori İhtiyacı", aciklama: "Günlük kalori ve hedefler", grup: "Sağlık", anahtar: "kalori bmh bazal metabolizma diyet kilo verme alma günlük ihtiyaç" },
+    { yol: "net-hesaplama.html", ad: "Sınav Neti", aciklama: "Doğru, yanlış, net", grup: "Okul", anahtar: "net doğru yanlış sınav tyt ayt kpss puan test soru" },
+    { yol: "kredi-karti-asgari-odeme-hesaplama.html", ad: "Kart Asgari Ödeme", aciklama: "Borç kaç ayda biter", grup: "Kredi ve Borç", anahtar: "kredi kartı asgari ödeme borç kapatma faiz kart borcu taksit" },
+    { yol: "maas-zammi-hesaplama.html", ad: "Maaş Zammı", aciklama: "Zam enflasyonu karşıladı mı", grup: "Maaş ve Çalışma", anahtar: "maaş zam enflasyon reel artış refah payı memur işçi zam oranı" },
+    { yol: "altin-hesaplama.html", ad: "Altın Hesaplama", aciklama: "Çeyrek, gram, ayar", grup: "Birikim", anahtar: "altın gram çeyrek yarım tam cumhuriyet ata 22 ayar 14 ayar bilezik milyem" },
+    { yol: "kira-artisi-hesaplama.html", ad: "Kira Artışı", aciklama: "Yasal üst sınır (TÜFE)", grup: "Ev ve Yaşam", anahtar: "kira zam artış tüfe yasal sınır ev sahibi kiracı konut oran" },
+    { yol: "birikim-hesaplama.html", ad: "Birikim", aciklama: "Bileşik getiri ve reel karşılık", grup: "Birikim", anahtar: "birikim bileşik faiz düzenli yatırım tasarruf gelecek değer reel" },
+    { yol: "ne-kadar-kredi-cekebilirim.html", ad: "Kredi Limiti", aciklama: "Gelire göre çekilebilir tutar", grup: "Kredi ve Borç", anahtar: "kredi limiti ne kadar çekebilirim gelir taksit oranı uygunluk" },
+    { yol: "fazla-mesai-hesaplama.html", ad: "Fazla Mesai", aciklama: "Saat ücreti ve 1,5 kat", grup: "Maaş ve Çalışma", anahtar: "fazla mesai saat ücreti 1,5 kat ek çalışma hafta tatili bayram" },
+    { yol: "yillik-izin-hesaplama.html", ad: "Yıllık İzin", aciklama: "Kaç gün, ne kadar ücret", grup: "Maaş ve Çalışma", anahtar: "yıllık izin kaç gün ücretli izin kıdem yıl izin ücreti" },
+    { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma", anahtar: "işsizlik maaşı ödeneği işkur kaç ay ne kadar prim gün" },
+    { yol: "birim-cevirme.html", ad: "Birim Çevirme", aciklama: "Uzunluk, ağırlık, sıcaklık, alan", grup: "Genel", anahtar: "birim çevirme dönüştürme inç fit mil libre pound ons dönüm hektar fahrenhayt kelvin galon knot metre kilo" },
+    { yol: "sayi-yaziyla-yazma.html", ad: "Sayı Yazıyla", aciklama: "Çek ve senet için tutar yazımı", grup: "Genel", anahtar: "sayı yazıyla rakam yazı çek senet tutar yazımı bin lira kuruş nasıl yazılır" },
+    { yol: "not-ortalamasi-hesaplama.html", ad: "Not Ortalaması", aciklama: "Kredili ağırlıklı ortalama", grup: "Okul", anahtar: "not ortalaması ağırlıklı kredi gano ortalama okul üniversite ders dönem" },
+    { yol: "boya-fayans-hesaplama.html", ad: "Boya ve Fayans", aciklama: "Oda kaç litre boya, kaç karo", grup: "Ev ve Yaşam", anahtar: "boya litre fayans karo seramik metrekare oda duvar tavan badana tadilat m2" }
 ];
 
 const KAYIT = "hesapAraclariAyar";
@@ -112,6 +112,16 @@ function iskeletKur(aktifYol) {
 }
 
 // ---------- Sonuç satırları ----------
+
+// Arama icin: buyuk/kucuk ve Turkce harkleri esitler.
+// "kidem" yazan "Kıdem"i, "SGK" yazan "sgk"yi bulsun diye.
+function sadelestir(metin) {
+    return String(metin || "")
+        .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i")
+        .toLowerCase()
+        .replace(/ş/g, "s").replace(/ğ/g, "g").replace(/ü/g, "u")
+        .replace(/ö/g, "o").replace(/ç/g, "c").replace(/â/g, "a").replace(/î/g, "i");
+}
 
 function satir(etiket, deger, sinif) {
     return `<div class="sonuc-satir ${sinif || ""}"><span>${etiket}</span><b>${deger}</b></div>`;
