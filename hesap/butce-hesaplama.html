@@ -28,7 +28,7 @@
 <meta property="og:image:alt" content="Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/butce-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=16" />
+<link rel="stylesheet" href="stil.css?v=17" />
 </head>
 <body>
 
@@ -63,6 +63,8 @@
     <div id="giderAlani"></div>
 
     <div id="ozet"></div>
+
+    <div id="dokum"></div>
 
     <details class="kutu katlanir" open id="oneriKutu">
         <summary><span>Kalan parayla ne yapabilirsiniz?</span><span class="ipuc">hesaplı seçenekler</span></summary>
@@ -110,8 +112,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=16"></script>
-<script src="sayfa.js?v=16"></script>
+<script src="hesap.js?v=17"></script>
+<script src="sayfa.js?v=17"></script>
 <script>
 iskeletKur("butce-hesaplama.html");
 gizlilikBaglantisi();
@@ -170,7 +172,11 @@ function hesapla() {
         el.textContent = t > 0 ? para(t) : "";
     });
 
-    if (gelir <= 0) { document.getElementById("ozet").innerHTML = ""; return; }
+    if (gelir <= 0) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
 
     const gruplarListe = Object.keys(b.gruplar).sort((x, y) => b.gruplar[y] - b.gruplar[x]);
     const dagilim = gruplarListe.map((g, i) =>
@@ -202,6 +208,23 @@ function hesapla() {
                 ? "Gideriniz gelirinizi aşıyor. Önce en büyük kalemden başlayıp kısmayı deneyin."
                 : "Birikim oranınız %20'nin altında. İstekler kaleminden kısmak en kolay yer."}</p>
     </div>`;
+
+    // Diğer araçlarda olduğu gibi "bu sayı nereden geldi" dökümü
+    const d = dokumKur("Bu sayılar nereden geldi?");
+    d.ekle("Bütün gelirler toplanır.",
+           `${sayi(oku("maas"))} + ${sayi(oku("ekGelir"))}`, para(b.gelir));
+    d.ekle(`Girilen ${b.kalemler.length} gider kalemi toplanır.`,
+           b.kalemler.slice(0, 6).map(k => sayi(k.tutar, 0)).join(" + ") +
+           (b.kalemler.length > 6 ? " + …" : ""), para(b.toplamGider));
+    d.ekle("Kalan = gelir − gider.",
+           `${sayi(b.gelir)} − ${sayi(b.toplamGider)}`, para(b.kalan));
+    d.ekle("Tasarruf oranı: kalanın gelire oranı.",
+           `${sayi(b.kalan)} ÷ ${sayi(b.gelir)}`, yuzdeOn(b.tasarrufOrani, 1));
+    d.ekle("Zorunlu ihtiyaçlar ayrı toplanır (kira, market, fatura, ulaşım, sağlık).",
+           `${sayi(b.ihtiyac)} ÷ ${sayi(b.gelir)}`, yuzdeOn(b.ihtiyacOran, 1));
+    d.ekle("İstekler ayrı toplanır (yeme-içme, eğlence, alışveriş, abonelik).",
+           `${sayi(b.istek)} ÷ ${sayi(b.gelir)}`, yuzdeOn(b.istekOran, 1));
+    document.getElementById("dokum").innerHTML = d.html();
 
     onerileriCiz(b);
     kaydet();
