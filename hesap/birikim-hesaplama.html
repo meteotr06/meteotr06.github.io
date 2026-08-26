@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Birikim ve Bileşik Getiri Hesaplama — Reel Karşılığıyla" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/birikim-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -98,8 +98,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("birikim-hesaplama.html");
 gizlilikBaglantisi();
@@ -127,7 +127,7 @@ function hesapla() {
     </div>
 
     <div class="kutu ${reelKotu ? "" : "one-cikan"}">
-        <h3>Bugünün parasıyla karşılığı</h3>
+        <h2 class="kutu-baslik">Bugünün parasıyla karşılığı</h2>
         ${satir("Reel (enflasyondan arındırılmış) tutar", para(b.reelBakiye), "buyuk")}
         ${satir("Reel kazanç", para(b.reelKazanc))}
         <p class="kucuk" style="color:${reelKotu ? "var(--azalis)" : "var(--artis)"}">

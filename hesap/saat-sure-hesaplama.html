@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Saat ve Süre Hesaplama — Mesai Süresi, Süre Toplama, Ondalık Saat" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/saat-sure-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -36,14 +36,14 @@
     <div class="kaynak-serit"><span class="etiket-rozet">Gece vardiyası doğru</span><span class="etiket-rozet">Mola düşülür</span><span class="etiket-rozet">Ondalık saat karşılığı</span></div>
     <div class="arac-duzen">
         <div class="kutu">
-            <h3 style="margin-top:0">İki saat arası</h3>
+            <h2 class="kutu-baslik" style="margin-top:0">İki saat arası</h2>
             <div class="form-izgara">
                 <label>Başlangıç<input id="bas" type="time" value="09:00" /></label>
                 <label>Bitiş<input id="bit" type="time" value="17:30" /></label>
                 <label>Mola (dakika)<input id="mola" type="number" inputmode="numeric" value="60" /></label>
             </div>
 
-            <h3>Süreleri topla</h3>
+            <h2 class="kutu-baslik">Süreleri topla</h2>
             <div class="form-izgara">
                 <label>1. süre<input id="s1" type="text" inputmode="numeric" placeholder="7:30" value="7:30" /></label>
                 <label>2. süre<input id="s2" type="text" inputmode="numeric" placeholder="8:15" value="8:15" /></label>
@@ -86,8 +86,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("saat-sure-hesaplama.html");
 gizlilikBaglantisi();
@@ -124,7 +124,7 @@ function hesapla() {
     let alt = "";
     if (t.adet) {
         alt = `<div class="kutu">
-            <h3>${t.adet} sürenin toplamı</h3>
+            <h2 class="kutu-baslik">${t.adet} sürenin toplamı</h2>
             ${satir("Toplam", t.ssdd + "  (" + t.metin + ")", "buyuk")}
             ${satir("Ondalık saat", sayi(t.ondalik, 2) + " saat")}
             ${satir("Toplam dakika", sayi(t.toplamDakika, 0))}

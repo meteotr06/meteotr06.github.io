@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Altın Hesaplama — Çeyrek, Yarım, Tam Altın Kaç Gram, Kaç TL?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/altin-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -90,8 +90,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("altin-hesaplama.html");
 gizlilikBaglantisi();
@@ -117,7 +117,7 @@ function hesapla() {
         const kar = a.deger - maliyet;
         const oran = maliyet > 0 ? kar / maliyet * 100 : 0;
         karKutu = `<div class="kutu">
-            <h3>Alım-satım durumu</h3>
+            <h2 class="kutu-baslik">Alım-satım durumu</h2>
             ${satir("Alış maliyetiniz", para(maliyet))}
             ${satir("Bugünkü değeri", para(a.deger))}
             ${satir(kar >= 0 ? "Kârınız" : "Zararınız", para(Math.abs(kar)) + " · " + yuzdeOn(oran), "buyuk")}
@@ -136,7 +136,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Diğer türlerde karşılığı</h3>
+        <h2 class="kutu-baslik">Diğer türlerde karşılığı</h2>
         <p class="kucuk" style="margin-top:0">Aynı saf altın (${sayi(a.safGram, 3)} gram) kaç adet eder:</p>
         <div class="tablo-sar"><table><thead><tr>
             <th>Tür</th><th>Ağırlık</th><th>Ayar</th><th>Karşılığı</th><th>Birim fiyat</th>

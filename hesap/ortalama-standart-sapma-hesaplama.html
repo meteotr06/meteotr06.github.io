@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Ortalama, Medyan ve Standart Sapma Hesaplama" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/ortalama-standart-sapma-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -82,8 +82,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("ortalama-standart-sapma-hesaplama.html");
 gizlilikBaglantisi();
@@ -114,7 +114,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Yayılım</h3>
+        <h2 class="kutu-baslik">Yayılım</h2>
         ${satir("Standart sapma (örneklem, n−1)", s4(i.sapmaOrn), "buyuk")}
         ${satir("Standart sapma (popülasyon, n)", s4(i.sapmaAna))}
         ${satir("Varyans (örneklem)", s4(i.varyansOrn))}
@@ -125,7 +125,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Sıralama ve çeyrekler</h3>
+        <h2 class="kutu-baslik">Sıralama ve çeyrekler</h2>
         ${satir("En küçük", s4(i.enKucuk))}
         ${satir("1. çeyrek (Q1)", s4(i.q1))}
         ${satir("Medyan (Q2)", s4(i.medyan))}

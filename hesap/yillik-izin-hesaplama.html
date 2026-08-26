@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Yıllık İzin Hesaplama — Kaç Gün İznim Var?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/yillik-izin-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -89,8 +89,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("yillik-izin-hesaplama.html");
 gizlilikBaglantisi();
@@ -114,7 +114,7 @@ function hesapla() {
         ${iz.yasKuraliUygulandi ? `<p class="kucuk" style="color:var(--vurgu)">18 yaşından küçük veya 50 yaşından büyük çalışanlara en az <b>20 gün</b> izin verilir; bu kural uygulandı.</p>` : ""}
     </div>
     ${uc ? `<div class="kutu">
-        <h3>Kullanılmayan izin ücreti</h3>
+        <h2 class="kutu-baslik">Kullanılmayan izin ücreti</h2>
         ${satir("Günlük giydirilmiş ücret", para(uc.gunluk))}
         ${satir(kalan + " gün karşılığı brüt", para(uc.brut))}
         ${satir("SGK + işsizlik", "−" + para(uc.sgk))}

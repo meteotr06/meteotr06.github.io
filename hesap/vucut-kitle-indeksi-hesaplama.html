@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Vücut Kitle İndeksi (BKİ) Hesaplama — İdeal Kilo Aralığı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/vucut-kitle-indeksi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -77,8 +77,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("vucut-kitle-indeksi-hesaplama.html");
 gizlilikBaglantisi();
@@ -100,7 +100,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>BKİ aralıkları</h3>
+        <h2 class="kutu-baslik">BKİ aralıkları</h2>
         <div class="tablo-sar"><table><thead><tr><th>Aralık</th><th>Sınıf</th></tr></thead><tbody>
             <tr class="${v.bki < 18.5 ? "vurgu-satir" : ""}"><td>18,5 altı</td><td>Zayıf</td></tr>
             <tr class="${v.bki >= 18.5 && v.bki < 25 ? "vurgu-satir" : ""}"><td>18,5 – 24,9</td><td>Normal</td></tr>

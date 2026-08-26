@@ -452,7 +452,7 @@ function ilgiliAraclar(aktifYol) {
 
     const b = document.createElement("section");
     b.className = "kutu";
-    b.innerHTML = `<h3>Bunlar da işinize yarayabilir</h3>
+    b.innerHTML = `<h2 class="kutu-baslik">Bunlar da işinize yarayabilir</h2>
         <div class="arac-izgara">${secilen.map(a =>
             `<a class="arac-kart${a.rehberMi ? " rehber-kart" : ""}" href="${a.yol}">
                 <b>${a.rehberMi ? "Rehber: " : ""}${a.ad}</b><span>${a.aciklama}</span></a>`).join("")}</div>`;

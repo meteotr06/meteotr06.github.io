@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Birim Çevirme — Uzunluk, Ağırlık, Sıcaklık, Alan, Hacim" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/birim-cevirme.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -84,8 +84,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("birim-cevirme.html");
 gizlilikBaglantisi();
@@ -137,7 +137,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Bütün birimlerde karşılığı</h3>
+        <h2 class="kutu-baslik">Bütün birimlerde karşılığı</h2>
         <div class="tablo-sar"><table><thead><tr><th>Birim</th><th>Değer</th></tr></thead><tbody>
         ${g.birimler.map(b => `<tr class="${b.kod === hedef ? "vurgu-satir" : ""}">
             <td>${b.ad}</td><td><b>${bicim(birimCevir(grup, kaynak, b.kod, deger))}</b></td></tr>`).join("")}

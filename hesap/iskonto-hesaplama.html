@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="İskonto Hesaplama — Ardışık İndirimler ve Gerçek Oran" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/iskonto-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -98,8 +98,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("iskonto-hesaplama.html");
 gizlilikBaglantisi();
@@ -127,7 +127,7 @@ function hesapla() {
     </div>
 
     ${s.adimlar.length > 1 ? `<div class="kutu">
-        <h3>Gerçek indirim oranı</h3>
+        <h2 class="kutu-baslik">Gerçek indirim oranı</h2>
         ${satir("Oranların toplamı (yanlış)", yuzdeOn(s.toplananOran))}
         ${satir("Gerçek indirim oranı", yuzdeOn(s.gercekOran), "buyuk")}
         ${satir("Aradaki fark", yuzdeOn(fark))}
@@ -137,7 +137,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Adım adım</h3>
+        <h2 class="kutu-baslik">Adım adım</h2>
         <div class="tablo-sar"><table><thead><tr>
             <th>Kademe</th><th>Öncesi</th><th>İndirim</th><th>Sonrası</th></tr></thead><tbody>
             ${s.adimlar.map((a, n) => `<tr>

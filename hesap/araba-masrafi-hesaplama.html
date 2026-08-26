@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Araba Masrafı Hesaplama — Aylık Gerçek Maliyet" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/araba-masrafi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -122,8 +122,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("araba-masrafi-hesaplama.html");
 gizlilikBaglantisi();
@@ -155,7 +155,7 @@ function hesapla() {
     </div>
 
     <div class="kutu one-cikan">
-        <h3>Para nereye gidiyor?</h3>
+        <h2 class="kutu-baslik">Para nereye gidiyor?</h2>
         <div class="dagilim">${a.kalemler.map((k, i) =>
             `<div style="width:${sayi(k.tutar / a.toplam * 100, 2).replace(",", ".")}%;background:${RENK[i % RENK.length]}"></div>`).join("")}</div>
         <div class="tablo-sar"><table><thead><tr>
@@ -173,7 +173,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Arabayı hiç kullanmasanız bile</h3>
+        <h2 class="kutu-baslik">Arabayı hiç kullanmasanız bile</h2>
         ${satir("Park hâlinde " + a.yil + " yılda", para(a.parkHalinde), "buyuk")}
         ${satir("Aylık", para(a.parkHalindeAylik))}
         <p class="kucuk">Değer kaybı, sigorta, MTV, otopark ve muayene <b>araç hiç

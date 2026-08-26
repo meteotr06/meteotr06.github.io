@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Gebelik Haftası Hesaplama — Tahmini Doğum Tarihi" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/gebelik-haftasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -92,8 +92,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("gebelik-haftasi-hesaplama.html");
 gizlilikBaglantisi();
@@ -127,7 +127,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Doğum izniniz ne zaman başlıyor?</h3>
+        <h2 class="kutu-baslik">Doğum izniniz ne zaman başlıyor?</h2>
         ${satir("Tekil gebelikte (8 hafta önce)", tarihYaz(g.izinTekil), "buyuk")}
         ${satir("Çoğul gebelikte (10 hafta önce)", tarihYaz(g.izinCogul))}
         <p class="kucuk">1 Mayıs 2026'dan itibaren toplam analık izni <b>24 hafta</b>
@@ -136,7 +136,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Üç aylık dönemler</h3>
+        <h2 class="kutu-baslik">Üç aylık dönemler</h2>
         ${satir("1. üç ay", tarihYaz(g.sonAdet) + " – " + tarihYaz(gunEkle(g.sonAdet, 14 * 7 - 1)))}
         ${satir("2. üç ay", tarihYaz(gunEkle(g.sonAdet, 14 * 7)) + " – " + tarihYaz(gunEkle(g.sonAdet, 28 * 7 - 1)))}
         ${satir("3. üç ay", tarihYaz(gunEkle(g.sonAdet, 28 * 7)) + " – " + tarihYaz(g.tahminiDogum))}

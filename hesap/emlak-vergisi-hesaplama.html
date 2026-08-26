@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Emlak Vergisi Hesaplama 2026 — Konut, İş Yeri, Arsa ve Arazi" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/emlak-vergisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -115,8 +115,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("emlak-vergisi-hesaplama.html");
 gizlilikBaglantisi();
@@ -150,7 +150,7 @@ function hesapla() {
     </div>
 
     ${tur === "mesken" && e.dkv.kapsamda ? `<div class="kutu">
-        <h3>Değerli Konut Vergisi</h3>
+        <h2 class="kutu-baslik">Değerli Konut Vergisi</h2>
         ${e.dkv.sebep === "tekKonutMuafiyeti"
             ? `${satir("Durum", "Muaf")}
                <p class="kucuk">Konutun değeri eşiği (${para(17711000)}) aşıyor ama
@@ -165,7 +165,7 @@ function hesapla() {
     </div>` : ""}
 
     <div class="kutu">
-        <h3>Oran tablosu</h3>
+        <h2 class="kutu-baslik">Oran tablosu</h2>
         <div class="tablo-sar"><table><thead><tr>
             <th>Tür</th><th>Normal</th><th>Büyükşehir</th></tr></thead><tbody>
             ${["mesken","isyeri","arsa","arazi"].map(k => `<tr class="${k === tur ? "vurgu-satir" : ""}">

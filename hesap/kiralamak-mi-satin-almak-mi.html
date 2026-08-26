@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Ev Kiralamak mı Satın Almak mı? — Dürüst Karşılaştırma" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kiralamak-mi-satin-almak-mi.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -126,8 +126,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("kiralamak-mi-satin-almak-mi.html");
 gizlilikBaglantisi();
@@ -177,7 +177,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>${r.yil} yılda neler oldu?</h3>
+        <h2 class="kutu-baslik">${r.yil} yılda neler oldu?</h2>
         ${satir("Aylık kredi taksiti", para(r.taksit), "buyuk")}
         ${satir("Ödenen toplam taksit", para(r.toplamTaksit))}
         ${satir("Bunun faizi", para(r.toplamFaiz))}
@@ -189,7 +189,7 @@ function hesapla() {
     </div>
 
     <div class="kutu one-cikan">
-        <h3>Karar aslında tek bir sayıya bağlı</h3>
+        <h2 class="kutu-baslik">Karar aslında tek bir sayıya bağlı</h2>
         ${bas === null
             ? `<p>Bu şartlarda <b>her durumda kiralamak</b> öne geçiyor.</p>`
             : bas === 0

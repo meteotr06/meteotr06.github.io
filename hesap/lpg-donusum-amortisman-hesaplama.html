@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="LPG Dönüşümü Kaç Ayda Amorti Eder? — Tasarruf Hesabı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/lpg-donusum-amortisman-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -106,8 +106,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("lpg-donusum-amortisman-hesaplama.html");
 gizlilikBaglantisi();
@@ -144,7 +144,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>100 km'de ne tutuyor?</h3>
+        <h2 class="kutu-baslik">100 km'de ne tutuyor?</h2>
         ${satir("Benzinle", para(l.yuzKmBenzin), "buyuk")}
         ${satir("LPG ile", para(l.yuzKmLpg), "buyuk")}
         ${satir("LPG tüketimi", sayi(l.lpgTuketim, 1) + " L / 100 km")}
@@ -154,7 +154,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Ne kadar yol yaparsanız ne olur?</h3>
+        <h2 class="kutu-baslik">Ne kadar yol yaparsanız ne olur?</h2>
         <div class="tablo-sar"><table><thead><tr>
             <th>Aylık km</th><th>Net tasarruf</th><th>Amorti süresi</th><th>5 yıl kazanç</th>
             </tr></thead><tbody>

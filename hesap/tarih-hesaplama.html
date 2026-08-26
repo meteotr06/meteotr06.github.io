@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Tarih ve Yaş Hesaplama — İki Tarih Arası Kaç Gün?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/tarih-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -75,8 +75,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("tarih-hesaplama.html");
 gizlilikBaglantisi();
@@ -108,7 +108,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>${ek >= 0 ? ek + " gün sonrası" : Math.abs(ek) + " gün öncesi"}</h3>
+        <h2 class="kutu-baslik">${ek >= 0 ? ek + " gün sonrası" : Math.abs(ek) + " gün öncesi"}</h2>
         ${satir("Tarih", gelecek.split("-").reverse().join(".") )}
         ${satir("Hangi gün", gelecekGun, "buyuk")}
     </div>`;

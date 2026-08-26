@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Günlük Kalori İhtiyacı Hesaplama — Bazal Metabolizma ve TDEE" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kalori-ihtiyaci-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -97,8 +97,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("kalori-ihtiyaci-hesaplama.html");
 gizlilikBaglantisi();
@@ -122,7 +122,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Hedefe göre kalori</h3>
+        <h2 class="kutu-baslik">Hedefe göre kalori</h2>
         ${satir("Kilo korumak", sayi(k.gunluk, 0) + " kcal")}
         ${satir("Yavaş kilo vermek (haftada ~0,5 kg)", sayi(k.kiloVerme, 0) + " kcal")}
         ${satir("Hızlı kilo vermek (haftada ~1 kg)", sayi(k.hizliVerme, 0) + " kcal")}

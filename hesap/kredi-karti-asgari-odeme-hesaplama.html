@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Kredi Kartı Asgari Ödeme Hesaplama — Borç Kaç Ayda Biter?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kredi-karti-asgari-odeme-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -80,8 +80,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("kredi-karti-asgari-odeme-hesaplama.html");
 gizlilikBaglantisi();
@@ -120,7 +120,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>Peki her ay ${para(sabit)} ödeseydiniz?</h3>
+        <h2 class="kutu-baslik">Peki her ay ${para(sabit)} ödeseydiniz?</h2>
         ${yetersiz
             ? `<p class="kucuk" style="color:var(--azalis)">Bu tutar işleyen faizi karşılamıyor;
                borç hiç kapanmaz. Daha yüksek bir tutar deneyin.</p>`
@@ -136,7 +136,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>İlk 6 ay — sadece asgari ödendiğinde</h3>
+        <h2 class="kutu-baslik">İlk 6 ay — sadece asgari ödendiğinde</h2>
         <div class="tablo-sar"><table><thead><tr>
             <th>Ay</th><th>Ödeme</th><th>İşleyen faiz</th><th>Kalan borç</th></tr></thead><tbody>
             ${a.ilkAylar.map(x => `<tr><td>${x.ay}</td><td>${para(x.odeme)}</td>

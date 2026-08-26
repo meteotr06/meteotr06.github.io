@@ -28,7 +28,7 @@
 <meta property="og:image:alt" content="Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/butce-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=36" />
+<link rel="stylesheet" href="stil.css?v=37" />
 </head>
 <body>
 
@@ -45,7 +45,7 @@
     </div>
     <div class="arac-duzen butce-duzen">
     <div class="kutu">
-        <h3>Gelir</h3>
+        <h2 class="kutu-baslik">Gelir</h2>
         <div class="form-izgara">
             <label>Net maaş (TL)
                 <input id="maas" type="number" step="any" inputmode="decimal" value="58000" />
@@ -111,8 +111,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=36"></script>
-<script src="sayfa.js?v=36"></script>
+<script src="hesap.js?v=37"></script>
+<script src="sayfa.js?v=37"></script>
 <script>
 iskeletKur("butce-hesaplama.html");
 gizlilikBaglantisi();
@@ -195,7 +195,7 @@ function hesapla() {
     </div>
 
     <div class="kutu">
-        <h3>50 / 30 / 20 karşılaştırması</h3>
+        <h2 class="kutu-baslik">50 / 30 / 20 karşılaştırması</h2>
         ${satir("Zorunlu ihtiyaçlar (hedef %50)", para(b.ihtiyac) + " · " + yuzdeOn(b.ihtiyacOran, 0))}
         ${satir("İstekler (hedef %30)", para(b.istek) + " · " + yuzdeOn(b.istekOran, 0))}
         ${satir("Birikim (hedef %20)", para(Math.max(0, b.kalan)) + " · " + yuzdeOn(Math.max(0, b.tasarrufOrani), 0))}
