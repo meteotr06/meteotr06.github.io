@@ -1,7 +1,7 @@
 /* Muhasebe mobil - servis calisani (cevrimdisi calisma).
    Onbellek surumu HER YAYINDA artmali (surum_artir.py otomatik yapar) ki
    kullanici eski surumde kalmasin. */
-const SURUM = "muhasebe-v4";
+const SURUM = "muhasebe-v5";
 const DOSYALAR = [
   "index.html",
   "manifest.json",
