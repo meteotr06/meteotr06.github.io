@@ -7,3 +7,9 @@ kaynak/__pycache__/
 
 # 23 MB'lik exe depoya konmaz; GitHub Releases'e yuklenir
 Hava Durumu.exe
+
+# planlayici AYRI BIR DEPO (github.com/meteotr06/planlayici) ve GitHub
+# proje sayfasi olarak /planlayici/ adresinde yayinlaniyor. Buradaki ayni
+# isimli bir klasor GOLGELENIR, hic servis edilmez. Kaynagi:
+# D:\Projeler\06 Programlama  (oranin kendisi o depo)
+planlayici/
