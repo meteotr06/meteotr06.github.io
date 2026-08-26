@@ -53,12 +53,15 @@ const ARACLAR = [
 const REHBERLER = [
     { yol: "isten-cikarildim-haklarim.html", ad: "İşten çıkarıldım, haklarım neler?",
       aciklama: "Kıdem, ihbar, izin, fazla mesai ve işsizlik maaşı — hangi durumda hangisi",
+      gruplar: ["Maaş ve Çalışma"],
       anahtar: "işten çıkarıldım kovuldum haklarım kıdem ihbar tazminat işsizlik maaşı istifa ibraname arabuluculuk fesih" },
     { yol: "ev-alirken-rehberi.html", ad: "Ev alırken: baştan sona",
       aciklama: "Bütçe, kredi, tapu harcı, görünmeyen masraflar ve tapuda kontrol listesi",
+      gruplar: ["Ev ve Yaşam", "Kredi ve Borç"],
       anahtar: "ev almak konut satın alma tapu masraf ekspertiz emlakçı komisyon dask iskan kat mülkiyeti irtifak düşük beyan peşinat" },
     { yol: "bordro-nasil-okunur.html", ad: "Bordronuzu nasıl okursunuz?",
       aciklama: "Kesintiler, kümülatif matrah ve maaşın yıl içinde neden azaldığı",
+      gruplar: ["Maaş ve Çalışma"],
       anahtar: "bordro maaş kesinti sgk işsizlik gelir vergisi damga kümülatif matrah vergi dilimi asgari ücret istisnası işveren maliyeti" }
 ];
 
@@ -412,18 +415,46 @@ function ldEkle(veri) {
 }
 
 // ---------- 6) İlgili araçlar ----------
+// Eskiden: ayni gruptan ilk 4. Iki sorunu vardi —
+//   1) rehber sayfalarinda grup eslesmedigi icin listenin ilk 4 araci cikiyordu
+//   2) arac sayfalarinda rehberler HIC gorunmuyordu; kidem hesaplayan birinin
+//      "isten cikarildim" rehberini gormesi lazim.
+// Simdi ANAHTAR KELIME ORTAKLIGINA gore puanlaniyor.
 function ilgiliAraclar(aktifYol) {
-    // Ayni gruptan olanlar once gelsin, en fazla 4 tane goster
-    const aktif = ARACLAR.find(a => a.yol === aktifYol);
-    const grup = aktif ? aktif.grup : null;
-    const digerleri = ARACLAR.filter(a => a.yol !== aktifYol)
-        .sort((a, b) => (b.grup === grup) - (a.grup === grup))
-        .slice(0, 4);
+    const rehberler = (typeof REHBERLER !== "undefined") ? REHBERLER : [];
+    const hepsi = ARACLAR.concat(rehberler.map(r => Object.assign({ rehberMi: true }, r)));
+    const aktif = hepsi.find(a => a.yol === aktifYol);
+    if (!aktif) return;
+
+    const kelimeler = (metin) => new Set(sadelestir(metin || "").split(/\s+/).filter(k => k.length > 2));
+    const aktifKelime = kelimeler((aktif.anahtar || "") + " " + (aktif.ad || "") + " " + (aktif.aciklama || ""));
+
+    const puanla = (a) => {
+        let p = 0;
+        if (aktif.grup && a.grup === aktif.grup) p += 40;
+        // Rehber, ilgili oldugu gruptaki araclarda grup eslesmesi kadar deger gorsun
+        if (a.rehberMi && a.gruplar && aktif.grup && a.gruplar.indexOf(aktif.grup) >= 0) p += 40;
+        // Ters yon: rehber sayfasindayken kendi gruplarindaki araclar one ciksin
+        if (aktif.rehberMi && aktif.gruplar && a.grup && aktif.gruplar.indexOf(a.grup) >= 0) p += 30;
+        const k = kelimeler((a.anahtar || "") + " " + a.ad + " " + a.aciklama);
+        k.forEach(x => { if (aktifKelime.has(x)) p += 6; });
+        // Rehberler biraz one cikarilsin: durumu anlatan sayfa, tek hesaptan degerli
+        if (a.rehberMi) p += 12;
+        return p;
+    };
+
+    const secilen = hepsi.filter(a => a.yol !== aktifYol)
+        .map(a => ({ a: a, p: puanla(a) }))
+        .sort((x, y) => y.p - x.p)
+        .slice(0, 4)
+        .map(x => x.a);
+
     const b = document.createElement("section");
     b.className = "kutu";
     b.innerHTML = `<h3>Bunlar da işinize yarayabilir</h3>
-        <div class="arac-izgara">${digerleri.map(a =>
-            `<a class="arac-kart" href="${a.yol}"><b>${a.ad}</b><span>${a.aciklama}</span></a>`).join("")}</div>`;
+        <div class="arac-izgara">${secilen.map(a =>
+            `<a class="arac-kart${a.rehberMi ? " rehber-kart" : ""}" href="${a.yol}">
+                <b>${a.rehberMi ? "Rehber: " : ""}${a.ad}</b><span>${a.aciklama}</span></a>`).join("")}</div>`;
     document.querySelector("main").appendChild(b);
 }
 
