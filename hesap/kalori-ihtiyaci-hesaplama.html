@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Günlük Kalori İhtiyacı Hesaplama — Bazal Metabolizma ve TDEE" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kalori-ihtiyaci-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -98,8 +98,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("kalori-ihtiyaci-hesaplama.html");
 gizlilikBaglantisi();
@@ -111,7 +111,7 @@ function hesapla() {
     const yas = oku("yas"), boy = oku("boy"), kilo = oku("kilo");
     const akt = parseFloat(document.getElementById("aktivite").value);
     if (!boy || boy <= 0 || !kilo || kilo <= 0 || !yas || yas <= 0) {
-        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+        sonucBekliyor("Yaş, boy ve kilo bilgisini girin."); return;
     }
     const k = kaloriIhtiyaci(kilo, boy, yas, cinsiyet, akt);
 

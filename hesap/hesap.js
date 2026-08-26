@@ -89,6 +89,11 @@ function sayiOku(metin) {
 // İhtiyaç kredisinde faizin üstüne KKDF (%15) ve BSMV (%5) biner.
 
 function krediHesapla(tutar, aylikFaiz, taksitSayisi, vergiVar) {
+    // Vade 0 girilirse bölme sonsuza gider; sayfa korumayı unutursa diye burada da durduruyoruz
+    if (!(taksitSayisi >= 1) || !(tutar > 0)) {
+        return { taksit: 0, toplamOdeme: 0, toplamFaiz: 0, anapara: tutar || 0,
+                 vadeAy: taksitSayisi || 0, plan: [], gecersiz: true };
+    }
     const i = (aylikFaiz / 100) * (vergiVar ? (1 + PARAMETRE.kkdf + PARAMETRE.bsmv) : 1);
     let taksit;
     if (i === 0) taksit = tutar / taksitSayisi;
@@ -119,6 +124,12 @@ function krediHesapla(tutar, aylikFaiz, taksitSayisi, vergiVar) {
 // Türkiye'de faiz gelirinden stopaj kesilir; kullanıcı vade sonunda net alır.
 
 function mevduatHesapla(anapara, yillikFaiz, vadeGun, stopajYuzde, bilesikMi, donemSayisi) {
+    // Anapara ya da vade 0 iken oranlar NaN üretiyordu
+    if (!(anapara > 0) || !(vadeGun > 0)) {
+        return { anapara: anapara || 0, brutFaiz: 0, stopaj: 0, netFaiz: 0,
+                 vadeSonu: anapara || 0, gunlukGetiri: 0, aylikGetiri: 0,
+                 yillikBasit: 0, gecersiz: true };
+    }
     const oran = (yillikFaiz / 100) * vadeGun / 365;
 
     if (!bilesikMi) {

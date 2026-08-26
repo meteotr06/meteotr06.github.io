@@ -592,3 +592,18 @@ function gecmiseEkle(yol) {
         localStorage.setItem("hesapGecmis", JSON.stringify(g));
     } catch (e) { }
 }
+
+// ---------- Boş sonuç durumu ----------
+// 31 sayfa eksik girdide SESSİZCE boş kutu gösteriyordu: kullanıcı 0 yazıyor,
+// ekranda hiçbir şey olmuyor, neden olmadığını da bilmiyordu.
+// Artık ne yapması gerektiğini söylüyoruz.
+function sonucBekliyor(mesaj) {
+    const o = document.getElementById("ozet");
+    if (o) o.innerHTML = `<div class="kutu bekleyen">
+        <div class="bekleyen-simge" aria-hidden="true">⌨</div>
+        <p class="bekleyen-baslik">Sonuç burada görünecek</p>
+        <p class="kucuk">${mesaj || "Yukarıdaki alanları doldurun — hesap siz yazarken anında yapılır."}</p>
+    </div>`;
+    const d = document.getElementById("dokum");
+    if (d) d.innerHTML = "";
+}

@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Net Hesaplama — Sınav Neti (Doğru, Yanlış, Boş)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/net-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -100,8 +100,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("net-hesaplama.html");
 gizlilikBaglantisi();
@@ -116,7 +116,7 @@ function hesapla() {
         yanlis: Math.max(0, Math.round(oku("y" + i)))
     })).filter(d => d.dogru > 0 || d.yanlis > 0);
 
-    if (!dersler.length) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+    if (!dersler.length) { sonucBekliyor("Doğru ve yanlış sayısını girin."); return; }
 
     const n = sinavNeti(dersler, bolen);
 

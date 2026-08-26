@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Altın Hesaplama — Çeyrek, Yarım, Tam Altın Kaç Gram, Kaç TL?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/altin-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -91,8 +91,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("altin-hesaplama.html");
 gizlilikBaglantisi();
@@ -105,7 +105,7 @@ function hesapla() {
     const adet = oku("adet");
     const alisGirdi = document.getElementById("alis").value;
     if (!gramFiyat || gramFiyat <= 0 || !adet || adet <= 0) {
-        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+        sonucBekliyor("Gram ya da adet bilgisini girin."); return;
     }
 
     const a = altinDegeri(tur, adet, gramFiyat);

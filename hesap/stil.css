@@ -877,3 +877,12 @@ main:focus { outline: none; }
 .son-serit { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .son-serit::-webkit-scrollbar { display: none; }
 @media print { .grup-cipleri, .son-kullanilan { display: none !important; } }
+
+/* ---------- Sonuç bekleniyor kutusu ---------- */
+.kutu.bekleyen {
+    text-align: center; padding: 30px 20px;
+    border-style: dashed; background: transparent;
+}
+.bekleyen-simge { font-size: 30px; line-height: 1; color: var(--yazi2); margin-bottom: 10px; opacity: .65; }
+.bekleyen-baslik { font-weight: 600; color: var(--yazi); margin: 0 0 6px; font-size: 15px; }
+.kutu.bekleyen .kucuk { margin: 0; }

@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Elektrik Tüketimi Hesaplama — Cihaz Ayda Kaç Lira Yakıyor?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/elektrik-tuketimi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -81,8 +81,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("elektrik-tuketimi-hesaplama.html");
 gizlilikBaglantisi();
@@ -100,7 +100,7 @@ const ORNEK_CIHAZLAR = [
 function hesapla() {
     const guc = oku("guc"), saat = oku("saat");
     const birim = oku("birim"), adet = Math.max(1, Math.round(oku("adet")));
-    if (!guc || guc <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+    if (!guc || guc <= 0) { sonucBekliyor("Cihazın gücünü ve günlük kullanım süresini girin."); return; }
 
     const e = elektrikMaliyeti(guc, saat, birim, adet);
 

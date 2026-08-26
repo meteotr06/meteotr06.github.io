@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Vade Farkı Hesaplama — Taksitli Almak Kaç Lira Pahalı?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/vade-farki-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -78,8 +78,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("vade-farki-hesaplama.html");
 gizlilikBaglantisi();
@@ -90,7 +90,7 @@ function hesapla() {
     const pesin = oku("pesin"), taksit = oku("taksit");
     const sayiT = Math.max(1, Math.round(oku("sayi"))), mevduat = oku("mevduat");
     if (!pesin || pesin <= 0 || !taksit || taksit <= 0) {
-        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+        sonucBekliyor("Peşin fiyatı ve taksitli toplamı girin."); return;
     }
     const v = vadeFarki(pesin, taksit, sayiT);
     const mevduatNet = mevduat * 0.85;   // stopaj sonrası kabaca

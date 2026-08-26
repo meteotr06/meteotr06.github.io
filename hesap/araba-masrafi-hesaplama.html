@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Araba Masrafı Hesaplama — Aylık Gerçek Maliyet" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/araba-masrafi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -123,8 +123,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("araba-masrafi-hesaplama.html");
 gizlilikBaglantisi();
@@ -140,8 +140,7 @@ function hesapla() {
         otopark: oku("otopark"), muayene: 1500
     };
     if (!g.alisFiyat && !g.yillikKm) {
-        document.getElementById("ozet").innerHTML = "";
-        document.getElementById("dokum").innerHTML = ""; return;
+        sonucBekliyor("Aracın alış fiyatını ve yıllık kilometrenizi girin."); return;
     }
     const a = arabaMasrafi(g);
     const RENK = ["#c2410c", "#1c5fd6", "#0a7ea4", "#15803d", "#7c3aed", "#b45309", "#475569", "#64748b"];

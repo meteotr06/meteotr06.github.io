@@ -28,7 +28,7 @@
 <meta property="og:image:alt" content="Net Maaş Hesaplama 2026 — Brütten Nete, 12 Ayın Tamamı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/net-maas-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -122,8 +122,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("net-maas-hesaplama.html");
 gizlilikBaglantisi();
@@ -142,9 +142,7 @@ function hesapla() {
     const brut = oku("brut");
     const ay = parseInt(document.getElementById("baslangic").value, 10);
     if (!brut || brut <= 0) {
-        document.getElementById("ozet").innerHTML = "";
-        document.getElementById("dokum").innerHTML = "";
-        return;
+        sonucBekliyor("Brüt maaşınızı yazın."); return;
     }
 
     const p = netMaasPlani(brut, ay);

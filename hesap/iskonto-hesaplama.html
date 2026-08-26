@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="İskonto Hesaplama — Ardışık İndirimler ve Gerçek Oran" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/iskonto-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -99,8 +99,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("iskonto-hesaplama.html");
 gizlilikBaglantisi();
@@ -112,8 +112,7 @@ function hesapla() {
     const oranlar = ["i1","i2","i3","i4"].map(id => oku(id));
     const kdvOran = oku("kdv");
     if (!liste || liste <= 0) {
-        document.getElementById("ozet").innerHTML = "";
-        document.getElementById("dokum").innerHTML = ""; return;
+        sonucBekliyor("Liste fiyatını girin."); return;
     }
     const s = iskonto(liste, oranlar, kdvOran);
     const fark = s.toplananOran - s.gercekOran;

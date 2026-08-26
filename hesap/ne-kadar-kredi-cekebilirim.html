@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Ne Kadar Kredi Çekebilirim? — Gelire Göre Kredi Limiti Hesaplama" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/ne-kadar-kredi-cekebilirim.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -83,8 +83,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("ne-kadar-kredi-cekebilirim.html");
 gizlilikBaglantisi();
@@ -95,7 +95,7 @@ function hesapla() {
     const gelir = oku("gelir"), mevcut = oku("mevcut");
     const faiz = oku("faiz"), vade = Math.max(1, Math.round(oku("vade")));
     const sinir = oku("sinir") || 50;
-    if (!gelir || gelir <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+    if (!gelir || gelir <= 0) { sonucBekliyor("Aylık net gelirinizi girin."); return; }
 
     const k = krediKapasitesi(gelir, mevcut, faiz, vade, sinir, isaretli("vergi"));
     const yetersiz = k.taksitKapasitesi <= 0;

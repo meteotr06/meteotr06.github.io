@@ -28,7 +28,7 @@
 <meta property="og:image:alt" content="Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/butce-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=25" />
+<link rel="stylesheet" href="stil.css?v=26" />
 </head>
 <body>
 
@@ -112,8 +112,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=25"></script>
-<script src="sayfa.js?v=25"></script>
+<script src="hesap.js?v=26"></script>
+<script src="sayfa.js?v=26"></script>
 <script>
 iskeletKur("butce-hesaplama.html");
 gizlilikBaglantisi();
@@ -173,9 +173,7 @@ function hesapla() {
     });
 
     if (gelir <= 0) {
-        document.getElementById("ozet").innerHTML = "";
-        document.getElementById("dokum").innerHTML = "";
-        return;
+        sonucBekliyor("Aylık gelirinizi yazın; giderleri sonra ekleyebilirsiniz."); return;
     }
 
     const gruplarListe = Object.keys(b.gruplar).sort((x, y) => b.gruplar[y] - b.gruplar[x]);
