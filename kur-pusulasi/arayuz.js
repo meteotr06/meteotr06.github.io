@@ -1321,9 +1321,11 @@ async function veriYukle(sessiz) {
         // Altın ve kriptoların gerçek dolar geçmişi (olmazsa kur türevi seriye düşer).
         // CoinGecko ücretsiz katmanında istek sınırı var; art arda değil SIRAYLA
         // ve aralıklı çekiyoruz ki 429 yiyip hepsini kaybetmeyelim.
+        // Acilista yalnizca ONE CIKANLARIN gecmisi cekilir (altin + bitcoin).
+        // Digerleri ilk visitte 7 x 6sn = 42 sn suruyordu; kimse ilk saniyede
+        // Dogecoin'in yillik degisimini aramiyor. Onlar liste acilinca gelir.
         (async () => {
-            const isler = [{ cg: "pax-gold", kaynak: "XAU" }].concat(
-                MADENLER.filter(m => m.coingecko).map(m => ({ cg: m.coingecko, kaynak: m.kaynak })));
+            const isler = [{ cg: "pax-gold", kaynak: "XAU" }, { cg: "bitcoin", kaynak: "BTC" }];
             let degisti = false;
             for (const is of isler) {
                 const onbelleklıMi = !!gecmisOnbellekOku(is.cg);
@@ -1381,6 +1383,26 @@ function cihazKontrol() {
     gorunumUygula();
 }
 
+// Liste ilk kez acilinca, gecmisi henuz olmayan kriptolari cek.
+// Onbellekte olan aninda gelir; olmayan icin CoinGecko sinirina saygi duyup bekleriz.
+let kalanGecmisCalisiyor = false;
+async function kalanGecmisleriYukle() {
+    if (kalanGecmisCalisiyor || !durum.veri) return;
+    const eksik = MADENLER.filter(m => m.coingecko && !durum.onsGecmis[m.kaynak]);
+    if (!eksik.length) return;
+    kalanGecmisCalisiyor = true;
+    for (const m of eksik) {
+        const onbelleklıMi = !!gecmisOnbellekOku(m.coingecko);
+        const seri = await dolarGecmisiCek(m.coingecko, durum.veri.tarihler, durum.madenler[m.kaynak]);
+        if (seri && seri.filter(Boolean).length > 150) {
+            durum.onsGecmis[m.kaynak] = seri;
+            if (!$("#tumListe").hidden) piyasaCiz();
+        }
+        if (!onbelleklıMi) await new Promise(r => setTimeout(r, 6000));
+    }
+    kalanGecmisCalisiyor = false;
+}
+
 function ekraniTazele() {
     if (!durum.veri) return;
     cihazKontrol();
@@ -1430,7 +1452,7 @@ function baslat() {
         liste.hidden = !acik;
         $("#tumunuAcBtn").textContent = acik ? "▴ Listeyi gizle" : "▾ Tüm paralar, altın ve kripto";
         $("#tumunuAcBtn").classList.toggle("acik", acik);
-        if (acik) piyasaCiz();
+        if (acik) { piyasaCiz(); kalanGecmisleriYukle(); }
     };
 
     // Katlanır kutular: içinde grafik varsa açılınca yeniden çizilmeli
