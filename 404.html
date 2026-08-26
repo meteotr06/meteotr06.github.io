@@ -78,11 +78,20 @@ function kart(a) {
 function ciz() {
     const sorgu = sadelestir(girdi.value).trim();
     if (!sorgu) { liste.innerHTML = ""; durum.textContent = ""; return; }
-    const kelimeler = sorgu.split(/\s+/).filter(Boolean);
-    const bulunan = hepsi().filter(a => {
+    // Kurtarma sayfasi: AFFEDICI ol. Hatali adreste hep gereksiz kelime olur
+    // ("boyle bir sayfa yok kredi taksiti"). Butun kelimelerin tutmasini
+    // beklersek sifir sonuc cikar. Kac kelime tuttuysa ona gore siralayalim.
+    const kelimeler = sorgu.split(/\s+/).filter(k => k.length > 2);
+    const bulunan = hepsi().map(a => {
         const t = sadelestir(a.ad + " " + a.aciklama + " " + (a.grup || "") + " " + (a.anahtar || ""));
-        return kelimeler.every(k => t.indexOf(k) >= 0);
-    }).slice(0, 12);
+        const ad = sadelestir(a.ad);
+        let p = 0;
+        kelimeler.forEach(k => {
+            if (ad.indexOf(k) >= 0) p += 5;
+            else if (t.indexOf(k) >= 0) p += 1;
+        });
+        return { a: a, p: p };
+    }).filter(x => x.p > 0).sort((x, y) => y.p - x.p).slice(0, 12).map(x => x.a);
     liste.innerHTML = bulunan.length
         ? `<div class="arac-izgara">${bulunan.map(kart).join("")}</div>`
         : `<div class="kutu"><p class="kucuk">Sonuç yok. <a href="${KOK}">Bütün araçlara göz atın</a>.</p></div>`;
