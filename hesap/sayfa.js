@@ -9,7 +9,7 @@ const ARACLAR = [
     { yol: "kredi-hesaplama.html", ad: "Kredi Taksiti", aciklama: "Aylık taksit ve ödeme planı", grup: "Kredi ve Borç", anahtar: "kredi taksit ihtiyaç konut taşıt faiz annüite ödeme planı kkdf bsmv banka" },
     { yol: "mevduat-faizi-hesaplama.html", ad: "Mevduat Faizi", aciklama: "Vade sonu net getiri", grup: "Birikim", anahtar: "mevduat vadeli hesap faiz getiri stopaj banka birikim tl" },
     { yol: "kdv-hesaplama.html", ad: "KDV", aciklama: "Dahil / hariç ayırma", grup: "Ticaret", anahtar: "kdv katma değer vergisi dahil hariç fatura yüzde 20 10 1 ticaret" },
-    { yol: "yakit-maliyeti-hesaplama.html", ad: "Yakıt Maliyeti", aciklama: "Yol kaç lira tutar", grup: "Ev ve Yaşam", anahtar: "yakıt benzin mazot motorin lpg yol masrafı km litre araç seyahat tatil" },
+    { yol: "yakit-maliyeti-hesaplama.html", ad: "Yakıt Maliyeti", aciklama: "Yol kaç lira tutar", grup: "Araç", anahtar: "yakıt benzin mazot motorin lpg yol masrafı km litre araç seyahat tatil" },
     { yol: "elektrik-tuketimi-hesaplama.html", ad: "Elektrik Tüketimi", aciklama: "Cihaz ayda kaç lira", grup: "Ev ve Yaşam", anahtar: "elektrik kwh fatura tüketim cihaz klima kombi buzdolabı watt enerji" },
     { yol: "yuzde-hesaplama.html", ad: "Yüzde Hesaplama", aciklama: "İndirim, zam, değişim", grup: "Genel", anahtar: "yüzde indirim zam artış azalış oran hesaplama kaçtır kaç yüzde" },
     { yol: "tarih-hesaplama.html", ad: "Tarih ve Yaş", aciklama: "İki tarih arası, yaş", grup: "Genel", anahtar: "tarih gün hesaplama yaş kaç gün kaldı iki tarih arası doğum günü" },
@@ -42,7 +42,9 @@ const ARACLAR = [
     { yol: "kira-geliri-vergisi-hesaplama.html", ad: "Kira Geliri Vergisi", aciklama: "İstisna, götürü/gerçek gider", grup: "Ev ve Yaşam", anahtar: "kira geliri vergisi gmsi beyanname istisna götürü gider gerçek gider ev sahibi mart temmuz taksit hazır beyan stopaj" },
     { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" },
     { yol: "kiralamak-mi-satin-almak-mi.html", ad: "Kirala mı Al mı", aciklama: "Ev: dürüst karşılaştırma", grup: "Ev ve Yaşam", anahtar: "ev almak kiralamak kira mı taksit mi konut kredisi peşinat fırsat maliyeti yatırım başabaş değer artışı" },
-    { yol: "elektrikli-arac-sarj-maliyeti.html", ad: "Şarj Maliyeti", aciklama: "Elektrikli araç vs benzinli", grup: "Ev ve Yaşam", anahtar: "elektrikli araç şarj maliyeti kwh 100 km benzinli karşılaştırma ev şarjı istasyon hızlı şarj togg tesla menzil" }
+    { yol: "elektrikli-arac-sarj-maliyeti.html", ad: "Şarj Maliyeti", aciklama: "Elektrikli araç vs benzinli", grup: "Araç", anahtar: "elektrikli araç şarj maliyeti kwh 100 km benzinli karşılaştırma ev şarjı istasyon hızlı şarj togg tesla menzil" },
+    { yol: "araba-masrafi-hesaplama.html", ad: "Araba Masrafı", aciklama: "Değer kaybı dahil gerçek maliyet", grup: "Araç", anahtar: "araba masrafı araç gideri sahip olma maliyeti değer kaybı amortisman mtv kasko sigorta bakım lastik km başına otomobil" },
+    { yol: "lpg-donusum-amortisman-hesaplama.html", ad: "LPG Amortismanı", aciklama: "Kaç ayda kendini çıkarır", grup: "Araç", anahtar: "lpg dönüşüm amortisman tasarruf benzin karşılaştırma otogaz tüp montaj kaç ayda amorti başabaş" }
 ];
 
 const KAYIT = "hesapAraclariAyar";

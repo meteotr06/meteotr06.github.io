@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>LPG Dönüşümü Kaç Ayda Amorti Eder? — Tasarruf Hesabı</title>
+<meta name="description" content="LPG dönüşümü kaç ayda kendini amorti eder? Aylık kilometrenize göre net tasarruf, geri ödeme süresi ve 5 yıllık kazanç hesabı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/lpg-donusum-amortisman-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="LPG Dönüşümü Kaç Ayda Amorti Eder? — Tasarruf Hesabı" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/lpg-donusum-amortisman-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/lpg-donusum-amortisman-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="LPG Dönüşümü Kaç Ayda Amorti Eder? — Tasarruf Hesabı" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/lpg-donusum-amortisman-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=25" />
+</head>
+<body>
+
+<main>
+    <h1>LPG Dönüşümü Amortismanı</h1>
+    <p class="ozet">LPG litre başına <b>daha çok yakar</b> ama litresi çok daha ucuzdur. Dönüşüm masrafının kaç ayda geri döndüğünü hesaplayalım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Fazla tüketim hesaba katılır</span><span class="etiket-rozet">Ek bakım dahil</span><span class="etiket-rozet">Başabaş km</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Dönüşüm maliyeti (TL)
+                    <input id="maliyet" type="number" step="any" inputmode="decimal" value="35000" />
+                </label>
+                <label>Aylık kaç km?
+                    <input id="km" type="number" step="any" inputmode="decimal" value="1500" />
+                </label>
+                <label>Benzin tüketimi (L / 100 km)
+                    <input id="bTuketim" type="number" step="0.1" inputmode="decimal" value="7" />
+                </label>
+                <label>Benzin fiyatı (TL / litre)
+                    <input id="bFiyat" type="number" step="0.01" inputmode="decimal" value="52" />
+                </label>
+                <label>LPG fiyatı (TL / litre)
+                    <input id="lFiyat" type="number" step="0.01" inputmode="decimal" value="27" />
+                </label>
+                <label>LPG'de fazla tüketim (%)
+                    <input id="artis" type="number" step="1" inputmode="numeric" value="20" />
+                </label>
+                <label>LPG'nin yıllık ek bakımı (TL)
+                    <input id="ekBakim" type="number" step="any" inputmode="decimal" value="3000" />
+                </label>
+            </div>
+            <p class="kucuk"><b>Fazla tüketim:</b> LPG'nin enerji yoğunluğu benzinden düşüktür, aynı yolu
+            gitmek için daha çok litre yakarsınız — genelde <b>%15–25</b>. <b>Ek bakım:</b> buji, filtre
+            ve 10 yılda bir zorunlu tüp muayenesinin yıllığa bölünmüş hâli.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>LPG neden daha çok yakar?</h2>
+        <p>LPG'nin <b>litre başına enerjisi</b> benzinden düşüktür. Aynı mesafeyi gitmek için
+        daha fazla litre yakmanız gerekir — genelde <b>%15–25</b> arası. Buna rağmen litre
+        fiyatı benzinin yarısı civarında olduğu için sonuçta ucuza gelir.</p>
+        <p>Hesap yaparken bu farkı katmayanlar tasarrufu olduğundan fazla bulur. Bu araç katıyor.</p>
+
+        <h2>Kritik soru: yeterince yol yapıyor musunuz?</h2>
+        <p>LPG'nin mantığı basit: <b>sabit bir masraf yapıp her kilometrede biraz kazanmak</b>.
+        Dolayısıyla yılda 5.000 km yapan biriyle 40.000 km yapan biri için tablo bambaşkadır.</p>
+        <p>Araçtaki tabloda kendi rakamlarınızla farklı kilometre senaryolarını görebilirsiniz.
+        Az yol yapıyorsanız dönüşüm masrafı geri dönmeden aracı satmış olabilirsiniz.</p>
+
+        <h2>Görünmeyen maliyetler</h2>
+        <ul>
+            <li><b>Ek bakım</b> — LPG'de buji ve filtre daha sık değişir</li>
+            <li><b>Tüp muayenesi</b> — 10 yılda bir zorunludur, tüp değişimi gerekebilir</li>
+            <li><b>Bagaj kaybı</b> — silindir tank bagajı, toroidal tank stepneyi alır</li>
+            <li><b>İkinci el değeri</b> — bazı alıcılar LPG'li araca mesafeli durur, bazıları
+            tam tersi arar. Bölgeye ve modele göre değişir.</li>
+            <li><b>Kapalı otopark</b> — bazı kapalı otoparklar LPG'li araç kabul etmez</li>
+        </ul>
+        <p>Bu araç ek bakımı hesaba katar; diğerleri parasal olarak ölçülmesi zor şeylerdir
+        ama kararınızda ağırlığı olabilir.</p>
+
+        <h2>Ruhsata işletmeyi unutmayın</h2>
+        <p>LPG dönüşümü sonrası <b>montaj tespit raporu</b> alınıp ruhsata işletilmesi
+        zorunludur. İşlenmemiş LPG'li araç muayeneden geçmez ve trafikte sorun çıkarır.
+        Ayrıca sigorta şirketine bildirilmezse hasar ödemesinde sıkıntı yaşanabilir.</p>
+
+        <h2>Dizel araçla karşılaştırma</h2>
+        <p>Bu araç <b>benzinli–LPG</b> karşılaştırması yapar. Dizel bir araçla kıyaslıyorsanız
+        dizelin tüketimi genelde daha düşüktür ama araç fiyatı, bakım ve MTV farkı devreye
+        girer; o karşılaştırma için <a href="araba-masrafi-hesaplama.html">Araba Masrafı</a>
+        aracını iki kez çalıştırıp toplam maliyetleri kıyaslayın.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=25"></script>
+<script src="sayfa.js?v=25"></script>
+<script>
+iskeletKur("lpg-donusum-amortisman-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["maliyet","km","bTuketim","bFiyat","lFiyat","artis","ekBakim"];
+
+function hesapla() {
+    const g = {
+        donusumMaliyet: oku("maliyet"), aylikKm: oku("km"),
+        benzinTuketim: oku("bTuketim"), benzinFiyat: oku("bFiyat"),
+        lpgFiyat: oku("lFiyat"), lpgArtis: oku("artis"),
+        ekBakimYillik: oku("ekBakim")
+    };
+    if (!g.aylikKm || !g.benzinTuketim) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const l = lpgAmortisman(g);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${l.amortiEdiyorMu ? sayi(l.amortiAy, 1) + " ay" : "amorti etmiyor"}</div>
+        <div class="dev-etiket">${l.amortiEdiyorMu
+            ? "dönüşüm masrafının geri dönme süresi (" + sayi(l.amortiKm, 0) + " km)"
+            : "bu şartlarda LPG tasarruf ettirmiyor"}</div>
+        ${satir("Benzinle aylık yakıt", para(l.benzinAylik))}
+        ${satir("LPG ile aylık yakıt", para(l.lpgAylik))}
+        ${satir("LPG'nin ek bakım payı", "−" + para(l.ekBakimAylik))}
+        ${satir("Net aylık tasarruf", para(l.netTasarrufAylik), "buyuk")}
+        ${satir("Yıllık tasarruf", para(l.netTasarrufYillik))}
+        ${l.amortiEdiyorMu
+            ? `<p class="kucuk"><b>${sayi(l.amortiAy, 1)}. ayda</b> başabaşa gelirsiniz.
+               Ondan sonrası kâr. <b>5 yılda net kazancınız: ${para(l.besYilNet)}</b>.</p>`
+            : `<p class="kucuk" style="color:var(--azalis)">Girdiğiniz fiyatlarla LPG
+               daha pahalıya geliyor. Fiyatları ve fazla tüketim oranını kontrol edin.</p>`}
+    </div>
+
+    <div class="kutu">
+        <h3>100 km'de ne tutuyor?</h3>
+        ${satir("Benzinle", para(l.yuzKmBenzin), "buyuk")}
+        ${satir("LPG ile", para(l.yuzKmLpg), "buyuk")}
+        ${satir("LPG tüketimi", sayi(l.lpgTuketim, 1) + " L / 100 km")}
+        <p class="kucuk">LPG %${sayi(g.lpgArtis, 0)} daha fazla yakmasına rağmen litre fiyatı
+        düşük olduğu için 100 km'de <b>${para(Math.max(0, l.yuzKmBenzin - l.yuzKmLpg))}</b>
+        daha ucuza geliyor (<b>%${sayi(l.yuzKmBenzin > 0 ? (l.yuzKmBenzin - l.yuzKmLpg) / l.yuzKmBenzin * 100 : 0, 0)}</b>).</p>
+    </div>
+
+    <div class="kutu">
+        <h3>Ne kadar yol yaparsanız ne olur?</h3>
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Aylık km</th><th>Net tasarruf</th><th>Amorti süresi</th><th>5 yıl kazanç</th>
+            </tr></thead><tbody>
+            ${[500, 1000, 1500, 2000, 3000].map(k => {
+                const x = lpgAmortisman(Object.assign({}, g, { aylikKm: k }));
+                return `<tr class="${Math.abs(k - g.aylikKm) < 260 ? "vurgu-satir" : ""}">
+                    <td>${sayi(k, 0)} km</td>
+                    <td>${para(x.netTasarrufAylik)}</td>
+                    <td>${x.amortiEdiyorMu ? sayi(x.amortiAy, 1) + " ay" : "—"}</td>
+                    <td style="color:${x.besYilNet > 0 ? "var(--artis)" : "var(--azalis)"}">
+                        <b>${para(x.besYilNet)}</b></td></tr>`;
+            }).join("")}
+        </tbody></table></div>
+        <p class="kucuk">Az yol yapanlarda LPG geç amorti eder, hatta hiç etmeyebilir.
+        <b>Kritik soru "LPG ucuz mu" değil, "yeterince yol yapıyor muyum".</b></p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("LPG daha çok yakar, tüketim artırılır.",
+           `${sayi(g.benzinTuketim, 1)} × ${sayi(1 + g.lpgArtis / 100, 2)}`, sayi(l.lpgTuketim, 1) + " L/100km");
+    d.ekle("Benzinle aylık gider.",
+           `${sayi(g.aylikKm, 0)} × ${sayi(g.benzinTuketim, 1)} ÷ 100 × ${sayi(g.benzinFiyat, 2)}`, para(l.benzinAylik));
+    d.ekle("LPG ile aylık gider.",
+           `${sayi(g.aylikKm, 0)} × ${sayi(l.lpgTuketim, 1)} ÷ 100 × ${sayi(g.lpgFiyat, 2)}`, para(l.lpgAylik));
+    d.ekle("Ek bakım aylığa bölünür ve düşülür.",
+           `${sayi(g.ekBakimYillik, 0)} ÷ 12`, "−" + para(l.ekBakimAylik));
+    d.ekle("Net aylık tasarruf.",
+           `${sayi(l.benzinAylik, 0)} − ${sayi(l.lpgAylik, 0)} − ${sayi(l.ekBakimAylik, 0)}`, para(l.netTasarrufAylik));
+    if (l.amortiEdiyorMu)
+        d.ekle("Dönüşüm masrafı tasarrufa bölünür.",
+               `${sayi(l.maliyet, 0)} ÷ ${sayi(l.netTasarrufAylik, 0)}`, sayi(l.amortiAy, 1) + " ay");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("LPG Amortisman"));
+yapisalVeri("LPG Amortisman", "LPG dönüşümü kaç ayda kendini amorti eder? Aylık kilometrenize göre net tasarruf, geri ödeme süresi ve 5 yıllık kazanç hesabı.");
+
+sssEkle([
+    { soru: "LPG dönüşümü kaç ayda kendini amorti eder?",
+      cevap: "Tamamen kaç km yaptığınıza bağlı. Ayda 2.500 km yapan biri yaklaşık bir yılda çıkarırken, ayda 1.000 km yapan iki buçuk yılı bulabilir. Araç kendi rakamlarınızla hesaplar." },
+    { soru: "LPG benzinden ne kadar fazla yakar?",
+      cevap: "Genelde %15-25 daha fazla litre yakarsınız, çünkü LPG'nin litre başına enerjisi düşüktür. Buna rağmen litre fiyatı çok daha ucuz olduğu için toplamda tasarruf edersiniz." },
+    { soru: "LPG'nin ek masrafı var mı?",
+      cevap: "Evet. Buji ve filtre daha sık değişir, ayrıca 10 yılda bir zorunlu tüp muayenesi vardır. Araç bunları yıllık ek bakım olarak hesaba katıyor." },
+    { soru: "Az yol yapıyorum, LPG mantıklı mı?",
+      cevap: "Muhtemelen değil. LPG sabit bir masraf yapıp her kilometrede kazanma mantığıdır; az kilometrede dönüşüm masrafı geri dönmeden aracı satmış olabilirsiniz." },
+    { soru: "LPG ruhsata işlenmeli mi?",
+      cevap: "Evet, zorunludur. Montaj tespit raporu alınıp ruhsata işlenmezse araç muayeneden geçmez; ayrıca sigortaya bildirilmemesi hasar ödemesinde sorun çıkarabilir." }
+]);
+
+ilgiliAraclar("lpg-donusum-amortisman-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

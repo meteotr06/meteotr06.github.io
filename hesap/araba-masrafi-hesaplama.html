@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Araba Masrafı Hesaplama — Aylık Gerçek Maliyet</title>
+<meta name="description" content="Araba masrafı hesaplama: yakıt, sigorta, MTV, bakım, lastik ve değer kaybı dahil aylık gerçek maliyet. Km başına ne tuttuğunu gösterir." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/araba-masrafi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Araba Masrafı Hesaplama — Aylık Gerçek Maliyet" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/araba-masrafi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/araba-masrafi-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Araba Masrafı Hesaplama — Aylık Gerçek Maliyet" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/araba-masrafi-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=25" />
+</head>
+<body>
+
+<main>
+    <h1>Araba Masrafı</h1>
+    <p class="ozet">Araba masrafı yakıttan ibaret değil. En büyük kalem genelde <b>değer kaybıdır</b> ve kimse hesaplamaz — araç park hâlindeyken bile para yakar.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Değer kaybı dahil</span><span class="etiket-rozet">Km başına maliyet</span><span class="etiket-rozet">Kalem kalem döküm</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Aracın alış fiyatı (TL)
+                    <input id="alis" type="number" step="any" inputmode="decimal" value="1200000" />
+                </label>
+                <label>Yıllık değer kaybı (%)
+                    <input id="kayip" type="number" step="0.5" inputmode="decimal" value="15" />
+                </label>
+                <label>Kaç yıl kullanacaksınız?
+                    <input id="yil" type="number" inputmode="numeric" min="1" max="20" value="5" />
+                </label>
+                <label>Yılda kaç km?
+                    <input id="km" type="number" step="any" inputmode="decimal" value="15000" />
+                </label>
+                <label>Yakıt tüketimi (L / 100 km)
+                    <input id="tuketim" type="number" step="0.1" inputmode="decimal" value="7" />
+                </label>
+                <label>Yakıt fiyatı (TL / litre)
+                    <input id="yakitFiyat" type="number" step="0.01" inputmode="decimal" value="52" />
+                </label>
+                <label>MTV (yıllık, TL)
+                    <input id="mtv" type="number" step="any" inputmode="decimal" value="6000" />
+                </label>
+                <label>Sigorta + kasko (yıllık, TL)
+                    <input id="sigorta" type="number" step="any" inputmode="decimal" value="18000" />
+                </label>
+                <label>Bakım ve onarım (yıllık, TL)
+                    <input id="bakim" type="number" step="any" inputmode="decimal" value="12000" />
+                </label>
+                <label>Lastik takımı (TL)
+                    <input id="lastikFiyat" type="number" step="any" inputmode="decimal" value="14000" />
+                </label>
+                <label>Lastik kaç yılda bir?
+                    <input id="lastikYil" type="number" step="0.5" inputmode="decimal" value="4" />
+                </label>
+                <label>Otopark / garaj (aylık, TL)
+                    <input id="otopark" type="number" step="any" inputmode="decimal" value="0" />
+                </label>
+            </div>
+            <p class="kucuk"><b>Yıllık değer kaybı:</b> sıfır araçta ilk yıl %20–25, sonraki yıllarda
+            %10–15 civarındadır. İkinci elde daha yavaştır. Bilmiyorsanız <b>%15</b> makul bir başlangıç.
+            MTV'yi kendi ruhsatınızdaki tutardan girin.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>En büyük masraf yakıt değil</h2>
+        <p>"Arabam ayda ne yakıyor?" diye sorulduğunda herkes benzin parasını söyler. Oysa
+        tipik bir araçta <b>en büyük kalem değer kaybıdır</b> — çoğu zaman yakıtın iki katı.</p>
+        <p>Değer kaybı görünmez çünkü <b>cebinizden çıkmaz</b>; arabayı sattığınız gün
+        toplu hâlde ortaya çıkar. Ama her gün oluşur.</p>
+
+        <h2>Değer kaybı ne kadar olur?</h2>
+        <ul>
+            <li><b>Sıfır araçta ilk yıl</b> — %20–25. Anahtarı teslim aldığınız an başlar.</li>
+            <li><b>Sonraki yıllar</b> — %10–15 civarı, kalan değer üzerinden.</li>
+            <li><b>İkinci elde</b> — daha yavaş; en dik düşüş zaten yaşanmıştır.</li>
+        </ul>
+        <p>Bu yüzden "2–3 yaşında araç almak" finansal olarak mantıklı görülür: en pahalı
+        yılları başkası ödemiştir.</p>
+
+        <h2>Araba park hâlindeyken bile para yakar</h2>
+        <p>Değer kaybı, sigorta, MTV, otopark ve muayene <b>hiç kullanmasanız da</b> ödenir.
+        Araç bu tutarı ayrıca gösterir. Yılda az kilometre yapıyorsanız bu sayı çarpıcı olur —
+        o parayla taksi, kiralama ya da toplu taşıma çok daha ucuza gelebilir.</p>
+
+        <h2>Km başına maliyet neden önemli?</h2>
+        <p>Şehirlerarası bir yol için "sadece benzin parası" hesabı yapmak yanıltıcıdır.
+        Gerçek maliyet <b>km başına toplam maliyettir</b> — o yolculuk lastiği de aşındırır,
+        bakım aralığını da yaklaştırır, aracı da eskitir.</p>
+        <p>Araç size km başına ne tuttuğunu söyler; uzun yolda uçak veya otobüsle
+        karşılaştırırken bu sayıyı kullanın.</p>
+
+        <h2>Hesaba katılmayanlar</h2>
+        <ul>
+            <li><b>Kredi faizi</b> — araç krediyle alındıysa ayrıca eklenmeli
+            (<a href="kredi-hesaplama.html">Kredi Taksiti</a> aracıyla hesaplayın)</li>
+            <li><b>Paranın fırsat maliyeti</b> — peşin alındıysa o para başka yerde kazanç getirirdi</li>
+            <li><b>Köprü, otoyol, otopark ücretleri</b> — kullanıma göre çok değişir</li>
+            <li><b>Trafik cezaları</b> — kimse planlamaz ama olur</li>
+        </ul>
+    </section>
+</main>
+
+<script src="hesap.js?v=25"></script>
+<script src="sayfa.js?v=25"></script>
+<script>
+iskeletKur("araba-masrafi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["alis","kayip","yil","km","tuketim","yakitFiyat","mtv","sigorta","bakim","lastikFiyat","lastikYil","otopark"];
+
+function hesapla() {
+    const g = {
+        alisFiyat: oku("alis"), degerKaybi: oku("kayip"), yil: oku("yil"),
+        yillikKm: oku("km"), tuketim: oku("tuketim"), yakitFiyat: oku("yakitFiyat"),
+        mtv: oku("mtv"), sigorta: oku("sigorta"), bakim: oku("bakim"),
+        lastikFiyat: oku("lastikFiyat"), lastikYil: oku("lastikYil"),
+        otopark: oku("otopark"), muayene: 1500
+    };
+    if (!g.alisFiyat && !g.yillikKm) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const a = arabaMasrafi(g);
+    const RENK = ["#c2410c", "#1c5fd6", "#0a7ea4", "#15803d", "#7c3aed", "#b45309", "#475569", "#64748b"];
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(a.aylik)}</div>
+        <div class="dev-etiket">aracın size aylık gerçek maliyeti</div>
+        ${satir("Yılda", para(a.yillik))}
+        ${satir(a.yil + " yılda toplam", para(a.toplam), "buyuk")}
+        ${satir("Kilometre başına", para(a.kmBasina))}
+        ${satir("100 km başına", para(a.yuzKm))}
+        ${satir(a.yil + ". yıl sonunda aracın değeri", para(a.sonDeger))}
+    </div>
+
+    <div class="kutu one-cikan">
+        <h3>Para nereye gidiyor?</h3>
+        <div class="dagilim">${a.kalemler.map((k, i) =>
+            `<div style="width:${sayi(k.tutar / a.toplam * 100, 2).replace(",", ".")}%;background:${RENK[i % RENK.length]}"></div>`).join("")}</div>
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Kalem</th><th>${a.yil} yılda</th><th>Aylık</th><th>Pay</th></tr></thead><tbody>
+            ${a.kalemler.map((k, i) => `<tr>
+                <td><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${RENK[i % RENK.length]};margin-right:7px"></i>${k.ad}</td>
+                <td>${para(k.tutar)}</td>
+                <td>${para(k.tutar / (a.yil * 12))}</td>
+                <td><b>%${sayi(k.tutar / a.toplam * 100, 1)}</b></td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="kucuk">${a.enBuyuk && a.enBuyuk.ad === "Değer kaybı"
+            ? `En büyük kaleminiz <b>değer kaybı</b> — toplamın <b>%${sayi(a.degerKaybiPay, 1)}</b> kadarı.
+               Yakıt ise sadece <b>%${sayi(a.yakitPay, 1)}</b>. Çoğu kişi tam tersini sanır.`
+            : `En büyük kaleminiz <b>${a.enBuyuk ? a.enBuyuk.ad : "—"}</b>.`}</p>
+    </div>
+
+    <div class="kutu">
+        <h3>Arabayı hiç kullanmasanız bile</h3>
+        ${satir("Park hâlinde " + a.yil + " yılda", para(a.parkHalinde), "buyuk")}
+        ${satir("Aylık", para(a.parkHalindeAylik))}
+        <p class="kucuk">Değer kaybı, sigorta, MTV, otopark ve muayene <b>araç hiç
+        çalıştırılmasa da</b> ödenir. Yani arabanın kapıda durması bile ayda
+        <b>${para(a.parkHalindeAylik)}</b> tutuyor.</p>
+        <p class="kucuk">Bunu şununla karşılaştırın: aynı yolu taksi/kiralamayla gitseniz
+        ne öderdiniz? Az kilometre yapıyorsanız araba sahibi olmak pahalı olabilir.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Değer kaybı: her yıl kalan değerin yüzdesi gider.",
+           `${sayi(a.alis, 0)} × (1 − ${sayi(g.degerKaybi / 100, 2)})^${a.yil}`, para(a.sonDeger));
+    d.ekle("Toplam değer kaybı.", `${sayi(a.alis, 0)} − ${sayi(a.sonDeger, 0)}`, para(a.degerKaybi));
+    d.ekle("Yakıt: km × tüketim ÷ 100 × fiyat × yıl.",
+           `${sayi(a.toplamKm, 0)} km × ${sayi(g.tuketim, 1)} ÷ 100 × ${sayi(g.yakitFiyat, 2)}`, para(a.yakit));
+    d.ekle("Bütün kalemler toplanır.", a.kalemler.length + " kalem", para(a.toplam));
+    d.ekle("Aya bölünür.", `${sayi(a.toplam, 0)} ÷ ${a.yil * 12}`, para(a.aylik));
+    d.ekle("Kilometreye bölünür.", `${sayi(a.toplam, 0)} ÷ ${sayi(a.toplamKm, 0)}`, para(a.kmBasina));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Araba Masrafı"));
+yapisalVeri("Araba Masrafı", "Araba masrafı hesaplama: yakıt, sigorta, MTV, bakım, lastik ve değer kaybı dahil aylık gerçek maliyet. Km başına ne tuttuğunu gösterir.");
+
+sssEkle([
+    { soru: "Araba masrafının en büyük kalemi nedir?",
+      cevap: "Genelde değer kaybıdır; tipik bir araçta toplam maliyetin yarısından fazlasını oluşturur. Yakıt çoğu zaman ikinci sıradadır. Değer kaybı cebinizden çıkmadığı için fark edilmez." },
+    { soru: "Yıllık değer kaybı ne kadar olur?",
+      cevap: "Sıfır araçta ilk yıl %20-25, sonraki yıllarda kalan değer üzerinden %10-15 civarındadır. İkinci el araçlarda daha yavaştır çünkü en dik düşüş zaten yaşanmıştır." },
+    { soru: "Arabayı hiç kullanmasam masrafı olur mu?",
+      cevap: "Evet. Değer kaybı, sigorta, MTV, otopark ve muayene araç hiç çalıştırılmasa da ödenir. Araç bu tutarı ayrıca hesaplayıp gösterir." },
+    { soru: "Kredi faizi hesaba dahil mi?",
+      cevap: "Hayır. Aracı krediyle aldıysanız ödediğiniz faizi ayrıca eklemeniz gerekir; Kredi Taksiti aracıyla toplam faizi hesaplayabilirsiniz." },
+    { soru: "Az kilometre yapıyorum, araba almalı mıyım?",
+      cevap: "Km başına maliyetiniz çok yükselir çünkü sabit giderler az kilometreye bölünür. Araçtaki 'park hâlinde' tutarını taksi/kiralama maliyetinizle karşılaştırın." }
+]);
+
+ilgiliAraclar("araba-masrafi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

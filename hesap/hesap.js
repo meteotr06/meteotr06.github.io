@@ -1845,3 +1845,106 @@ function sarjMaliyeti(g) {
         hepIstasyon: kwhAylik * istasyonFiyat
     };
 }
+
+// ---------- 42) ARABA MASRAFI — TOPLAM SAHİP OLMA MALİYETİ ----------
+// Çoğu insan "araba masrafı = yakıt" sanır. Genelde en büyük kalem
+// DEĞER KAYBIDIR ve hiç hesaplanmaz: araç park hâlindeyken bile para yakar.
+
+function arabaMasrafi(g) {
+    const yil = Math.max(1, g.yil || 5);
+    const ay = yil * 12;
+    const yillikKm = g.yillikKm || 0;
+    const toplamKm = yillikKm * yil;
+
+    // Değer kaybı: her yıl kalan değerin belirli bir yüzdesi gider
+    const alis = g.alisFiyat || 0;
+    const kayipOran = (g.degerKaybi || 0) / 100;
+    const sonDeger = alis * Math.pow(1 - kayipOran, yil);
+    const degerKaybi = alis - sonDeger;
+
+    // Yakıt
+    const yakit = yillikKm * (g.tuketim || 0) / 100 * (g.yakitFiyat || 0) * yil;
+
+    // Sabit yıllık kalemler
+    const mtv = (g.mtv || 0) * yil;
+    const sigorta = (g.sigorta || 0) * yil;
+    const bakim = (g.bakim || 0) * yil;
+    const otopark = (g.otopark || 0) * ay;
+
+    // Lastik: kaç yılda bir değişiyor
+    const lastikYil = Math.max(0.5, g.lastikYil || 4);
+    const lastik = (g.lastikFiyat || 0) * Math.ceil(yil / lastikYil);
+
+    // Muayene: 2 yılda bir
+    const muayene = (g.muayene || 0) * Math.ceil(yil / 2);
+
+    const kalemler = [
+        { ad: "Değer kaybı", tutar: degerKaybi, tur: "gizli" },
+        { ad: "Yakıt", tutar: yakit, tur: "kullanim" },
+        { ad: "Sigorta ve kasko", tutar: sigorta, tur: "sabit" },
+        { ad: "Bakım ve onarım", tutar: bakim, tur: "kullanim" },
+        { ad: "Lastik", tutar: lastik, tur: "kullanim" },
+        { ad: "MTV", tutar: mtv, tur: "sabit" },
+        { ad: "Otopark / garaj", tutar: otopark, tur: "sabit" },
+        { ad: "Muayene", tutar: muayene, tur: "sabit" }
+    ].filter(k => k.tutar > 0).sort((a, b) => b.tutar - a.tutar);
+
+    const toplam = kalemler.reduce((t, k) => t + k.tutar, 0);
+    // Araç hiç kullanılmasa bile çıkan giderler
+    const parkHalinde = degerKaybi + sigorta + mtv + otopark + muayene;
+
+    return {
+        yil: yil, toplamKm: toplamKm,
+        alis: alis, sonDeger: sonDeger, degerKaybi: degerKaybi,
+        kalemler: kalemler, toplam: toplam,
+        aylik: toplam / ay, yillik: toplam / yil,
+        kmBasina: toplamKm > 0 ? toplam / toplamKm : 0,
+        yuzKm: toplamKm > 0 ? toplam / toplamKm * 100 : 0,
+        yakit: yakit,
+        yakitPay: toplam > 0 ? yakit / toplam * 100 : 0,
+        degerKaybiPay: toplam > 0 ? degerKaybi / toplam * 100 : 0,
+        parkHalinde: parkHalinde,
+        parkHalindeAylik: parkHalinde / ay,
+        enBuyuk: kalemler[0] || null
+    };
+}
+
+// ---------- 43) LPG DÖNÜŞÜMÜ KAÇ AYDA AMORTİ EDER? ----------
+// LPG'li araç litre başına daha fazla yakar (yaklaşık 1,15–1,25 kat)
+// ama litre fiyatı çok daha düşüktür. Fark, dönüşüm masrafını karşılar.
+
+function lpgAmortisman(g) {
+    const aylikKm = g.aylikKm || 0;
+    const benzinTuketim = g.benzinTuketim || 0;          // L/100 km
+    const benzinFiyat = g.benzinFiyat || 0;
+    const artis = 1 + (g.lpgArtis === undefined ? 20 : g.lpgArtis) / 100;  // LPG daha çok yakar
+    const lpgTuketim = benzinTuketim * artis;
+    const lpgFiyat = g.lpgFiyat || 0;
+
+    const benzinAylik = aylikKm * benzinTuketim / 100 * benzinFiyat;
+    const lpgAylik = aylikKm * lpgTuketim / 100 * lpgFiyat;
+    // LPG'nin ek bakım yükü (buji, filtre, tüp muayenesi) aylığa bölünmüş
+    const ekBakimAylik = (g.ekBakimYillik || 0) / 12;
+
+    const netTasarrufAylik = benzinAylik - lpgAylik - ekBakimAylik;
+    const maliyet = g.donusumMaliyet || 0;
+
+    const ay = netTasarrufAylik > 0 ? maliyet / netTasarrufAylik : Infinity;
+    const km = netTasarrufAylik > 0 ? ay * aylikKm : Infinity;
+
+    return {
+        aylikKm: aylikKm,
+        lpgTuketim: lpgTuketim,
+        benzinAylik: benzinAylik, lpgAylik: lpgAylik,
+        ekBakimAylik: ekBakimAylik,
+        netTasarrufAylik: netTasarrufAylik,
+        netTasarrufYillik: netTasarrufAylik * 12,
+        maliyet: maliyet,
+        amortiAy: ay, amortiKm: km,
+        amortiEdiyorMu: netTasarrufAylik > 0,
+        // 5 yılda ne kazanır?
+        besYilNet: netTasarrufAylik * 60 - maliyet,
+        yuzKmBenzin: benzinTuketim * benzinFiyat,
+        yuzKmLpg: lpgTuketim * lpgFiyat
+    };
+}
