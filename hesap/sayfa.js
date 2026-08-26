@@ -153,6 +153,7 @@ function iskeletKur(aktifYol) {
     };
     cevrimdisiUyari(aktifYol);
     gecmiseEkle(aktifYol);
+    yapiskanSonuc();
 }
 
 // ---------- Sonuç satırları ----------
@@ -691,4 +692,71 @@ function sonucBekliyor(mesaj) {
     </div>`;
     const d = document.getElementById("dokum");
     if (d) d.innerHTML = "";
+}
+
+// ---------- Mobilde yapışkan sonuç çubuğu ----------
+// SORUN (ölçüldü): 375px ekranda sonuç y=736'da başlıyor, ekran 812.
+// Kullanıcı formu doldururken cevabı GÖREMİYOR; her değişiklikte
+// aşağı kaydırıp geri dönmesi gerekiyor. Hesap makinesinde en temel şey bu.
+// ÇÖZÜM: sonuç ekrandan çıkınca altta ince bir çubukta göstermek.
+function yapiskanSonuc() {
+    if (!window.matchMedia("(max-width: 719px)").matches) return;
+    const ozet = document.getElementById("ozet");
+    if (!ozet) return;
+
+    const c = document.createElement("div");
+    c.className = "yapiskan-sonuc";
+    c.setAttribute("role", "status");
+    c.hidden = true;
+    c.innerHTML = `<span class="ys-etiket"></span><b class="ys-deger"></b><span class="ys-ok" aria-hidden="true">↑</span>`;
+    document.body.appendChild(c);
+    document.body.classList.add("yapiskan-var");
+    const etiketEl = c.querySelector(".ys-etiket");
+    const degerEl = c.querySelector(".ys-deger");
+
+    // Sonuca dön
+    c.addEventListener("click", () => {
+        const d = ozet.querySelector(".dev-deger, .yazi-sonuc");
+        (d || ozet).scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    // "Sonuç ekranda mı" sorusunu SAYININ KENDİSİNE sormak lazım, kutunun
+    // tamamına değil: kutunun %35'i görünmese de sayı okunuyor olabilir.
+    // Sayı her hesapta yeniden oluşturulduğu için IntersectionObserver
+    // hedefini kaybediyor; o yüzden kaydırmada elle ölçüyoruz.
+    function sayiOkunuyorMu() {
+        const d = ozet.querySelector(".dev-deger, .yazi-sonuc");
+        if (!d) return true;
+        const k = d.getBoundingClientRect();
+        const cubukPayi = 60;                    // çubuğun kaplayacağı alan
+        return k.top >= 0 && k.bottom <= innerHeight - cubukPayi;
+    }
+
+    function tazele() {
+        const d = ozet.querySelector(".dev-deger, .yazi-sonuc");
+        const e = ozet.querySelector(".dev-etiket");
+        if (!d) { c.hidden = true; return; }
+        degerEl.textContent = d.textContent.trim();
+        etiketEl.textContent = (e ? e.textContent.trim() : "").slice(0, 30);
+        c.hidden = sayiOkunuyorMu();
+    }
+
+    // requestAnimationFrame kullanmiyoruz: sayfa cizim yapmadiginda (arka plan
+    // sekmesi, gizli pencere) hic calismiyor ve cubuk bayat kaliyor.
+    let sonCalisma = 0;
+    const kaydirinca = () => {
+        const t = Date.now();
+        if (t - sonCalisma < 80) return;
+        sonCalisma = t;
+        tazele();
+    };
+    addEventListener("scroll", kaydirinca, { passive: true });
+    addEventListener("resize", kaydirinca);
+
+    // Kullanıcı yazdıkça sonuç değişir; çubuk da değişsin
+    try {
+        new MutationObserver(tazele).observe(ozet, { childList: true, subtree: true, characterData: true });
+    } catch (e) { }
+
+    tazele();
 }

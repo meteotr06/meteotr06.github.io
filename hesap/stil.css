@@ -903,3 +903,43 @@ main:focus { outline: none; }
 .dugme-baglanti:hover { background: var(--vurgu2); }
 td.evet { color: var(--artis); font-weight: 600; white-space: nowrap; }
 td.hayir { color: var(--azalis); font-weight: 600; white-space: nowrap; }
+
+/* ---------- Tasarım düzeltmeleri (ölçümle bulundu) ----------
+   1. h3 gövde yazısıyla aynı boydaydı (15px) — başlık gibi durmuyordu
+   2. Form etiketleri 13px ve soluk griydi; oysa form ASIL çalışma alanı
+   3. Kutular arası boşluk (12px) kutu içi paragraf boşluğundan (15px) dardı,
+      yani ritim tersti: içerideki parçalar kutulardan daha ayrık duruyordu */
+.kutu h3 { font-size: 17px; margin-bottom: 12px; }
+.arac-duzen label, .form-izgara label {
+    font-size: 14px; color: var(--yazi); font-weight: 500;
+}
+.form-izgara label { display: flex; flex-direction: column; gap: 6px; }
+.kutu { margin-bottom: 18px; }
+.anlatim p { margin: 12px 0; }
+
+/* ---------- Mobilde yapışkan sonuç çubuğu ----------
+   Sonuç ekrandan çıkınca altta belirir; dokununca sonuca geri götürür.
+   Sadece telefonda; masaüstünde form ve sonuç zaten yan yana. */
+.yapiskan-sonuc {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 16px calc(11px + env(safe-area-inset-bottom));
+    background: var(--kart); border-top: 1px solid var(--cizgi);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, .07);
+    cursor: pointer; min-height: 52px;
+}
+.yapiskan-sonuc[hidden] { display: none; }
+.ys-etiket {
+    font-size: 12px; color: var(--yazi2); flex: 1 1 auto; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ys-deger {
+    font-size: 18px; font-weight: 700; color: var(--yazi);
+    flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ys-ok { color: var(--vurgu); font-size: 16px; flex: 0 0 auto; }
+/* Çubuk alttaki içeriği örtmesin */
+/* Bosluk yalnizca cubuk gercekten varsa; ana sayfa ve rehberlerde gereksiz */
+@media (max-width: 719px) { body.yapiskan-var { padding-bottom: 60px; } }
+@media (min-width: 720px) { .yapiskan-sonuc { display: none !important; } }
+@media print { .yapiskan-sonuc { display: none !important; } }
