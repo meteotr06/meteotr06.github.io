@@ -573,6 +573,13 @@ function goster(yer, v, hk, modeller){
 
     ${aqiHTML}
 
+    <h2>Harita <small>şehir sıcaklıkları · yağış radarı</small></h2>
+    <div id="haritaKutu"></div>
+    <div class="harita-dugmeler">
+      <button class="dugme" id="haritaBtn">🗺️ Haritayı göster</button>
+      <button class="dugme" id="radarBtn" style="display:none">🌧️ Radar</button>
+    </div>
+
     <div class="kart">
       <h2 style="margin:0">Detaylar</h2>
       <div class="detay">
@@ -594,14 +601,7 @@ function goster(yer, v, hk, modeller){
     <div class="kart" style="padding:12px">${grafikCiz(saatler)}</div>
 
     <h2>7 günlük tahmin</h2>
-    ${gunlukHTML}
-
-    <h2>Harita <small>yağış radarı</small></h2>
-    <div id="haritaKutu"></div>
-    <div class="harita-dugmeler">
-      <button class="dugme" id="haritaBtn">🗺️ Haritayı göster</button>
-      <button class="dugme" id="radarBtn" style="display:none">🌧️ Radar</button>
-    </div>`;
+    ${gunlukHTML}`;
 
   document.getElementById("haritaBtn").onclick = haritayiAc;
   document.getElementById("radarBtn").onclick = radarDegistir;

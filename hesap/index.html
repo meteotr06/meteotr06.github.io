@@ -28,7 +28,7 @@
 <meta property="og:image:alt" content="Hesap Araçları — Net Maaş, Bütçe, Kira Artışı, Kredi ve Birikim Hesaplama 2026" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/genel.png" />
-<link rel="stylesheet" href="stil.css?v=26" />
+<link rel="stylesheet" href="stil.css?v=28" />
 </head>
 <body>
 
@@ -49,6 +49,7 @@
 
     <nav id="grupCipleri" class="grup-cipleri" aria-label="Gruplara git"></nav>
     <div id="sonKullanilan"></div>
+    <div id="rehberler"></div>
 
     <div id="aracListesi"></div>
 
@@ -74,8 +75,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=26"></script>
-<script src="sayfa.js?v=26"></script>
+<script src="hesap.js?v=28"></script>
+<script src="sayfa.js?v=28"></script>
 <script>
 iskeletKur("index.html");
 gizlilikBaglantisi();
@@ -120,6 +121,7 @@ function ciz() {
 
     document.getElementById("grupCipleri").hidden = !!sorgu;
     document.getElementById("sonKullanilan").hidden = !!sorgu;
+    document.getElementById("rehberler").hidden = !!sorgu;
 
     if (!sorgu) {                       // arama yoksa: gruplu tam liste
         const gruplar = {};
@@ -132,7 +134,10 @@ function ciz() {
     }
 
     const kelimeler = sorgu.split(/\s+/).filter(Boolean);
-    const bulunan = ARACLAR.map((a, i) => ({ a: a, p: puanla(a, kelimeler, i) }))
+    // Rehberler de aramaya girsin: "işten çıkarıldım" arayan rehberi bulmalı
+    const hepsi = ARACLAR.concat(REHBERLER.map(r =>
+        ({ yol: r.yol, ad: r.ad, aciklama: r.aciklama, grup: "Rehber", anahtar: r.anahtar })));
+    const bulunan = hepsi.map((a, i) => ({ a: a, p: puanla(a, kelimeler, i) }))
                            .filter(x => x.p > 0)
                            .sort((x, y) => y.p - x.p);
 
@@ -191,6 +196,7 @@ document.addEventListener("keydown", e => {
 });
 
 cipleriKur();
+rehberleriCiz("rehberler");
 sonKullanilanlariCiz();
 ciz();
 

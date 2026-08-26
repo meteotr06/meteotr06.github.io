@@ -47,6 +47,24 @@ const ARACLAR = [
     { yol: "lpg-donusum-amortisman-hesaplama.html", ad: "LPG Amortismanı", aciklama: "Kaç ayda kendini çıkarır", grup: "Araç", anahtar: "lpg dönüşüm amortisman tasarruf benzin karşılaştırma otogaz tüp montaj kaç ayda amorti başabaş" }
 ];
 
+// ---------- Rehberler ----------
+// İnsanlar tek bir hesapla değil, bir DURUMLA gelir: "işten çıkarıldım".
+// Rehber o durumu anlatır ve her adımda doğru hesap aracına yollar.
+const REHBERLER = [
+    { yol: "isten-cikarildim-haklarim.html", ad: "İşten çıkarıldım, haklarım neler?",
+      aciklama: "Kıdem, ihbar, izin, fazla mesai ve işsizlik maaşı — hangi durumda hangisi",
+      anahtar: "işten çıkarıldım kovuldum haklarım kıdem ihbar tazminat işsizlik maaşı istifa ibraname arabuluculuk fesih" }
+];
+
+function rehberleriCiz(hedefId) {
+    const k = document.getElementById(hedefId);
+    if (!k || !REHBERLER.length) return;
+    k.innerHTML = `<h2 class="grup-baslik">Rehberler</h2>
+        <div class="arac-izgara">${REHBERLER.map(r =>
+            `<a class="arac-kart rehber-kart" href="${r.yol}">
+                <b>${r.ad}</b><span>${r.aciklama}</span></a>`).join("")}</div>`;
+}
+
 const KAYIT = "hesapAraclariAyar";
 
 function ayarOku() {
@@ -309,6 +327,36 @@ function sssEkle(sorular) {
 function yapisalVeri(ad, aciklama) {
     const yol = location.pathname.split("/").pop() || "index.html";
     const arac = ARACLAR.find(a => a.yol === yol);
+    const rehber = (typeof REHBERLER !== "undefined") ? REHBERLER.find(r => r.yol === yol) : null;
+
+    // Rehber bir uygulama değil, MAKALEDİR. Google'a doğru türü söylemek gerekir.
+    if (rehber) {
+        ldEkle({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": ad,
+            "description": aciklama,
+            "inLanguage": "tr-TR",
+            "url": "https://meteotr06.github.io/hesap/" + yol,
+            "mainEntityOfPage": { "@type": "WebPage", "@id": "https://meteotr06.github.io/hesap/" + yol },
+            "image": "https://meteotr06.github.io/hesap/onizleme/" + yol.replace(".html", ".png"),
+            "publisher": { "@type": "Organization", "name": "Hesap Araçları",
+                           "url": "https://meteotr06.github.io/hesap/" }
+        });
+        ldEkle({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Hesap Araçları",
+                  "item": "https://meteotr06.github.io/hesap/" },
+                { "@type": "ListItem", "position": 2, "name": "Rehberler" },
+                { "@type": "ListItem", "position": 3, "name": rehber.ad,
+                  "item": "https://meteotr06.github.io/hesap/" + yol }
+            ]
+        });
+        return;
+    }
+
     // Finans disi araclar da var; kategoriyi grubuna gore ver
     const kategori = !arac ? "UtilitiesApplication"
         : ["Maaş ve Çalışma", "Kredi ve Borç", "Birikim", "Ticaret"].indexOf(arac.grup) >= 0
