@@ -4,4 +4,6 @@
   <url><loc>https://meteotr06.github.io/mobil/</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://meteotr06.github.io/kur-pusulasi/</loc><priority>0.9</priority><changefreq>daily</changefreq></url>
   <url><loc>https://meteotr06.github.io/goz-molasi/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://meteotr06.github.io/planlayici/</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://meteotr06.github.io/muhasebe/</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
 </urlset>

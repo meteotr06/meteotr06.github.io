@@ -555,9 +555,11 @@ function cevrimdisiUyari(aktifYol) {
 // Aynı adreste dört uygulama var ama birbirlerini tanıtmıyorlardı.
 // Hem ziyaretçi diğerlerini görsün hem de Google iç bağlantıları saysın.
 const DIGER_UYGULAMALAR = [
-    { ad: "Hava Durumu", adres: "../mobil/", not: "Türkiye geneli, saatlik ve 7 günlük" },
-    { ad: "Kur Pusulası", adres: "../kur-pusulasi/", not: "Döviz, altın ve kur tahmini" },
-    { ad: "Göz Molası", adres: "../goz-molasi/", not: "Ekran başında göz yorgunluğuna karşı" }
+    { ad: "Hava Durumu", adres: "../mobil/", not: "Saatlik ve 7 günlük" },
+    { ad: "Kur Pusulası", adres: "../kur-pusulasi/", not: "Döviz, altın ve tahmin" },
+    { ad: "Göz Molası", adres: "../goz-molasi/", not: "Ekran başında göz yorgunluğuna" },
+    { ad: "Haftalık Planlayıcı", adres: "../planlayici/", not: "Ders ve iş programı" },
+    { ad: "Muhasebe", adres: "../muhasebe/", not: "Gelir, gider, kasa ve cari" }
 ];
 
 function digerUygulamalar() {

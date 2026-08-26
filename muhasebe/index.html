@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1620">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="simge-192.png">
+<title>Muhasebe</title>
+<style>
+/* ==== Tema (koyu/acik otomatik) ==== */
+:root{
+  --arka:#0f1620; --panel:#1c2733; --ickart:#0e1620; --cizgi:#243444;
+  --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#5a6b7d;
+  --vurgu:#1f8fff; --gelir:#33c07a; --gider:#ff6b6b; --uyari:#ffcf5c;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
+    --yazi:#17212b; --yazi2:#48586a; --yazi3:#8393a3;
+    --vurgu:#1f8fff; --gelir:#1e9e60; --gider:#d64545; --uyari:#b8860b;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0; overflow-x:hidden;}
+body{
+  background:var(--arka); color:var(--yazi);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif; font-size:16px;
+  padding-bottom:76px; /* alt menu payi */
+}
+.kapsul{max-width:640px; margin:0 auto; padding:14px;}
+h1{font-size:20px; margin:6px 0 12px; display:flex; align-items:center; gap:8px;}
+.firma{font-size:13px; color:var(--yazi3); font-weight:400;}
+
+/* ==== Ozet kartlari ==== */
+.kartlar{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px;}
+.kart{background:var(--panel); border:1px solid var(--cizgi); border-radius:14px;
+  padding:12px 10px;}
+.kart .b{font-size:10px; color:var(--yazi3); font-weight:700; letter-spacing:.3px;}
+.kart .d{font-size:16px; font-weight:800; margin-top:4px; word-break:break-word;}
+.gelir{color:var(--gelir);} .gider{color:var(--gider);}
+
+/* ==== Segment (donem) ==== */
+.segment{display:flex; gap:6px; margin-bottom:12px;}
+.segment button{flex:1; min-height:38px; border:0; border-radius:10px;
+  background:var(--panel); color:var(--yazi2); font-weight:700; font-size:13px; cursor:pointer;}
+.segment button.aktif{background:var(--vurgu); color:#fff;}
+
+/* ==== Liste ==== */
+.liste{display:flex; flex-direction:column; gap:8px;}
+.satir{background:var(--panel); border:1px solid var(--cizgi); border-radius:12px;
+  padding:12px 14px; display:flex; align-items:center; gap:12px;}
+.nokta{width:10px; height:10px; border-radius:50%; flex:0 0 auto;}
+.satir .orta{flex:1; min-width:0;}
+.satir .kat{font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.satir .alt{font-size:12px; color:var(--yazi3); margin-top:2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.satir .tut{font-weight:800; font-size:15px; white-space:nowrap;}
+.bos{color:var(--yazi3); text-align:center; padding:36px 10px; font-size:14px;}
+
+/* ==== Alt menu ==== */
+/* Diger uygulamalara koprü — alt menu sabit oldugu icin altta bosluk birakilir */
+.diger-uyg{display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
+  margin:26px 0 96px; align-items:start;}
+.diger-uyg h2{grid-column:1/-1; font-size:13px; font-weight:600; color:var(--yazi2); margin:0 0 2px;}
+.diger-uyg a{display:block; padding:11px 13px; border-radius:12px; background:var(--panel);
+  border:1px solid var(--cizgi); text-decoration:none; min-height:44px;}
+.diger-uyg a:hover{border-color:var(--vurgu);}
+.diger-uyg a b{display:block; color:var(--yazi); font-size:14px;}
+.diger-uyg a span{display:block; color:var(--yazi2); font-size:11.5px; margin-top:2px;}
+@media (min-width:700px){ .diger-uyg{grid-template-columns:repeat(5,1fr); margin-bottom:80px;} }
+@media print{ .diger-uyg{display:none !important;} }
+.altmenu{position:fixed; left:0; right:0; bottom:0; background:var(--panel);
+  border-top:1px solid var(--cizgi); display:flex; padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+  z-index:20;}
+.altmenu button{flex:1; background:none; border:0; color:var(--yazi3);
+  font-size:11px; font-weight:700; padding:6px 2px; cursor:pointer; min-height:52px;}
+.altmenu button .ikon{font-size:20px; display:block; margin-bottom:2px;}
+.altmenu button.aktif{color:var(--vurgu);}
+
+/* ==== Yuzen ekle dugmesi ==== */
+.fab{position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom));
+  width:58px; height:58px; border-radius:50%; border:0; background:var(--vurgu);
+  color:#fff; font-size:30px; box-shadow:0 6px 18px rgba(0,0,0,.35); cursor:pointer; z-index:25;}
+
+/* ==== Modal form ==== */
+.perde{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
+  align-items:flex-end; z-index:40;}
+.perde.acik{display:flex;}
+.form{background:var(--panel); width:100%; max-width:640px; margin:0 auto;
+  border-radius:18px 18px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); max-height:92vh; overflow-y:auto;}
+.form h2{font-size:17px; margin:0 0 12px;}
+.tur-sec{display:flex; gap:8px; margin-bottom:12px;}
+.tur-sec button{flex:1; min-height:46px; border:0; border-radius:12px; font-weight:800;
+  font-size:15px; background:var(--ickart); color:var(--yazi2); cursor:pointer;}
+.tur-sec button.g-aktif{background:var(--gelir); color:#fff;}
+.tur-sec button.x-aktif{background:var(--gider); color:#fff;}
+label{display:block; font-size:13px; color:var(--yazi2); margin:10px 0 4px;}
+input,select{width:100%; min-height:48px; background:var(--ickart); color:var(--yazi);
+  border:1px solid var(--cizgi); border-radius:12px; padding:0 14px; font-size:16px; /* 16px: iOS zoom yapmasin */}
+select{appearance:none;}
+.buyuk-tutar{font-size:22px !important; font-weight:800; text-align:right;}
+.form-dugmeler{display:flex; gap:10px; margin-top:16px;}
+.form-dugmeler button{flex:1; min-height:50px; border:0; border-radius:12px;
+  font-weight:800; font-size:16px; cursor:pointer;}
+.btn-vaz{background:var(--ickart); color:var(--yazi2);}
+.btn-kaydet{background:var(--vurgu); color:#fff;}
+
+/* ==== Ana ekrana ekle daveti ==== */
+.davet{position:fixed; left:12px; right:12px; bottom:calc(84px + env(safe-area-inset-bottom));
+  background:var(--panel); border:1px solid var(--vurgu); border-radius:14px;
+  padding:12px 14px; display:none; align-items:center; gap:10px; z-index:30; font-size:13px;}
+.davet.acik{display:flex;}
+.davet button{margin-left:auto; background:var(--vurgu); color:#fff; border:0;
+  border-radius:10px; min-height:40px; padding:0 14px; font-weight:700; cursor:pointer;}
+.gizle{background:none; margin:0 0 0 6px; color:var(--yazi3); min-height:40px; padding:0 8px;}
+
+.sayfa{display:none;} .sayfa.aktif{display:block;}
+</style>
+</head>
+<body>
+<div class="kapsul">
+  <h1>📒 Muhasebe <span class="firma" id="firma"></span></h1>
+
+  <!-- ===== KASA (gelir/gider) ===== -->
+  <div class="sayfa aktif" id="sayfa-kasa">
+    <div class="kartlar">
+      <div class="kart"><div class="b">GELİR</div><div class="d gelir" id="k-gelir">0,00 ₺</div></div>
+      <div class="kart"><div class="b">GİDER</div><div class="d gider" id="k-gider">0,00 ₺</div></div>
+      <div class="kart"><div class="b" id="k-net-b">NET</div><div class="d" id="k-net">0,00 ₺</div></div>
+    </div>
+    <div class="segment" id="donem-segment">
+      <button data-d="ay" class="aktif">Bu Ay</button>
+      <button data-d="yil">Bu Yıl</button>
+      <button data-d="tum">Tümü</button>
+    </div>
+    <div class="liste" id="hareket-liste"></div>
+  </div>
+
+  <!-- ===== CARI ===== -->
+  <div class="sayfa" id="sayfa-cari">
+    <div class="kartlar">
+      <div class="kart" style="grid-column:span 1"><div class="b">ALACAK</div><div class="d gelir" id="c-alacak">0,00 ₺</div></div>
+      <div class="kart" style="grid-column:span 2"><div class="b">BORÇ (BİZİM)</div><div class="d gider" id="c-borc">0,00 ₺</div></div>
+    </div>
+    <div class="liste" id="cari-liste"></div>
+  </div>
+
+  <!-- Ayni adreste alti uygulama var; birbirlerini tanitsinlar -->
+  <nav class="diger-uyg" aria-label="Diğer uygulamalar">
+    <h2>Diğer ücretsiz uygulamalarım</h2>
+    <a href="../hesap/"><b>Hesap Araçları</b><span>Net maaş, kredi, kira, KDV — 35 araç</span></a>
+    <a href="../mobil/"><b>Hava Durumu</b><span>Saatlik ve 7 günlük</span></a>
+    <a href="../kur-pusulasi/"><b>Kur Pusulası</b><span>Döviz, altın ve tahmin</span></a>
+    <a href="../goz-molasi/"><b>Göz Molası</b><span>Ekran başında göz yorgunluğuna</span></a>
+    <a href="../planlayici/"><b>Haftalık Planlayıcı</b><span>Ders ve iş programı</span></a>
+  </nav>
+</div>
+
+<!-- Yuzen ekle dugmesi -->
+<button class="fab" id="fab">+</button>
+
+<!-- Alt menu -->
+<div class="altmenu">
+  <button data-s="kasa" class="aktif"><span class="ikon">💰</span>Kasa</button>
+  <button data-s="cari"><span class="ikon">👥</span>Cari</button>
+</div>
+
+<!-- Ana ekrana ekle daveti -->
+<div class="davet" id="davet">
+  <span>📲 Uygulamayı ana ekrana ekleyin</span>
+  <button id="davet-ekle">Ekle</button>
+  <button class="gizle" id="davet-gizle">✕</button>
+</div>
+
+<!-- Kayit ekleme formu (modal) -->
+<div class="perde" id="perde">
+  <div class="form">
+    <h2 id="form-baslik">Yeni Kayıt</h2>
+    <div id="form-kasa">
+      <div class="tur-sec">
+        <button id="t-gelir" class="g-aktif">Gelir</button>
+        <button id="t-gider">Gider</button>
+      </div>
+      <label>Tutar (₺)</label>
+      <input id="f-tutar" class="buyuk-tutar" inputmode="decimal" placeholder="0,00">
+      <label>Kategori</label>
+      <select id="f-kategori"></select>
+      <label>Açıklama (isteğe bağlı)</label>
+      <input id="f-aciklama" placeholder="Not">
+      <label>Tarih</label>
+      <input id="f-tarih" type="date">
+    </div>
+    <div id="form-cari" style="display:none">
+      <label>Cari Adı</label>
+      <input id="cf-ad" placeholder="Müşteri / tedarikçi adı">
+      <label>Tür</label>
+      <select id="cf-tur"><option value="musteri">Müşteri</option><option value="tedarikci">Tedarikçi</option></select>
+      <label>Açılış Bakiyesi (+ borçlu / − alacaklı)</label>
+      <input id="cf-acilis" inputmode="decimal" placeholder="0,00">
+    </div>
+    <div class="form-dugmeler">
+      <button class="btn-vaz" id="f-vaz">Vazgeç</button>
+      <button class="btn-kaydet" id="f-kaydet">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ============ Veri (localStorage) ============
+const VARSAYILAN = {hareketler:[], cariler:[], sayac:1};
+let db = JSON.parse(localStorage.getItem("muhasebe_mobil") || "null") || VARSAYILAN;
+function kaydet(){ localStorage.setItem("muhasebe_mobil", JSON.stringify(db)); }
+function yeniId(){ return db.sayac++; }
+
+const GELIR_KAT = ["Satış","Hizmet","Faiz Geliri","Kira Geliri","Diğer Gelir"];
+const GIDER_KAT = ["Alış","Kira","Maaş","Elektrik/Su/Doğalgaz","Telefon/İnternet","Vergi","Nakliye","Bakım/Onarım","Diğer Gider"];
+
+// ============ Para (kurus <-> metin) — masaustuyle ayni mantik ============
+function kurusa(m){
+  if(m==null) return null;
+  let s=(""+m).trim().replace(/\s/g,"").replace("₺","").replace("TL","");
+  if(!s) return null;
+  let eksi = s[0]==="-"; s=s.replace(/^[+-]/,"");
+  if(s.includes(",")) s=s.replace(/\./g,"").replace(",",".");
+  else if(s.includes(".")){
+    let p=s.split(".");
+    if(!(p.length===2 && p[1].length>=1 && p[1].length<=2)) s=s.replace(/\./g,"");
+  }
+  let sayi=parseFloat(s); if(isNaN(sayi)) return null;
+  let k=Math.round(sayi*100); return eksi?-k:k;
+}
+function para(k, simge=true){
+  if(k==null) k=0; k=Math.round(k);
+  let isaret = k<0?"-":""; let mutlak=Math.abs(k);
+  let tam=Math.floor(mutlak/100), kr=mutlak%100;
+  let ts=tam.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
+  let r=isaret+ts+","+(kr<10?"0":"")+kr;
+  return simge? r+" ₺" : r;
+}
+
+// ============ Tarih ============
+function bugun(){ return new Date().toISOString().slice(0,10); }
+function tarihGoster(t){ let p=(t||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : t; }
+function donemAralik(d){
+  let now=new Date(), y=now.getFullYear(), ay=now.getMonth();
+  if(d==="ay"){ let ilk=new Date(y,ay,1), son=new Date(y,ay+1,0);
+    return [ilk.toISOString().slice(0,10), son.toISOString().slice(0,10)]; }
+  if(d==="yil") return [y+"-01-01", y+"-12-31"];
+  return [null,null];
+}
+
+// ============ Durum ============
+let donem="ay", formTur="gelir";
+
+// ============ Ozet + liste ciz ============
+function suzulmus(){
+  let [bas,bit]=donemAralik(donem);
+  return db.hareketler.filter(h=> (!bas||h.tarih>=bas)&&(!bit||h.tarih<=bit))
+    .sort((a,b)=> a.tarih<b.tarih?1:a.tarih>b.tarih?-1:b.id-a.id);
+}
+function ozetCiz(){
+  let hs=suzulmus();
+  let g=hs.filter(h=>h.tur==="gelir").reduce((t,h)=>t+h.tutar,0);
+  let x=hs.filter(h=>h.tur==="gider").reduce((t,h)=>t+h.tutar,0);
+  let net=g-x;
+  document.getElementById("k-gelir").textContent=para(g);
+  document.getElementById("k-gider").textContent=para(x);
+  let netEl=document.getElementById("k-net");
+  netEl.textContent=(net>0?"+":"")+para(net);
+  netEl.className="d "+(net>=0?"gelir":"gider");
+  document.getElementById("k-net-b").textContent = net>=0?"KÂR":"ZARAR";
+}
+function hareketleriCiz(){
+  let hs=suzulmus(), el=document.getElementById("hareket-liste");
+  if(!hs.length){ el.innerHTML='<div class="bos">Bu dönemde kayıt yok.<br>Sağ alttaki + ile ekleyin.</div>'; return; }
+  el.innerHTML="";
+  hs.forEach(h=>{
+    let d=document.createElement("div"); d.className="satir";
+    let renk = h.tur==="gelir"?"var(--gelir)":"var(--gider)";
+    d.innerHTML=`<span class="nokta" style="background:${renk}"></span>
+      <div class="orta"><div class="kat">${h.kategori||"—"}</div>
+      <div class="alt">${tarihGoster(h.tarih)}${h.aciklama?" · "+h.aciklama:""}</div></div>
+      <div class="tut" style="color:${renk}">${h.tur==="gider"?"−":""}${para(h.tutar)}</div>`;
+    d.onclick=()=>{ if(confirm((h.kategori||"Kayıt")+" — "+para(h.tutar)+"\n\nSilinsin mi?")){
+      db.hareketler=db.hareketler.filter(x=>x.id!==h.id); kaydet(); ciz(); } };
+    el.appendChild(d);
+  });
+}
+
+// ============ Cari ============
+function cariBakiye(c){
+  let b=c.acilis||0;
+  db.hareketler.forEach(h=>{ if(h.cari===c.id){ b += h.tur==="gelir"? -h.tutar : h.tutar; } });
+  return b;
+}
+function carileriCiz(){
+  let el=document.getElementById("cari-liste");
+  let alacak=0, borc=0;
+  db.cariler.forEach(c=>{ let b=cariBakiye(c); if(b>0)alacak+=b; else if(b<0)borc+=-b; });
+  document.getElementById("c-alacak").textContent=para(alacak);
+  document.getElementById("c-borc").textContent=para(borc);
+  if(!db.cariler.length){ el.innerHTML='<div class="bos">Henüz cari yok.<br>Sağ alttaki + ile ekleyin.</div>'; return; }
+  el.innerHTML="";
+  db.cariler.forEach(c=>{
+    let b=cariBakiye(c), renk=b>0?"var(--gelir)":b<0?"var(--gider)":"var(--yazi3)";
+    let d=document.createElement("div"); d.className="satir";
+    d.innerHTML=`<div class="orta"><div class="kat">${c.ad}</div>
+      <div class="alt">${c.tur==="musteri"?"Müşteri":"Tedarikçi"} · ${b>0?"bize borçlu":b<0?"biz borçluyuz":"—"}</div></div>
+      <div class="tut" style="color:${renk}">${para(b)}</div>`;
+    d.onclick=()=>{ if(confirm(c.ad+"\n\nSilinsin mi?")){
+      db.cariler=db.cariler.filter(x=>x.id!==c.id); kaydet(); ciz(); } };
+    el.appendChild(d);
+  });
+}
+
+function ciz(){ kaydet(); ozetCiz(); hareketleriCiz(); carileriCiz(); }
+
+// ============ Sekme gecisi ============
+let aktifSayfa="kasa";
+document.querySelectorAll(".altmenu button").forEach(b=>{
+  b.onclick=()=>{
+    aktifSayfa=b.dataset.s;
+    document.querySelectorAll(".altmenu button").forEach(x=>x.classList.toggle("aktif", x===b));
+    document.getElementById("sayfa-kasa").classList.toggle("aktif", aktifSayfa==="kasa");
+    document.getElementById("sayfa-cari").classList.toggle("aktif", aktifSayfa==="cari");
+  };
+});
+document.querySelectorAll("#donem-segment button").forEach(b=>{
+  b.onclick=()=>{ donem=b.dataset.d;
+    document.querySelectorAll("#donem-segment button").forEach(x=>x.classList.toggle("aktif",x===b));
+    ozetCiz(); hareketleriCiz(); };
+});
+
+// ============ Kategori doldur ============
+function kategoriDoldur(){
+  let s=document.getElementById("f-kategori");
+  let liste = formTur==="gelir"?GELIR_KAT:GIDER_KAT;
+  s.innerHTML=liste.map(k=>`<option>${k}</option>`).join("");
+}
+
+// ============ Modal form ============
+const perde=document.getElementById("perde");
+function formAc(){
+  if(aktifSayfa==="cari"){
+    document.getElementById("form-baslik").textContent="Yeni Cari";
+    document.getElementById("form-kasa").style.display="none";
+    document.getElementById("form-cari").style.display="block";
+  } else {
+    document.getElementById("form-baslik").textContent="Yeni Kayıt";
+    document.getElementById("form-kasa").style.display="block";
+    document.getElementById("form-cari").style.display="none";
+    formTur="gelir"; turGorunum(); kategoriDoldur();
+    document.getElementById("f-tutar").value="";
+    document.getElementById("f-aciklama").value="";
+    document.getElementById("f-tarih").value=bugun();
+  }
+  perde.classList.add("acik");
+  if(aktifSayfa==="kasa") setTimeout(()=>document.getElementById("f-tutar").focus(),100);
+  else { document.getElementById("cf-ad").value=""; document.getElementById("cf-acilis").value=""; }
+}
+function formKapat(){ perde.classList.remove("acik"); }
+document.getElementById("fab").onclick=formAc;
+document.getElementById("f-vaz").onclick=formKapat;
+perde.onclick=(e)=>{ if(e.target===perde) formKapat(); };
+
+function turGorunum(){
+  document.getElementById("t-gelir").className = formTur==="gelir"?"g-aktif":"";
+  document.getElementById("t-gider").className = formTur==="gider"?"x-aktif":"";
+}
+document.getElementById("t-gelir").onclick=()=>{ formTur="gelir"; turGorunum(); kategoriDoldur(); };
+document.getElementById("t-gider").onclick=()=>{ formTur="gider"; turGorunum(); kategoriDoldur(); };
+
+document.getElementById("f-kaydet").onclick=()=>{
+  if(aktifSayfa==="cari"){
+    let ad=document.getElementById("cf-ad").value.trim();
+    if(!ad){ alert("Cari adı girin."); return; }
+    let acilis=kurusa(document.getElementById("cf-acilis").value)||0;
+    db.cariler.push({id:yeniId(), ad, tur:document.getElementById("cf-tur").value, acilis});
+  } else {
+    let tutar=kurusa(document.getElementById("f-tutar").value);
+    if(tutar==null || tutar<=0){ alert("Geçerli bir tutar girin (örn. 1500 ya da 1.500,50)."); return; }
+    db.hareketler.push({
+      id:yeniId(), tarih:document.getElementById("f-tarih").value||bugun(),
+      tur:formTur, tutar, kategori:document.getElementById("f-kategori").value,
+      aciklama:document.getElementById("f-aciklama").value.trim(), cari:null
+    });
+  }
+  ciz(); formKapat();
+};
+
+// ============ Ana ekrana ekle ============
+let ekleOlay=null;
+window.addEventListener("beforeinstallprompt",(e)=>{
+  e.preventDefault(); ekleOlay=e;
+  if(!localStorage.getItem("davet_gizli")) document.getElementById("davet").classList.add("acik");
+});
+document.getElementById("davet-ekle").onclick=async()=>{
+  document.getElementById("davet").classList.remove("acik");
+  if(ekleOlay){ ekleOlay.prompt(); await ekleOlay.userChoice; ekleOlay=null; }
+};
+document.getElementById("davet-gizle").onclick=()=>{
+  document.getElementById("davet").classList.remove("acik");
+  localStorage.setItem("davet_gizli","1");
+};
+
+// ============ Servis calisani (cevrimdisi) ============
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=> navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+
+// ============ Baslat ============
+ciz();
+</script>
+</body>
+</html>
