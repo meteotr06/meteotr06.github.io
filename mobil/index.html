@@ -655,7 +655,12 @@ async function haritayiAc(){
    24 ile TEK cagriyla getiriyoruz - hizli ve hafif. */
 async function haritaSicakliklari(){
   if (!harita) return;
+  harita.invalidateSize();
   const sinir = harita.getBounds();
+  // harita henuz olculmemisse (genislik ~0) sinir bozuk olur -> biraz sonra tekrar dene
+  if (sinir.getEast() - sinir.getWest() < 0.02){
+    clearTimeout(sicZaman); sicZaman = setTimeout(haritaSicakliklari, 400); return;
+  }
   const merkez = harita.getCenter();
   // gorunen iller, merkeze yakinliga gore siralanip ilk 24
   const gorunen = ILLER

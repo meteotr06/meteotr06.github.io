@@ -7,7 +7,7 @@
 /* DIKKAT: index.html / yerler.js degistiginde bu SURUM NUMARASINI artirin.
    Yoksa telefona kurmus kullanicilar eski surumu gormeye devam eder
    (onbellekten servis edilir). Numara degisince eski onbellek silinir. */
-const ONBELLEK = "hava-durumu-20260826-1523";
+const ONBELLEK = "hava-durumu-20260826-1530";
 const DOSYALAR = [
   "index.html",
   "yerler.js",
