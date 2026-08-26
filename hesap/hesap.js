@@ -46,7 +46,14 @@ const PARAMETRE = {
     mevduatStopaj: 0.15,
 
     // KDV oranları
-    kdvOranlari: [1, 10, 20]
+    kdvOranlari: [1, 10, 20],
+
+    // Kıdem tazminatı tavanı — 6 ayda bir değişir, çıkış tarihine göre uygulanır
+    // Kaynak: resmî tebliğler (Verginet/PwC duyuruları ile teyit edildi)
+    kidemTavanlari: [
+        { baslangic: "2026-01-01", bitis: "2026-06-30", tutar: 64948.77 },
+        { baslangic: "2026-07-01", bitis: "2026-12-31", tutar: 73729.87 }
+    ]
 };
 
 // ---------- BİÇİMLEME ----------
@@ -474,5 +481,70 @@ function alimSatimKar(alisBirim, satisBirim, miktar, gunSayisi, yillikEnflasyon,
         donemEnflasyon: donemEnflasyon, reelOran: reel,
         reelKar: maliyet * reel / 100,
         komisyonTutari: alisBirim * miktar * kom + satisBirim * miktar * kom
+    };
+}
+
+// ---------- 9) KIDEM VE İHBAR TAZMİNATI ----------
+// Kıdem tazminatı: her TAM YIL için 30 günlük GİYDİRİLMİŞ brüt ücret.
+// Küsurat günler orantılı eklenir.
+//
+// İKİ ÖNEMLİ AYRINTI:
+// 1) "Giydirilmiş ücret" = çıplak brüt maaş + düzenli yan haklar
+//    (yol, yemek, ikramiye, prim…) aylık karşılığı. Sadece maaş değildir.
+// 2) Kıdem tazminatından SADECE damga vergisi kesilir.
+//    Gelir vergisi ve SGK primi kesilmez. İhbar tazminatında ise
+//    hem gelir vergisi hem damga kesilir — ikisi karıştırılır.
+
+function kidemTavani(cikisTarihi) {
+    const t = PARAMETRE.kidemTavanlari.find(x => cikisTarihi >= x.baslangic && cikisTarihi <= x.bitis);
+    return t ? t : PARAMETRE.kidemTavanlari[PARAMETRE.kidemTavanlari.length - 1];
+}
+
+function gunFarki(baslangic, bitis) {
+    const a = new Date(baslangic + "T00:00:00Z"), b = new Date(bitis + "T00:00:00Z");
+    return Math.max(0, Math.round((b - a) / 86400000));
+}
+
+function kidemTazminati(giydirilmisBrut, giris, cikis) {
+    const toplamGun = gunFarki(giris, cikis);
+    if (toplamGun <= 0) return null;
+
+    const tavan = kidemTavani(cikis);
+    const tavanAsildi = giydirilmisBrut > tavan.tutar;
+    const esasUcret = Math.min(giydirilmisBrut, tavan.tutar);
+
+    const yil = Math.floor(toplamGun / 365);
+    const artanGun = toplamGun - yil * 365;
+
+    const brut = esasUcret * (toplamGun / 365);
+    const damga = brut * PARAMETRE.damgaOran;
+
+    return {
+        toplamGun: toplamGun, yil: yil, artanGun: artanGun,
+        tavan: tavan.tutar, tavanAsildi: tavanAsildi,
+        esasUcret: esasUcret, giydirilmis: giydirilmisBrut,
+        brut: brut, damga: damga, net: brut - damga,
+        hakEdiyorMu: toplamGun >= 365
+    };
+}
+
+// İhbar süresi kıdeme göre değişir (İş Kanunu md. 17)
+function ihbarSuresi(toplamGun) {
+    if (toplamGun < 182) return 2;        // 6 aydan az → 2 hafta
+    if (toplamGun < 548) return 4;        // 6 ay – 1,5 yıl → 4 hafta
+    if (toplamGun < 1095) return 6;       // 1,5 – 3 yıl → 6 hafta
+    return 8;                             // 3 yıldan fazla → 8 hafta
+}
+
+function ihbarTazminati(giydirilmisBrut, toplamGun, gelirVergisiOrani) {
+    const hafta = ihbarSuresi(toplamGun);
+    const gunluk = giydirilmisBrut / 30;
+    const brut = gunluk * hafta * 7;
+    const gv = brut * (gelirVergisiOrani / 100);
+    const damga = brut * PARAMETRE.damgaOran;
+    return {
+        hafta: hafta, gun: hafta * 7, gunlukUcret: gunluk,
+        brut: brut, gelirVergisi: gv, damga: damga,
+        net: brut - gv - damga
     };
 }

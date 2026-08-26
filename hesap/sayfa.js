@@ -5,6 +5,7 @@
 const ARACLAR = [
     { yol: "net-maas-hesaplama.html", ad: "Net Maaş", aciklama: "Brütten nete, 12 ayın tamamı" },
     { yol: "butce-hesaplama.html", ad: "Bütçe", aciklama: "Gelir, gider ve kalanla ne yapılır" },
+    { yol: "kidem-tazminati-hesaplama.html", ad: "Kıdem Tazminatı", aciklama: "Kıdem + ihbar, tavan dahil" },
     { yol: "kredi-hesaplama.html", ad: "Kredi Taksiti", aciklama: "Aylık taksit ve ödeme planı" },
     { yol: "mevduat-faizi-hesaplama.html", ad: "Mevduat Faizi", aciklama: "Vade sonu net getiri" },
     { yol: "kdv-hesaplama.html", ad: "KDV", aciklama: "Dahil / hariç ayırma" },

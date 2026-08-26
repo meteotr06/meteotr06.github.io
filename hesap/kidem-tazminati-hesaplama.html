@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Kıdem ve İhbar Tazminatı Hesaplama 2026 — Tavan Dahil</title>
+<meta name="description" content="Kıdem tazminatı hesaplama 2026: giydirilmiş ücret, kıdem tavanı ve damga vergisiyle net tutar. İhbar tazminatı süresi ve tutarı da birlikte hesaplanır." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kidem-tazminati-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Kıdem ve İhbar Tazminatı Hesaplama 2026 — Tavan Dahil" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kidem-tazminati-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+
+<main>
+    <h1>Kıdem ve İhbar Tazminatı Hesaplama <span class="yil-rozet">2026</span></h1>
+    <p class="ozet">İşe giriş ve çıkış tarihinizi, bir de <b>giydirilmiş</b> brüt ücretinizi girin.
+    Kıdem tavanı ve damga vergisi düşülmüş net tazminatınızı hesaplayalım.</p>
+
+    <div class="kaynak-serit" id="kaynakSerit"></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>İşe giriş tarihi
+                    <input id="giris" type="date" value="2021-03-01" />
+                </label>
+                <label>İşten çıkış tarihi
+                    <input id="cikis" type="date" value="2026-08-26" />
+                </label>
+                <label>Giydirilmiş brüt ücret (aylık, TL)
+                    <input id="ucret" type="number" step="any" inputmode="decimal" value="60000" />
+                </label>
+                <label>Gelir vergisi diliminiz (ihbar için)
+                    <select id="dilim">
+                        <option value="15" selected>%15</option>
+                        <option value="20">%20</option>
+                        <option value="27">%27</option>
+                        <option value="35">%35</option>
+                        <option value="40">%40</option>
+                    </select>
+                </label>
+            </div>
+            <p class="kucuk"><b>Giydirilmiş ücret</b> sadece maaşınız değildir: düzenli aldığınız
+            yol, yemek, ikramiye ve primlerin aylık karşılığı da eklenir. Sadece çıplak maaşı
+            yazarsanız tazminatınız olduğundan düşük çıkar.</p>
+        </div>
+
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Kıdem tazminatı nasıl hesaplanır?</h2>
+        <p>Çalıştığınız <b>her tam yıl için 30 günlük giydirilmiş brüt ücret</b> ödenir. Artan
+        günler orantılı olarak eklenir. En az <b>1 yıl</b> çalışmış olmak gerekir.</p>
+        <p>Kıdem tazminatından <b>yalnızca damga vergisi</b> (binde 7,59) kesilir. Gelir vergisi
+        ve SGK primi kesilmez — bu yüzden net tutar brüte çok yakın çıkar.</p>
+
+        <h2>Kıdem tavanı nedir?</h2>
+        <p>Devlet, her yıl için ödenecek tutara bir üst sınır koyar. Giydirilmiş ücretiniz bu
+        tavandan yüksekse, hesap tavan üzerinden yapılır. Tavan altı ayda bir güncellenir ve
+        <b>işten çıkış tarihinizdeki</b> tavan uygulanır.</p>
+
+        <h2>Hangi durumda kıdem alınır?</h2>
+        <ul>
+            <li>İşveren haklı sebep olmadan çıkardıysa</li>
+            <li>Askerlik, emeklilik ya da evlilik (kadın çalışan, evlilikten itibaren 1 yıl içinde)</li>
+            <li>İşçi haklı sebeple istifa ettiyse (ödenmeyen ücret, mobbing, sigortasız çalıştırma vb.)</li>
+        </ul>
+        <p>Kendi isteğiyle, haklı sebep olmadan istifa edildiğinde kıdem tazminatı ödenmez.</p>
+
+        <h2>İhbar tazminatı ayrı bir şeydir</h2>
+        <p>İhbar tazminatı, iş sözleşmesi önceden haber verilmeden feshedildiğinde ödenir.
+        Süresi kıdeme göre değişir:</p>
+        <ul>
+            <li>6 aydan az → <b>2 hafta</b></li>
+            <li>6 ay – 1,5 yıl → <b>4 hafta</b></li>
+            <li>1,5 – 3 yıl → <b>6 hafta</b></li>
+            <li>3 yıldan fazla → <b>8 hafta</b></li>
+        </ul>
+        <p>Kıdemden farklı olarak ihbar tazminatından <b>gelir vergisi de kesilir</b>. İstifa
+        eden çalışan ihbar tazminatı alamaz; aksine, ihbar süresine uymazsa işverene ödemek
+        zorunda kalabilir.</p>
+
+        <h2>Bu hesap kesin midir?</h2>
+        <p>Standart duruma göre hesaplanır. Ücretsiz izin, kısmi çalışma, aynı işverende
+        aralıklı çalışma, asgari geçim ödemeleri ve dava süreçleri sonucu değiştirebilir.
+        Anlaşmazlık hâlinde bir iş hukuku avukatına ya da İŞKUR'a danışın.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=2"></script>
+<script src="sayfa.js?v=2"></script>
+<script>
+iskeletKur("kidem-tazminati-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["giris", "cikis", "ucret", "dilim"];
+
+document.getElementById("kaynakSerit").innerHTML = PARAMETRE.kidemTavanlari.map(t =>
+    `<span class="etiket-rozet">${t.baslangic.slice(5,7)}.${t.baslangic.slice(0,4)}–${t.bitis.slice(5,7)}.${t.bitis.slice(0,4)} tavan <b>${para(t.tutar)}</b></span>`
+).join("") + `<span class="etiket-rozet">Damga <b>binde 7,59</b></span>`;
+
+function hesapla() {
+    const giris = document.getElementById("giris").value;
+    const cikis = document.getElementById("cikis").value;
+    const ucret = oku("ucret");
+    const dilim = parseFloat(document.getElementById("dilim").value);
+
+    if (!giris || !cikis || !ucret || ucret <= 0) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    const k = kidemTazminati(ucret, giris, cikis);
+    if (!k) {
+        document.getElementById("ozet").innerHTML =
+            `<div class="kutu"><p class="kucuk">Çıkış tarihi giriş tarihinden sonra olmalı.</p></div>`;
+        return;
+    }
+    const ih = ihbarTazminati(ucret, k.toplamGun, dilim);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(k.hakEdiyorMu ? k.net : 0)}</div>
+        <div class="dev-etiket">net kıdem tazminatı</div>
+        ${satir("Çalışma süresi", `${k.yil} yıl ${k.artanGun} gün (${k.toplamGun} gün)`)}
+        ${satir("Hesaba esas ücret", para(k.esasUcret))}
+        ${satir("Brüt kıdem tazminatı", para(k.brut))}
+        ${satir("Damga vergisi", "−" + para(k.damga))}
+        ${satir("Net kıdem tazminatı", para(k.net), "buyuk")}
+        ${!k.hakEdiyorMu ? `<p class="kucuk" style="color:var(--azalis)">
+            <b>1 yıldan az çalışma.</b> Kıdem tazminatı için en az bir yıl çalışmış olmak gerekir;
+            bu sürede kıdem hakkı doğmaz.</p>` : ""}
+        ${k.tavanAsildi ? `<p class="kucuk" style="color:var(--uyari)">
+            <b>Tavan uygulandı.</b> Giydirilmiş ücretiniz ${para(k.giydirilmis)} ama yasal tavan
+            ${para(k.tavan)}. Hesap tavan üzerinden yapıldı; aradaki fark
+            (${para(k.giydirilmis - k.tavan)}/ay) tazminata yansımıyor.</p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h3>İhbar tazminatı</h3>
+        ${satir("İhbar süresi", `${ih.hafta} hafta (${ih.gun} gün)`)}
+        ${satir("Günlük giydirilmiş ücret", para(ih.gunlukUcret))}
+        ${satir("Brüt ihbar tazminatı", para(ih.brut))}
+        ${satir("Gelir vergisi (%" + sayi(dilim, 0) + ")", "−" + para(ih.gelirVergisi))}
+        ${satir("Damga vergisi", "−" + para(ih.damga))}
+        ${satir("Net ihbar tazminatı", para(ih.net), "buyuk")}
+        <p class="kucuk">İhbar tazminatı yalnızca <b>önceden haber verilmeden</b> çıkarıldıysanız
+        ödenir. İstifa ettiyseniz alamazsınız.</p>
+    </div>
+
+    <div class="kutu one-cikan">
+        ${satir("Kıdem + ihbar (net toplam)", para((k.hakEdiyorMu ? k.net : 0) + ih.net), "buyuk")}
+    </div>`;
+
+    const d = dokumKur("Kıdem hesabı adım adım");
+    d.ekle("Toplam çalışma süresi gün olarak bulunur.",
+           `${giris} → ${cikis}`, k.toplamGun + " gün");
+    d.ekle("Çıkış tarihindeki yasal tavan belirlenir.", `dönem tavanı`, para(k.tavan));
+    d.ekle(k.tavanAsildi
+            ? "Giydirilmiş ücret tavanı aştığı için hesaba TAVAN esas alınır."
+            : "Giydirilmiş ücret tavanın altında, kendi ücretiniz esas alınır.",
+           `min(${sayi(k.giydirilmis)} ; ${sayi(k.tavan)})`, para(k.esasUcret));
+    d.ekle("Her tam yıl için 30 günlük ücret; artan günler orantılı eklenir.",
+           `${sayi(k.esasUcret)} × (${k.toplamGun} ÷ 365)`, para(k.brut));
+    d.ekle("Damga vergisi kesilir (gelir vergisi ve SGK KESİLMEZ).",
+           `${sayi(k.brut)} × binde 7,59`, "−" + para(k.damga));
+    d.ekle("Net kıdem tazminatı.",
+           `${sayi(k.brut)} − ${sayi(k.damga)}`, para(k.net));
+    document.getElementById("dokum").innerHTML = d.html();
+
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Kıdem ve İhbar Tazminatı Hesabı"));
+yapisalVeri("Kıdem Tazminatı Hesaplama", "Kıdem ve ihbar tazminatını tavan ve vergilerle birlikte hesaplayan araç.");
+
+sssEkle([
+    { soru: "Giydirilmiş ücret ne demek?",
+      cevap: "Çıplak brüt maaşınıza, düzenli olarak aldığınız yol yardımı, yemek, ikramiye ve primlerin aylık karşılığının eklenmiş hâlidir. Kıdem tazminatı bu tutar üzerinden hesaplanır; sadece maaşı yazarsanız tazminat olduğundan düşük görünür." },
+    { soru: "Kıdem tazminatından vergi kesilir mi?",
+      cevap: "Yalnızca damga vergisi (binde 7,59) kesilir. Gelir vergisi ve SGK primi kesilmez. Bu yüzden net tutar brüte çok yakındır. İhbar tazminatında ise gelir vergisi de kesilir." },
+    { soru: "Kıdem tavanı beni neden ilgilendiriyor?",
+      cevap: "Giydirilmiş ücretiniz tavandan yüksekse, her yıl için ödenecek tutar tavanla sınırlanır. Yüksek maaşlı çalışanlarda tazminat, maaşla orantılı artmaz. Tavan altı ayda bir güncellenir ve çıkış tarihinizdeki tavan geçerlidir." },
+    { soru: "İstifa edersem kıdem alabilir miyim?",
+      cevap: "Kural olarak hayır. Ancak askerlik, emeklilik, kadın çalışanın evlilik nedeniyle bir yıl içinde ayrılması ve haklı sebeple istifa (ücretin ödenmemesi, sigortasız çalıştırma, mobbing gibi) durumlarında kıdem hakkı doğar." },
+    { soru: "1 yıldan az çalıştım, hakkım var mı?",
+      cevap: "Kıdem tazminatı için en az bir yıl çalışmış olmak şarttır. Bir yılın altında kıdem hakkı doğmaz; ancak ihbar tazminatı, yıllık izin alacağı gibi başka haklarınız olabilir." },
+    { soru: "Hesap kesin mi, dava açabilir miyim?",
+      cevap: "Bu araç standart duruma göre hesap yapar. Ücretsiz izin, aralıklı çalışma, ödenmemiş fazla mesai gibi durumlar sonucu değiştirir. Anlaşmazlıkta iş hukuku avukatına danışmanız yerinde olur." }
+]);
+
+ilgiliAraclar("kidem-tazminati-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>
