@@ -294,17 +294,50 @@ function sssEkle(sorular) {
 
 // ---------- 5) Yapısal veri: bu bir hesaplama aracı ----------
 function yapisalVeri(ad, aciklama) {
+    const yol = location.pathname.split("/").pop() || "index.html";
+    const arac = ARACLAR.find(a => a.yol === yol);
+    // Finans disi araclar da var; kategoriyi grubuna gore ver
+    const kategori = !arac ? "UtilitiesApplication"
+        : ["Maaş ve Çalışma", "Kredi ve Borç", "Birikim", "Ticaret"].indexOf(arac.grup) >= 0
+            ? "FinanceApplication"
+        : arac.grup === "Okul" ? "EducationalApplication"
+        : arac.grup === "Sağlık" ? "HealthApplication"
+        : "UtilitiesApplication";
+
     const veri = {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": ad,
         "description": aciklama,
-        "applicationCategory": "FinanceApplication",
+        "url": "https://meteotr06.github.io/hesap/" + (yol === "index.html" ? "" : yol),
+        "applicationCategory": kategori,
         "operatingSystem": "Tüm cihazlar",
         "inLanguage": "tr-TR",
         "isAccessibleForFree": true,
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" }
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" },
+        "publisher": { "@type": "Organization", "name": "Hesap Araçları",
+                       "url": "https://meteotr06.github.io/hesap/" }
     };
+    ldEkle(veri);
+
+    // Kırıntı yolu: Google sonuçlarda çıplak adres yerine
+    // "Hesap Araçları › Maaş ve Çalışma › Net Maaş" gösterir; tıklanma artar.
+    if (arac) {
+        ldEkle({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Hesap Araçları",
+                  "item": "https://meteotr06.github.io/hesap/" },
+                { "@type": "ListItem", "position": 2, "name": arac.grup },
+                { "@type": "ListItem", "position": 3, "name": arac.ad,
+                  "item": "https://meteotr06.github.io/hesap/" + arac.yol }
+            ]
+        });
+    }
+}
+
+function ldEkle(veri) {
     const et = document.createElement("script");
     et.type = "application/ld+json";
     et.textContent = JSON.stringify(veri);
