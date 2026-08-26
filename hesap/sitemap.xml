@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://meteotr06.github.io/hesap/alan-cevre-hacim-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/altin-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/birikim-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/birim-cevirme.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -22,6 +23,8 @@
   <url><loc>https://meteotr06.github.io/hesap/net-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/net-maas-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/not-ortalamasi-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://meteotr06.github.io/hesap/ortalama-standart-sapma-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://meteotr06.github.io/hesap/saat-sure-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/sayi-yaziyla-yazma.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/tarih-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://meteotr06.github.io/hesap/vade-farki-hesaplama.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Alan, Çevre ve Hacim Hesaplama — Kare, Daire, Üçgen, Silindir</title>
+<meta name="description" content="Alan çevre hacim hesaplama: kare, dikdörtgen, üçgen, daire, yamuk, küp, silindir, küre ve koni. Formül ve adım adım çözüm." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/alan-cevre-hacim-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Alan, Çevre ve Hacim Hesaplama — Kare, Daire, Üçgen, Silindir" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/alan-cevre-hacim-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=9" />
+</head>
+<body>
+
+<main>
+    <h1>Alan, Çevre ve Hacim</h1>
+    <p class="ozet">Şekli seçin, ölçüleri girin; <b>alan, çevre, hacim ve yüzey alanı</b> formülüyle birlikte çıksın.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">12 şekil</span><span class="etiket-rozet">Formül gösterilir</span><span class="etiket-rozet">Öğrenciye ve ustaya</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Şekil
+                    <select id="sekil">
+                        <optgroup label="Düzlem (alan ve çevre)">
+                            <option value="kare">Kare</option>
+                            <option value="dikdortgen" selected>Dikdörtgen</option>
+                            <option value="ucgen">Üçgen (taban ve yükseklik)</option>
+                            <option value="ucgen3">Üçgen (üç kenarı belli)</option>
+                            <option value="daire">Daire</option>
+                            <option value="yamuk">Yamuk</option>
+                            <option value="paralelkenar">Paralelkenar</option>
+                        </optgroup>
+                        <optgroup label="Cisim (hacim ve yüzey)">
+                            <option value="kup">Küp</option>
+                            <option value="prizma">Dikdörtgen prizma (kutu)</option>
+                            <option value="silindir">Silindir</option>
+                            <option value="kure">Küre</option>
+                            <option value="koni">Koni</option>
+                        </optgroup>
+                    </select>
+                </label>
+                <label>Birim
+                    <select id="birim">
+                        <option value="cm">santimetre (cm)</option>
+                        <option value="m" selected>metre (m)</option>
+                        <option value="mm">milimetre (mm)</option>
+                    </select>
+                </label>
+                <label id="et-a">Kenar<input id="g-a" type="number" step="any" inputmode="decimal" value="4" /></label>
+                <label id="et-b">Kenar<input id="g-b" type="number" step="any" inputmode="decimal" value="7" /></label>
+                <label id="et-c">Kenar<input id="g-c" type="number" step="any" inputmode="decimal" value="5" /></label>
+                <label id="et-h">Yükseklik<input id="g-h" type="number" step="any" inputmode="decimal" value="3" /></label>
+                <label id="et-r">Yarıçap<input id="g-r" type="number" step="any" inputmode="decimal" value="2" /></label>
+            </div>
+            <p class="kucuk">Kullanılmayan ölçü kutuları şekle göre kendiliğinden gizlenir. Yarıçap, çapın yarısıdır — çap girmeyin.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Alan mı, çevre mi, hacim mi?</h2>
+        <ul>
+            <li><b>Çevre</b> — şeklin etrafını dolaşan uzunluk. Birimi metre. Çit, süpürgelik, kenar profili için.</li>
+            <li><b>Alan</b> — kapladığı yüzey. Birimi metrekare. Boya, halı, fayans, tarla için.</li>
+            <li><b>Hacim</b> — içine sığan miktar. Birimi metreküp. Beton, su, toprak, kargo için.</li>
+        </ul>
+
+        <h2>Metreküp kaç litre?</h2>
+        <p><b>1 metreküp = 1.000 litre.</b> Su deposu, akvaryum ya da beton hesabında bu dönüşüm en çok gerekendir.
+        Araç bu karşılığı kendiliğinden gösterir.</p>
+
+        <h2>Yarıçap ile çapı karıştırmayın</h2>
+        <p>Çap, dairenin bir ucundan öbür ucuna olan mesafedir; <b>yarıçap onun yarısıdır</b>.
+        Boru ya da tekerlek ölçüsü genelde çap olarak verilir — ikiye bölüp öyle girin.
+        Yanlışlıkla çapı girmek alanı <b>dört katına</b> çıkarır.</p>
+
+        <h2>Üç kenarı belli üçgen: Heron formülü</h2>
+        <p>Yüksekliği bilmeden, sadece üç kenardan alan bulunabilir. Önce çevrenin yarısı (u) hesaplanır,
+        sonra karekök alınır. Ancak her üç sayı üçgen oluşturmaz: <b>en uzun kenar, diğer ikisinin
+        toplamından kısa olmalıdır</b>. Değilse araç uyarır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=9"></script>
+<script src="sayfa.js?v=9"></script>
+<script>
+iskeletKur("alan-cevre-hacim-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["sekil", "birim", "g-a", "g-b", "g-c", "g-h", "g-r"];
+
+// Sekle gore sadece gereken olcu kutularini goster
+function alanlariAyarla() {
+    const sekil = document.getElementById("sekil").value;
+    const s = SEKILLER[sekil];
+    if (!s) return;
+    const gerekli = {};
+    s.girdiler.forEach(x => gerekli[x[0]] = x[1]);
+    ["a", "b", "c", "h", "r"].forEach(k => {
+        const et = document.getElementById("et-" + k);
+        if (gerekli[k]) {
+            et.hidden = false;
+            et.childNodes[0].nodeValue = gerekli[k] + " ";
+        } else et.hidden = true;
+    });
+}
+
+function hesapla() {
+    alanlariAyarla();
+    const sekil = document.getElementById("sekil").value;
+    const birim = document.getElementById("birim").value;
+    const s = SEKILLER[sekil];
+    const g = { a: oku("g-a"), b: oku("g-b"), c: oku("g-c"), h: oku("g-h"), r: oku("g-r") };
+    const sonuc = geometri(sekil, g);
+
+    const b1 = birim, b2 = birim + "²", b3 = birim + "³";
+    const say = (x) => sayi(x, Math.abs(x) >= 100 ? 2 : 4).replace(/0+$/, "").replace(/,$/, "");
+
+    if (!sonuc.gecerli) {
+        document.getElementById("ozet").innerHTML = `<div class="kutu">
+            <p style="color:var(--azalis)"><b>${sonuc.hata || "Bu ölçülerle hesap yapılamıyor."}</b></p></div>`;
+        document.getElementById("dokum").innerHTML = "";
+        baglantiyaYaz(ALANLAR); return;
+    }
+
+    const anaDeger = s.tur === "cisim" ? sonuc.hacim : sonuc.alan;
+    const anaEtiket = s.tur === "cisim" ? "hacim (" + b3 + ")" : "alan (" + b2 + ")";
+
+    let ek = "";
+    if (s.tur === "cisim") {
+        ek = satir("Hacim", say(sonuc.hacim) + " " + b3, "buyuk") +
+             satir("Yüzey alanı", say(sonuc.yuzey) + " " + b2);
+        // Su/beton icin litre karsiligi: 1 m3 = 1000 litre
+        const litre = birim === "m" ? sonuc.hacim * 1000 : birim === "cm" ? sonuc.hacim / 1000 : sonuc.hacim / 1e6;
+        ek += satir("Sıvı olarak", say(litre) + " litre");
+    } else {
+        ek = satir("Alan", say(sonuc.alan) + " " + b2, "buyuk");
+        if (sonuc.cevre) ek += satir("Çevre", say(sonuc.cevre) + " " + b1);
+        if (birim === "m" && sonuc.alan >= 1000) ek += satir("Dönüm olarak", say(sonuc.alan / 1000) + " dönüm");
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${say(anaDeger)}</div>
+        <div class="dev-etiket">${s.ad} — ${anaEtiket}</div>
+        ${ek}
+    </div>`;
+
+    const d = dokumKur("Formül ve adımlar");
+    sonuc.adimlar.forEach(x => d.ekle(x.aciklama, x.islem, say(x.sonuc)));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+alanlariAyarla();
+baglantidanOku(ALANLAR);
+alanlariAyarla();
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Alan ve Hacim Hesabı"));
+yapisalVeri("Alan ve Hacim Hesabı", "Alan çevre hacim hesaplama: kare, dikdörtgen, üçgen, daire, yamuk, küp, silindir, küre ve koni. Formül ve adım adım çözüm.");
+
+sssEkle([
+    { soru: "1 metreküp kaç litre?",
+      cevap: "1.000 litre. Yani 2 m × 1 m × 0,5 m ölçüsündeki bir depo 1 metreküp, yani 1.000 litre alır." },
+    { soru: "Yarıçap yerine çap girsem ne olur?",
+      cevap: "Daire alanı yarıçapın karesiyle orantılı olduğu için sonuç dört katı çıkar. Elinizdeki ölçü çapsa ikiye bölüp girin." },
+    { soru: "Tarla alanını dönüme nasıl çeviririm?",
+      cevap: "1 dönüm 1.000 metrekaredir. Metre biriminde 1.000 m²'yi aşan alanlarda araç dönüm karşılığını da gösterir." },
+    { soru: "Üç kenarı biliyorum ama yüksekliği bilmiyorum, alan bulunur mu?",
+      cevap: "Bulunur. 'Üçgen (üç kenarı belli)' seçeneği Heron formülünü kullanır ve yüksekliğe ihtiyaç duymaz." }
+]);
+
+ilgiliAraclar("alan-cevre-hacim-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

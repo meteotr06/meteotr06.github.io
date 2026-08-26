@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Ortalama, Medyan ve Standart Sapma Hesaplama</title>
+<meta name="description" content="Sayı listesi girin; ortalama, medyan, mod, standart sapma, varyans, çeyrekler ve aralık anında hesaplansın. Örneklem ve popülasyon ayrı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/ortalama-standart-sapma-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Ortalama, Medyan ve Standart Sapma Hesaplama" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/ortalama-standart-sapma-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=9" />
+</head>
+<body>
+
+<main>
+    <h1>Ortalama ve Standart Sapma</h1>
+    <p class="ozet">Sayıları alt alta ya da virgülle yazın; <b>ortalama, medyan, mod ve standart sapma</b> tek seferde çıksın.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Örneklem ve popülasyon ayrı</span><span class="etiket-rozet">Çeyrekler ve aykırı değer</span><span class="etiket-rozet">Sınırsız sayı</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <label style="display:block">Sayılar
+                <textarea id="veri" rows="7" inputmode="decimal"
+                    placeholder="Her satıra bir sayı yazın ya da virgülle ayırın:&#10;4, 8, 15, 16, 23, 42">4
+8
+15
+16
+23
+42</textarea>
+            </label>
+            <p class="kucuk">Ondalık için <b>virgül</b> kullanabilirsiniz (3,5). Ayraç olarak virgülden
+            sonra boşluk bırakın (3,5 · 4,2 yerine "3,5, 4,2"). Excel'den kopyalayıp yapıştırabilirsiniz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Ortalama mı, medyan mı?</h2>
+        <p><b>Ortalama</b> bütün sayıları toplayıp adede böler; tek bir uç değer onu kolayca kaydırır.
+        <b>Medyan</b> ise sıraladığınızda tam ortadaki sayıdır ve uç değerlerden etkilenmez.</p>
+        <p>Örnek: 10 kişilik bir işyerinde dokuz kişi 30.000, bir kişi 300.000 kazanıyorsa
+        <b>ortalama 57.000</b> çıkar ama kimse o parayı almaz. <b>Medyan 30.000'dir</b> ve gerçeği anlatır.
+        Maaş, kira, ev fiyatı gibi konularda medyan daha dürüst bir ölçüdür.</p>
+
+        <h2>Standart sapma ne anlatır?</h2>
+        <p>Sayıların ortalamadan ne kadar uzaklaştığını gösterir. Küçükse sayılar birbirine yakındır,
+        büyükse dağınıktır. İki sınıfın da not ortalaması 60 olabilir; sapması küçük olan sınıfta
+        herkes 60 civarındadır, büyük olanda kimi 20 kimi 95 almıştır.</p>
+
+        <h2>n mi, n−1 mi?</h2>
+        <ul>
+            <li><b>n − 1 (örneklem)</b> — sayılarınız daha büyük bir kümeden alınmış bir örnekse.
+            Anket, ölçüm, deney sonuçları genelde böyledir. Excel: <code>STDSAPMA.S</code></li>
+            <li><b>n (popülasyon)</b> — sayılarınız kümenin <b>tamamıysa</b>. Örneğin sınıftaki
+            bütün öğrencilerin notu. Excel: <code>STDSAPMA.P</code></li>
+        </ul>
+        <p>Emin değilseniz örneklem (n−1) kullanın; istatistikte varsayılan odur.</p>
+
+        <h2>Aykırı değer nedir?</h2>
+        <p>Diğerlerinden çok uzakta kalan sayıdır. Yaygın ölçüt: Q1'in 1,5 IQR altı ya da Q3'ün
+        1,5 IQR üstü. Böyle bir sayı çıkarsa önce <b>yanlış girilip girilmediğini</b> kontrol edin;
+        gerçekse ortalama yerine medyana bakmak daha doğru olur.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=9"></script>
+<script src="sayfa.js?v=9"></script>
+<script>
+iskeletKur("ortalama-standart-sapma-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["veri"];
+
+function hesapla() {
+    const dizi = sayiListesiOku(document.getElementById("veri").value);
+    const i = istatistik(dizi);
+
+    if (!i.n) {
+        document.getElementById("ozet").innerHTML = `<div class="kutu"><p class="kucuk">Hesaplamak için en az bir sayı girin.</p></div>`;
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+
+    const s4 = (x) => sayi(x, 4).replace(/0+$/, "").replace(/,$/, "");
+    // Aykırı değer ölçütü: Q1 − 1,5×IQR altı ya da Q3 + 1,5×IQR üstü (Tukey)
+    const altSinir = i.q1 - 1.5 * i.iqr, ustSinir = i.q3 + 1.5 * i.iqr;
+    const aykiri = i.sirali.filter(x => x < altSinir || x > ustSinir);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${s4(i.ortalama)}</div>
+        <div class="dev-etiket">ortalama (${i.n} sayının)</div>
+        ${satir("Toplam", s4(i.toplam))}
+        ${satir("Ortalama", s4(i.ortalama), "buyuk")}
+        ${satir("Medyan (ortanca)", s4(i.medyan))}
+        ${satir("Mod (en sık tekrar)", i.mod.length ? i.mod.map(s4).join(" · ") + " (" + i.modSiklik + " kez)" : "yok — hiçbiri tekrar etmiyor")}
+    </div>
+
+    <div class="kutu">
+        <h3>Yayılım</h3>
+        ${satir("Standart sapma (örneklem, n−1)", s4(i.sapmaOrn), "buyuk")}
+        ${satir("Standart sapma (popülasyon, n)", s4(i.sapmaAna))}
+        ${satir("Varyans (örneklem)", s4(i.varyansOrn))}
+        ${satir("Varyans (popülasyon)", s4(i.varyansAna))}
+        <p class="kucuk">Elinizdeki sayılar bir <b>örneklemse</b> (daha büyük bir kümeden alınmış)
+        üstteki değeri kullanın — Excel'in <code>STDSAPMA.S</code> işlevi budur.
+        Sayılar <b>kümenin tamamıysa</b> alttakini kullanın (<code>STDSAPMA.P</code>).</p>
+    </div>
+
+    <div class="kutu">
+        <h3>Sıralama ve çeyrekler</h3>
+        ${satir("En küçük", s4(i.enKucuk))}
+        ${satir("1. çeyrek (Q1)", s4(i.q1))}
+        ${satir("Medyan (Q2)", s4(i.medyan))}
+        ${satir("3. çeyrek (Q3)", s4(i.q3))}
+        ${satir("En büyük", s4(i.enBuyuk))}
+        ${satir("Aralık (en büyük − en küçük)", s4(i.aralik))}
+        ${satir("Çeyrekler açıklığı (IQR)", s4(i.iqr))}
+        ${aykiri.length
+            ? `<p class="kucuk" style="color:var(--uyari)"><b>Aykırı değer:</b>
+               ${aykiri.map(s4).join(", ")} — ${s4(altSinir)} ile ${s4(ustSinir)} aralığının dışında.
+               Yanlış girilmiş olabilir; ortalamayı bunlar çeker.</p>`
+            : `<p class="kucuk">Aykırı değer yok: bütün sayılar ${s4(altSinir)} – ${s4(ustSinir)} aralığında.</p>`}
+    </div>`;
+
+    const d = dokumKur("Standart sapma nasıl bulundu?");
+    d.ekle("Sayılar toplanıp adede bölünür: ortalama.", `${s4(i.toplam)} ÷ ${i.n}`, s4(i.ortalama));
+    d.ekle("Her sayının ortalamadan farkı alınıp karesi toplanır.",
+           "Σ(x − ortalama)²", s4(i.varyansAna * i.n));
+    d.ekle("Örneklem varyansı: kare toplamı ÷ (n − 1).",
+           `${s4(i.varyansAna * i.n)} ÷ ${i.n - 1}`, s4(i.varyansOrn));
+    d.ekle("Standart sapma, varyansın kareköküdür.",
+           `kök(${s4(i.varyansOrn)})`, s4(i.sapmaOrn));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("İstatistik Hesabı"));
+yapisalVeri("İstatistik Hesabı", "Sayı listesi girin; ortalama, medyan, mod, standart sapma, varyans, çeyrekler ve aralık anında hesaplansın. Örneklem ve popülasyon ayrı.");
+
+sssEkle([
+    { soru: "Ortalama ile medyan neden farklı çıkıyor?",
+      cevap: "Listede çok büyük ya da çok küçük bir değer varsa ortalama o yöne kayar, medyan kaymaz. Fark büyükse verinizde aykırı değer var demektir." },
+    { soru: "Standart sapmada n mi n−1 mi kullanmalıyım?",
+      cevap: "Sayılar daha büyük bir kümeden alınmış örnekse n−1 (örneklem), kümenin tamamıysa n (popülasyon). Emin değilseniz n−1 kullanın." },
+    { soru: "Excel'den kopyalayıp yapıştırabilir miyim?",
+      cevap: "Evet. Sütunu kopyalayıp kutuya yapıştırın; her satır bir sayı olarak okunur. Noktalı veya virgüllü ondalık, ikisi de çalışır." },
+    { soru: "Mod neden 'yok' diyor?",
+      cevap: "Hiçbir sayı birden fazla tekrar etmiyorsa mod yoktur. Birden çok sayı aynı sıklıkta tekrar ediyorsa hepsi mod olarak listelenir." }
+]);
+
+ilgiliAraclar("ortalama-standart-sapma-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

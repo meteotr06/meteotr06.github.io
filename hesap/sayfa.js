@@ -29,7 +29,10 @@ const ARACLAR = [
     { yol: "birim-cevirme.html", ad: "Birim Çevirme", aciklama: "Uzunluk, ağırlık, sıcaklık, alan", grup: "Genel", anahtar: "birim çevirme dönüştürme inç fit mil libre pound ons dönüm hektar fahrenhayt kelvin galon knot metre kilo" },
     { yol: "sayi-yaziyla-yazma.html", ad: "Sayı Yazıyla", aciklama: "Çek ve senet için tutar yazımı", grup: "Genel", anahtar: "sayı yazıyla rakam yazı çek senet tutar yazımı bin lira kuruş nasıl yazılır" },
     { yol: "not-ortalamasi-hesaplama.html", ad: "Not Ortalaması", aciklama: "Kredili ağırlıklı ortalama", grup: "Okul", anahtar: "not ortalaması ağırlıklı kredi gano ortalama okul üniversite ders dönem" },
-    { yol: "boya-fayans-hesaplama.html", ad: "Boya ve Fayans", aciklama: "Oda kaç litre boya, kaç karo", grup: "Ev ve Yaşam", anahtar: "boya litre fayans karo seramik metrekare oda duvar tavan badana tadilat m2" }
+    { yol: "boya-fayans-hesaplama.html", ad: "Boya ve Fayans", aciklama: "Oda kaç litre boya, kaç karo", grup: "Ev ve Yaşam", anahtar: "boya litre fayans karo seramik metrekare oda duvar tavan badana tadilat m2" },
+    { yol: "alan-cevre-hacim-hesaplama.html", ad: "Alan, Çevre, Hacim", aciklama: "Kare, daire, üçgen, silindir…", grup: "Genel", anahtar: "alan çevre hacim geometri kare dikdörtgen üçgen daire yamuk küp silindir küre koni metrekare metreküp yüzey heron pi yarıçap" },
+    { yol: "ortalama-standart-sapma-hesaplama.html", ad: "Ortalama ve Sapma", aciklama: "Medyan, mod, standart sapma", grup: "Okul", anahtar: "ortalama medyan mod standart sapma varyans istatistik çeyrek aykırı değer aritmetik dizi excel" },
+    { yol: "saat-sure-hesaplama.html", ad: "Saat ve Süre", aciklama: "Mesai süresi, süre toplama", grup: "Genel", anahtar: "saat süre mesai vardiya çalışma dakika ondalık gece vardiyası mola bordro puantaj zaman fark" }
 ];
 
 const KAYIT = "hesapAraclariAyar";

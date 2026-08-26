@@ -1098,3 +1098,203 @@ function fayansHesap(alanM2, karoEnCm, karoBoyCm, firePayiYuzde) {
     return { karoAlan: karoAlan, adetHam: adetHam, adet: adet,
              fireAdet: adet - Math.ceil(adetHam), kutuM2: adet * karoAlan };
 }
+
+// ---------- 29) ALAN, ÇEVRE VE HACİM (GEOMETRİ) ----------
+// Öğrenci, usta, çiftçi hepsi kullanır. Formüller değişmez; risk yok.
+
+const SEKILLER = {
+    kare:        { ad: "Kare", tur: "duzlem", girdiler: [["a", "Kenar"]] },
+    dikdortgen:  { ad: "Dikdörtgen", tur: "duzlem", girdiler: [["a", "Kısa kenar"], ["b", "Uzun kenar"]] },
+    ucgen:       { ad: "Üçgen (taban ve yükseklik)", tur: "duzlem", girdiler: [["a", "Taban"], ["h", "Yükseklik"]] },
+    ucgen3:      { ad: "Üçgen (üç kenarı belli)", tur: "duzlem", girdiler: [["a", "1. kenar"], ["b", "2. kenar"], ["c", "3. kenar"]] },
+    daire:       { ad: "Daire", tur: "duzlem", girdiler: [["r", "Yarıçap"]] },
+    yamuk:       { ad: "Yamuk", tur: "duzlem", girdiler: [["a", "Alt taban"], ["b", "Üst taban"], ["h", "Yükseklik"]] },
+    paralelkenar:{ ad: "Paralelkenar", tur: "duzlem", girdiler: [["a", "Taban"], ["h", "Yükseklik"]] },
+    kup:         { ad: "Küp", tur: "cisim", girdiler: [["a", "Ayrıt"]] },
+    prizma:      { ad: "Dikdörtgen prizma (kutu)", tur: "cisim", girdiler: [["a", "En"], ["b", "Boy"], ["h", "Yükseklik"]] },
+    silindir:    { ad: "Silindir", tur: "cisim", girdiler: [["r", "Yarıçap"], ["h", "Yükseklik"]] },
+    kure:        { ad: "Küre", tur: "cisim", girdiler: [["r", "Yarıçap"]] },
+    koni:        { ad: "Koni", tur: "cisim", girdiler: [["r", "Yarıçap"], ["h", "Yükseklik"]] }
+};
+
+function geometri(sekil, g) {
+    const PI = Math.PI;
+    const a = g.a || 0, b = g.b || 0, c = g.c || 0, h = g.h || 0, r = g.r || 0;
+    const s = { sekil: sekil, gecerli: true, adimlar: [] };
+    const ad = (aciklama, islem, sonuc) => s.adimlar.push({ aciklama: aciklama, islem: islem, sonuc: sonuc });
+
+    switch (sekil) {
+        case "kare":
+            s.alan = a * a; s.cevre = 4 * a;
+            ad("Alan = kenar × kenar", a + " × " + a, s.alan);
+            ad("Çevre = 4 × kenar", "4 × " + a, s.cevre);
+            break;
+        case "dikdortgen":
+            s.alan = a * b; s.cevre = 2 * (a + b);
+            ad("Alan = en × boy", a + " × " + b, s.alan);
+            ad("Çevre = 2 × (en + boy)", "2 × (" + a + " + " + b + ")", s.cevre);
+            break;
+        case "ucgen":
+            s.alan = a * h / 2;
+            ad("Alan = taban × yükseklik ÷ 2", a + " × " + h + " ÷ 2", s.alan);
+            break;
+        case "ucgen3": {
+            // Heron formülü. Önce üçgen kurulabiliyor mu diye bak.
+            const buyuk = Math.max(a, b, c), toplam = a + b + c;
+            if (a <= 0 || b <= 0 || c <= 0 || buyuk >= toplam - buyuk) {
+                s.gecerli = false;
+                s.hata = "Bu üç kenarla üçgen çizilemez: en uzun kenar, diğer ikisinin toplamından kısa olmalı.";
+                s.alan = 0; s.cevre = toplam; break;
+            }
+            const u = toplam / 2;
+            s.alan = Math.sqrt(u * (u - a) * (u - b) * (u - c));
+            s.cevre = toplam;
+            ad("Çevrenin yarısı (u) bulunur", "(" + a + " + " + b + " + " + c + ") ÷ 2", u);
+            ad("Heron formülü: kök[ u(u−a)(u−b)(u−c) ]",
+               "kök[" + u + " × " + (u - a).toFixed(2) + " × " + (u - b).toFixed(2) + " × " + (u - c).toFixed(2) + "]", s.alan);
+            break;
+        }
+        case "daire":
+            s.alan = PI * r * r; s.cevre = 2 * PI * r;
+            ad("Alan = pi × yarıçap²", "3,1416 × " + r + "²", s.alan);
+            ad("Çevre = 2 × pi × yarıçap", "2 × 3,1416 × " + r, s.cevre);
+            break;
+        case "yamuk":
+            s.alan = (a + b) * h / 2;
+            ad("Alan = (alt taban + üst taban) × yükseklik ÷ 2", "(" + a + " + " + b + ") × " + h + " ÷ 2", s.alan);
+            break;
+        case "paralelkenar":
+            s.alan = a * h;
+            ad("Alan = taban × yükseklik", a + " × " + h, s.alan);
+            break;
+        case "kup":
+            s.hacim = a * a * a; s.yuzey = 6 * a * a;
+            ad("Hacim = ayrıt³", a + "³", s.hacim);
+            ad("Yüzey alanı = 6 × ayrıt²", "6 × " + a + "²", s.yuzey);
+            break;
+        case "prizma":
+            s.hacim = a * b * h; s.yuzey = 2 * (a * b + a * h + b * h);
+            ad("Hacim = en × boy × yükseklik", a + " × " + b + " × " + h, s.hacim);
+            ad("Yüzey = 2 × (en·boy + en·yük + boy·yük)", "2 × (" + (a * b) + " + " + (a * h) + " + " + (b * h) + ")", s.yuzey);
+            break;
+        case "silindir":
+            s.hacim = PI * r * r * h; s.yuzey = 2 * PI * r * (r + h);
+            ad("Hacim = pi × yarıçap² × yükseklik", "3,1416 × " + r + "² × " + h, s.hacim);
+            ad("Yüzey = 2pi × yarıçap × (yarıçap + yükseklik)", "2 × 3,1416 × " + r + " × (" + r + " + " + h + ")", s.yuzey);
+            break;
+        case "kure":
+            s.hacim = 4 / 3 * PI * r * r * r; s.yuzey = 4 * PI * r * r;
+            ad("Hacim = 4/3 × pi × yarıçap³", "1,3333 × 3,1416 × " + r + "³", s.hacim);
+            ad("Yüzey = 4 × pi × yarıçap²", "4 × 3,1416 × " + r + "²", s.yuzey);
+            break;
+        case "koni": {
+            const yanAyrit = Math.sqrt(r * r + h * h);
+            s.hacim = PI * r * r * h / 3; s.yuzey = PI * r * (r + yanAyrit);
+            ad("Hacim = pi × yarıçap² × yükseklik ÷ 3", "3,1416 × " + r + "² × " + h + " ÷ 3", s.hacim);
+            ad("Yan ayrıt = kök(yarıçap² + yükseklik²)", "kök(" + (r * r) + " + " + (h * h) + ")", yanAyrit);
+            ad("Yüzey = pi × yarıçap × (yarıçap + yan ayrıt)", "3,1416 × " + r + " × (" + r + " + " + yanAyrit.toFixed(2) + ")", s.yuzey);
+            break;
+        }
+        default: s.gecerli = false;
+    }
+    return s;
+}
+
+// ---------- 30) İSTATİSTİK: ORTALAMA, MEDYAN, STANDART SAPMA ----------
+
+function sayiListesiOku(metin) {
+    // Virgül hem ayraç hem ondalık olabilir. Kural: virgülden sonra BOŞLUK
+    // varsa ayraç ("1, 2, 3"), yoksa ondalık ("1,5 2,5").
+    let s = String(metin || "").replace(/[;\t\r]/g, "\n").replace(/,\s+/g, "\n");
+    return s.split(/[\n ]+/).map(x => x.trim()).filter(x => x !== "")
+            .map(x => sayiOku(x)).filter(x => isFinite(x));
+}
+
+function istatistik(dizi) {
+    const n = dizi.length;
+    if (!n) return { n: 0 };
+    const sirali = dizi.slice().sort((x, y) => x - y);
+    const toplam = dizi.reduce((t, x) => t + x, 0);
+    const ort = toplam / n;
+
+    // Doğrusal ara değer: Excel'in YÜZDEBİRLİK.DHL (PERCENTILE.INC) yöntemi
+    const ceyrek = (p) => {
+        const yer = (n - 1) * p, alt = Math.floor(yer), ust = Math.ceil(yer);
+        return alt === ust ? sirali[alt] : sirali[alt] + (yer - alt) * (sirali[ust] - sirali[alt]);
+    };
+
+    const kareToplam = dizi.reduce((t, x) => t + (x - ort) * (x - ort), 0);
+    const varyansAna = kareToplam / n;                      // popülasyon
+    const varyansOrn = n > 1 ? kareToplam / (n - 1) : 0;    // örneklem
+
+    const sayac = {};
+    dizi.forEach(x => sayac[x] = (sayac[x] || 0) + 1);
+    const enCok = Math.max.apply(null, Object.keys(sayac).map(k => sayac[k]));
+    const mod = enCok > 1 ? Object.keys(sayac).filter(k => sayac[k] === enCok).map(Number).sort((x, y) => x - y) : [];
+
+    return {
+        n: n, toplam: toplam, ortalama: ort,
+        medyan: ceyrek(0.5), q1: ceyrek(0.25), q3: ceyrek(0.75),
+        iqr: ceyrek(0.75) - ceyrek(0.25),
+        enKucuk: sirali[0], enBuyuk: sirali[n - 1], aralik: sirali[n - 1] - sirali[0],
+        varyansAna: varyansAna, varyansOrn: varyansOrn,
+        sapmaAna: Math.sqrt(varyansAna), sapmaOrn: Math.sqrt(varyansOrn),
+        mod: mod, modSiklik: enCok > 1 ? enCok : 0,
+        sirali: sirali
+    };
+}
+
+// ---------- 31) SAAT VE SÜRE HESABI ----------
+// Bordroda en çok karıştırılan şey: 7 saat 30 dakika = 7,5 saat (7,30 değil).
+
+function dakikayaCevir(metin) {
+    const s = String(metin || "").trim();
+    if (s === "") return null;
+    const p = s.split(":");
+    if (p.length === 2) {
+        const sa = parseInt(p[0], 10) || 0, dk = parseInt(p[1], 10) || 0;
+        return sa * 60 + (s.charAt(0) === "-" ? -dk : dk);
+    }
+    return Math.round(sayiOku(s) * 60);   // "7,5" yazıldıysa saat kabul edilir
+}
+
+function dakikayiSaate(toplamDk) {
+    const eksi = toplamDk < 0, m = Math.abs(Math.round(toplamDk));
+    const sa = Math.floor(m / 60), dk = m % 60;
+    const iki = (x) => (x < 10 ? "0" : "") + x;
+    return {
+        saat: sa, dakika: dk, toplamDakika: toplamDk,
+        // "0 saat 30 dakika" ya da "8 saat 0 dakika" kulagi tirmaliyor; gereksizi at
+        metin: (eksi ? "−" : "") +
+               (sa > 0 && dk > 0 ? sa + " saat " + dk + " dakika"
+                : sa > 0 ? sa + " saat"
+                : dk + " dakika"),
+        ssdd: (eksi ? "−" : "") + iki(sa) + ":" + iki(dk),
+        ondalik: toplamDk / 60
+    };
+}
+
+function saatFarki(baslangic, bitis, molaDk) {
+    const b = dakikayaCevir(baslangic), s = dakikayaCevir(bitis);
+    if (b === null || s === null) return null;
+    let fark = s - b;
+    const gecelik = fark < 0;
+    if (gecelik) fark += 24 * 60;         // gece vardiyası: 22:00 → 06:00
+    fark -= (molaDk || 0);
+    const c = dakikayiSaate(fark);
+    c.geceVardiyasi = gecelik; c.mola = molaDk || 0;
+    c.brutDakika = fark + (molaDk || 0);
+    return c;
+}
+
+function sureTopla(satirlar) {
+    let toplam = 0; const gecerli = [];
+    satirlar.forEach(x => {
+        const d = dakikayaCevir(x);
+        if (d !== null && d !== 0) { toplam += d; gecerli.push(d); }
+    });
+    const c = dakikayiSaate(toplam);
+    c.adet = gecerli.length; c.satirlar = gecerli;
+    c.ortalamaDakika = gecerli.length ? toplam / gecerli.length : 0;
+    return c;
+}

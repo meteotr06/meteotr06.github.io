@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Saat ve Süre Hesaplama — Mesai Süresi, Süre Toplama, Ondalık Saat</title>
+<meta name="description" content="Saat hesaplama: iki saat arası mesai süresi (gece vardiyası dahil), süre toplama ve ondalık saat karşılığı. Bordro için 7:30 = 7,5 saat." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/saat-sure-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Saat ve Süre Hesaplama — Mesai Süresi, Süre Toplama, Ondalık Saat" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/saat-sure-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=9" />
+</head>
+<body>
+
+<main>
+    <h1>Saat ve Süre Hesaplama</h1>
+    <p class="ozet">İki saat arasını hesaplayın, süreleri toplayın, <b>ondalık saat</b> karşılığını görün. Gece vardiyası da doğru çıkar.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Gece vardiyası doğru</span><span class="etiket-rozet">Mola düşülür</span><span class="etiket-rozet">Ondalık saat karşılığı</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <h3 style="margin-top:0">İki saat arası</h3>
+            <div class="form-izgara">
+                <label>Başlangıç<input id="bas" type="time" value="09:00" /></label>
+                <label>Bitiş<input id="bit" type="time" value="17:30" /></label>
+                <label>Mola (dakika)<input id="mola" type="number" inputmode="numeric" value="60" /></label>
+            </div>
+
+            <h3>Süreleri topla</h3>
+            <div class="form-izgara">
+                <label>1. süre<input id="s1" type="text" inputmode="numeric" placeholder="7:30" value="7:30" /></label>
+                <label>2. süre<input id="s2" type="text" inputmode="numeric" placeholder="8:15" value="8:15" /></label>
+                <label>3. süre<input id="s3" type="text" inputmode="numeric" placeholder="6:45" value="6:45" /></label>
+                <label>4. süre<input id="s4" type="text" inputmode="numeric" placeholder="0:00" value="" /></label>
+                <label>5. süre<input id="s5" type="text" inputmode="numeric" placeholder="0:00" value="" /></label>
+                <label>6. süre<input id="s6" type="text" inputmode="numeric" placeholder="0:00" value="" /></label>
+            </div>
+            <p class="kucuk">Süreleri <b>7:30</b> biçiminde yazın. Ondalık da olur: <b>7,5</b> yazarsanız
+            7 saat 30 dakika olarak okunur. Boş bıraktığınız satırlar hesaba katılmaz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>En sık yapılan hata: 7:30 ile 7,30 aynı değildir</h2>
+        <p>Bordroda ve ücret hesabında süre <b>ondalık saat</b> olarak kullanılır.
+        7 saat 30 dakika <b>7,5 saattir</b> — 7,30 değil. Çünkü 30 dakika saatin yarısıdır,
+        yüzde otuzu değil.</p>
+        <p>Dönüşüm kolay: <b>dakikayı 60'a bölün</b>. 15 dk = 0,25 · 20 dk = 0,33 · 45 dk = 0,75.
+        Bu araç ondalık karşılığı zaten yanında gösterir.</p>
+
+        <h2>Gece vardiyası nasıl hesaplanır?</h2>
+        <p>Bitiş saati başlangıçtan küçükse (22:00 → 06:00) süre ertesi güne sarkar.
+        Araç bunu kendiliğinden anlar ve 24 saat ekleyerek doğru sonucu verir: 8 saat.
+        Elle çıkarma yaparsanız −16 saat gibi anlamsız bir sonuç çıkar.</p>
+
+        <h2>Mola çalışma süresinden sayılır mı?</h2>
+        <p>Ara dinlenmeleri kural olarak çalışma süresinden <b>sayılmaz</b>. Günlük çalışma
+        süresine göre yasal asgari ara dinlenmesi vardır: 4 saate kadar 15 dakika,
+        4–7,5 saat arası yarım saat, 7,5 saatten fazlasında bir saat. Sözleşmeniz daha uzun
+        mola öngörebilir; bordronuzda hangi sürenin esas alındığına bakın.</p>
+
+        <h2>Haftalık çalışma süresi</h2>
+        <p>Yasal haftalık çalışma süresi <b>45 saattir</b>. Bunun üzerindeki her saat fazla
+        çalışma sayılır ve normal saat ücretinin <b>1,5 katı</b> ödenir. Fazla mesai ücretini
+        <a href="fazla-mesai-hesaplama.html">Fazla Mesai</a> aracıyla hesaplayabilirsiniz.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=9"></script>
+<script src="sayfa.js?v=9"></script>
+<script>
+iskeletKur("saat-sure-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["bas", "bit", "mola", "s1", "s2", "s3", "s4", "s5", "s6"];
+
+function hesapla() {
+    const bas = document.getElementById("bas").value;
+    const bit = document.getElementById("bit").value;
+    const mola = oku("mola");
+    const f = saatFarki(bas, bit, mola);
+
+    const sureler = ["s1","s2","s3","s4","s5","s6"].map(id => document.getElementById(id).value);
+    const t = sureTopla(sureler);
+
+    let ust = "";
+    if (f) {
+        const brut = dakikayiSaate(f.brutDakika);
+        ust = `<div class="kutu one-cikan">
+            <div class="dev-deger">${f.ssdd}</div>
+            <div class="dev-etiket">çalışılan süre (${bas} → ${bit})</div>
+            ${satir("Baştan sona geçen süre", brut.metin)}
+            ${mola > 0 ? satir("Düşülen mola", mola + " dakika") : ""}
+            ${satir("Net süre", f.metin, "buyuk")}
+            ${satir("Ondalık saat karşılığı", sayi(f.ondalik, 2).replace("-", "−") + " saat")}
+            ${satir("Toplam dakika", sayi(f.toplamDakika, 0).replace("-", "−") + " dakika")}
+            ${f.geceVardiyasi ? `<p class="kucuk">Bitiş saati başlangıçtan küçük olduğu için
+                <b>gece vardiyası</b> kabul edildi: ertesi güne sarkıyor.</p>` : ""}
+            ${f.toplamDakika < 0 ? `<p class="kucuk" style="color:var(--azalis)">Mola,
+                çalışma süresinden uzun. Mola dakikasını kontrol edin.</p>` : ""}
+        </div>`;
+    }
+
+    let alt = "";
+    if (t.adet) {
+        alt = `<div class="kutu">
+            <h3>${t.adet} sürenin toplamı</h3>
+            ${satir("Toplam", t.ssdd + "  (" + t.metin + ")", "buyuk")}
+            ${satir("Ondalık saat", sayi(t.ondalik, 2) + " saat")}
+            ${satir("Toplam dakika", sayi(t.toplamDakika, 0))}
+            ${satir("Ortalama", dakikayiSaate(t.ortalamaDakika).ssdd)}
+            <p class="kucuk">Haftalık 45 saatlik yasal süreye göre
+            ${t.ondalik > 45
+                ? `<b style="color:var(--uyari)">${sayi(t.ondalik - 45, 2)} saat fazla</b> çalışılmış görünüyor.`
+                : `<b>${sayi(45 - t.ondalik, 2)} saat</b> daha çalışılabilir.`}</p>
+        </div>`;
+    }
+
+    document.getElementById("ozet").innerHTML = ust + alt ||
+        `<div class="kutu"><p class="kucuk">Saatleri girin.</p></div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    if (f) {
+        d.ekle("Saatler dakikaya çevrilir.", `${bit} − ${bas}`, sayi(f.brutDakika, 0) + " dk");
+        if (f.geceVardiyasi) d.ekle("Bitiş önceyse 24 saat eklenir (gece vardiyası).", "+ 1440 dk", sayi(f.brutDakika, 0) + " dk");
+        if (mola > 0) d.ekle("Mola düşülür.", `${sayi(f.brutDakika, 0)} − ${sayi(mola, 0)}`, sayi(f.toplamDakika, 0) + " dk");
+        d.ekle("Dakika, saate çevrilir.", `${sayi(f.toplamDakika, 0)} ÷ 60`, f.metin);
+        d.ekle("Bordro için ondalık karşılık.", `${sayi(f.toplamDakika, 0)} ÷ 60`, sayi(f.ondalik, 2) + " saat");
+    }
+    if (t.adet) d.ekle("Süreler dakika olarak toplanır.",
+        t.satirlar.map(x => sayi(x, 0)).join(" + "), sayi(t.toplamDakika, 0) + " dk = " + t.ssdd);
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Saat ve Süre Hesabı"));
+yapisalVeri("Saat ve Süre Hesabı", "Saat hesaplama: iki saat arası mesai süresi (gece vardiyası dahil), süre toplama ve ondalık saat karşılığı. Bordro için 7:30 = 7,5 saat.");
+
+sssEkle([
+    { soru: "7 saat 30 dakika kaç saat eder?",
+      cevap: "7,5 saat eder. Dakikayı 60'a bölerek bulunur: 30 ÷ 60 = 0,5. Bordroda 7,30 yazmak yanlıştır; doğrusu 7,5'tir." },
+    { soru: "Gece vardiyasında saat farkını nasıl hesaplarım?",
+      cevap: "Bitiş saati başlangıçtan küçükse 24 saat eklenir. 22:00 - 06:00 arası 8 saattir. Araç bunu kendiliğinden yapar." },
+    { soru: "Mola süresi çalışma saatinden düşülür mü?",
+      cevap: "Kural olarak ara dinlenmeleri çalışma süresinden sayılmaz. Bu yüzden araçta mola dakikasını girip net süreyi görebilirsiniz." },
+    { soru: "Haftada kaç saat çalışılabilir?",
+      cevap: "Yasal haftalık çalışma süresi 45 saattir. Üzerindeki saatler fazla çalışma sayılır ve normal ücretin 1,5 katı ödenir." }
+]);
+
+ilgiliAraclar("saat-sure-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>
