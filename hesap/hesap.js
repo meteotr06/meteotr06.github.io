@@ -1709,3 +1709,139 @@ function gebelikGeriye(tahminiDogum) {
     if (isNaN(d.getTime())) return null;
     return gunEkle(d, -GEBELIK.toplamGun);
 }
+
+// ---------- 40) EV: KİRALAMAK MI, SATIN ALMAK MI? ----------
+// Çoğu karşılaştırma haksızdır: sadece "taksit vs kira" bakar.
+// DÜRÜST karşılaştırma üç şeyi de hesaba katmalı:
+//   1. Peşinatı vermeseydin o para yatırımda kazanç getirecekti (fırsat maliyeti)
+//   2. Ev sahibinin aidat, emlak vergisi, bakım gibi ek giderleri var
+//   3. Dönem sonunda evin bir değeri var, kiracının böyle bir varlığı yok
+// Ayrıca kira her yıl artar; taksit sabit kalır. Bu da hesaba katılıyor.
+
+function kiralaAlKarsilastir(g) {
+    const fiyat = g.fiyat || 0;
+    const pesinat = Math.min(g.pesinat || 0, fiyat);
+    const kredi = Math.max(0, fiyat - pesinat);
+    const aylikFaiz = (g.faiz || 0) / 100;
+    const vadeAy = Math.max(1, Math.round(g.vadeAy || 120));
+    const yil = Math.max(1, Math.round(g.yil || 10));
+    const ayToplam = yil * 12;
+
+    // Kredi taksiti (annüite)
+    const taksit = aylikFaiz > 0
+        ? kredi * aylikFaiz * Math.pow(1 + aylikFaiz, vadeAy) / (Math.pow(1 + aylikFaiz, vadeAy) - 1)
+        : kredi / vadeAy;
+
+    const yatirimAylik = Math.pow(1 + (g.yatirimGetiri || 0) / 100, 1 / 12) - 1;
+    const evArtisAylik = Math.pow(1 + (g.evArtis || 0) / 100, 1 / 12) - 1;
+    const kiraArtisYillik = (g.kiraArtis || 0) / 100;
+
+    let borc = kredi;
+    let evDeger = fiyat;
+    let kira = g.kira || 0;
+    let toplamTaksit = 0, toplamFaiz = 0, toplamKira = 0, toplamGider = 0;
+    // Kiracı peşinatı yatırımda tutar; ayrıca taksit-kira farkını da yatırır
+    let kiraciBirikim = pesinat;
+    const yillikIz = [];
+
+    for (let ay = 1; ay <= ayToplam; ay++) {
+        // --- SATIN ALAN ---
+        let odenenTaksit = 0;
+        if (ay <= vadeAy && borc > 0.01) {
+            const faizPay = borc * aylikFaiz;
+            const anaPay = Math.min(borc, taksit - faizPay);
+            borc -= anaPay;
+            odenenTaksit = faizPay + anaPay;
+            toplamFaiz += faizPay;
+            toplamTaksit += odenenTaksit;
+        }
+        // Ev sahibinin ek giderleri
+        const gider = (g.aidat || 0)
+                    + evDeger * ((g.emlakVergisiBinde || 0) / 1000) / 12
+                    + evDeger * ((g.bakimYuzde || 0) / 100) / 12;
+        toplamGider += gider;
+        evDeger *= (1 + evArtisAylik);
+
+        // --- KİRACI ---
+        toplamKira += kira;
+        // Ev sahibinin o ay cebinden çıkan − kiracının çıkanı = kiracının yatırabileceği fark
+        const fark = (odenenTaksit + gider) - kira;
+        kiraciBirikim = kiraciBirikim * (1 + yatirimAylik) + Math.max(0, fark);
+        if (fark < 0) kiraciBirikim += fark;   // kira daha pahalıysa birikimden yer
+
+        if (ay % 12 === 0) {
+            kira *= (1 + kiraArtisYillik);     // kira yılda bir artar
+            yillikIz.push({
+                yil: ay / 12,
+                evDeger: evDeger, borc: borc,
+                alanServet: evDeger - borc,
+                kiraciServet: kiraciBirikim,
+                aylikKira: kira
+            });
+        }
+    }
+
+    const alanServet = evDeger - borc;          // dönem sonu net varlık
+    const alanMaliyet = pesinat + toplamTaksit + toplamGider - (evDeger - borc);
+    const kiraciMaliyet = toplamKira - (kiraciBirikim - pesinat);
+
+    // Hangi yılda satın alan öne geçiyor?
+    let basabasYil = null;
+    for (const y of yillikIz) {
+        if (y.alanServet >= y.kiraciServet) { basabasYil = y.yil; break; }
+    }
+
+    return {
+        fiyat: fiyat, pesinat: pesinat, kredi: kredi, taksit: taksit,
+        yil: yil,
+        toplamTaksit: toplamTaksit, toplamFaiz: toplamFaiz,
+        toplamGider: toplamGider, toplamKira: toplamKira,
+        sonEvDeger: evDeger, kalanBorc: borc,
+        alanServet: alanServet, kiraciServet: kiraciBirikim,
+        alanMaliyet: alanMaliyet, kiraciMaliyet: kiraciMaliyet,
+        fark: kiraciBirikim - alanServet,
+        kazanan: alanServet > kiraciBirikim ? "satin-al" : "kirala",
+        basabasYil: basabasYil,
+        sonKira: kira,
+        yillikIz: yillikIz
+    };
+}
+
+// ---------- 41) ELEKTRİKLİ ARAÇ ŞARJ MALİYETİ ----------
+// Elektrikli araçta "100 km kaç lira" hesabı benzinden farklı çalışır:
+// ev şarjı ile hızlı şarj arasında 3-4 kat fark olabilir.
+
+function sarjMaliyeti(g) {
+    const km = g.aylikKm || 0;
+    const tuketim = g.tuketim || 18;           // kWh / 100 km
+    const evFiyat = g.evKwh || 0;              // TL / kWh
+    const istasyonFiyat = g.istasyonKwh || 0;
+    const evOran = Math.min(100, Math.max(0, g.evOran === undefined ? 80 : g.evOran)) / 100;
+    const kayip = 1 + (g.sarjKaybi === undefined ? 10 : g.sarjKaybi) / 100;  // şarj verimi kaybı
+
+    const kwhAylik = km * tuketim / 100 * kayip;
+    const evKwh = kwhAylik * evOran;
+    const istKwh = kwhAylik * (1 - evOran);
+    const aylikTL = evKwh * evFiyat + istKwh * istasyonFiyat;
+
+    // Benzinli karşılaştırma
+    const bKm = g.benzinTuketim || 7;          // litre / 100 km
+    const bFiyat = g.benzinFiyat || 0;         // TL / litre
+    const benzinAylik = km * bKm / 100 * bFiyat;
+
+    return {
+        aylikKm: km, kwhAylik: kwhAylik,
+        evKwh: evKwh, istKwh: istKwh,
+        aylikTL: aylikTL, yillikTL: aylikTL * 12,
+        kmBasina: km > 0 ? aylikTL / km : 0,
+        yuzKmMaliyet: km > 0 ? aylikTL / km * 100 : 0,
+        benzinAylik: benzinAylik, benzinYillik: benzinAylik * 12,
+        benzinYuzKm: km > 0 ? benzinAylik / km * 100 : 0,
+        tasarrufAylik: benzinAylik - aylikTL,
+        tasarrufYillik: (benzinAylik - aylikTL) * 12,
+        tasarrufYuzde: benzinAylik > 0 ? (benzinAylik - aylikTL) / benzinAylik * 100 : 0,
+        // Sadece evde şarj edilse
+        hepEvde: kwhAylik * evFiyat,
+        hepIstasyon: kwhAylik * istasyonFiyat
+    };
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Ev Kiralamak mı Satın Almak mı? — Dürüst Karşılaştırma</title>
+<meta name="description" content="Ev kiralamak mı almak mı? Peşinatın fırsat maliyeti, aidat, emlak vergisi, bakım ve ev değer artışı dahil dürüst karşılaştırma. Başabaş noktasını gösterir." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kiralamak-mi-satin-almak-mi.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Ev Kiralamak mı Satın Almak mı? — Dürüst Karşılaştırma" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kiralamak-mi-satin-almak-mi.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/kiralamak-mi-satin-almak-mi.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Ev Kiralamak mı Satın Almak mı? — Dürüst Karşılaştırma" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kiralamak-mi-satin-almak-mi.png" />
+<link rel="stylesheet" href="stil.css?v=23" />
+</head>
+<body>
+
+<main>
+    <h1>Kiralamak mı, Satın Almak mı?</h1>
+    <p class="ozet">Çoğu karşılaştırma sadece <b>taksit ile kirayı</b> yan yana koyar — bu yanıltıcıdır. Burada peşinatın <b>fırsat maliyeti</b>, ev sahibinin ek giderleri ve dönem sonu ev değeri de hesaba katılır.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Fırsat maliyeti dahil</span><span class="etiket-rozet">Başabaş noktası</span><span class="etiket-rozet">Duyarlılık tablosu</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Ev fiyatı (TL)
+                    <input id="fiyat" type="number" step="any" inputmode="decimal" value="4000000" />
+                </label>
+                <label>Peşinat (TL)
+                    <input id="pesinat" type="number" step="any" inputmode="decimal" value="1200000" />
+                </label>
+                <label>Kredi aylık faizi (%)
+                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="2.5" />
+                </label>
+                <label>Kredi vadesi (ay)
+                    <input id="vade" type="number" inputmode="numeric" value="120" />
+                </label>
+                <label>Aynı evin aylık kirası (TL)
+                    <input id="kira" type="number" step="any" inputmode="decimal" value="25000" />
+                </label>
+                <label>Yıllık kira artışı (%)
+                    <input id="kiraArtis" type="number" step="0.1" inputmode="decimal" value="35" />
+                </label>
+                <label>Yıllık ev değer artışı (%)
+                    <input id="evArtis" type="number" step="0.1" inputmode="decimal" value="30" />
+                </label>
+                <label>Paranın yatırım getirisi (%/yıl)
+                    <input id="yatirim" type="number" step="0.1" inputmode="decimal" value="37" />
+                </label>
+                <label>Aylık aidat (TL)
+                    <input id="aidat" type="number" step="any" inputmode="decimal" value="1500" />
+                </label>
+                <label>Emlak vergisi (binde)
+                    <input id="emlak" type="number" step="0.1" inputmode="decimal" value="2" />
+                </label>
+                <label>Yıllık bakım-onarım (% ev değeri)
+                    <input id="bakim" type="number" step="0.1" inputmode="decimal" value="1" />
+                </label>
+                <label>Karşılaştırma süresi (yıl)
+                    <input id="yil" type="number" inputmode="numeric" min="1" max="30" value="10" />
+                </label>
+            </div>
+            <p class="kucuk">"Paranın yatırım getirisi", peşinatı eve yatırmasaydınız o parayla
+            elde edeceğiniz yıllık getiridir (mevduat, fon, altın…). <b>Sonuç bu iki orana çok duyarlıdır</b> —
+            alttaki tabloda ev artışını değiştirince kazananın nasıl değiştiğini görebilirsiniz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Neden "taksit vs kira" karşılaştırması yanlış?</h2>
+        <p>En sık duyulan cümle: <i>"Kira veriyorsun, o parayla taksit ödersin, ev senin olur."</i>
+        Kulağa mantıklı gelir ama üç şeyi atlar:</p>
+        <ul>
+            <li><b>Peşinatın fırsat maliyeti.</b> O parayı eve yatırmasaydınız faiz, fon ya da
+            altında kazanç getirecekti. Bu kayıp da satın almanın maliyetidir.</li>
+            <li><b>Ev sahibinin görünmeyen giderleri.</b> Aidat, emlak vergisi, DASK, bakım-onarım.
+            Kiracı bunları ödemez.</li>
+            <li><b>Kredi faizi.</b> 10 yıllık kredide ödediğiniz faiz, çoğu zaman evin
+            fiyatından fazladır.</li>
+        </ul>
+        <p>Buna karşılık kiracının da bir dezavantajı var: <b>dönem sonunda elinde ev yok.</b>
+        Dürüst karşılaştırma, iki tarafın da <b>net varlığına</b> bakmaktır. Bu araç onu yapar.</p>
+
+        <h2>Cevap tek bir varsayıma bağlı</h2>
+        <p>Hesap yapıldığında ortaya şu çıkıyor: sonucu belirleyen asıl şey <b>evin yıllık değer
+        artışı</b>. Belirli bir eşiğin üstünde satın almak, altında kiralamak öne geçiyor.</p>
+        <p>Araç bu eşiği (<b>başabaş oranı</b>) hesaplıyor ve farklı senaryoları tabloda gösteriyor.
+        Kendi kararınızı verirken sorması gereken soru şu: <b>"Bu evin o oranda değerleneceğine
+        gerçekten inanıyor muyum?"</b></p>
+
+        <h2>Hesaba katılmayanlar</h2>
+        <p>Dürüst olmak gerekirse bazı şeyler bu hesaba girmiyor:</p>
+        <ul>
+            <li><b>Tapu harcı ve alım masrafları</b> (%4 + ekstralar) — satın almanın aleyhine</li>
+            <li><b>Kira geliri vergisi</b> — evi kiraya verecekseniz</li>
+            <li><b>Taşınma zorunluluğu</b> — kiracı her an çıkarılabilir; bunun parasal olmayan bir bedeli var</li>
+            <li><b>Enflasyon</b> — hem kirayı hem ev değerini birlikte etkiler</li>
+            <li><b>Satış anındaki değer artışı kazancı vergisi</b> (5 yıldan önce satarsanız)</li>
+        </ul>
+        <p>Alım masraflarını hesaba katmak isterseniz ev fiyatına ekleyin. Tapu harcı için
+        <a href="tapu-harci-hesaplama.html">Tapu Harcı</a> aracını kullanabilirsiniz.</p>
+
+        <h2>Kiracının "farkı yatırması" ne demek?</h2>
+        <p>Kritik varsayım bu. Taksit + giderler kiradan fazlaysa, kiracının her ay elinde
+        <b>fazladan para kalır</b>. Hesap, bu farkın <b>yatırıldığını</b> varsayar.</p>
+        <p>Gerçekte çoğu kiracı bu farkı yatırmaz, harcar. O zaman karşılaştırma satın almanın
+        lehine döner. Yani ev almanın gizli faydası <b>zorunlu tasarruf</b> olmasıdır — her ay
+        ödemek zorunda olduğunuz için birikirsiniz.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=23"></script>
+<script src="sayfa.js?v=23"></script>
+<script>
+iskeletKur("kiralamak-mi-satin-almak-mi.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["fiyat","pesinat","faiz","vade","kira","kiraArtis","evArtis","yatirim","aidat","emlak","bakim","yil"];
+
+function girdiler(evArtisOverride) {
+    return {
+        fiyat: oku("fiyat"), pesinat: oku("pesinat"), faiz: oku("faiz"),
+        vadeAy: oku("vade"), yil: oku("yil"), kira: oku("kira"),
+        kiraArtis: oku("kiraArtis"),
+        evArtis: evArtisOverride === undefined ? oku("evArtis") : evArtisOverride,
+        yatirimGetiri: oku("yatirim"), aidat: oku("aidat"),
+        emlakVergisiBinde: oku("emlak"), bakimYuzde: oku("bakim")
+    };
+}
+
+// Kazananın değiştiği ev artış oranını ikiye bölerek bul
+function basabasOran() {
+    let alt = 0, ust = 100;
+    if (kiralaAlKarsilastir(girdiler(alt)).kazanan === "satin-al") return 0;
+    if (kiralaAlKarsilastir(girdiler(ust)).kazanan === "kirala") return null;
+    for (let i = 0; i < 40; i++) {
+        const orta = (alt + ust) / 2;
+        if (kiralaAlKarsilastir(girdiler(orta)).kazanan === "satin-al") ust = orta; else alt = orta;
+    }
+    return (alt + ust) / 2;
+}
+
+function hesapla() {
+    const g = girdiler();
+    if (!g.fiyat || g.fiyat <= 0 || !g.kira) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const r = kiralaAlKarsilastir(g);
+    const bas = basabasOran();
+    const alanKazandi = r.kazanan === "satin-al";
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger ${alanKazandi ? "yukari" : "asagi"}">${alanKazandi ? "Satın almak" : "Kiralamak"}</div>
+        <div class="dev-etiket">${r.yil} yıl sonunda ${para(Math.abs(r.fark))} daha avantajlı</div>
+        ${satir("Satın alanın net varlığı", para(r.alanServet), "buyuk")}
+        ${satir("Kiracının net varlığı", para(r.kiraciServet), "buyuk")}
+        ${satir("Aradaki fark", para(Math.abs(r.fark)))}
+        <p class="kucuk">Kiracının varlığı: peşinatı yatırımda tuttuğu ve her ay taksit
+        farkını da yatırdığı varsayımıyla. Satın alanın varlığı: evin değeri eksi kalan borç.</p>
+    </div>
+
+    <div class="kutu">
+        <h3>${r.yil} yılda neler oldu?</h3>
+        ${satir("Aylık kredi taksiti", para(r.taksit), "buyuk")}
+        ${satir("Ödenen toplam taksit", para(r.toplamTaksit))}
+        ${satir("Bunun faizi", para(r.toplamFaiz))}
+        ${satir("Aidat + vergi + bakım", para(r.toplamGider))}
+        ${satir("Ödenen toplam kira", para(r.toplamKira))}
+        ${satir("Son yıl aylık kira", para(r.sonKira))}
+        ${satir("Dönem sonu ev değeri", para(r.sonEvDeger))}
+        ${satir("Kalan kredi borcu", para(r.kalanBorc))}
+    </div>
+
+    <div class="kutu one-cikan">
+        <h3>Karar aslında tek bir sayıya bağlı</h3>
+        ${bas === null
+            ? `<p>Bu şartlarda <b>her durumda kiralamak</b> öne geçiyor.</p>`
+            : bas === 0
+            ? `<p>Bu şartlarda <b>her durumda satın almak</b> öne geçiyor.</p>`
+            : `${satir("Başabaş ev değer artışı", yuzdeOn(bas, 1), "buyuk")}
+               <p class="kucuk">Ev yılda <b>%${sayi(bas, 1)}'den fazla</b> değer kazanırsa satın almak,
+               <b>daha az</b> kazanırsa kiralamak kârlı. Siz %${sayi(g.evArtis, 1)} girdiniz.</p>`}
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Ev artışı</th><th>Satın alan</th><th>Kiracı</th><th>Kazanan</th></tr></thead><tbody>
+            ${[0, 10, 20, 30, 40, 50].map(o => {
+                const x = kiralaAlKarsilastir(girdiler(o));
+                const kz = x.kazanan === "satin-al";
+                return `<tr class="${Math.abs(o - g.evArtis) < 5 ? "vurgu-satir" : ""}">
+                    <td>%${o}</td><td>${para(x.alanServet)}</td><td>${para(x.kiraciServet)}</td>
+                    <td style="color:${kz ? "var(--artis)" : "var(--azalis)"}"><b>${kz ? "Satın al" : "Kirala"}</b></td></tr>`;
+            }).join("")}
+        </tbody></table></div>
+        <p class="kucuk">Gördüğünüz gibi cevap sabit değil. "Ev almak her zaman kârlıdır" doğru değil —
+        <b>evin ne kadar değerleneceğine</b> bağlı, ve bunu kimse kesin bilemez.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl kuruldu?");
+    d.ekle("Kredi taksiti annüite formülüyle bulunur.",
+           `${sayi(r.kredi, 0)} · %${sayi(g.faiz, 2)} · ${sayi(g.vadeAy, 0)} ay`, para(r.taksit));
+    d.ekle("Satın alanın her ay ödediği: taksit + aidat + vergi + bakım.",
+           "toplam " + sayi(r.yil * 12, 0) + " ay", para(r.toplamTaksit + r.toplamGider));
+    d.ekle("Kiracı peşinatı yatırımda tutar ve aradaki farkı da yatırır.",
+           `${sayi(r.pesinat, 0)} başlangıç, %${sayi(g.yatirimGetiri, 1)} yıllık getiri`, para(r.kiraciServet));
+    d.ekle("Satın alanın net varlığı: ev değeri − kalan borç.",
+           `${sayi(r.sonEvDeger, 0)} − ${sayi(r.kalanBorc, 0)}`, para(r.alanServet));
+    d.ekle("İki net varlık karşılaştırılır.",
+           `${sayi(r.alanServet, 0)} ↔ ${sayi(r.kiraciServet, 0)}`,
+           alanKazandi ? "Satın almak" : "Kiralamak");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Kirala mı Al mı"));
+yapisalVeri("Kirala mı Al mı", "Ev kiralamak mı almak mı? Peşinatın fırsat maliyeti, aidat, emlak vergisi, bakım ve ev değer artışı dahil dürüst karşılaştırma. Başabaş noktasını gösterir.");
+
+sssEkle([
+    { soru: "Ev almak her zaman kârlı mıdır?",
+      cevap: "Hayır. Sonuç evin yıllık değer artışına bağlıdır. Belirli bir eşiğin altında kalırsa, peşinatı yatırımda değerlendiren kiracı öne geçer. Araç bu eşiği hesaplıyor." },
+    { soru: "Peşinatın fırsat maliyeti nedir?",
+      cevap: "Peşinatı eve yatırmasaydınız o parayla elde edeceğiniz getiridir. Satın almanın görünmeyen ama gerçek bir maliyetidir; çoğu karşılaştırma bunu atlar." },
+    { soru: "Hesaba tapu harcı dahil mi?",
+      cevap: "Hayır. Alım masraflarını katmak isterseniz ev fiyatına ekleyin. Tapu harcı toplam %4'tür; Tapu Harcı aracıyla hesaplayabilirsiniz." },
+    { soru: "Kiracı farkı yatırmazsa ne olur?",
+      cevap: "O zaman satın almak öne geçer. Ev kredisinin gizli faydası zorunlu tasarruf olmasıdır: ödemek zorunda olduğunuz için birikirsiniz. Kiracının disiplini yoksa avantajı kaybolur." },
+    { soru: "Kaç yıllık karşılaştırma yapmalıyım?",
+      cevap: "Evde ne kadar kalmayı planlıyorsanız o süre. Kısa sürede satın alma genelde dezavantajlıdır çünkü alım masrafları ve ilk yılların ağır faizi henüz çıkarılamamıştır." }
+]);
+
+ilgiliAraclar("kiralamak-mi-satin-almak-mi.html");
+reklamAlani();
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Elektrikli Araç Şarj Maliyeti — 100 km Kaç Lira?</title>
+<meta name="description" content="Elektrikli araç şarj maliyeti hesaplama: ev şarjı ve hızlı şarj ayrı ayrı, benzinliyle karşılaştırmalı. 100 km başına gerçek maliyet ve aylık tasarruf." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/elektrikli-arac-sarj-maliyeti.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Elektrikli Araç Şarj Maliyeti — 100 km Kaç Lira?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/elektrikli-arac-sarj-maliyeti.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/elektrikli-arac-sarj-maliyeti.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Elektrikli Araç Şarj Maliyeti — 100 km Kaç Lira?" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/elektrikli-arac-sarj-maliyeti.png" />
+<link rel="stylesheet" href="stil.css?v=23" />
+</head>
+<body>
+
+<main>
+    <h1>Elektrikli Araç Şarj Maliyeti</h1>
+    <p class="ozet">Elektrikli araçta <b>nerede şarj ettiğiniz</b> maliyeti 4 katına kadar değiştirir. Ev ve istasyon karışımınızı girin, gerçek maliyeti benzinliyle karşılaştıralım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Ev / istasyon ayrı</span><span class="etiket-rozet">Şarj kaybı dahil</span><span class="etiket-rozet">Benzinle karşılaştırma</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Aylık kaç km?
+                    <input id="km" type="number" step="any" inputmode="decimal" value="1500" />
+                </label>
+                <label>Aracın tüketimi (kWh / 100 km)
+                    <input id="tuketim" type="number" step="0.1" inputmode="decimal" value="18" />
+                </label>
+                <label>Ev elektriği (TL / kWh)
+                    <input id="evKwh" type="number" step="0.01" inputmode="decimal" value="2.60" />
+                </label>
+                <label>İstasyon fiyatı (TL / kWh)
+                    <input id="istKwh" type="number" step="0.01" inputmode="decimal" value="11.50" />
+                </label>
+                <label>Şarjın yüzde kaçı evde? (%)
+                    <input id="evOran" type="number" inputmode="numeric" min="0" max="100" value="80" />
+                </label>
+                <label>Şarj kaybı (%)
+                    <input id="kayip" type="number" step="1" inputmode="numeric" value="10" />
+                </label>
+                <label>Karşılaştırılacak benzinli (L / 100 km)
+                    <input id="bTuketim" type="number" step="0.1" inputmode="decimal" value="7" />
+                </label>
+                <label>Benzin fiyatı (TL / litre)
+                    <input id="bFiyat" type="number" step="0.01" inputmode="decimal" value="52" />
+                </label>
+            </div>
+            <p class="kucuk">Elektrik ve benzin fiyatlarını <b>kendi faturanızdan/pompadan</b> girin;
+            bölgeye ve döneme göre değişir. <b>Şarj kaybı</b>: prizden çeken enerjinin bir kısmı
+            aküye girmez, ısıya dönüşür — genelde %8–15.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Şarj kaybı nedir, neden hesaba katılıyor?</h2>
+        <p>Prizden çektiğiniz enerjinin tamamı aküye girmez; bir kısmı ısıya dönüşür.
+        Bu kayıp genelde <b>%8–15</b> arasındadır. Evde yavaş şarjda daha düşük, hızlı
+        şarjda daha yüksektir. Kaybı hesaba katmazsanız maliyeti olduğundan az bulursunuz.</p>
+
+        <h2>Ev şarjı ile istasyon arasında neden bu kadar fark var?</h2>
+        <p>Ev elektriği mesken tarifesinden gelir. Hızlı şarj istasyonları ise altyapı,
+        işletme ve kâr maliyetini fiyata bindirir. Aradaki fark <b>4 katı</b> bulabilir.</p>
+        <p>Bu yüzden elektrikli araç kararı büyük ölçüde şu soruya bağlıdır:
+        <b>evde şarj edebiliyor musunuz?</b> Müstakil evde ya da otoparkında prizi olan
+        sitede yaşıyorsanız tablo çok farklı; her gün istasyona gitmek zorundaysanız
+        avantaj ciddi biçimde azalır.</p>
+
+        <h2>Bu hesaba girmeyenler</h2>
+        <ul>
+            <li><b>Aracın satın alma farkı</b> — elektrikli araçlar genelde daha pahalıdır</li>
+            <li><b>MTV farkı</b> — elektriklide motor gücüne göre ayrı tarife uygulanır</li>
+            <li><b>Sigorta ve bakım</b> — elektriklide bakım genelde daha ucuzdur (yağ, filtre,
+            triger yok) ama sigorta daha pahalı olabilir</li>
+            <li><b>Akü ömrü ve değişim maliyeti</b></li>
+            <li><b>İkinci el değeri</b></li>
+        </ul>
+        <p>Bu araç yalnızca <b>yakıt/enerji giderini</b> karşılaştırır. Toplam sahip olma
+        maliyeti daha geniş bir hesaptır.</p>
+
+        <h2>Tüketim değeri nereden bulunur?</h2>
+        <p>Aracın ekranında ortalama tüketim <b>kWh/100 km</b> olarak yazar. Üreticinin
+        verdiği değer genelde iyimserdir; <b>kendi ekranınızdaki gerçek ortalamayı</b> girin.
+        Şehir içi ve kışın tüketim belirgin biçimde artar (ısıtma aküden çalışır).</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=23"></script>
+<script src="sayfa.js?v=23"></script>
+<script>
+iskeletKur("elektrikli-arac-sarj-maliyeti.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["km","tuketim","evKwh","istKwh","evOran","kayip","bTuketim","bFiyat"];
+
+function hesapla() {
+    const g = {
+        aylikKm: oku("km"), tuketim: oku("tuketim"),
+        evKwh: oku("evKwh"), istasyonKwh: oku("istKwh"),
+        evOran: oku("evOran"), sarjKaybi: oku("kayip"),
+        benzinTuketim: oku("bTuketim"), benzinFiyat: oku("bFiyat")
+    };
+    if (!g.aylikKm) {
+        document.getElementById("ozet").innerHTML = "";
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+    const s = sarjMaliyeti(g);
+    const kazandi = s.tasarrufAylik > 0;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.yuzKmMaliyet)}</div>
+        <div class="dev-etiket">100 km başına elektrik maliyeti</div>
+        ${satir("Aylık tüketim", sayi(s.kwhAylik, 1) + " kWh")}
+        ${satir("  · evde", sayi(s.evKwh, 1) + " kWh")}
+        ${satir("  · istasyonda", sayi(s.istKwh, 1) + " kWh")}
+        ${satir("Aylık şarj gideri", para(s.aylikTL), "buyuk")}
+        ${satir("Yıllık şarj gideri", para(s.yillikTL))}
+        ${satir("Kilometre başına", para(s.kmBasina))}
+    </div>
+
+    <div class="kutu one-cikan">
+        <h3>Benzinliyle karşılaştırma</h3>
+        ${satir("Elektrikli — 100 km", para(s.yuzKmMaliyet), "buyuk")}
+        ${satir("Benzinli — 100 km", para(s.benzinYuzKm), "buyuk")}
+        ${satir("Aylık fark", (kazandi ? "−" : "+") + para(Math.abs(s.tasarrufAylik)))}
+        ${satir("Yıllık fark", (kazandi ? "−" : "+") + para(Math.abs(s.tasarrufYillik)))}
+        <p class="kucuk" style="color:${kazandi ? "var(--artis)" : "var(--azalis)"}">
+        ${kazandi
+            ? `Elektrikli araç yılda <b>${para(s.tasarrufYillik)}</b> daha ucuza gidiyor —
+               benzinliye göre <b>%${sayi(s.tasarrufYuzde, 0)}</b> tasarruf.`
+            : `Bu şartlarda elektrikli <b>daha pahalı</b> çıkıyor. Genelde sebebi
+               şarjın çoğunun istasyonda yapılmasıdır.`}</p>
+    </div>
+
+    <div class="kutu">
+        <h3>Nerede şarj ettiğiniz her şeyi değiştiriyor</h3>
+        ${satir("Hepsi evde olsaydı", para(s.hepEvde), "buyuk")}
+        ${satir("Şu anki karışımınız", para(s.aylikTL))}
+        ${satir("Hepsi istasyonda olsaydı", para(s.hepIstasyon))}
+        <p class="kucuk">Aradaki fark <b>${sayi(s.hepEvde > 0 ? s.hepIstasyon / s.hepEvde : 0, 1)} kat</b>.
+        Elektrikli araç ekonomisi büyük ölçüde <b>evde şarj edebilmeye</b> bağlıdır;
+        apartmanda prizi olmayan biri için tablo bambaşka olur.</p>
+
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Evde şarj oranı</th><th>Aylık</th><th>100 km</th><th>Benzinliye göre</th>
+            </tr></thead><tbody>
+            ${[0, 25, 50, 75, 100].map(o => {
+                const x = sarjMaliyeti(Object.assign({}, g, { evOran: o }));
+                const iyi = x.tasarrufAylik > 0;
+                return `<tr class="${Math.abs(o - g.evOran) < 13 ? "vurgu-satir" : ""}">
+                    <td>%${o}</td><td>${para(x.aylikTL)}</td><td>${para(x.yuzKmMaliyet)}</td>
+                    <td style="color:${iyi ? "var(--artis)" : "var(--azalis)"}">
+                    <b>${iyi ? "−" : "+"}${para(Math.abs(x.tasarrufAylik))}</b></td></tr>`;
+            }).join("")}
+        </tbody></table></div>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Aylık enerji ihtiyacı: km × tüketim ÷ 100.",
+           `${sayi(g.aylikKm, 0)} × ${sayi(g.tuketim, 1)} ÷ 100`,
+           sayi(g.aylikKm * g.tuketim / 100, 1) + " kWh");
+    d.ekle("Şarj kaybı eklenir (prizden çekilen enerji daha fazla).",
+           `× ${sayi(1 + g.sarjKaybi / 100, 2)}`, sayi(s.kwhAylik, 1) + " kWh");
+    d.ekle("Ev ve istasyon payına ayrılır.",
+           `%${sayi(g.evOran, 0)} ev / %${sayi(100 - g.evOran, 0)} istasyon`,
+           sayi(s.evKwh, 1) + " + " + sayi(s.istKwh, 1) + " kWh");
+    d.ekle("Her biri kendi fiyatıyla çarpılır.",
+           `${sayi(s.evKwh, 1)}×${sayi(g.evKwh, 2)} + ${sayi(s.istKwh, 1)}×${sayi(g.istasyonKwh, 2)}`,
+           para(s.aylikTL));
+    d.ekle("Benzinli aynı yolu kaç liraya gider?",
+           `${sayi(g.aylikKm, 0)} × ${sayi(g.benzinTuketim, 1)} ÷ 100 × ${sayi(g.benzinFiyat, 2)}`,
+           para(s.benzinAylik));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Şarj Maliyeti"));
+yapisalVeri("Şarj Maliyeti", "Elektrikli araç şarj maliyeti hesaplama: ev şarjı ve hızlı şarj ayrı ayrı, benzinliyle karşılaştırmalı. 100 km başına gerçek maliyet ve aylık tasarruf.");
+
+sssEkle([
+    { soru: "Elektrikli araç 100 km'de kaç lira yakar?",
+      cevap: "Nerede şarj ettiğinize bağlı. Ev elektriğiyle 100 km birkaç on liraya gelirken, hızlı şarj istasyonunda bunun 4 katına kadar çıkabilir. Araç ikisini de ayrı gösterir." },
+    { soru: "Şarj kaybı ne kadar?",
+      cevap: "Prizden çekilen enerjinin %8-15'i aküye girmeden ısıya dönüşür. Evde yavaş şarjda daha az, hızlı şarjda daha fazladır. Hesaba katılmazsa maliyet olduğundan düşük çıkar." },
+    { soru: "Evde şarj edemiyorum, yine de kârlı mı?",
+      cevap: "Avantaj ciddi biçimde azalır. Araçtaki tabloda evde şarj oranını %0 yapıp kendi rakamlarınızla görebilirsiniz; bazı fiyat seviyelerinde benzinliyle başabaş bile olabilir." },
+    { soru: "Kışın tüketim artıyor mu?",
+      cevap: "Evet, belirgin biçimde. Kabin ısıtması aküden beslenir ve akü soğukta daha az verimlidir. Kış ortalamanız yazdan yüksek çıkar; aracın ekranındaki gerçek değeri girin." }
+]);
+
+ilgiliAraclar("elektrikli-arac-sarj-maliyeti.html");
+reklamAlani();
+</script>
+</body>
+</html>

@@ -40,7 +40,9 @@ const ARACLAR = [
     { yol: "dogalgaz-faturasi-hesaplama.html", ad: "Doğalgaz Faturası", aciklama: "m³'ten kWh'a, sayaçtan faturaya", grup: "Ev ve Yaşam", anahtar: "doğalgaz fatura m3 metreküp kwh sayaç ısıl değer kombi ısınma abonelik igdaş başkentgaz" },
     { yol: "dogum-izni-hesaplama.html", ad: "Doğum İzni", aciklama: "24 hafta — yeni düzenleme", grup: "Maaş ve Çalışma", anahtar: "doğum izni analık izni süt izni babalık izni 24 hafta 16 hafta hamile gebe çoğul ücretsiz izin sgk analık ödeneği 7578" },
     { yol: "kira-geliri-vergisi-hesaplama.html", ad: "Kira Geliri Vergisi", aciklama: "İstisna, götürü/gerçek gider", grup: "Ev ve Yaşam", anahtar: "kira geliri vergisi gmsi beyanname istisna götürü gider gerçek gider ev sahibi mart temmuz taksit hazır beyan stopaj" },
-    { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" }
+    { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" },
+    { yol: "kiralamak-mi-satin-almak-mi.html", ad: "Kirala mı Al mı", aciklama: "Ev: dürüst karşılaştırma", grup: "Ev ve Yaşam", anahtar: "ev almak kiralamak kira mı taksit mi konut kredisi peşinat fırsat maliyeti yatırım başabaş değer artışı" },
+    { yol: "elektrikli-arac-sarj-maliyeti.html", ad: "Şarj Maliyeti", aciklama: "Elektrikli araç vs benzinli", grup: "Ev ve Yaşam", anahtar: "elektrikli araç şarj maliyeti kwh 100 km benzinli karşılaştırma ev şarjı istasyon hızlı şarj togg tesla menzil" }
 ];
 
 const KAYIT = "hesapAraclariAyar";
