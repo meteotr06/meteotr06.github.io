@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Boya ve Fayans Hesaplama — Oda Kaç Litre Boya, Kaç Karo?</title>
+<meta name="description" content="Oda ölçülerinden duvar ve tavan alanı, gereken boya litresi ve fayans/karo adedi hesaplama. Fire payı dahil." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/boya-fayans-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Boya ve Fayans Hesaplama — Oda Kaç Litre Boya, Kaç Karo?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/boya-fayans-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=7" />
+</head>
+<body>
+
+<main>
+    <h1>Boya ve Fayans Hesaplama</h1>
+    <p class="ozet">Odanızın ölçülerini girin; <b>kaç litre boya</b> ve <b>kaç karo fayans</b> gerektiğini hesaplayalım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Kapı-pencere düşülür</span><span class="etiket-rozet">Fire payı dahil</span><span class="etiket-rozet">Kutu adedi</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Oda eni (m)
+                    <input id="en" type="number" step="0.1" inputmode="decimal" value="4" />
+                </label>
+                <label>Oda boyu (m)
+                    <input id="boy" type="number" step="0.1" inputmode="decimal" value="5" />
+                </label>
+                <label>Tavan yüksekliği (m)
+                    <input id="yukseklik" type="number" step="0.1" inputmode="decimal" value="2.7" />
+                </label>
+                <label>Kapı + pencere alanı (m²)
+                    <input id="bosluk" type="number" step="0.1" inputmode="decimal" value="5" />
+                </label>
+                <label>Boya verimi (m² / litre)
+                    <input id="verim" type="number" step="0.5" inputmode="decimal" value="12" />
+                </label>
+                <label>Kaç kat boya
+                    <input id="kat" type="number" inputmode="numeric" value="2" />
+                </label>
+                <label>Karo eni (cm)
+                    <input id="karoEn" type="number" step="1" inputmode="numeric" value="60" />
+                </label>
+                <label>Karo boyu (cm)
+                    <input id="karoBoy" type="number" step="1" inputmode="numeric" value="60" />
+                </label>
+                <label>Fire payı (%)
+                    <input id="fire" type="number" step="1" inputmode="numeric" value="10" />
+                </label>
+            </div>
+            <p class="kucuk">Boya verimi kutunun üstünde yazar; genelde <b>10–14 m²/litre</b> arasındadır. Fire payı kesim ve kırılma içindir; desenli karoda <b>%15</b> daha güvenlidir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Duvar alanı nasıl bulunur?</h2>
+        <p>Odanın çevresi (2 × (en + boy)) tavan yüksekliğiyle çarpılır. Sonra kapı ve
+        pencerelerin alanı düşülür. Standart bir kapı yaklaşık <b>1,9 m²</b>, orta boy bir
+        pencere <b>1,5–2,5 m²</b> tutar.</p>
+
+        <h2>Kaç kat boya gerekir?</h2>
+        <p>Aynı renk üzerine yenileme yapıyorsanız genelde <b>2 kat</b> yeterlidir. Koyu renkten
+        açığa geçiyorsanız 3 kat gerekebilir. Yeni sıva veya alçı üzerine mutlaka <b>astar</b>
+        atılmalıdır; astar boya hesabına dahil değildir.</p>
+
+        <h2>Fire payı neden önemli?</h2>
+        <p>Karo keserken kırılma olur, köşelerde parça kullanılır. <b>%10</b> fire genelde
+        yeterlidir; desenli, büyük ebatlı ya da çapraz döşenecek karolarda <b>%15</b> daha
+        güvenlidir.</p>
+        <p>Ayrıca aynı seri ve aynı parti numaralı karoyu sonradan bulmak zordur; renk tonu
+        tutmayabilir. Baştan biraz fazla almak, sonradan eksik kalmaktan iyidir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=7"></script>
+<script src="sayfa.js?v=7"></script>
+<script>
+iskeletKur("boya-fayans-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["en","boy","yukseklik","bosluk","verim","kat","karoEn","karoBoy","fire"];
+
+function hesapla() {
+    const en = oku("en"), boy = oku("boy"), yuk = oku("yukseklik"), bosluk = oku("bosluk");
+    const verim = oku("verim") || 12, kat = Math.max(1, Math.round(oku("kat")));
+    const karoEn = oku("karoEn"), karoBoy = oku("karoBoy"), fire = oku("fire");
+
+    if (!en || !boy || en <= 0 || boy <= 0) {
+        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+    }
+
+    const o = odaAlani(en, boy, yuk, bosluk);
+    const bDuvar = boyaHesap(o.duvar, verim, kat);
+    const bTavan = boyaHesap(o.tavan, verim, kat);
+    const fZemin = (karoEn > 0 && karoBoy > 0) ? fayansHesap(o.taban, karoEn, karoBoy, fire) : null;
+    const fDuvar = (karoEn > 0 && karoBoy > 0) ? fayansHesap(o.duvar, karoEn, karoBoy, fire) : null;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${sayi(o.duvar, 1)} m²</div>
+        <div class="dev-etiket">boyanacak duvar alanı</div>
+        ${satir("Taban / tavan alanı", sayi(o.taban, 1) + " m²")}
+        ${satir("Oda çevresi", sayi(o.cevre, 1) + " m")}
+        ${satir("Ham duvar alanı", sayi(o.duvarHam, 1) + " m²")}
+        ${satir("Kapı ve pencere düşülünce", sayi(o.duvar, 1) + " m²", "buyuk")}
+    </div>
+
+    <div class="kutu">
+        <h3>Boya ihtiyacı (${kat} kat)</h3>
+        ${satir("Duvarlar için", sayi(bDuvar.litre, 1) + " litre")}
+        ${satir("Tavan için", sayi(bTavan.litre, 1) + " litre")}
+        ${satir("Toplam", sayi(bDuvar.litre + bTavan.litre, 1) + " litre", "buyuk")}
+        <p class="kucuk">Kutu olarak: <b>${Math.ceil((bDuvar.litre + bTavan.litre) / 2.5)}</b> adet 2,5 litrelik
+        ya da <b>${Math.ceil((bDuvar.litre + bTavan.litre) / 7.5)}</b> adet 7,5 litrelik.
+        Astar ayrıca hesaplanır.</p>
+    </div>
+
+    ${fZemin ? `<div class="kutu">
+        <h3>Fayans / karo ihtiyacı (${sayi(karoEn,0)}×${sayi(karoBoy,0)} cm)</h3>
+        ${satir("Bir karonun alanı", sayi(fZemin.karoAlan, 3) + " m²")}
+        ${satir("Zemin için (fire dahil)", fZemin.adet + " adet", "buyuk")}
+        ${satir("Duvar için (fire dahil)", fDuvar.adet + " adet")}
+        <p class="kucuk">%${sayi(fire, 0)} fire payı eklendi: zeminde ${fZemin.fireAdet} adet fazladan.
+        Aynı seri karoyu sonradan bulmak zor olabilir, biraz fazla almak güvenlidir.</p>
+    </div>` : ""}`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Oda çevresi bulunur.", `2 × (${sayi(en,1)} + ${sayi(boy,1)})`, sayi(o.cevre, 1) + " m");
+    d.ekle("Çevre, tavan yüksekliğiyle çarpılır: ham duvar alanı.",
+           `${sayi(o.cevre,1)} × ${sayi(yuk,1)}`, sayi(o.duvarHam, 1) + " m²");
+    d.ekle("Kapı ve pencere alanı düşülür.",
+           `${sayi(o.duvarHam,1)} − ${sayi(bosluk,1)}`, sayi(o.duvar, 1) + " m²");
+    d.ekle(`Boya: alan × kat sayısı ÷ verim.`,
+           `${sayi(o.duvar,1)} × ${kat} ÷ ${sayi(verim,1)}`, sayi(bDuvar.litre, 1) + " litre");
+    if (fZemin) d.ekle("Karo: alan ÷ karo alanı, üstüne fire payı.",
+           `${sayi(o.taban,1)} ÷ ${sayi(fZemin.karoAlan,3)} × ${sayi(1 + fire/100, 2)}`, fZemin.adet + " adet");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Boya ve Fayans Hesabı"));
+yapisalVeri("Boya ve Fayans Hesabı", "Oda ölçülerinden duvar ve tavan alanı, gereken boya litresi ve fayans/karo adedi hesaplama. Fire payı dahil.");
+
+sssEkle([
+    { soru: "Boya verimi nedir, nereden bakarım?",
+      cevap: "Bir litre boyanın kaç metrekare yüzeyi kapladığıdır; boya kutusunun üzerinde yazar. Genelde 10-14 m²/litre arasındadır. Emici yüzeylerde (yeni sıva) verim düşer, daha çok boya gider." },
+    { soru: "Tavanı da boyayacak mıyım?",
+      cevap: "Hesapta duvar ve tavan ayrı gösterilir; ikisini de boyayacaksanız toplamı kullanın. Tavan için genelde daha mat ve daha ucuz bir boya tercih edilir." },
+    { soru: "Fire payını ne kadar tutmalıyım?",
+      cevap: "Düz döşemede %10 yeterlidir. Çapraz döşeme, desen eşleştirme ya da çok sayıda köşe varsa %15 alın. Kalan karoları saklamak da iyi fikirdir; ileride kırılan olursa aynısını bulmak zordur." }
+]);
+
+ilgiliAraclar("boya-fayans-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

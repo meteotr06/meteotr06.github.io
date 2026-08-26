@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Not Ortalaması Hesaplama — Ağırlıklı Ortalama ve Kredili Sistem</title>
+<meta name="description" content="Not ortalaması hesaplama: kredili sistemde ağırlıklı ortalama, dönem ortalaması ve 4'lük sisteme yaklaşık karşılığı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/not-ortalamasi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Not Ortalaması Hesaplama — Ağırlıklı Ortalama ve Kredili Sistem" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/not-ortalamasi-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=7" />
+</head>
+<body>
+
+<main>
+    <h1>Not Ortalaması Hesaplama</h1>
+    <p class="ozet">Derslerinizin notunu ve kredisini girin; <b>ağırlıklı ortalamanızı</b> hesaplayalım. Kredisi yüksek ders ortalamayı daha çok etkiler.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Ağırlıklı ortalama</span><span class="etiket-rozet">6 derse kadar</span><span class="etiket-rozet">Ders katkısı ayrı ayrı</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>1. ders<input id="ad1" type="text" value="Matematik" /></label>
+                <label>Not<input id="n1" type="number" step="any" inputmode="decimal" value="75" /></label>
+                <label>Kredi<input id="k1" type="number" step="any" inputmode="decimal" value="4" /></label>
+                <label>2. ders<input id="ad2" type="text" value="Fizik" /></label>
+                <label>Not<input id="n2" type="number" step="any" inputmode="decimal" value="60" /></label>
+                <label>Kredi<input id="k2" type="number" step="any" inputmode="decimal" value="3" /></label>
+                <label>3. ders<input id="ad3" type="text" value="Türkçe" /></label>
+                <label>Not<input id="n3" type="number" step="any" inputmode="decimal" value="85" /></label>
+                <label>Kredi<input id="k3" type="number" step="any" inputmode="decimal" value="2" /></label>
+                <label>4. ders<input id="ad4" type="text" value="" /></label>
+                <label>Not<input id="n4" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>Kredi<input id="k4" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>5. ders<input id="ad5" type="text" value="" /></label>
+                <label>Not<input id="n5" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>Kredi<input id="k5" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>6. ders<input id="ad6" type="text" value="" /></label>
+                <label>Not<input id="n6" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>Kredi<input id="k6" type="number" step="any" inputmode="decimal" value="0" /></label>
+            </div>
+            <p class="kucuk">Kullanmadığınız satırların <b>kredisini 0</b> bırakın. Kredi yerine ders saati veya katsayı da yazabilirsiniz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Ağırlıklı ortalama nedir?</h2>
+        <p>Her dersin ortalamaya katkısı kredisi kadardır. Notları toplayıp ders sayısına
+        bölmek (düz ortalama) yanlış sonuç verir; çünkü 4 kredilik bir dersle 1 kredilik dersi
+        eşit saymış olursunuz.</p>
+        <p>Doğru yöntem: <b>(not × kredi) toplamı ÷ kredi toplamı</b>.</p>
+
+        <h2>Kredi yerine ne yazabilirim?</h2>
+        <p>Okulunuz kredi kullanmıyorsa <b>haftalık ders saatini</b> ya da <b>katsayıyı</b>
+        yazabilirsiniz. Mantık aynıdır: hangi ders daha ağır basıyorsa sayısı büyük olur.
+        Bütün dersler eşit ağırlıktaysa hepsine 1 yazın; sonuç düz ortalama olur.</p>
+
+        <h2>4'lük sisteme dönüşüm</h2>
+        <p>Buradaki 4'lük karşılık <b>kaba bir yaklaşımdır</b> (100'lük not 25'e bölünür).
+        Gerçekte üniversiteler harf notu üzerinden çalışır ve YÖK'ün resmî dönüşüm tablosu
+        kullanılır. Resmî bir işlem için mutlaka okulunuzun tablosuna bakın.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=7"></script>
+<script src="sayfa.js?v=7"></script>
+<script>
+iskeletKur("not-ortalamasi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["ad1","n1","k1","ad2","n2","k2","ad3","n3","k3","ad4","n4","k4","ad5","n5","k5","ad6","n6","k6"];
+
+function hesapla() {
+    const dersler = [1,2,3,4,5,6].map(i => ({
+        ad: document.getElementById("ad" + i).value || (i + ". ders"),
+        not: oku("n" + i), kredi: oku("k" + i)
+    }));
+    const o = notOrtalamasi(dersler);
+    if (!o.dersSayisi) {
+        document.getElementById("ozet").innerHTML = `<div class="kutu"><p class="kucuk">En az bir dersin kredisini girin.</p></div>`;
+        document.getElementById("dokum").innerHTML = ""; return;
+    }
+
+    const duzOrt = o.satirlar.reduce((t, s) => t + s.not, 0) / o.dersSayisi;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${sayi(o.ortalama, 2)}</div>
+        <div class="dev-etiket">ağırlıklı ortalamanız</div>
+        ${satir("Ders sayısı", o.dersSayisi)}
+        ${satir("Toplam kredi", sayi(o.toplamKredi, 1))}
+        ${satir("Ağırlıklı ortalama", sayi(o.ortalama, 2), "buyuk")}
+        ${satir("Düz ortalama (kredisiz)", sayi(duzOrt, 2))}
+        ${satir("4'lük sistemde yaklaşık", sayi(o.dortluk, 2))}
+        <p class="kucuk">4'lük karşılık <b>yaklaşıktır</b> (100'lük ÷ 25). Resmî dönüşüm için
+        okulunuzun ya da YÖK'ün dönüşüm tablosuna bakın.</p>
+    </div>
+
+    <div class="kutu">
+        <h3>Hangi ders ortalamayı ne kadar etkiledi?</h3>
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Ders</th><th>Not</th><th>Kredi</th><th>Katkı</th><th>Ağırlık</th>
+            </tr></thead><tbody>
+            ${o.satirlar.map(s => `<tr>
+                <td>${s.ad}</td><td>${sayi(s.not, 1)}</td><td>${sayi(s.kredi, 1)}</td>
+                <td>${sayi(s.katki, 1)}</td>
+                <td><b>%${sayi(s.kredi / o.toplamKredi * 100, 0)}</b></td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="kucuk">Kredisi yüksek dersler ortalamayı daha çok etkiler. Aynı notu
+        4 kredilik dersten almak, 2 kredilik dersten almanın iki katı ağırlık taşır.</p>
+    </div>`;
+
+    const d = dokumKur("Ağırlıklı ortalama nasıl bulunur?");
+    d.ekle("Her dersin notu kredisiyle çarpılır.",
+           o.satirlar.map(s => `${sayi(s.not,0)}×${sayi(s.kredi,0)}`).join(" + "), sayi(o.toplamAgirlikli, 1));
+    d.ekle("Krediler toplanır.",
+           o.satirlar.map(s => sayi(s.kredi, 0)).join(" + "), sayi(o.toplamKredi, 1));
+    d.ekle("Toplam çarpım, toplam krediye bölünür.",
+           `${sayi(o.toplamAgirlikli, 1)} ÷ ${sayi(o.toplamKredi, 1)}`, sayi(o.ortalama, 2));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Not Ortalaması"));
+yapisalVeri("Not Ortalaması", "Not ortalaması hesaplama: kredili sistemde ağırlıklı ortalama, dönem ortalaması ve 4'lük sisteme yaklaşık karşılığı.");
+
+sssEkle([
+    { soru: "Düz ortalama ile ağırlıklı ortalama farkı ne?",
+      cevap: "Düz ortalama bütün dersleri eşit sayar. Ağırlıklı ortalama ise kredisi yüksek dersleri daha çok hesaba katar. Kredili sistemde geçerli olan ağırlıklı ortalamadır." },
+    { soru: "Kaç dersim varsa girebilir miyim?",
+      cevap: "Bu araç 6 derse kadar destekler. Daha fazlası için dersleri gruplayabilir ya da iki kez hesaplayıp sonuçları kredilerine göre birleştirebilirsiniz." },
+    { soru: "4'lük karşılık neden yaklaşık?",
+      cevap: "100'lük sistemden 4'lük sisteme geçişte üniversiteler harf notu aralıkları kullanır ve bu aralıklar okuldan okula değişir. Buradaki 25'e bölme yöntemi yalnızca kabaca fikir verir." }
+]);
+
+ilgiliAraclar("not-ortalamasi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

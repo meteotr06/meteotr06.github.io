@@ -16,7 +16,7 @@ const ARACLAR = [
     { yol: "vade-farki-hesaplama.html", ad: "Vade Farkı", aciklama: "Peşin mi taksit mi", grup: "Kredi ve Borç" },
     { yol: "vucut-kitle-indeksi-hesaplama.html", ad: "Vücut Kitle İndeksi", aciklama: "BKİ ve ideal kilo", grup: "Sağlık" },
     { yol: "kalori-ihtiyaci-hesaplama.html", ad: "Kalori İhtiyacı", aciklama: "Günlük kalori ve hedefler", grup: "Sağlık" },
-    { yol: "net-hesaplama.html", ad: "Sınav Neti", aciklama: "Doğru, yanlış, net", grup: "Genel" },
+    { yol: "net-hesaplama.html", ad: "Sınav Neti", aciklama: "Doğru, yanlış, net", grup: "Okul" },
     { yol: "kredi-karti-asgari-odeme-hesaplama.html", ad: "Kart Asgari Ödeme", aciklama: "Borç kaç ayda biter", grup: "Kredi ve Borç" },
     { yol: "maas-zammi-hesaplama.html", ad: "Maaş Zammı", aciklama: "Zam enflasyonu karşıladı mı", grup: "Maaş ve Çalışma" },
     { yol: "altin-hesaplama.html", ad: "Altın Hesaplama", aciklama: "Çeyrek, gram, ayar", grup: "Birikim" },
@@ -25,7 +25,11 @@ const ARACLAR = [
     { yol: "ne-kadar-kredi-cekebilirim.html", ad: "Kredi Limiti", aciklama: "Gelire göre çekilebilir tutar", grup: "Kredi ve Borç" },
     { yol: "fazla-mesai-hesaplama.html", ad: "Fazla Mesai", aciklama: "Saat ücreti ve 1,5 kat", grup: "Maaş ve Çalışma" },
     { yol: "yillik-izin-hesaplama.html", ad: "Yıllık İzin", aciklama: "Kaç gün, ne kadar ücret", grup: "Maaş ve Çalışma" },
-    { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma" }
+    { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma" },
+    { yol: "birim-cevirme.html", ad: "Birim Çevirme", aciklama: "Uzunluk, ağırlık, sıcaklık, alan", grup: "Genel" },
+    { yol: "sayi-yaziyla-yazma.html", ad: "Sayı Yazıyla", aciklama: "Çek ve senet için tutar yazımı", grup: "Genel" },
+    { yol: "not-ortalamasi-hesaplama.html", ad: "Not Ortalaması", aciklama: "Kredili ağırlıklı ortalama", grup: "Okul" },
+    { yol: "boya-fayans-hesaplama.html", ad: "Boya ve Fayans", aciklama: "Oda kaç litre boya, kaç karo", grup: "Ev ve Yaşam" }
 ];
 
 const KAYIT = "hesapAraclariAyar";

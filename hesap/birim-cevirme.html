@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Birim Çevirme — Uzunluk, Ağırlık, Sıcaklık, Alan, Hacim</title>
+<meta name="description" content="Birim çevirme aracı: metre-inç, kilogram-libre, santigrat-fahrenhayt, dönüm-metrekare, litre-galon ve daha fazlası. Anında çeviri." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/birim-cevirme.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Birim Çevirme — Uzunluk, Ağırlık, Sıcaklık, Alan, Hacim" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/birim-cevirme.html" />
+<link rel="stylesheet" href="stil.css?v=7" />
+</head>
+<body>
+
+<main>
+    <h1>Birim Çevirme</h1>
+    <p class="ozet">Uzunluk, ağırlık, sıcaklık, alan, hacim ve hız birimleri arasında anında çeviri.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">6 grup, 30+ birim</span><span class="etiket-rozet">Tüm karşılıklar tek tabloda</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Birim grubu
+                    <select id="grup">
+                        <option value="uzunluk" selected>Uzunluk</option>
+                        <option value="agirlik">Ağırlık</option>
+                        <option value="sicaklik">Sıcaklık</option>
+                        <option value="alan">Alan</option>
+                        <option value="hacim">Hacim</option>
+                        <option value="hiz">Hız</option>
+                    </select>
+                </label>
+                <label>Değer
+                    <input id="deger" type="number" step="any" inputmode="decimal" value="100" />
+                </label>
+                <label>Kaynak birim
+                    <select id="kaynak"></select>
+                </label>
+                <label>Hedef birim
+                    <select id="hedef"></select>
+                </label>
+            </div>
+            <p class="kucuk">Sonuç anında güncellenir. Alt tabloda değerin <b>bütün birimlerdeki</b> karşılığı görünür.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Sık kullanılan karşılıklar</h2>
+        <ul>
+            <li>1 inç = 2,54 cm · 1 fit = 30,48 cm · 1 mil = 1,609 km</li>
+            <li>1 libre (pound) = 453,6 gram · 1 ons = 28,35 gram</li>
+            <li>1 dönüm = 1.000 m² · 1 hektar = 10.000 m² (10 dönüm)</li>
+            <li>0 °C = 32 °F · 100 °C = 212 °F</li>
+        </ul>
+
+        <h2>Dönüm mü, hektar mı?</h2>
+        <p>Türkiye'de arazi genelde <b>dönüm</b> ile konuşulur: 1 dönüm 1.000 metrekaredir.
+        Resmî tapu kayıtlarında ise metrekare kullanılır. 1 hektar 10 dönüme eşittir.</p>
+
+        <h2>Sıcaklık neden farklı hesaplanıyor?</h2>
+        <p>Uzunluk ve ağırlıkta sıfır noktası ortaktır, bu yüzden basit çarpma yeter.
+        Sıcaklıkta ise her ölçeğin sıfırı farklı yerdedir; bu yüzden çarpmanın yanında
+        <b>toplama/çıkarma</b> da gerekir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=7"></script>
+<script src="sayfa.js?v=7"></script>
+<script>
+iskeletKur("birim-cevirme.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["grup", "deger", "kaynak", "hedef"];
+
+let oncekiGrup = "";
+
+function birimListesiKur() {
+    const grup = document.getElementById("grup").value;
+    if (grup === oncekiGrup) return false;
+    oncekiGrup = grup;
+    const g = BIRIM_GRUPLARI[grup];
+    const secenekler = g.birimler.map(b => `<option value="${b.kod}">${b.ad}</option>`).join("");
+    document.getElementById("kaynak").innerHTML = secenekler;
+    document.getElementById("hedef").innerHTML = secenekler;
+    // Varsayılan olarak ilk iki farklı birimi seç
+    document.getElementById("kaynak").selectedIndex = 0;
+    document.getElementById("hedef").selectedIndex = Math.min(1, g.birimler.length - 1);
+    return true;
+}
+
+function hesapla() {
+    const degisti = birimListesiKur();
+    const grup = document.getElementById("grup").value;
+    const kaynak = document.getElementById("kaynak").value;
+    const hedef = document.getElementById("hedef").value;
+    const deger = oku("deger");
+    const g = BIRIM_GRUPLARI[grup];
+    if (!kaynak || !hedef) return;
+
+    const sonuc = birimCevir(grup, kaynak, hedef, deger);
+    const kAd = g.birimler.find(b => b.kod === kaynak).ad;
+    const hAd = g.birimler.find(b => b.kod === hedef).ad;
+
+    // Anlamli basamak kadar goster, sondaki gereksiz sifirlari at (0,100000 degil 0,1)
+    const bicim = (x) => {
+        const m = Math.abs(x);
+        const basamak = m === 0 ? 2 : m >= 1000 ? 2 : m >= 1 ? 4 : m >= 0.001 ? 6 : 9;
+        let t = sayi(x, basamak);
+        if (t.indexOf(",") >= 0) t = t.replace(/0+$/, "").replace(/,$/, "");
+        return t;
+    };
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${bicim(sonuc)}</div>
+        <div class="dev-etiket">${hAd}</div>
+        ${satir(sayi(deger, 2) + " " + kAd, bicim(sonuc) + " " + hAd, "buyuk")}
+    </div>
+
+    <div class="kutu">
+        <h3>Bütün birimlerde karşılığı</h3>
+        <div class="tablo-sar"><table><thead><tr><th>Birim</th><th>Değer</th></tr></thead><tbody>
+        ${g.birimler.map(b => `<tr class="${b.kod === hedef ? "vurgu-satir" : ""}">
+            <td>${b.ad}</td><td><b>${bicim(birimCevir(grup, kaynak, b.kod, deger))}</b></td></tr>`).join("")}
+        </tbody></table></div>
+    </div>`;
+
+    const d = dokumKur("Çeviri nasıl yapıldı?");
+    if (grup === "sicaklik") {
+        d.ekle("Sıcaklık birimleri arasında oran değil formül kullanılır.",
+               kaynak === "C" && hedef === "F" ? "°C × 9/5 + 32"
+               : kaynak === "F" && hedef === "C" ? "(°F − 32) × 5/9"
+               : "Kelvin = °C + 273,15", bicim(sonuc));
+    } else {
+        const k = g.birimler.find(b => b.kod === kaynak), h = g.birimler.find(b => b.kod === hedef);
+        d.ekle(`Değer önce temel birime (${g.temel}) çevrilir.`,
+               `${sayi(deger, 2)} × ${k.kat}`, bicim(deger * k.kat) + " " + g.temel);
+        d.ekle("Sonra hedef birimin katsayısına bölünür.",
+               `${bicim(deger * k.kat)} ÷ ${h.kat}`, bicim(sonuc) + " " + h.ad);
+    }
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+// Once grubu al ki secenekler dogru grupla dolsun, sonra secili birimleri geri yukle
+baglantidanOku(["grup"]);
+birimListesiKur();
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Birim Çevirme"));
+yapisalVeri("Birim Çevirme", "Birim çevirme aracı: metre-inç, kilogram-libre, santigrat-fahrenhayt, dönüm-metrekare, litre-galon ve daha fazlası. Anında çeviri.");
+
+sssEkle([
+    { soru: "1 dönüm kaç metrekare?",
+      cevap: "1 dönüm 1.000 metrekaredir. 1 hektar ise 10.000 metrekare, yani 10 dönümdür. Eski ölçülerde 'evlek' de kullanılır; 1 dönüm 4 evlektir." },
+    { soru: "Fahrenhayt'ı santigrada nasıl çeviririm?",
+      cevap: "32 çıkarıp 5/9 ile çarparsınız. Örneğin 100 °F: (100 − 32) × 5/9 = 37,8 °C. Kabaca akılda tutmak için: 30 °C ≈ 86 °F, 20 °C ≈ 68 °F." },
+    { soru: "Kaç kilo kaç libre eder?",
+      cevap: "1 kilogram yaklaşık 2,205 libredir. Tersi: 1 libre 453,6 gramdır. Yurt dışı alışverişlerinde ve fitness programlarında sık karşılaşılır." }
+]);
+
+ilgiliAraclar("birim-cevirme.html");
+reklamAlani();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Sayıyı Yazıyla Yazma — Çek ve Senet İçin Tutar Yazımı</title>
+<meta name="description" content="Rakamla yazılan tutarı yazıya çevirin. Çek, senet ve fatura için doğru Türkçe yazım; kuruş dahil." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/sayi-yaziyla-yazma.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Sayıyı Yazıyla Yazma — Çek ve Senet İçin Tutar Yazımı" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/sayi-yaziyla-yazma.html" />
+<link rel="stylesheet" href="stil.css?v=7" />
+</head>
+<body>
+
+<main>
+    <h1>Sayıyı Yazıyla Yazma</h1>
+    <p class="ozet">Rakamı yazın, <b>yazıyla okunuşunu</b> alın. Çek, senet ve faturalarda tutarın yazıyla yazılması zorunludur.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Kuruş dahil</span><span class="etiket-rozet">Çek / senet biçimi</span><span class="etiket-rozet">Tek tuşla kopyala</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Sayı / tutar
+                    <input id="sayiGirdi" type="number" step="any" inputmode="decimal" value="12500.75" />
+                </label>
+            </div>
+            <p class="kucuk">Kuruş için ondalık kullanın: <b>12500,75</b> gibi. Sonucu kopyalayıp doğrudan çekin üzerine yazabilirsiniz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Çekte tutar neden yazıyla yazılır?</h2>
+        <p>Rakam kolayca değiştirilebilir; yazı ile yazılan tutarı değiştirmek çok daha zordur.
+        Bu yüzden çek, senet ve bazı resmî belgelerde tutar hem rakamla hem yazıyla belirtilir.
+        <b>İkisi çelişirse yazıyla olan geçerlidir.</b></p>
+
+        <h2>Doğru yazım kuralları</h2>
+        <ul>
+            <li>Sayılar <b>bitişik</b> yazılır: "onikibinbeşyüz" — araya boşluk konmaz</li>
+            <li>Bin sayısının başına "bir" getirilmez: <b>bin</b>, "birbin" değil</li>
+            <li>Ama milyon ve milyarda getirilir: <b>birmilyon</b> doğrudur</li>
+            <li>Yüz için de aynı kural: <b>yüz</b>, "biryüz" değil</li>
+            <li>Tutarın sonuna para birimi yazılır: "…lira …kuruş"</li>
+        </ul>
+
+        <h2>Boşluk bırakılmalı mı?</h2>
+        <p>Günlük yazımda sayılar ayrı yazılabilir ("on iki bin"), ancak <b>çek ve senette
+        bitişik yazım</b> tercih edilir. Sebebi güvenliktir: boşluklara sonradan rakam veya
+        kelime eklenmesini engeller.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=7"></script>
+<script src="sayfa.js?v=7"></script>
+<script>
+iskeletKur("sayi-yaziyla-yazma.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["sayiGirdi"];
+
+function hesapla() {
+    const deger = oku("sayiGirdi");
+    const y = sayiyiYaziyaCevir(deger);
+    const buyukHarf = (s) => s.charAt(0).toLocaleUpperCase("tr") + s.slice(1);
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="yazi-sonuc">${buyukHarf(y.paraYazi)}</div>
+        <div class="dev-etiket">çek ve senet için yazım</div>
+        ${satir("Rakamla", para(Math.abs(deger)))}
+        ${satir("Sadece sayı olarak", buyukHarf(y.tam))}
+        ${y.kurus > 0 ? satir("Kuruş kısmı", y.kurusYazi + " kuruş") : ""}
+    </div>
+
+    <div class="kutu">
+        <h3>Farklı yazım biçimleri</h3>
+        ${satir("Bitişik (resmî yazım)", y.tam)}
+        ${satir("Para olarak", y.paraYazi)}
+        ${satir("Büyük harfle", y.paraYazi.toLocaleUpperCase("tr"))}
+        <p class="kucuk">Çek ve senetlerde tutar <b>bitişik</b> yazılır ve araya boşluk konmaz;
+        böylece sonradan ekleme yapılması zorlaşır.</p>
+    </div>`;
+
+    const d = dokumKur("Nasıl okunuyor?");
+    d.ekle("Sayı üçerli gruplara ayrılır (birler, binler, milyonlar).",
+           sayi(y.tamSayi, 0), y.tam || "sıfır");
+    if (y.kurus > 0) d.ekle("Ondalık kısım kuruş olarak yazılır.", y.kurus + " kuruş", y.kurusYazi);
+    d.ekle("Türkçede 'birbin' denmez, sadece 'bin' denir.", "1000 →", "bin");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Sayı Yazıyla"));
+yapisalVeri("Sayı Yazıyla", "Rakamla yazılan tutarı yazıya çevirin. Çek, senet ve fatura için doğru Türkçe yazım; kuruş dahil.");
+
+sssEkle([
+    { soru: "Çekte rakam ile yazı farklıysa hangisi geçerli?",
+      cevap: "Yazıyla belirtilen tutar geçerlidir. Bu yüzden yazıyla yazarken dikkatli olmak ve araya boşluk bırakmamak önemlidir." },
+    { soru: "'Bin' mi, 'birbin' mi?",
+      cevap: "Doğrusu 'bin'dir. Türkçede bin sayısının başına 'bir' getirilmez. Ancak milyon ve milyarda getirilir: 'birmilyon' doğru yazımdır." },
+    { soru: "Kuruşu nasıl yazmalıyım?",
+      cevap: "Lira kısmından sonra kuruş kısmı yazıyla eklenir: 'onikibinbeşyüz lira yetmişbeş kuruş'. Kuruş yoksa yazmaya gerek yoktur." }
+]);
+
+ilgiliAraclar("sayi-yaziyla-yazma.html");
+reklamAlani();
+</script>
+</body>
+</html>

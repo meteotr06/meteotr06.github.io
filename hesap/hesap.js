@@ -951,3 +951,150 @@ function altinDegeri(tur, adet, gramFiyat) {
         birimDeger: adet > 0 ? saf * gramFiyat / adet : 0
     };
 }
+
+// ---------- 25) BİRİM ÇEVİRME ----------
+// Her birim, grubun "temel birimi" cinsinden bir katsayıyla tanımlanır.
+// Çeviri: önce temele çevir, sonra hedefe böl. Sıcaklık istisnadır (formül gerekir).
+
+const BIRIM_GRUPLARI = {
+    uzunluk: { ad: "Uzunluk", temel: "metre", birimler: [
+        { kod: "mm", ad: "Milimetre", kat: 0.001 }, { kod: "cm", ad: "Santimetre", kat: 0.01 },
+        { kod: "m", ad: "Metre", kat: 1 }, { kod: "km", ad: "Kilometre", kat: 1000 },
+        { kod: "inc", ad: "İnç", kat: 0.0254 }, { kod: "ft", ad: "Fit (foot)", kat: 0.3048 },
+        { kod: "yd", ad: "Yarda", kat: 0.9144 }, { kod: "mil", ad: "Mil", kat: 1609.344 },
+        { kod: "denizmili", ad: "Deniz mili", kat: 1852 }
+    ]},
+    agirlik: { ad: "Ağırlık", temel: "kilogram", birimler: [
+        { kod: "mg", ad: "Miligram", kat: 0.000001 }, { kod: "g", ad: "Gram", kat: 0.001 },
+        { kod: "kg", ad: "Kilogram", kat: 1 }, { kod: "ton", ad: "Ton", kat: 1000 },
+        { kod: "lb", ad: "Libre (pound)", kat: 0.45359237 }, { kod: "oz", ad: "Ons", kat: 0.028349523 }
+    ]},
+    alan: { ad: "Alan", temel: "metrekare", birimler: [
+        { kod: "cm2", ad: "Santimetrekare", kat: 0.0001 }, { kod: "m2", ad: "Metrekare", kat: 1 },
+        { kod: "ar", ad: "Ar", kat: 100 }, { kod: "donum", ad: "Dönüm", kat: 1000 },
+        { kod: "hektar", ad: "Hektar", kat: 10000 }, { kod: "km2", ad: "Kilometrekare", kat: 1000000 },
+        { kod: "ft2", ad: "Fitkare", kat: 0.09290304 }
+    ]},
+    hacim: { ad: "Hacim", temel: "litre", birimler: [
+        { kod: "ml", ad: "Mililitre", kat: 0.001 }, { kod: "l", ad: "Litre", kat: 1 },
+        { kod: "m3", ad: "Metreküp", kat: 1000 }, { kod: "galon", ad: "Galon (ABD)", kat: 3.785411784 }
+    ]},
+    hiz: { ad: "Hız", temel: "m/s", birimler: [
+        { kod: "ms", ad: "Metre/saniye", kat: 1 }, { kod: "kmh", ad: "Kilometre/saat", kat: 0.277777778 },
+        { kod: "mph", ad: "Mil/saat", kat: 0.44704 }, { kod: "knot", ad: "Knot", kat: 0.514444 }
+    ]},
+    sicaklik: { ad: "Sıcaklık", temel: "°C", ozel: true, birimler: [
+        { kod: "C", ad: "Santigrat (°C)" }, { kod: "F", ad: "Fahrenhayt (°F)" }, { kod: "K", ad: "Kelvin" }
+    ]}
+};
+
+function birimCevir(grup, kaynak, hedef, deger) {
+    const g = BIRIM_GRUPLARI[grup];
+    if (!g) return 0;
+
+    if (g.ozel) {   // sıcaklık: doğrusal katsayı yetmez
+        let c;
+        if (kaynak === "C") c = deger;
+        else if (kaynak === "F") c = (deger - 32) * 5 / 9;
+        else c = deger - 273.15;
+        if (hedef === "C") return c;
+        if (hedef === "F") return c * 9 / 5 + 32;
+        return c + 273.15;
+    }
+
+    const k = g.birimler.find(b => b.kod === kaynak);
+    const h = g.birimler.find(b => b.kod === hedef);
+    if (!k || !h) return 0;
+    return deger * k.kat / h.kat;
+}
+
+// ---------- 26) SAYIYI YAZIYLA YAZMA ----------
+// Çek, senet ve faturada tutarın yazıyla yazılması gerekir.
+
+const _BIRLER = ["", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"];
+const _ONLAR = ["", "on", "yirmi", "otuz", "kırk", "elli", "altmış", "yetmiş", "seksen", "doksan"];
+const _BASAMAK = ["", "bin", "milyon", "milyar", "trilyon", "katrilyon"];
+
+function _ucBasamak(n) {
+    let s = "";
+    const yuz = Math.floor(n / 100), on = Math.floor((n % 100) / 10), bir = n % 10;
+    if (yuz > 0) s += (yuz > 1 ? _BIRLER[yuz] : "") + "yüz";
+    if (on > 0) s += _ONLAR[on];
+    if (bir > 0) s += _BIRLER[bir];
+    return s;
+}
+
+function sayiyiYaziyaCevir(sayi) {
+    const tam = Math.floor(Math.abs(sayi));
+    const kurus = Math.round((Math.abs(sayi) - tam) * 100);
+
+    let metin = "";
+    if (tam === 0) metin = "sıfır";
+    else {
+        const gruplar = [];
+        let kalan = tam;
+        while (kalan > 0) { gruplar.push(kalan % 1000); kalan = Math.floor(kalan / 1000); }
+        for (let i = gruplar.length - 1; i >= 0; i--) {
+            const g = gruplar[i];
+            if (g === 0) continue;
+            // "birbin" değil "bin" denir; ama "birmilyon" doğrudur
+            if (i === 1 && g === 1) metin += "bin";
+            else metin += _ucBasamak(g) + _BASAMAK[i];
+        }
+    }
+
+    return {
+        tam: metin,
+        kurus: kurus,
+        kurusYazi: kurus > 0 ? _ucBasamak(kurus) : "",
+        negatif: sayi < 0,
+        tamSayi: tam,
+        // Çek/senet biçimi
+        paraYazi: (sayi < 0 ? "eksi " : "") + metin + " lira" +
+                  (kurus > 0 ? " " + _ucBasamak(kurus) + " kuruş" : "")
+    };
+}
+
+// ---------- 27) NOT ORTALAMASI ----------
+// Ağırlıklı ortalama: her dersin notu kredisiyle çarpılır, toplam krediye bölünür.
+
+function notOrtalamasi(dersler) {
+    let toplamAgirlikli = 0, toplamKredi = 0;
+    const satirlar = dersler.filter(d => d.kredi > 0).map(d => {
+        toplamAgirlikli += d.not * d.kredi;
+        toplamKredi += d.kredi;
+        return { ad: d.ad, not: d.not, kredi: d.kredi, katki: d.not * d.kredi };
+    });
+    const ort = toplamKredi > 0 ? toplamAgirlikli / toplamKredi : 0;
+    return {
+        satirlar: satirlar, ortalama: ort,
+        toplamKredi: toplamKredi, toplamAgirlikli: toplamAgirlikli,
+        dortluk: ort / 25,          // yaklaşık dönüşüm
+        dersSayisi: satirlar.length
+    };
+}
+
+// ---------- 28) BOYA VE FAYANS ----------
+
+function odaAlani(en, boy, yukseklik, kapiPencereM2) {
+    const taban = en * boy;
+    const cevre = 2 * (en + boy);
+    const duvarHam = cevre * yukseklik;
+    const duvar = Math.max(0, duvarHam - (kapiPencereM2 || 0));
+    return { taban: taban, cevre: cevre, duvarHam: duvarHam, duvar: duvar, tavan: taban };
+}
+
+function boyaHesap(alanM2, verimM2Litre, katSayisi) {
+    const litre = alanM2 * katSayisi / Math.max(0.1, verimM2Litre);
+    return { litre: litre, kutu25: Math.ceil(litre / 2.5), kutu75: Math.ceil(litre / 7.5),
+             kutu15: Math.ceil(litre / 15) };
+}
+
+function fayansHesap(alanM2, karoEnCm, karoBoyCm, firePayiYuzde) {
+    const karoAlan = (karoEnCm / 100) * (karoBoyCm / 100);
+    if (karoAlan <= 0) return null;
+    const adetHam = alanM2 / karoAlan;
+    const adet = Math.ceil(adetHam * (1 + (firePayiYuzde || 10) / 100));
+    return { karoAlan: karoAlan, adetHam: adetHam, adet: adet,
+             fireAdet: adet - Math.ceil(adetHam), kutuM2: adet * karoAlan };
+}

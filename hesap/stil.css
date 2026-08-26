@@ -335,7 +335,9 @@ label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex:
 .sonuc-satir { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px; border-bottom: 1px solid var(--cizgi); }
 .sonuc-satir:last-child { border-bottom: 0; }
 .sonuc-satir span { color: var(--yazi2); }
-.sonuc-satir b { font-weight: 600; }
+.sonuc-satir b { font-weight: 600; text-align: right; }
+/* Cok uzun tek kelime (orn. 'dokuzyuzseksenyedimilyon...') satiri tasirmasin */
+.sonuc-satir b, .d-sonuc, .d-islem { overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
 .sonuc-satir.buyuk { font-size: 16px; }
 .sonuc-satir.buyuk b { font-size: 20px; font-weight: 700; color: var(--yazi); }
 
@@ -691,7 +693,9 @@ h1 { font-size: 24px; margin: 4px 0 8px; font-weight: 700; letter-spacing: -.5px
     color: var(--yazi2); margin-bottom: 6px;
 }
 .reklam-yuva { min-height: 90px; }
-.gizlilik-bag a { color: var(--vurgu); }
+/* Alt bilgi baglantilari parmakla rahat tiklansin */
+.gizlilik-bag { line-height: 2.4; }
+.gizlilik-bag a { color: var(--vurgu); display: inline-block; padding: 7px 3px; }
 @media print { .reklam { display: none !important; } }
 
 /* ---------- Ana sayfa: gruplu araç listesi ---------- */
@@ -753,3 +757,11 @@ main:focus { outline: none; }
 /* Dokunma hedefleri en az 40px — ölçümde 3 düğme altında kalmıştı */
 .eylem-cubugu button, .aralik-dugmeler button, .uyari button,
 .etiket-dugme, .portfoy-satir .sil { min-height: 40px; }
+
+/* Sayiyi yaziyla: uzun metin dev-deger'e sigmaz, kendi olcusu olsun */
+.yazi-sonuc {
+    font-size: 26px; font-weight: 700; line-height: 1.35; letter-spacing: -0.4px;
+    word-break: break-word; margin-bottom: 2px;
+}
+@media (min-width: 700px) { .yazi-sonuc { font-size: 32px; } }
+@media (max-width: 380px) { .yazi-sonuc { font-size: 21px; } }
