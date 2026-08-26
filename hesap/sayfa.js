@@ -123,6 +123,7 @@ function iskeletKur(aktifYol) {
         ayarYaz(a);
     };
     cevrimdisiUyari(aktifYol);
+    gecmiseEkle(aktifYol);
 }
 
 // ---------- Sonuç satırları ----------
@@ -576,4 +577,16 @@ function digerUygulamalar() {
         <div class="diger-izgara">${DIGER_UYGULAMALAR.map(u =>
             `<a class="diger-kart" href="${u.adres}"><b>${u.ad}</b><span>${u.not}</span></a>`).join("")}</div>`;
     alt.insertBefore(k, alt.firstChild);
+}
+
+// ---------- Son kullanılanlar geçmişi ----------
+// Ana sayfa "Son kullandıklarınız" şeridini bundan doldurur.
+// Yalnızca araç yolu tutulur; hiçbir hesap verisi kaydedilmez.
+function gecmiseEkle(yol) {
+    if (!yol || yol === "index.html" || yol === "gizlilik.html") return;
+    try {
+        let g = JSON.parse(localStorage.getItem("hesapGecmis") || "[]");
+        g = [yol].concat(g.filter(x => x !== yol)).slice(0, 8);
+        localStorage.setItem("hesapGecmis", JSON.stringify(g));
+    } catch (e) { }
 }

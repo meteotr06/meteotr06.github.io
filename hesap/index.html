@@ -28,15 +28,14 @@
 <meta property="og:image:alt" content="Hesap Araçları — Net Maaş, Bütçe, Kira Artışı, Kredi ve Birikim Hesaplama 2026" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/genel.png" />
-<link rel="stylesheet" href="stil.css?v=23" />
+<link rel="stylesheet" href="stil.css?v=24" />
 </head>
 <body>
 
 <main>
     <h1>Hesap Araçları <span class="yil-rozet">2026</span></h1>
-    <p class="ozet">Günlük hayatta en çok gereken hesaplar, tek yerde. Hepsi ücretsiz,
-    resmî 2026 oranlarıyla çalışır. Hiçbir bilgi kaydedilmez, sunucuya gönderilmez —
-    bütün hesap kendi cihazınızda yapılır.</p>
+    <p class="ozet">Günlük hayatta en çok gereken hesaplar, tek yerde.
+    Ücretsiz, kayıt yok, resmî 2026 oranlarıyla.</p>
 
     <div class="arama-kutu" role="search">
         <label class="gorsel-gizli" for="aramaGirdi">Araç ara</label>
@@ -47,6 +46,9 @@
                 aria-label="Aramayı temizle">×</button>
     </div>
     <p id="aramaDurum" class="kucuk arama-durum" aria-live="polite"></p>
+
+    <nav id="grupCipleri" class="grup-cipleri" aria-label="Gruplara git"></nav>
+    <div id="sonKullanilan"></div>
 
     <div id="aracListesi"></div>
 
@@ -72,8 +74,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=23"></script>
-<script src="sayfa.js?v=23"></script>
+<script src="hesap.js?v=24"></script>
+<script src="sayfa.js?v=24"></script>
 <script>
 iskeletKur("index.html");
 gizlilikBaglantisi();
@@ -116,11 +118,14 @@ function ciz() {
     const sorgu = sadelestir(girdi.value).trim();
     temizleBtn.hidden = girdi.value === "";
 
+    document.getElementById("grupCipleri").hidden = !!sorgu;
+    document.getElementById("sonKullanilan").hidden = !!sorgu;
+
     if (!sorgu) {                       // arama yoksa: gruplu tam liste
         const gruplar = {};
         ARACLAR.forEach(a => { (gruplar[a.grup || "Diğer"] = gruplar[a.grup || "Diğer"] || []).push(a); });
         liste.innerHTML = Object.keys(gruplar).map(g => `
-            <h2 class="grup-baslik">${g}</h2>
+            <h2 class="grup-baslik" id="g-${sadelestir(g).replace(/\s+/g, "-")}">${g}</h2>
             <div class="arac-izgara">${gruplar[g].map(kart).join("")}</div>`).join("");
         durum.textContent = ARACLAR.length + " araç";
         return;
@@ -145,6 +150,34 @@ function ciz() {
     durum.textContent = bulunan.length + " araç bulundu — Enter ile ilkini açın";
 }
 
+// ---------- Gruplara atlama çipleri ----------
+// 40 kart mobilde 7,6 ekran tutuyordu; arama yapmayı düşünmeyen biri
+// hepsini kaydırmak zorunda kalıyordu. Çipler doğrudan bölüme götürür.
+function cipleriKur() {
+    const gruplar = [];
+    ARACLAR.forEach(a => { if (gruplar.indexOf(a.grup) < 0) gruplar.push(a.grup); });
+    const c = document.getElementById("grupCipleri");
+    c.innerHTML = gruplar.map(g => {
+        const n = ARACLAR.filter(a => a.grup === g).length;
+        return `<a class="grup-cip" href="#g-${sadelestir(g).replace(/\s+/g, "-")}">${g}<i>${n}</i></a>`;
+    }).join("");
+}
+
+// ---------- Son kullanılan araçlar ----------
+// Her araç sayfası açıldığında kendini kaydeder (sayfa.js -> gecmiseEkle).
+function sonKullanilanlariCiz() {
+    const kutu = document.getElementById("sonKullanilan");
+    let gecmis = [];
+    try { gecmis = JSON.parse(localStorage.getItem("hesapGecmis") || "[]"); } catch (e) { }
+    const bulunan = gecmis.map(y => ARACLAR.find(a => a.yol === y)).filter(Boolean).slice(0, 6);
+    if (bulunan.length < 2) { kutu.innerHTML = ""; return; }
+    kutu.innerHTML = `<div class="son-kullanilan">
+        <h2>Son kullandıklarınız</h2>
+        <div class="son-serit">${bulunan.map(a =>
+            `<a class="grup-cip" href="${a.yol}">${a.ad}</a>`).join("")}</div>
+    </div>`;
+}
+
 girdi.addEventListener("input", ciz);
 girdi.addEventListener("keydown", e => {
     if (e.key === "Enter") { const ilk = liste.querySelector(".arac-kart"); if (ilk) ilk.click(); }
@@ -157,6 +190,8 @@ document.addEventListener("keydown", e => {
     if (e.key === "/" && document.activeElement !== girdi) { e.preventDefault(); girdi.focus(); }
 });
 
+cipleriKur();
+sonKullanilanlariCiz();
 ciz();
 
 reklamAlani();

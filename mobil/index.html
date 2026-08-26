@@ -117,6 +117,14 @@
   #haritaKutu.acik { display:block; }
   .harita-dugmeler { display:flex; gap:8px; margin-top:8px; }
   .harita-dugmeler .dugme { flex:1; font-size:13px; }
+  /* haritada sehir sicakligi etiketleri */
+  .sic-etiket { background:transparent !important; border:none !important; }
+  .sic-ic { transform:translate(-50%,-100%); text-align:center; white-space:nowrap;
+            pointer-events:none; filter:drop-shadow(0 1px 2px rgba(0,0,0,.55)); }
+  .sic-ust { display:inline-flex; align-items:center; gap:2px;
+             background:rgba(18,26,38,.86); padding:2px 7px 2px 3px; border-radius:11px; }
+  .sic-ust b { color:#fff; font-size:12px; font-weight:700; line-height:1; }
+  .sic-ic .ad { display:block; font-size:9px; color:#fff; font-weight:600; margin-top:1px; }
 
   .ara-ekran { position:fixed; inset:0; background:var(--arka); z-index:9999;
     display:none; flex-direction:column; padding:env(safe-area-inset-top) 14px 14px; }
@@ -600,6 +608,7 @@ function goster(yer, v, hk, modeller){
 
 /* ---- harita: İSTEĞE BAĞLI yüklenir (açılışı yavaşlatmasın) ---- */
 let harita = null, radarKatman = null, radarAcik = false;
+let sicaklikKatman = null, sicZaman = null;   // haritada sehir sicakliklari
 function betikYukle(src){ return new Promise((c,h) => {
   const s = document.createElement("script"); s.src = src; s.onload = c; s.onerror = h;
   document.head.appendChild(s); }); }
@@ -632,8 +641,54 @@ async function haritayiAc(){
     });
     btn.textContent = "🗺️ Haritayı gizle";
     document.getElementById("radarBtn").style.display = "flex";
-    setTimeout(() => harita.invalidateSize(), 200);
+    // harita her hareket edince gorunen illerin sicakliklarini tazele (debounce)
+    harita.on("moveend", () => {
+      clearTimeout(sicZaman);
+      sicZaman = setTimeout(haritaSicakliklari, 500);
+    });
+    setTimeout(() => { harita.invalidateSize(); haritaSicakliklari(); }, 250);
   } catch { btn.textContent = "Harita yüklenemedi"; }
+}
+
+/* Windows hava uygulamasindaki gibi: haritada GORUNEN illerin sicakligini
+   goster. Open-Meteo tek istekte cok konum verebildigi icin (dizi doner)
+   24 ile TEK cagriyla getiriyoruz - hizli ve hafif. */
+async function haritaSicakliklari(){
+  if (!harita) return;
+  const sinir = harita.getBounds();
+  const merkez = harita.getCenter();
+  // gorunen iller, merkeze yakinliga gore siralanip ilk 24
+  const gorunen = ILLER
+    .filter(([ad,e,b]) => sinir.contains([e,b]))
+    .map(([ad,e,b]) => ({ad,e,b, uz:(e-merkez.lat)**2+(b-merkez.lng)**2}))
+    .sort((x,y) => x.uz - y.uz)
+    .slice(0, 24);
+  if (!gorunen.length) return;
+  try {
+    const p = new URLSearchParams({
+      latitude: gorunen.map(y=>y.e).join(","),
+      longitude: gorunen.map(y=>y.b).join(","),
+      current: "temperature_2m,weather_code", timezone: "auto"
+    });
+    const c = await fetch("https://api.open-meteo.com/v1/forecast?"+p);
+    if (!c.ok) return;
+    let veri = await c.json();
+    if (!Array.isArray(veri)) veri = [veri];
+    if (sicaklikKatman) harita.removeLayer(sicaklikKatman);
+    sicaklikKatman = L.layerGroup();
+    veri.forEach((s,i) => {
+      const y = gorunen[i]; if (!y || !s.current) return;
+      const t = Math.round(s.current.temperature_2m);
+      const kat = kodCoz(s.current.weather_code)[1];
+      const im = L.divIcon({
+        className: "sic-etiket",
+        html: `<div class="sic-ic"><span class="sic-ust">${ikon(kat,18)}<b>${t}°</b></span>`
+            + `<span class="ad">${y.ad}</span></div>`
+      });
+      L.marker([y.e, y.b], {icon:im, keyboard:false}).addTo(sicaklikKatman);
+    });
+    sicaklikKatman.addTo(harita);
+  } catch (e) { /* sessiz gec */ }
 }
 
 async function radarDegistir(){
@@ -653,7 +708,7 @@ async function radarDegistir(){
 /* ---- yükleme ---- */
 async function yukle(yer){
   sonYer = yer;
-  harita = null; radarAcik = false;      // yeni yer -> harita sifirlansin
+  harita = null; radarAcik = false; sicaklikKatman = null;  // yeni yer -> harita sifirlansin
   document.getElementById("baslik").textContent = yer.etiket;
   document.getElementById("icerik").innerHTML = '<div class="yukleniyor">Hava durumu getiriliyor…</div>';
   try {
