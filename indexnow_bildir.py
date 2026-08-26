@@ -16,9 +16,20 @@ def sitemapten_adresler(yol):
     if not os.path.exists(yol): return []
     return re.findall(r"<loc>(.*?)</loc>", io.open(yol, encoding="utf-8").read())
 
+def internetten_adresler(url):
+    """Ayri depodaki uygulamalarin sitemap'i diskte yok; canlidan okunur."""
+    try:
+        icerik = urllib.request.urlopen(url, timeout=25).read().decode("utf-8", "ignore")
+        return re.findall(r"<loc>(.*?)</loc>", icerik)
+    except Exception as e:
+        print("UYARI: %s okunamadi (%s)" % (url, str(e)[:50]))
+        return []
+
 adresler = []
 for s in ("sitemap-uygulamalar.xml", "hesap/sitemap.xml"):
     adresler += sitemapten_adresler(s)
+# Goz Molasi ayri depoda (github.com/meteotr06/goz-molasi) ama ayni adres altinda
+adresler += internetten_adresler("https://%s/goz-molasi/sitemap.xml" % ALAN)
 adresler = sorted(set(a for a in adresler if a.startswith("https://" + ALAN)))
 
 # Once anahtar dosyasi gercekten yayinda mi?

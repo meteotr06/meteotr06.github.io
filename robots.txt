@@ -3,3 +3,4 @@ Allow: /
 
 Sitemap: https://meteotr06.github.io/sitemap.xml
 Sitemap: https://meteotr06.github.io/hesap/sitemap.xml
+Sitemap: https://meteotr06.github.io/goz-molasi/sitemap.xml
