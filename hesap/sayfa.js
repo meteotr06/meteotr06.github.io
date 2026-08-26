@@ -37,7 +37,8 @@ const ARACLAR = [
     { yol: "emlak-vergisi-hesaplama.html", ad: "Emlak Vergisi", aciklama: "Konut, iş yeri, arsa; taksitler", grup: "Ev ve Yaşam", anahtar: "emlak vergisi bina arsa arazi işyeri belediye taksit muafiyet emekli değerli konut vergisi büyükşehir" },
     { yol: "kar-marji-hesaplama.html", ad: "Kâr Marjı", aciklama: "Satış fiyatı, marj ve markup", grup: "Ticaret", anahtar: "kâr marjı markup satış fiyatı maliyet esnaf ticaret e-ticaret komisyon kârlılık fiyatlandırma zarar" },
     { yol: "iskonto-hesaplama.html", ad: "İskonto", aciklama: "Ardışık indirimde gerçek oran", grup: "Ticaret", anahtar: "iskonto indirim ardışık kademeli liste fiyatı net fiyat bayi toptan kampanya ihale teklif" },
-    { yol: "dogalgaz-faturasi-hesaplama.html", ad: "Doğalgaz Faturası", aciklama: "m³'ten kWh'a, sayaçtan faturaya", grup: "Ev ve Yaşam", anahtar: "doğalgaz fatura m3 metreküp kwh sayaç ısıl değer kombi ısınma abonelik igdaş başkentgaz" }
+    { yol: "dogalgaz-faturasi-hesaplama.html", ad: "Doğalgaz Faturası", aciklama: "m³'ten kWh'a, sayaçtan faturaya", grup: "Ev ve Yaşam", anahtar: "doğalgaz fatura m3 metreküp kwh sayaç ısıl değer kombi ısınma abonelik igdaş başkentgaz" },
+    { yol: "dogum-izni-hesaplama.html", ad: "Doğum İzni", aciklama: "24 hafta — yeni düzenleme", grup: "Maaş ve Çalışma", anahtar: "doğum izni analık izni süt izni babalık izni 24 hafta 16 hafta hamile gebe çoğul ücretsiz izin sgk analık ödeneği 7578" }
 ];
 
 const KAYIT = "hesapAraclariAyar";

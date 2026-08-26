@@ -1514,3 +1514,88 @@ function sayacFarki(ilk, son, basamak) {
     const tur = Math.pow(10, basamak || String(Math.floor(ilk)).length);
     return (tur - ilk) + son;
 }
+
+// ---------- 37) DOĞUM İZNİ, SÜT İZNİ VE BABALIK İZNİ ----------
+// 7578 sayılı Kanun (Resmî Gazete 01.05.2026) 4857 sayılı İş Kanunu md. 74'ü
+// değiştirdi. Kanun metninden birebir:
+//   "doğumdan sonra sekiz" -> "doğumdan sonra ONALTI"
+//   "toplam onaltı"        -> "toplam YİRMİDÖRT"
+//   doğum öncesi çalışma "üç" hafta -> "İKİ" hafta
+//   ücretsiz izin fıkrası: "onaltı" -> "yirmidört", "onsekiz" -> "yirmialtı"
+// Yani: tekil 8+16 = 24 hafta, çoğul 10+16 = 26 hafta.
+// Babalık izni aynı kanunla 5 günden 10 güne çıktı.
+
+const DOGUM_IZNI = {
+    oncesiTekil: 8,          // hafta
+    oncesiCogul: 10,         // çoğul gebelikte 2 hafta fazla
+    sonrasi: 16,             // ESKİDEN 8'Dİ — 01.05.2026'da değişti
+    enAzOncesi: 2,           // doktor onayıyla doğuma 2 hafta kalana dek çalışılabilir
+    babalikGun: 10,          // ESKİDEN 5'Tİ
+    sutIzniSaat: 1.5,        // günde, çocuk 1 yaşına gelene kadar
+    ucretsizAy: 6,           // analık izni bitiminden sonra, istek hâlinde
+    dayanak: "4857/74 — 7578 sayılı Kanun, R.G. 01.05.2026",
+    guncelleme: "2026"
+};
+
+function gunEkle(tarih, gun) {
+    const t = new Date(tarih.getTime());
+    t.setDate(t.getDate() + gun);
+    return t;
+}
+
+function ayEkle(tarih, ay) {
+    const t = new Date(tarih.getTime());
+    const g = t.getDate();
+    t.setMonth(t.getMonth() + ay);
+    if (t.getDate() !== g) t.setDate(0);   // 31 Ocak + 1 ay = 28/29 Şubat
+    return t;
+}
+
+function tarihYaz(t) {
+    if (!t || isNaN(t.getTime())) return "—";
+    const AY = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran",
+                "Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+    const GUN = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+    return t.getDate() + " " + AY[t.getMonth()] + " " + t.getFullYear() + " " + GUN[t.getDay()];
+}
+
+function dogumIzni(dogumTarihi, cogulMu, calisilacakHafta) {
+    const d = new Date(dogumTarihi);
+    if (isNaN(d.getTime())) return null;
+
+    const oncesiHak = cogulMu ? DOGUM_IZNI.oncesiCogul : DOGUM_IZNI.oncesiTekil;
+
+    // Doktor onayıyla doğuma "calisilacakHafta" kalana dek çalışılabilir.
+    // Boş bırakılırsa hakkın tamamı doğum öncesinde kullanılır.
+    let oncesi = (calisilacakHafta === null || calisilacakHafta === undefined || calisilacakHafta === "")
+        ? oncesiHak : Number(calisilacakHafta);
+    oncesi = Math.max(DOGUM_IZNI.enAzOncesi, Math.min(oncesiHak, oncesi));
+
+    // Kullanılmayan doğum öncesi süre, doğum sonrasına EKLENİR
+    const aktarilan = oncesiHak - oncesi;
+    const sonrasi = DOGUM_IZNI.sonrasi + aktarilan;
+
+    const baslangic = gunEkle(d, -oncesi * 7);
+    const bitis = gunEkle(d, sonrasi * 7 - 1);     // son gün dahil
+
+    const sutBitis = ayEkle(d, 12);                 // çocuk 1 yaşına gelene kadar
+    const ucretsizBitis = ayEkle(bitis, DOGUM_IZNI.ucretsizAy);
+
+    return {
+        dogum: d,
+        cogul: !!cogulMu,
+        oncesiHak: oncesiHak, oncesi: oncesi, aktarilan: aktarilan,
+        sonrasi: sonrasi,
+        toplamHafta: oncesi + sonrasi,
+        toplamGun: (oncesi + sonrasi) * 7,
+        baslangic: baslangic, bitis: bitis,
+        kalanGun: Math.ceil((bitis - new Date()) / 86400000),
+        sutBitis: sutBitis, sutSaat: DOGUM_IZNI.sutIzniSaat,
+        ucretsizBitis: ucretsizBitis, ucretsizAy: DOGUM_IZNI.ucretsizAy,
+        babalikGun: DOGUM_IZNI.babalikGun,
+        // Eski düzenlemeyle karşılaştırma (8 hafta sonrası, 5 gün babalık)
+        eskiSonrasi: 8 + aktarilan,
+        eskiToplam: oncesi + 8 + aktarilan,
+        kazanilanHafta: sonrasi - (8 + aktarilan)
+    };
+}
