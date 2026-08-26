@@ -534,7 +534,8 @@ body.sade .gelismis { display: none !important; }
 
 body { padding-bottom: 0; }
 
-.marka { font-size: 17px; font-weight: 700; color: var(--yazi); text-decoration: none; letter-spacing: -.2px; }
+.marka { font-size: 17px; font-weight: 700; color: var(--yazi); text-decoration: none;
+         letter-spacing: -.2px; display: inline-flex; align-items: center; min-height: 40px; }
 .marka span { color: var(--vurgu); }
 
 .arac-gezinti {
@@ -830,3 +831,15 @@ main:focus { outline: none; }
 .diger-kart b { display: block; color: var(--yazi); font-size: 15px; }
 .diger-kart span { display: block; color: var(--yazi2); font-size: 13px; margin-top: 2px; }
 @media print { .diger-uygulamalar { display: none !important; } }
+
+/* Telefonda kart yerine kucuk etiket: bes kart dar ekranda cok yer kapliyordu
+   (Muhasebe'de sayfanin %30'u). Baglantilar ayni, sadece gorunum kompakt. */
+@media (max-width: 719px) {
+  .diger-uyg, .diger-izgara { display: block !important; }
+  .diger-uyg > a, .diger-izgara > a {
+    display: inline-block; padding: 12px 15px; margin: 0 6px 7px 0;
+    border-radius: 999px; min-height: 0;
+  }
+  .diger-uyg > a span, .diger-izgara > a span { display: none; }
+  .diger-uyg > a b, .diger-izgara > a b { font-size: 13px; font-weight: 500; }
+}

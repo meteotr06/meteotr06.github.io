@@ -851,3 +851,29 @@ details.panel[open] summary::after { content: "▾"; }
 .diger-uyg a span { display: block; color: var(--soluk); font-size: 0.78rem; margin-top: 2px; }
 @media (min-width: 720px) { .diger-uyg { grid-template-columns: repeat(5, 1fr); } }
 @media print { .diger-uyg { display: none !important; } }
+
+/* Telefonda kart yerine kucuk etiket: bes kart dar ekranda cok yer kapliyordu
+   (Muhasebe'de sayfanin %30'u). Baglantilar ayni, sadece gorunum kompakt. */
+@media (max-width: 719px) {
+  .diger-uyg, .diger-izgara { display: block !important; }
+  .diger-uyg > a, .diger-izgara > a {
+    display: inline-block; padding: 12px 15px; margin: 0 6px 7px 0;
+    border-radius: 999px; min-height: 0;
+  }
+  .diger-uyg > a span, .diger-izgara > a span { display: none; }
+  .diger-uyg > a b, .diger-izgara > a b { font-size: 13px; font-weight: 500; }
+}
+
+/* ---------- Telefonda dokunma hedefleri ----------
+   Uygulama masaustu icin tasarlanmisti; dugmeler 25-35px kaliyordu.
+   Parmakla rahat basmak icin en az 40px lazim (cip'lerde 36 yeterli). */
+@media (max-width: 719px) {
+    button, .ikincil, .birincil, .tehlike,
+    input[type="text"], input[type="number"], input[type="time"],
+    input[type="date"], input[type="search"], select {
+        min-height: 40px;
+    }
+    .filtre-cip, .gun-cip, .yazi-cip { min-height: 38px; }
+    /* Cip'ler artik daha yuksek; satir araligini da acalim ki sikismasin */
+    .filtre-serit { gap: 7px; }
+}

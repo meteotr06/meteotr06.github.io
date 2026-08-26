@@ -118,6 +118,18 @@ select{appearance:none;}
 .gizle{background:none; margin:0 0 0 6px; color:var(--yazi3); min-height:40px; padding:0 8px;}
 
 .sayfa{display:none;} .sayfa.aktif{display:block;}
+
+/* Telefonda kart yerine kucuk etiket: bes kart dar ekranda cok yer kapliyordu
+   (Muhasebe'de sayfanin %30'u). Baglantilar ayni, sadece gorunum kompakt. */
+@media (max-width: 719px) {
+  .diger-uyg, .diger-izgara { display: block !important; }
+  .diger-uyg > a, .diger-izgara > a {
+    display: inline-block; padding: 12px 15px; margin: 0 6px 7px 0;
+    border-radius: 999px; min-height: 0;
+  }
+  .diger-uyg > a span, .diger-izgara > a span { display: none; }
+  .diger-uyg > a b, .diger-izgara > a b { font-size: 13px; font-weight: 500; }
+}
 </style>
 </head>
 <body>

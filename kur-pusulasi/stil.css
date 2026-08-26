@@ -538,3 +538,20 @@ body.sade .gelismis { display: none !important; }
 .diger-uyg a { margin-bottom: 0; }
 @media (min-width: 720px) { .diger-uyg { grid-template-columns: repeat(5, 1fr); } }
 @media print { .diger-uyg { display: none !important; } }
+
+/* Telefonda kart yerine kucuk etiket: bes kart dar ekranda cok yer kapliyordu
+   (Muhasebe'de sayfanin %30'u). Baglantilar ayni, sadece gorunum kompakt. */
+@media (max-width: 719px) {
+  .diger-uyg, .diger-izgara { display: block !important; }
+  .diger-uyg > a, .diger-izgara > a {
+    display: inline-block; padding: 12px 15px; margin: 0 6px 7px 0;
+    border-radius: 999px; min-height: 0;
+  }
+  .diger-uyg > a span, .diger-izgara > a span { display: none; }
+  .diger-uyg > a b, .diger-izgara > a b { font-size: 13px; font-weight: 500; }
+}
+
+/* Kapat (✕) dugmesi telefonda 32px kaliyordu; parmakla basmak icin 40px lazim */
+@media (max-width: 719px) {
+    .panel-kapat, button.ikincil { min-height: 40px; min-width: 40px; }
+}

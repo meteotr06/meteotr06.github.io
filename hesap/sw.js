@@ -9,13 +9,13 @@
 //   3) Sayfa yerine geçen yedek yalnızca "navigate" isteğine döner.
 //      (Eskiden .js isteğine index.html dönüyordu ve site komple çöküyordu.)
 
-const SURUM = "hesap-v18";
+const SURUM = "hesap-v20";
 const CEKIRDEK = [
     "./",
     "./index.html",
-    "./stil.css?v=18",
-    "./hesap.js?v=18",
-    "./sayfa.js?v=18",
+    "./stil.css?v=20",
+    "./hesap.js?v=20",
+    "./sayfa.js?v=20",
     "./simge.svg",
     "./ikon-192.png",
     "./manifest.json"
