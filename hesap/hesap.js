@@ -860,3 +860,94 @@ function sinavNeti(dersler, bolen) {
         basariYuzde: toplamSoru > 0 ? toplamNet / toplamSoru * 100 : 0, bolen: b
     };
 }
+
+// ---------- 22) KREDİ KARTI ASGARİ ÖDEME ----------
+// En çok zarar ettiren finansal alışkanlıklardan biri: sadece asgari ödemek.
+// Borç her ay küçülüyor gibi görünse de faiz onu geri şişirir.
+// Bu araç, borcun kaç ayda biteceğini ve toplam ne ödeneceğini gösterir.
+
+function asgariOdemeSimulasyonu(borc, aylikFaiz, asgariOran, sabitOdeme) {
+    const i = aylikFaiz / 100;
+    const oran = asgariOran / 100;
+
+    const calistir = (odemeHesapla) => {
+        let kalan = borc, ay = 0, toplamOdenen = 0, toplamFaiz = 0;
+        const ilkAylar = [];
+        while (kalan > 1 && ay < 360) {
+            const odeme = Math.min(odemeHesapla(kalan), kalan * (1 + i));
+            if (odeme <= kalan * i + 0.01) return null;   // faizi bile karşılamıyor
+            const faiz = (kalan - odeme) > 0 ? (kalan - odeme) * i : 0;
+            toplamOdenen += odeme;
+            toplamFaiz += faiz;
+            kalan = kalan - odeme + faiz;
+            ay++;
+            if (ay <= 6) ilkAylar.push({ ay: ay, odeme: odeme, faiz: faiz, kalan: Math.max(0, kalan) });
+        }
+        return { ay: ay, toplamOdenen: toplamOdenen, toplamFaiz: toplamFaiz,
+                 bitmedi: kalan > 1, ilkAylar: ilkAylar };
+    };
+
+    const asgari = calistir(k => k * oran);
+    const sabit = sabitOdeme > 0 ? calistir(() => sabitOdeme) : null;
+
+    return {
+        borc: borc, aylikFaiz: aylikFaiz, asgariOran: asgariOran,
+        ilkAsgariTutar: borc * oran,
+        asgari: asgari, sabit: sabit,
+        kazanc: (asgari && sabit) ? asgari.toplamOdenen - sabit.toplamOdenen : 0,
+        kazanilanAy: (asgari && sabit) ? asgari.ay - sabit.ay : 0
+    };
+}
+
+// ---------- 23) MAAŞ ZAMMI ----------
+// Zam oranı enflasyonun altındaysa, maaş artmış görünse de alım gücü düşer.
+
+function maasZammi(eskiBrut, zamOrani, enflasyon) {
+    const yeniBrut = eskiBrut * (1 + zamOrani / 100);
+    const eskiNet = netMaasPlani(eskiBrut, 1).ilkAyNet;
+    const yeniNet = netMaasPlani(yeniBrut, 1).ilkAyNet;
+    const netZamOrani = eskiNet > 0 ? (yeniNet / eskiNet - 1) * 100 : 0;
+
+    return {
+        eskiBrut: eskiBrut, yeniBrut: yeniBrut, brutArtis: yeniBrut - eskiBrut,
+        eskiNet: eskiNet, yeniNet: yeniNet, netArtis: yeniNet - eskiNet,
+        zamOrani: zamOrani, netZamOrani: netZamOrani,
+        reelZam: reelGetiri(zamOrani, enflasyon),
+        reelNetZam: reelGetiri(netZamOrani, enflasyon),
+        enflasyonuGecti: zamOrani > enflasyon,
+        // Enflasyonu karşılamak için gereken brüt
+        gerekenBrut: eskiBrut * (1 + enflasyon / 100)
+    };
+}
+
+// ---------- 24) ALTIN ÇEVİRİMİ ----------
+// Piyasadaki altın türleri 22 ayardır (saflık 0,916). Gram altın 24 ayar sayılır.
+
+const ALTIN_TURLERI = [
+    { kod: "gram", ad: "Gram altın (24 ayar)", gram: 1, ayar: 1.0 },
+    { kod: "ceyrek", ad: "Çeyrek altın", gram: 1.75, ayar: 0.916 },
+    { kod: "yarim", ad: "Yarım altın", gram: 3.50, ayar: 0.916 },
+    { kod: "tam", ad: "Tam altın", gram: 7.00, ayar: 0.916 },
+    { kod: "ata", ad: "Ata / Cumhuriyet altını", gram: 7.216, ayar: 0.916 },
+    { kod: "bilezik22", ad: "22 ayar bilezik (1 gram)", gram: 1, ayar: 0.916 },
+    { kod: "bilezik18", ad: "18 ayar takı (1 gram)", gram: 1, ayar: 0.750 },
+    { kod: "bilezik14", ad: "14 ayar takı (1 gram)", gram: 1, ayar: 0.585 }
+];
+
+// Bir altın türünün saf altın karşılığı (gram cinsinden)
+function safAltin(tur, adet) {
+    const t = ALTIN_TURLERI.find(x => x.kod === tur);
+    if (!t) return 0;
+    return t.gram * t.ayar * adet;
+}
+
+function altinDegeri(tur, adet, gramFiyat) {
+    const saf = safAltin(tur, adet);
+    const t = ALTIN_TURLERI.find(x => x.kod === tur);
+    return {
+        tur: t ? t.ad : tur, adet: adet,
+        safGram: saf, toplamGram: t ? t.gram * adet : 0,
+        deger: saf * gramFiyat,
+        birimDeger: adet > 0 ? saf * gramFiyat / adet : 0
+    };
+}

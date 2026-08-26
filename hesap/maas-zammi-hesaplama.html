@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Maaş Zammı Hesaplama — Zam Sonrası Net Maaş ve Reel Artış</title>
+<meta name="description" content="Maaş zammı hesaplama: zam sonrası brüt ve net maaşınız, enflasyona göre gerçek (reel) artış. Zam enflasyonu karşıladı mı?" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/maas-zammi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Maaş Zammı Hesaplama — Zam Sonrası Net Maaş ve Reel Artış" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/maas-zammi-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=5" />
+</head>
+<body>
+
+<main>
+    <h1>Maaş Zammı Hesaplama</h1>
+    <p class="ozet">Zam sonrası maaşınız ne olacak? Daha önemlisi: <b>zam enflasyonu karşıladı mı</b>, alım gücünüz arttı mı azaldı mı?</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Brüt ve <b>net</b> karşılığı</span><span class="etiket-rozet">Enflasyona göre reel zam</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Mevcut brüt maaşınız (TL)
+                    <input id="eski" type="number" step="any" inputmode="decimal" value="60000" />
+                </label>
+                <label>Zam oranı (%)
+                    <input id="zam" type="number" step="0.01" inputmode="decimal" value="30" />
+                </label>
+                <label>Yıllık enflasyon (%)
+                    <input id="enflasyon" type="number" step="0.01" inputmode="decimal" value="34.88" />
+                </label>
+            </div>
+            <p class="kucuk">Brüt maaşınızı bilmiyorsanız <a href="net-maas-hesaplama.html">net maaş aracıyla</a> bulabilirsiniz. Net zam oranı, brüt zam oranından <b>farklı çıkar</b> — sebebi vergi dilimleridir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Neden net zammım brüt zammımdan az?</h2>
+        <p>Gelir vergisi <b>kümülatif</b> ve dilimlidir. Maaşınız arttıkça daha üst dilime
+        girersiniz ve artışın bir kısmı vergiye gider. Bu yüzden %30 brüt zam, elinize geçende
+        %30'un altında bir artış olarak yansıyabilir.</p>
+
+        <h2>Reel zam ne demek?</h2>
+        <p>Zam oranınızdan enflasyonun etkisi çıkarıldığında kalan gerçek artıştır. %30 zam
+        aldınız ama enflasyon %35'se, alım gücünüz <b>azalmıştır</b> — maaşınızdaki rakam
+        büyümüş olsa bile aynı parayla daha az şey alabilirsiniz.</p>
+        <p>Formül: (1 + zam) ÷ (1 + enflasyon) − 1</p>
+
+        <h2>Zam görüşmesine hazırlanırken</h2>
+        <p>"Enflasyon kadar zam" talebinin karşılığı, mevcut brütünüzün enflasyon oranıyla
+        çarpılmasıdır. Yukarıdaki hesap bu tutarı da gösteriyor. Alım gücünüzü <b>korumak</b>
+        için gereken oran ile <b>artırmak</b> için gereken oranın farklı olduğunu unutmayın.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=5"></script>
+<script src="sayfa.js?v=5"></script>
+<script>
+iskeletKur("maas-zammi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["eski", "zam", "enflasyon"];
+
+function hesapla() {
+    const eski = oku("eski"), zam = oku("zam"), enf = oku("enflasyon");
+    if (!eski || eski <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+
+    const m = maasZammi(eski, zam, enf);
+    const iyi = m.reelZam > 0;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(m.yeniNet)}</div>
+        <div class="dev-etiket">zam sonrası ilk ay net maaşınız</div>
+        ${satir("Eski brüt", para(m.eskiBrut))}
+        ${satir("Yeni brüt", para(m.yeniBrut) + " (" + yuzdeOn(m.zamOrani) + ")")}
+        ${satir("Eski net", para(m.eskiNet))}
+        ${satir("Yeni net", para(m.yeniNet), "buyuk")}
+        ${satir("Elinize geçen artış", "+" + para(m.netArtis) + " (" + yuzdeOn(m.netZamOrani) + ")")}
+    </div>
+
+    <div class="kutu ${iyi ? "one-cikan" : ""}">
+        <h3>Zam enflasyonu karşıladı mı?</h3>
+        ${satir("Zam oranınız", yuzdeOn(m.zamOrani))}
+        ${satir("Yıllık enflasyon", yuzdeOn(enf))}
+        ${satir("Reel (gerçek) zam", yuzdeOn(m.reelZam), "buyuk")}
+        <p class="kucuk" style="color:${iyi ? "var(--artis)" : "var(--azalis)"}">
+        ${iyi
+            ? `<b>Alım gücünüz arttı.</b> Zammınız enflasyonu ${sayi(Math.abs(m.reelZam), 1)} puan geçti.`
+            : `<b>Alım gücünüz azaldı.</b> Maaşınız arttı ama enflasyonun ${sayi(Math.abs(m.reelZam), 1)} puan
+               gerisinde kaldı. Aynı alım gücü için brütünüzün <b>${para(m.gerekenBrut)}</b>
+               olması gerekirdi — yani ${para(m.gerekenBrut - m.yeniBrut)} daha fazla.`}</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Brüt maaş zam oranıyla artırılır.",
+           `${sayi(eski, 0)} × (1 + %${sayi(zam)})`, para(m.yeniBrut));
+    d.ekle("Yeni brütün net karşılığı hesaplanır (SGK, vergi, damga düşülür).",
+           `${sayi(m.yeniBrut)} brüt → net`, para(m.yeniNet));
+    d.ekle("Net artış oranı bulunur — vergi dilimi yüzünden brüt zamdan farklı olabilir.",
+           `(${sayi(m.yeniNet)} ÷ ${sayi(m.eskiNet)} − 1)`, yuzdeOn(m.netZamOrani));
+    d.ekle("Enflasyondan arındırılır: gerçek artış.",
+           `(1 + %${sayi(zam)}) ÷ (1 + %${sayi(enf)}) − 1`, yuzdeOn(m.reelZam));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Maaş Zammı Hesabı"));
+yapisalVeri("Maaş Zammı Hesabı", "Maaş zammı hesaplama: zam sonrası brüt ve net maaşınız, enflasyona göre gerçek (reel) artış. Zam enflasyonu karşıladı mı?");
+
+sssEkle([
+    { soru: "Zam sonrası net maaşım neden yıl içinde düşüyor?",
+      cevap: "Gelir vergisi kümülatiftir; yıl içinde biriken matrahınız üst dilime geçtikçe kesinti artar. Bu araç ilk ayın netini gösterir. Yıl boyunca nasıl değiştiğini net maaş aracındaki ay ay tablodan görebilirsiniz." },
+    { soru: "Enflasyon oranı olarak hangi rakamı yazmalıyım?",
+      cevap: "TÜİK'in açıkladığı yıllık TÜFE oranını kullanabilirsiniz. Kendi harcama sepetiniz farklıysa (kira ağırlıklıysa gibi) hissettiğiniz enflasyon daha yüksek olabilir; o zaman kendi tahmininizi yazın." },
+    { soru: "Reel zam negatif çıktı, ne yapmalıyım?",
+      cevap: "Bu, alım gücünüzün azaldığı anlamına gelir. Hesap size görüşmede kullanabileceğiniz somut bir rakam verir: alım gücünü korumak için gereken brüt tutar sonuçta yazılıdır." }
+]);
+
+ilgiliAraclar("maas-zammi-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

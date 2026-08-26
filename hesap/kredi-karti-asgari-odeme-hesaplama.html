@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Kredi Kartı Asgari Ödeme Hesaplama — Borç Kaç Ayda Biter?</title>
+<meta name="description" content="Kredi kartı borcunuz sadece asgari ödeyerek kaç ayda biter, toplam ne kadar faiz ödersiniz? Sabit ödemeyle karşılaştırmalı hesaplama." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kredi-karti-asgari-odeme-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Kredi Kartı Asgari Ödeme Hesaplama — Borç Kaç Ayda Biter?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kredi-karti-asgari-odeme-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=5" />
+</head>
+<body>
+
+<main>
+    <h1>Kredi Kartı Asgari Ödeme</h1>
+    <p class="ozet">Sadece asgari ödeyerek borcunuz <b>kaç ayda biter</b> ve toplam <b>ne kadar faiz</b> ödersiniz? Bir de sabit ödemeyle karşılaştıralım.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Ay ay simülasyon</span><span class="etiket-rozet">Sabit ödemeyle karşılaştırma</span><span class="etiket-rozet">Faizi kartınızın ekstresinden girin</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Kart borcunuz (TL)
+                    <input id="borc" type="number" step="any" inputmode="decimal" value="30000" />
+                </label>
+                <label>Aylık akdi faiz oranı (%)
+                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="4.25" />
+                </label>
+                <label>Asgari ödeme oranı (%)
+                    <input id="oran" type="number" step="1" inputmode="numeric" value="20" />
+                </label>
+                <label>Bunun yerine sabit ödesem (TL)
+                    <input id="sabit" type="number" step="any" inputmode="decimal" placeholder="boş = ilk asgari tutar" />
+                </label>
+            </div>
+            <p class="kucuk">Faiz oranını kart ekstrenizden alın — bankaya ve karta göre değişir. Asgari ödeme oranı genelde <b>%20</b>, yüksek limitli kartlarda <b>%40</b> uygulanır.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Asgari ödeme neden tuzak?</h2>
+        <p>Asgari ödeme, <b>kalan borcun yüzdesi</b> olarak hesaplanır. Borç azaldıkça ödemeniz
+        de azalır. Bu yüzden borç hiçbir zaman hızlanarak bitmez; kuyruk yıllarca sürünür.</p>
+        <p>Çözüm basit: <b>ilk ay ödediğiniz tutarı sabit tutun.</b> Ödemeyi azaltmayın.
+        Yukarıdaki hesap, bu tek değişikliğin kaç ay ve kaç lira kazandırdığını gösteriyor.</p>
+
+        <h2>Asgari ödemeyi de yapamazsam?</h2>
+        <p>Asgari tutarın altında ödeme yapılırsa <b>gecikme faizi</b> işler ve kart borcu
+        yasal takibe gidebilir; kredi notunuz düşer. Böyle bir durumda ödemeyi geciktirmek
+        yerine bankanızı arayıp <b>yapılandırma</b> talep etmek çok daha az zarar verir.</p>
+
+        <h2>Kart borcu mu, ihtiyaç kredisi mi?</h2>
+        <p>Kredi kartı faizi genellikle ihtiyaç kredisi faizinden <b>yüksektir</b>. Büyük bir
+        kart borcunu daha düşük faizli bir ihtiyaç kredisiyle kapatmak çoğu zaman toplam maliyeti
+        düşürür. İki oranı karşılaştırmadan karar vermeyin.</p>
+
+        <h2>Nakit avans ayrı hesaplanır</h2>
+        <p>Nakit avansta faiz, ekstre beklemeden <b>çekim gününden itibaren</b> işlemeye başlar
+        ve genellikle daha yüksek orandan uygulanır. Bu araç alışveriş borcunu esas alır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=5"></script>
+<script src="sayfa.js?v=5"></script>
+<script>
+iskeletKur("kredi-karti-asgari-odeme-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["borc", "faiz", "oran", "sabit"];
+
+function hesapla() {
+    const borc = oku("borc"), faiz = oku("faiz"), oran = oku("oran") || 20;
+    const sabitGirdi = document.getElementById("sabit").value;
+    const ilkAsgari = borc * oran / 100;
+    const sabit = sabitGirdi === "" ? ilkAsgari : oku("sabit");
+
+    if (!borc || borc <= 0) { document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return; }
+
+    const s = asgariOdemeSimulasyonu(borc, faiz, oran, sabit);
+    const a = s.asgari, f = s.sabit;
+
+    if (!a) {
+        document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+            <p style="color:var(--azalis)"><b>Bu oranlarla borç kapanmıyor.</b>
+            Asgari ödeme, işleyen faizi bile karşılamıyor; borç her ay büyür.
+            Bankanızla yapılandırma görüşmesi yapmanız gerekir.</p></div>`;
+        return;
+    }
+
+    const yetersiz = f === null;
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${a.ay} ay</div>
+        <div class="dev-etiket">sadece asgari ödeyerek borcun bitme süresi</div>
+        ${satir("Borcunuz", para(s.borc))}
+        ${satir("İlk ay asgari ödemeniz", para(s.ilkAsgariTutar))}
+        ${satir("Toplam ödeyeceğiniz", para(a.toplamOdenen), "buyuk")}
+        ${satir("Bunun faiz olan kısmı", para(a.toplamFaiz))}
+        ${a.bitmedi ? `<p class="kucuk" style="color:var(--azalis)"><b>30 yılda bile bitmiyor.</b></p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h3>Peki her ay ${para(sabit)} ödeseydiniz?</h3>
+        ${yetersiz
+            ? `<p class="kucuk" style="color:var(--azalis)">Bu tutar işleyen faizi karşılamıyor;
+               borç hiç kapanmaz. Daha yüksek bir tutar deneyin.</p>`
+            : `${satir("Bitiş süresi", f.ay + " ay")}
+               ${satir("Toplam ödeme", para(f.toplamOdenen))}
+               ${satir("Faiz", para(f.toplamFaiz))}
+               ${satir("Kazandığınız süre", s.kazanilanAy + " ay", "buyuk")}
+               ${satir("Faizden tasarruf", para(a.toplamFaiz - f.toplamFaiz), "buyuk")}
+               <p class="kucuk" style="color:var(--artis)"><b>Asıl mesele bu:</b> asgari ödeme
+               her ay küçülür, borç sürünerek devam eder. <b>İlk ayki tutarı sabit tutarsanız</b>
+               borç ${s.kazanilanAy} ay erken biter ve
+               ${para(a.toplamFaiz - f.toplamFaiz)} faizden kurtulursunuz.</p>`}
+    </div>
+
+    <div class="kutu">
+        <h3>İlk 6 ay — sadece asgari ödendiğinde</h3>
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Ay</th><th>Ödeme</th><th>İşleyen faiz</th><th>Kalan borç</th></tr></thead><tbody>
+            ${a.ilkAylar.map(x => `<tr><td>${x.ay}</td><td>${para(x.odeme)}</td>
+                <td class="asagi">${para(x.faiz)}</td><td><b>${para(x.kalan)}</b></td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="kucuk">Ödemeniz her ay küçülüyor çünkü kalan borcun yüzdesi olarak hesaplanıyor.
+        Borç azaldıkça ödeme de azalır ve süreç uzar.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapılıyor?");
+    d.ekle("Her ay asgari ödeme, kalan borcun yüzdesi olarak hesaplanır.",
+           `${sayi(borc, 0)} × %${sayi(oran, 0)}`, para(s.ilkAsgariTutar));
+    d.ekle("Ödeme düşüldükten sonra kalan tutara faiz işler.",
+           `(borç − ödeme) × %${sayi(faiz, 2)}`, "her ay");
+    d.ekle("Bu döngü borç bitene kadar tekrarlanır.", `${a.ay} ay sürdü`, para(a.toplamOdenen));
+    d.ekle("Ödenen toplamdan anapara düşülür: kalan faizdir.",
+           `${sayi(a.toplamOdenen)} − ${sayi(borc, 0)}`, para(a.toplamFaiz));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Asgari Ödeme Hesabı"));
+yapisalVeri("Asgari Ödeme Hesabı", "Kredi kartı borcunuz sadece asgari ödeyerek kaç ayda biter, toplam ne kadar faiz ödersiniz? Sabit ödemeyle karşılaştırmalı hesaplama.");
+
+sssEkle([
+    { soru: "Faiz oranımı nereden öğrenirim?",
+      cevap: "Kart ekstrenizde 'akdi faiz oranı' olarak yazar. Bankaya ve kart türüne göre değişir. Merkez Bankası azami oranları belirler; bankanız bunun altında bir oran uyguluyor olabilir." },
+    { soru: "Asgari ödeme oranı kaçtır?",
+      cevap: "Yaygın uygulama %20'dir. Limiti yüksek kartlarda ve yeni açılan kartlarda %40 uygulanabilir. Kesin oran ekstrenizde yazar." },
+    { soru: "Asgariyi ödersem faiz işlemez mi?",
+      cevap: "İşler. Asgari ödeme yalnızca gecikmeye düşmenizi engeller; ödenmeyen kısma faiz işlemeye devam eder. Faizden tamamen kurtulmanın tek yolu borcun tamamını ödemektir." },
+    { soru: "Borcumu kredi çekerek kapatmalı mıyım?",
+      cevap: "Kredi faizi kart faizinden düşükse matematiksel olarak avantajlıdır. Ancak yeni bir borç almadan önce harcama alışkanlığını gözden geçirmek gerekir; aksi hâlde iki borç birden oluşabilir." }
+]);
+
+ilgiliAraclar("kredi-karti-asgari-odeme-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>

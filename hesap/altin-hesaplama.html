@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Altın Hesaplama — Çeyrek, Yarım, Tam Altın Kaç Gram, Kaç TL?</title>
+<meta name="description" content="Altın hesaplama: çeyrek, yarım, tam ve ata altının gram karşılığı ve TL değeri. 14, 18, 22 ayar takı hesabı ve alım-satım kârı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4471538043632173" crossorigin="anonymous"></script>
+<link rel="canonical" href="https://meteotr06.github.io/hesap/altin-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Altın Hesaplama — Çeyrek, Yarım, Tam Altın Kaç Gram, Kaç TL?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/altin-hesaplama.html" />
+<link rel="stylesheet" href="stil.css?v=5" />
+</head>
+<body>
+
+<main>
+    <h1>Altın Hesaplama</h1>
+    <p class="ozet">Elinizdeki altının <b>kaç gram saf altın</b> ettiğini ve güncel gram fiyatına göre <b>kaç lira</b> yaptığını hesaplayın.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">Ziynet altınları <b>22 ayar</b></span><span class="etiket-rozet">Saf altın karşılığı</span><span class="etiket-rozet">Alım-satım kârı</span></div>
+    <div id="eylemler"></div>
+
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Gram altın fiyatı (TL)
+                    <input id="gramFiyat" type="number" step="any" inputmode="decimal" value="7200" />
+                </label>
+                <label>Altın türü
+                    <select id="tur">
+                        <option value="gram">Gram altın (24 ayar)</option>
+                        <option value="ceyrek" selected>Çeyrek altın</option>
+                        <option value="yarim">Yarım altın</option>
+                        <option value="tam">Tam altın</option>
+                        <option value="ata">Ata / Cumhuriyet altını</option>
+                        <option value="bilezik22">22 ayar bilezik (gram)</option>
+                        <option value="bilezik18">18 ayar takı (gram)</option>
+                        <option value="bilezik14">14 ayar takı (gram)</option>
+                    </select>
+                </label>
+                <label>Adet / gram
+                    <input id="adet" type="number" step="any" inputmode="decimal" value="5" />
+                </label>
+                <label>Aldığınız birim fiyat (TL, isteğe bağlı)
+                    <input id="alis" type="number" step="any" inputmode="decimal" placeholder="kâr hesabı için" />
+                </label>
+            </div>
+            <p class="kucuk">Güncel gram altın fiyatını <a href="https://meteotr06.github.io/kur-pusulasi/" target="_blank" rel="noopener">Kur Pusulası</a> uygulamasından canlı görebilirsiniz. Buraya <b>külçe/gram fiyatını</b> yazın; kuyumcu işçilik ekler.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Ayar ne demek?</h2>
+        <p>Ayar, altının saflık derecesidir. 24 ayar saf altındır. Ziynet altınları
+        (çeyrek, yarım, tam) <b>22 ayardır</b>, yani ağırlığının %91,6'sı altındır. Takılarda
+        18 ayar (%75) ve 14 ayar (%58,5) yaygındır.</p>
+        <p>Bu yüzden 1 gram 14 ayar takı, 1 gram gram-altından belirgin biçimde ucuzdur.</p>
+
+        <h2>Çeyrek altın kaç gram?</h2>
+        <p>Çeyrek altın <b>1,75 gram</b> ağırlığındadır ve 22 ayardır. İçindeki saf altın
+        1,75 × 0,916 = <b>1,603 gram</b>'dır. Yarım 3,50 gram, tam 7,00 gram, Cumhuriyet
+        altını 7,216 gramdır.</p>
+
+        <h2>Neden kuyumcuda daha pahalı?</h2>
+        <p>Kuyumcular külçe fiyatının üstüne <b>işçilik</b> ve kâr payı ekler. Ziynet
+        altınlarında bu fark küçük, takılarda (bilezik, kolye) belirgin olarak yüksektir.
+        Satarken ise işçilik geri ödenmez — bu yüzden takı, yatırım aracı olarak
+        ziynet altınından dezavantajlıdır.</p>
+
+        <h2>Alış ve satış farkı</h2>
+        <p>Kuyumcunun size sattığı fiyat ile sizden aldığı fiyat farklıdır (makas). Kâr
+        hesabı yaparken satış anında eline geçecek <b>alış fiyatını</b> esas almak gerekir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=5"></script>
+<script src="sayfa.js?v=5"></script>
+<script>
+iskeletKur("altin-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["gramFiyat", "tur", "adet", "alis"];
+
+function hesapla() {
+    const gramFiyat = oku("gramFiyat");
+    const tur = document.getElementById("tur").value;
+    const adet = oku("adet");
+    const alisGirdi = document.getElementById("alis").value;
+    if (!gramFiyat || gramFiyat <= 0 || !adet || adet <= 0) {
+        document.getElementById("ozet").innerHTML = ""; document.getElementById("dokum").innerHTML = ""; return;
+    }
+
+    const a = altinDegeri(tur, adet, gramFiyat);
+    const t = ALTIN_TURLERI.find(x => x.kod === tur);
+
+    let karKutu = "";
+    if (alisGirdi !== "") {
+        const alis = oku("alis");
+        const maliyet = alis * adet;
+        const kar = a.deger - maliyet;
+        const oran = maliyet > 0 ? kar / maliyet * 100 : 0;
+        karKutu = `<div class="kutu">
+            <h3>Alım-satım durumu</h3>
+            ${satir("Alış maliyetiniz", para(maliyet))}
+            ${satir("Bugünkü değeri", para(a.deger))}
+            ${satir(kar >= 0 ? "Kârınız" : "Zararınız", para(Math.abs(kar)) + " · " + yuzdeOn(oran), "buyuk")}
+            <p class="kucuk">Kuyumcu <b>alış fiyatı</b> satış fiyatından düşüktür; gerçekte
+            eline geçecek tutar bu hesabın biraz altında olur.</p>
+        </div>`;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(a.deger)}</div>
+        <div class="dev-etiket">${sayi(adet, adet % 1 === 0 ? 0 : 2)} ${a.tur} değeri</div>
+        ${satir("Toplam ağırlık", sayi(a.toplamGram, 3) + " gram")}
+        ${satir("Saf altın karşılığı", sayi(a.safGram, 3) + " gram")}
+        ${satir("Birim değeri", para(a.birimDeger))}
+        ${satir("Toplam değer", para(a.deger), "buyuk")}
+    </div>
+
+    <div class="kutu">
+        <h3>Diğer türlerde karşılığı</h3>
+        <p class="kucuk" style="margin-top:0">Aynı saf altın (${sayi(a.safGram, 3)} gram) kaç adet eder:</p>
+        <div class="tablo-sar"><table><thead><tr>
+            <th>Tür</th><th>Ağırlık</th><th>Ayar</th><th>Karşılığı</th><th>Birim fiyat</th>
+            </tr></thead><tbody>
+            ${ALTIN_TURLERI.map(x => {
+                const birimSaf = x.gram * x.ayar;
+                return `<tr class="${x.kod === tur ? "vurgu-satir" : ""}">
+                    <td>${x.ad}</td><td>${sayi(x.gram, 2)} gr</td>
+                    <td>${sayi(x.ayar * 24, 0)} ayar</td>
+                    <td><b>${sayi(a.safGram / birimSaf, 2)}</b></td>
+                    <td>${para(birimSaf * gramFiyat)}</td></tr>`;
+            }).join("")}
+        </tbody></table></div>
+    </div>
+    ${karKutu}`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle(`${t.ad} ağırlığı ${sayi(t.gram, 3)} gram, saflığı ${sayi(t.ayar * 24, 0)} ayar (${sayi(t.ayar, 3)}).`,
+           `${sayi(t.gram, 3)} × ${sayi(t.ayar, 3)}`, sayi(t.gram * t.ayar, 4) + " gr saf");
+    d.ekle("Adetle çarpılır.", `${sayi(t.gram * t.ayar, 4)} × ${sayi(adet, 2)}`, sayi(a.safGram, 3) + " gr saf");
+    d.ekle("Gram altın fiyatıyla çarpılır (gram altın 24 ayar kabul edilir).",
+           `${sayi(a.safGram, 3)} × ${sayi(gramFiyat, 0)}`, para(a.deger));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Altın Hesabı"));
+yapisalVeri("Altın Hesabı", "Altın hesaplama: çeyrek, yarım, tam ve ata altının gram karşılığı ve TL değeri. 14, 18, 22 ayar takı hesabı ve alım-satım kârı.");
+
+sssEkle([
+    { soru: "Çeyrek altın kaç gram altın içerir?",
+      cevap: "Çeyrek altın 1,75 gram ağırlığında ve 22 ayardır. İçindeki saf altın miktarı 1,75 × 0,916 = 1,603 gramdır. Yani bir çeyrek, 1,6 gram gram-altına denk gelir." },
+    { soru: "Takı mı almalı, ziynet altını mı?",
+      cevap: "Yatırım amacıysa ziynet (çeyrek, yarım, tam) veya gram altın daha uygundur; çünkü takıda ödediğiniz işçilik satarken geri gelmez. Takı, süs amacı ağır bastığında tercih edilir." },
+    { soru: "Hesap kuyumcudaki fiyatla neden tutmuyor?",
+      cevap: "Bu araç külçe/gram fiyatı üzerinden saf altın değerini hesaplar. Kuyumcu bunun üstüne işçilik ve kâr payı ekler, satın alırken de daha düşük fiyat verir. Aradaki farka 'makas' denir." },
+    { soru: "Güncel gram altın fiyatını nereden bulurum?",
+      cevap: "Kur Pusulası uygulamasında canlı gram altın fiyatı ve geçmiş grafiği bulunur; oradaki değeri buraya yazabilirsiniz." }
+]);
+
+ilgiliAraclar("altin-hesaplama.html");
+reklamAlani();
+</script>
+</body>
+</html>
