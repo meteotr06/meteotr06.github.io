@@ -26,7 +26,15 @@ def kontrol(ad, kosul):
 
 # --- damga çıkarma ---
 kontrol("damga: ?v=40 okunuyor", N.damga('<script src="a.js?v=40">') == {"40"})
-kontrol("damga: SURUM okunuyor", "hesap-v40" in N.damga('const SURUM = "hesap-v40";'))
+# SURUM adi ile ?v= damgasi AYNI surumu anlatir; nobetci ikisini esitlemeli,
+# yoksa "hesap-v40" ile "v=40" farkli sanilir ve her kosuda yanlis alarm verir.
+kontrol("damga: SURUM okunuyor", N.damga('const SURUM = "hesap-v40";') == {"40"})
+kontrol("damga: tek tırnaklı SURUM da okunur (Göz Molası öyle yazıyor)",
+        N.damga("const SURUM = 'goz-molasi-v82';") == {"82"})
+kontrol("damga: ?s=v82 biçimi okunur (kör noktanın kök sebebi)",
+        N.damga('<link href="stil.css?s=v82">') == {"82"})
+kontrol("damga: SURUM ile ?v= aynı sürümde EŞLEŞİR",
+        N.damga('a.js?v=40') == N.damga('const SURUM = "hesap-v40";'))
 kontrol("damga: uyumsuz damgaları ayrı görür", N.damga("a.css?v=17 b.js?v=19") == {"17", "19"})
 kontrol("damga: boş metin boş küme", N.damga("") == set())
 
@@ -68,6 +76,25 @@ satirlar2, _ = N.uygulama_denetle("Muhasebe", None, "muhasebe", "/muhasebe/", Fa
 N.getir = gercek
 kontrol("NÖBET: canlıya bozuk girdi girince yakalar",
         any('type="number"' in s for s in satirlar2))
+
+
+# --- NÖBET: ölçülemeyeni "güncel" saymamalı ---
+# Bugünün kör noktası buydu: damga bulunamayınca hiçbir şey karşılaştırılmadan
+# "✓ güncel" yazılıyordu. Damgasız bir uygulama taklit edip kontrol ediyoruz.
+def damgasiz(adres):
+    k, g = gercek(adres)
+    if adres.startswith(N.CANLI + "/muhasebe/"):
+        import re as _re
+        g = _re.sub(r"[?&](v|s|ver|surum)=[\w.]+", "", g)
+    return k, g
+
+N.getir = damgasiz
+satirlar3, _ = N.uygulama_denetle("Muhasebe", None, "muhasebe", "/muhasebe/", False)
+N.getir = gercek
+kontrol("NÖBET: damga yoksa 'güncel' DEMEZ",
+        not any("güncel" in x for x in satirlar3))
+kontrol("NÖBET: bunun yerine 'karşılaştırılamadı' der",
+        any("karşılaştırılamadı" in x for x in satirlar3))
 
 kaldi = [a for a, k in sonuc if not k]
 for ad, k in sonuc:
