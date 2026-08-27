@@ -24,6 +24,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Muhasebe" />
 <link rel="stylesheet" href="/hesap/stil.css" />
+<style>
+  /* Bu sayfa KENDI KENDINE YETER. Onceden hesap sitesinin hesap.js ve
+     sayfa.js dosyalarini cagiriyordu -- o dosyalar bu klasorde YOK, ikisi de
+     canlida 404 donuyordu ve "iskeletKur is not defined" hatasi veriyordu.
+     Sonucu: ust bar da alt bilgi de olusmuyor, sayfada uygulamaya DONUS
+     BAGLANTISI kalmiyordu. Gizlilik sayfasina gelen kullanici sikisip
+     kaliyordu; tek baglantilar Google'in reklam politikasi sayfalariydi. */
+  .gizlilik-alt { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--cizgi, #e3e6eb); }
+  .gizlilik-alt a { font-weight: 600; text-decoration: none; }
+  .gizlilik-alt a:hover { text-decoration: underline; }
+</style>
 </head>
 <body>
 
@@ -75,6 +86,11 @@
         <h2>Değişiklikler</h2>
         <p>Bu politika güncellenirse yukarıdaki tarih değiştirilir.</p>
     </section>
+
+    <footer class="gizlilik-alt">
+        <p><a href="./">&larr; Muhasebe'ye dön</a></p>
+        <p class="kucuk">Gelir, gider, kasa ve cari takibi · raporlar ve bütçe</p>
+    </footer>
 </main>
 
 </body>
