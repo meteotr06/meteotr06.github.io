@@ -45,7 +45,7 @@ var KAYNAK = {
   K10: 'Yalpır, S. & Bünyan Ünel, F. (2016), Arsa Değerlemede Kullanılan Kriterlerin ' +
        'İrdelenmesi ve Faktör Analizi ile Azaltımı, AKÜ FEMÜBİD 16(2):303-322. ' +
        'N=559 uzman, KMO=0,865. 125 soru -> 64 kriter, 10 faktör. ' +
-       'ÖNEMLİ NEGATIF BULGU: "arsanın hisseli olması" ve "arsanın alanı" ' +
+       'ÖNEMLİ NEGATİF BULGU: "arsanın hisseli olması" ve "arsanın alanı" ' +
        'korelasyon <%30 olduğu için ELENDİ; "arsanın eğimi" faktör yükü <0,40 ' +
        'olduğu için ELENDİ.'
 };
@@ -187,7 +187,7 @@ var DUZELTME = {
   },
 
   altyapi: {
-    ad: 'Altyapi',
+    ad: 'Altyapı',
     soru: 'Elektrik, su, kanalizasyon geliyor mu?',
     guven: GUVEN.KALIBRE,
     kaynak: 'K9: 50 uzman anketinde 15 anlamlı faktör arasında 4. sırada ' +
@@ -249,7 +249,7 @@ var DUZELTME = {
     guven: GUVEN.KALIBRE,
     kaynak: 'K8: Atakum/Samsun, 64 arsa parseli, hedonik regresyon. Düzgün ' +
             'şekilli parsel düzensiz olandan +138,11 TL/m2 pahalı (p<0,05, ' +
-            'ISTATISTIKSEL OLARAK ANLAMLI). Aynı modelde 1 birim emsal artışı ' +
+            'İSTATİSTİKSEL OLARAK ANLAMLI). Aynı modelde 1 birim emsal artışı ' +
             '+233,06 TL/m2; yani şekil, emsalin yaklaşık %59 kadarı etkili. ' +
             'Ilk tahminimiz şekli en zayıf faktör yapıyordu, güçlendirildi. ' +
             'Mutlak TL değerleri 2017 Samsun fiyatıdır, taşınmaz.',
@@ -489,13 +489,13 @@ function vasif_belirle(g) {
 
   if (!belediye_icinde) {
     kod = 'arazi';
-    sonuc = 'ARAZI';
+    sonuc = 'ARAZİ';
     gerekce = 'Belediye veya mücavir alan sınırları dışında.';
   } else if (gelen.length === 0) {
     kod = 'arazi';
-    sonuc = 'ARAZI';
+    sonuc = 'ARAZİ';
     gerekce = 'Belediye sınırında olsa da hiçbir belediye hizmeti gelmiyor. ' +
-              'K5 uyarinca arazi niteliginde değerlendirilir.';
+              'K5 uyarınca arazi niteliğinde değerlendirilir.';
   } else if (!imar_plani) {
     kod = 'arsa_plansiz';
     sonuc = 'ARSA (imar planı yok)';
@@ -708,7 +708,7 @@ function risk_tara(g) {
   var vasif = vasif_belirle(g);
 
   if (vasif.kod === 'arazi') {
-    ekle('kritik', 'Bu taşınmaz hukuken ARSA değil, ARAZI',
+    ekle('kritik', 'Bu taşınmaz hukuken ARSA değil, ARAZİ',
       vasif.gerekce + ' Arazi vasfindaki taşınmazın değeri arsaya göre kat kat düşüktür.',
       'Satıcı "arsa" diyorsa tapu kaydını ve belediyeden imar durumunu isteyin. ' +
       'Eksik hizmetler: ' + (vasif.eksik_hizmetler.join(', ') || '-'));
@@ -808,7 +808,7 @@ var NOMINAL_AGIRLIK = {
   egim:             { agirlik:  8.50, ad: 'Eğim' },
   ada_ici_konum:    { agirlik:  5.90, ad: 'Ada içindeki konum (köşe/ara)' },
   parsel_sekli:     { agirlik:  4.70, ad: 'Parsel şekli' },
-  baki:             { agirlik:  4.20, ad: 'Baki' },
+  baki:             { agirlik:  4.20, ad: 'Bakı' },
   manzara:          { agirlik:  3.30, ad: 'Manzara' },
   ana_cadde:        { agirlik:  2.60, ad: 'Ana caddeye uzaklık' },
   merkez:           { agirlik:  2.50, ad: 'Merkeze uzaklık' },

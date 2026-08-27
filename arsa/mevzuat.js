@@ -162,7 +162,7 @@ function insaat_maliyeti(toplam_insaat_alani, sinif, secenek) {
     dahil: 'Genel giderler (%15) ve yüklenici kârı (%10) DAHİLDİR.',
     dahil_degil: 'Arsa bedeli, çevre düzenlemesi (peyzaj, ihata duvarı, ada içi yol, ' +
                  'drenaj, çevre aydınlatma) ve bina dışı altyapı (zemin iyileştirme, ' +
-                 'elektrik/su/doğalgaz/kanalizasyon/haberlesme) DAHIL DEĞİLDİR.'
+                 'elektrik/su/doğalgaz/kanalizasyon/haberleşme) DAHİL DEĞİLDİR.'
   };
 
   if (kdv_orani !== null) {
@@ -470,8 +470,8 @@ function emsal_harici_kontrol(g) {
     kullanim_yuzde: Math.round(harici / emsale_esas * 1000) / 10,
     not: 'Yangın merdiveni, teras çatı, bahçedeki açık otopark, deprem yalıtım katı ' +
          've bodrumdaki zorunlu otoparkin 2 katı gibi kalemler bu %30 TAVANINA ' +
-         'GIRMEZ (md. 5/8 "Ancak..." bölümü). Aynı kullanım normal katta yapılırsa ' +
-         'md. 22\'ye tabidir ve tavana DAHIL olur.',
+         'GİRMEZ (md. 5/8 "Ancak..." bölümü). Aynı kullanım normal katta yapılırsa ' +
+         'md. 22\'ye tabidir ve tavana DAHİL olur.',
     kaynak: MEVZUAT_KAYNAK.M5
   };
 }
@@ -486,7 +486,7 @@ var DONER_SERMAYE = {
   katsayi_dogrulanma: false,   /* il/ilce yoresel katsayi listesi teyit edilemedi */
   not: 'Ücret = (gösterge + varsa ilave gösterge) x yöresel katsayı. KDV dahil. ' +
        'Yöresel katsayılar 1 / 1,5 / 2 / 2,5 / 3 olarak il-ilçe bazında değişir; ' +
-       'KATSAYI LISTESI DOĞRULANMADI, kullanıcıdan alinmali.',
+       'KATSAYI LİSTESİ DOĞRULANMADI, kullanıcıdan alınmalı.',
   kaynak: MEVZUAT_KAYNAK.M6
 };
 

@@ -29,6 +29,29 @@ function tl(x) {
     if (!isFinite(x)) return '—';
     return Number(x).toLocaleString('tr-TR', { maximumFractionDigits: 0 }) + ' TL';
 }
+/* YUZDEYI TURKCE YAZ.
+   Olculdu (27.08.2026, tarayicida): ekranda "±%32.3" yaziyordu. Para
+   dogru yazilirken (381.920 TL) yuzde yanlis yaziliyordu, cunku sayi
+   dogrudan metne ekleniyordu ve JavaScript ondalik ayraci NOKTA koyar.
+   Turkce'de ondalik ayraci VIRGULDUR.
+
+   Bu sadece gorunum degil: Turkiye'de nokta BINLIK ayracidir. "%32.3"
+   okuyan biri bunu 32,3 yerine 323 diye anlayabilir -- uygulama calisir,
+   sayi yanlis okunur. Sessiz yanlis sayinin ta kendisi.
+
+   Isaret de basa alindi: TDK yazimi "%45", "45%" degil. Uygulama zaten
+   her yerde "%13,7" diye yaziyordu; yalniz "farki yaratan kalemler"
+   tablosu "-45%" diyordu. Ayni ekranda iki farkli yazim, hangisinin
+   dogru oldugunu bilmeyen kullaniciyi tereddute dusurur. */
+function yuzde(x, isaretli) {
+    if (x === null || x === undefined || !isFinite(x)) return '—';
+    var n = Number(x);
+    var metin = n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+    if (!isaretli) return '%' + metin;
+    /* Isaret yuzdenin ONUNE gelir: "-%45", "%-45" degil. */
+    return (n > 0 ? '+' : n < 0 ? '-' : '') + '%' + Math.abs(n)
+        .toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+}
 /* Sayi okumayi CEKIRDEGE biraktik. Burada basit bir virgul->nokta
    donusumu vardi ve "1.500,50" girdisini 1,5 okuyordu — 1000 kat sessiz
    hata. Supurme sinamasi yakaladi; cozumleyici cekirdege tasindi ki
@@ -392,11 +415,11 @@ function kapsam_guncelle() {
     var g = girdi_topla();
     var y = kapsam_hesapla(g);
 
-    $('kapsamYuzde').textContent = '%' + y;
+    $('kapsamYuzde').textContent = yuzde(y);
     $('kapsamDolgu').style.width = y + '%';
 
     var rozet = $('kapsamRozet');
-    rozet.textContent = 'bilgi: %' + y;
+    rozet.textContent = 'bilgi: ' + yuzde(y);
     rozet.className = 'rozet ' + (y >= 70 ? 'iyi' : y >= 35 ? 'orta' : 'bekle');
 
     var not;
@@ -539,13 +562,13 @@ function daraltan_sorular(an, emsal, g) {
     /* Asıl motive eden sayı "3 soru" değil, "hepsi": bant tavanlı (%60)
        olduğu için 3 soru azken azı götürür. İkisini de yazıyoruz — hangisi
        daha çarpıcı diye değil, ikisi de doğru olduğu için. */
-    var satirlar = ['Şu an aralık ±%' + an.bant_yuzde + '.'];
+    var satirlar = ['Şu an aralık ±' + yuzde(an.bant_yuzde) + '.'];
     if (hepsiSonra !== null && hepsiSonra < an.bant_yuzde) {
-        satirlar.push('Eksik ' + eksik.length + ' bilginin hepsini girersen ±%' +
-                      hepsiSonra + "'e iner.");
+        satirlar.push('Eksik ' + eksik.length + ' bilginin hepsini girersen ±' +
+                      yuzde(hepsiSonra) + "'e iner.");
     }
     if (sonra !== null && sonra < an.bant_yuzde) {
-        satirlar.push('Yalnız aşağıdaki ' + ilk3.length + ' soru bile ±%' + sonra +
+        satirlar.push('Yalnız aşağıdaki ' + ilk3.length + ' soru bile ±' + yuzde(sonra) +
                       "'e indirir — ve sonucu en çok bunlar değiştirir:");
     } else {
         satirlar.push('En çok bunlar sonucu değiştirir:');
@@ -814,7 +837,7 @@ function deger_karti(an, g, ek_kutu) {
     b.appendChild(el('div', 'orta', tl(an.birim_fiyat.orta) + '/m²'));
     var ar = el('div', 'aralik');
     ar.innerHTML = '<b>' + tl(an.birim_fiyat.alt) + '</b> ile <b>' +
-                   tl(an.birim_fiyat.ust) + '</b> arasında  (±%' + an.bant_yuzde + ')';
+                   tl(an.birim_fiyat.ust) + '</b> arasında  (±' + yuzde(an.bant_yuzde) + ')';
     b.appendChild(ar);
     k.appendChild(b);
 
@@ -842,7 +865,7 @@ function deger_karti(an, g, ek_kutu) {
     if (an.yontem_sayisi === 2) {
         satir_ekle(k, 'Yöntem 1 — emsal düzeltme', tl(an.yontemler.carpan) + '/m²');
         satir_ekle(k, 'Yöntem 2 — nominal puanlama', tl(an.yontemler.nominal) + '/m²');
-        satir_ekle(k, 'İki yöntem arası fark', '%' + an.ayrisma_yuzde);
+        satir_ekle(k, 'İki yöntem arası fark', yuzde(an.ayrisma_yuzde));
     }
 
     /* Farkı yaratan kalemler */
@@ -853,7 +876,7 @@ function deger_karti(an, g, ek_kutu) {
             etkili.sort(function (a, b) { return Math.abs(b.etki_yuzde) - Math.abs(a.etki_yuzde); });
             etkili.forEach(function (d) {
                 var s = satir_ekle(k, d.ad,
-                    (d.etki_yuzde > 0 ? '+' : '') + d.etki_yuzde + '%',
+                    yuzde(d.etki_yuzde, true),
                     d.etki_yuzde > 0 ? 'artis' : 'azalis');
                 /* HER seviye etiketlenir, yalniz "tahmin" degil.
                    Olculdu (27.08.2026): sadece BASLANGIC etiketleniyordu;
@@ -1073,7 +1096,7 @@ function defter_ciz() {
         satir_ekle_basit(d, 'Alan', (k.girdi.alan || '—') + ' m²');
         satir_ekle_basit(d, 'Hukuki durum', k.risk ? k.risk.vasif : '—');
         if (k.ozet) {
-            satir_ekle_basit(d, 'Tahmini birim', tl(k.ozet.birim) + '/m²  (±%' + k.ozet.bant + ')');
+            satir_ekle_basit(d, 'Tahmini birim', tl(k.ozet.birim) + '/m²  (±' + yuzde(k.ozet.bant) + ')');
             if (k.ozet.toplam) satir_ekle_basit(d, 'Tahmini toplam', tl(k.ozet.toplam));
         }
         if (k.risk) {
