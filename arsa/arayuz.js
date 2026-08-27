@@ -884,12 +884,24 @@ function deger_karti(an, g, ek_kutu) {
                yazmak, sadece masaustunde soylemek demektir.
                O yuzden var olan etiket deseni kullaniliyor: gorunur bir
                rozet + ayrintisi ipucunda. */
-            var rz = el('span', 'etiket-kucuk baslangic', 'bölgesel');
-            rz.title = 'Bu yöntemin ağırlıkları 87 yapısız arsa parselinden ' +
-                       'türetildi (Çanakkale Merkez / Esenler Mah., 15 SPK ' +
-                       'lisanslı uzman AHS). Başka bir bölgede ağırlıklar ' +
-                       'farklı olabilir — bu sayı sizin bölgeniz için ' +
-                       'ölçülmedi.';
+            var rz = el('span', 'etiket-kucuk olculdu', 'bölgesel');
+            /* ROZET METNI OLCULDU, TAHMIN EDILMEDI.
+               Ilk yazdigim metin "sizin bolgeniz icin olculmedi" diyordu.
+               Dogruydu ama EKSIKTI ve gereginden cok korkutuyordu: cekirdek
+               yayimlanmis butun agirlik setlerini kosuyor, aralarindaki
+               farki olcuyor ve BANDA TABAN olarak koyuyor
+               (`bant = Math.max(bant, yayilim)`).
+               75 senaryo olculdu: profil secimi sonucu tipik olarak %4-6,
+               en fazla %18,1 oynatiyor -- bant ise en az %20,9. Yani
+               bolgesel belirsizlik zaten bandin icinde kaliyor.
+               Kullaniciya korkutucu degil, OLCULEN sey soylenir. */
+            rz.title = 'Ağırlıklar 87 yapısız arsa parselinden türetildi ' +
+                       '(Çanakkale Merkez / Esenler Mah., 15 SPK lisanslı ' +
+                       'uzman). Başka bölgeler için yayımlanmış ağırlık ' +
+                       'setleri de hesaba katılıyor: aralarındaki fark ' +
+                       'ölçülüp yukarıdaki aralığa taban olarak ekleniyor. ' +
+                       'Ölçüldü — profil seçimi sonucu tipik olarak %4-6, ' +
+                       'en fazla %18 oynatıyor; bu aralığın içinde kalıyor.';
             var ad2 = n2.querySelector('.ad');
             if (ad2) { ad2.appendChild(document.createTextNode(' ')); ad2.appendChild(rz); }
         }

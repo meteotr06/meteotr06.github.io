@@ -1069,7 +1069,7 @@ function nominal_gecerli_mi(parsel) {
   if (parsel.imar_fonksiyon &&
       NOMINAL_GECERLI.imar_fonksiyon.indexOf(parsel.imar_fonksiyon) === -1) {
     sebep.push('İmar fonksiyonu "' + parsel.imar_fonksiyon + '" modelin ' +
-               'dogrulandigi kentsel kullanimlar dışında.');
+               'doğrulandığı kentsel kullanımlar dışında.');
   }
   var k = sayi(parsel.kaks);
   if (k !== null && (k < NOMINAL_GECERLI.kaks_alt || k > NOMINAL_GECERLI.kaks_ust)) {
