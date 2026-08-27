@@ -172,15 +172,69 @@ function satir(etiket, deger, sinif) {
     return `<div class="sonuc-satir ${sinif || ""}"><span>${etiket}</span><b>${deger}</b></div>`;
 }
 
+// SAYI OLARAK OKUNAMAYAN ALANI GÖRÜNÜR YAP.
+//
+// Ölçüldü (27.08.2026, canlı sayfada): kredi hesaplamada faiz alanına
+// "abc" yazıldığında ekranda **"Toplam faiz 0,00 ₺"** ve %0'lık bir kredi
+// çıkıyordu — hiçbir uyarı olmadan. Sebep: `oku()` çözemediği değer için
+// 0 döner, sayfalar da `if (!tutar || tutar <= 0)` diye yalnız BAZI
+// alanları denetler. Faiz gibi alanlarda **0 meşru bir değerdir**
+// (0 faizli kampanya kredisi vardır), o yüzden "0 geldi" ile "kullanıcı
+// anlaşılmayan bir şey yazdı" ayırt edilemiyordu.
+//
+// `sayiGecersizMi()` tam bunun için yazılmıştı ama 47 sayfanın HİÇBİRİ
+// çağırmıyordu. Tek tek 47 sayfaya eklemek yerine ortak bağlayıcıya
+// koyuldu: her sayfa zaten `dinle()`den geçiyor.
+//
+// Yalnız SAYISAL alanlara bakılır. İşaret: `inputmode` (185 metin
+// alanının 176'sında var; olmayanlar ders adı gibi gerçek metin
+// alanları). Tarih, saat, onay kutusu ve açılır liste dışarıda kalır.
+//
+// Hesabı DURDURMUYORUZ — sayfa akışını değiştirmek 47 sayfayı birden
+// etkilerdi. Yapılan: sessiz yanlışı görünür yanlışa çevirmek.
+function girdileriDenetle(idler) {
+    idler.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.tagName !== "INPUT") return;
+        const im = el.getAttribute("inputmode");
+        if (!im) return;                       // sayısal alan değil
+        const bozuk = typeof sayiGecersizMi === "function" &&
+                      sayiGecersizMi(el.value, el.dataset ? el.dataset.tur : undefined);
+        el.classList.toggle("girdi-bozuk", !!bozuk);
+        const kap = el.parentNode;
+        if (!kap) return;
+        // Uyari ALANA bagli aranir, kapsayiciya degil.
+        // Kendi sinamam yakaladi: ":scope > .girdi-uyari" ile ararken, ayni
+        // kapsayiciyi paylasan GECERLI bir alan, bozuk alanin uyarisini
+        // siliyordu (else dalindaki `not.remove()`). Canli sayfalarda her
+        // girdi kendi sarmalindaydi, o yuzden gorunmuyordu -- ama sayfa
+        // duzeni degistiginde sessizce kaybolurdu.
+        let not = kap.querySelector('.girdi-uyari[data-icin="' + el.id + '"]');
+        if (bozuk) {
+            if (!not) {
+                not = document.createElement("div");
+                not.className = "girdi-uyari";
+                not.setAttribute("role", "alert");
+                not.setAttribute("data-icin", el.id);
+                kap.insertBefore(not, el.nextSibling);
+            }
+            not.textContent = "Bu alan sayı olarak okunamadı — hesap 0 kabul ediyor.";
+        } else if (not) {
+            not.remove();
+        }
+    });
+}
+
 // Girdi kutularını dinle: her değişiklikte hesapla
 function dinle(idler, isle) {
+    const sarmal = () => { girdileriDenetle(idler); isle(); };
     idler.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        el.addEventListener("input", isle);
-        el.addEventListener("change", isle);
+        el.addEventListener("input", sarmal);
+        el.addEventListener("change", sarmal);
     });
-    isle();
+    sarmal();
 }
 
 // NEDEN type="number" KULLANMIYORUZ (ölçüldü, 26 Ağustos 2026):

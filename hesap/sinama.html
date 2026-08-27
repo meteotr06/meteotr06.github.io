@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Hesap Araçları — sınama</title>
+<style>
+  body{margin:0;background:#12151a;color:#e9edf2;font:14px/1.6 system-ui;padding:18px}
+  h1{font-size:19px;margin:0 0 4px} h2{font-size:14px;margin:20px 0 6px;color:#9fb0c4}
+  p.alt{color:#8fa0b4;margin:0 0 16px;font-size:13px}
+  .s{padding:5px 10px;border-radius:6px;margin:2px 0;background:#1b2029}
+  .ok{border-left:3px solid #35c08a} .yok{border-left:3px solid #e5484d;background:#2b1a1c}
+  #ozet{padding:12px;border-radius:8px;margin:14px 0;font-weight:600}
+  .gecti{background:#14301f;color:#7fe0b0} .kaldi{background:#301618;color:#ff9ea1}
+  code{color:#c8d3e0}
+</style>
+</head>
+<body>
+<h1>Hesap Araçları — çekirdek sınaması</h1>
+<p class="alt">Her madde <b>yaşanmış</b> bir hataya dayanır. Bu proje
+<b>yayında</b> ve <b>para hesaplıyor</b>; hiçbir maddeyi "artık gerek yok"
+diye silme — sebebi yanında yazılı.</p>
+<div id="ozet">yükleniyor…</div>
+<div id="liste"></div>
+
+<script>
+/* Önbellek eski kodu vermesin. 27.08.2026'da üç kez yaşandı: sayfa
+   `?v=40` servis ederken diskte `?v=41` duruyordu; servis çalışanı
+   `cache:"no-store"` isteğini bile eskisiyle karşıladı.
+   "Sınama geçti" ile "düzeltilmiş kod sınandı" AYRI iddialardır. */
+var T = Date.now();
+document.write('<scr' + 'ipt src="hesap.js?t=' + T + '"><\/scr' + 'ipt>');
+document.write('<scr' + 'ipt src="sayfa.js?t=' + T + '"><\/scr' + 'ipt>');
+</script>
+
+<script>
+window.addEventListener("load", async function () {
+  var sonuclar = [], hata = 0;
+  function bas(ad) { sonuclar.push({ bolum: ad }); }
+  function ol(ad, kosul, ayrinti) {
+    if (!kosul) hata++;
+    sonuclar.push({ ad: ad, gecti: !!kosul, ayrinti: ayrinti || "" });
+  }
+  function yakin(a, b, tol) { return Math.abs(a - b) < (tol === undefined ? 0.01 : tol); }
+
+  /* ══ A · SAYI-SINAMA.md zorunlu küme ═══════════════════════════════
+     Yayındaki net maaş sayfasında 170 alan `type="number"` idi:
+     "33.030,00" yazıldı, tarayıcı virgülü attı, 33,03 TL okundu ve
+     sonuç -4.921,47 ₺ çıktı. Çökme yok, uyarı yok — sadece yanlış. */
+  bas("A · Sayı yazımı sınavı (SAYI-SINAMA.md)");
+  [["1500", 1500], ["1500.50", 1500.5], ["1500,50", 1500.5], ["1.500", 1500],
+   ["1.500,50", 1500.5], ["1,500.50", 1500.5], ["1 500", 1500], [" 1500 ", 1500],
+   ["0,30", 0.30], ["90,5", 90.5], ["1.234.567,89", 1234567.89], [",5", 0.5],
+   ["1.", 1], ["-500", -500], ["+5", 5], ["0", 0], ["1500 TL", 1500]
+  ].forEach(function (t) {
+    var c = sayiCozumle(t[0]);
+    ol("okunuyor: " + JSON.stringify(t[0]) + " → " + t[1],
+       c.gecerli && yakin(c.deger, t[1], 0.0001),
+       c.gecerli ? String(c.deger) : "geçersiz");
+  });
+  /* Bunlar sayı DEĞİL. `parseFloat` hepsini sessizce kabul ederdi;
+     en tehlikelisi `nan`: NaN ile yapılan her karşılaştırma false döner,
+     yani konulan sınır hiç uygulanmaz. */
+  ["1,2,3", "1.500.5", "abc", "12abc", "nan", "NaN", "1e3", "1_000", "Infinity", "inf"
+  ].forEach(function (y) {
+    var c = sayiCozumle(y);
+    ol("reddediliyor: " + JSON.stringify(y), !c.gecerli, c.gecerli ? String(c.deger) : "");
+  });
+  ["", "   "].forEach(function (y) {
+    ol("boş sayılıyor (geçersiz DEĞİL): " + JSON.stringify(y), sayiCozumle(y).bos);
+  });
+  ol("`0` geçerli bir sayı (null değil)",
+     sayiCozumle("0").gecerli && sayiCozumle("0").deger === 0);
+
+  /* ══ B · Oran alanı ════════════════════════════════════════════════
+     Faiz/oran alanında nokta HER ZAMAN ondalıktır: "3.29" faizi 3,29'dur,
+     3290 değil. Göz Molası'nda "nokta hep binliktir" kuralı yüzünden
+     "1,500.50" 1,5005 okunmuştu — 1000 kat, sessiz. */
+  bas("B · Oran alanı (data-tur=\"oran\")");
+  [["0,30", 0.30], ["1.500", 1.5], ["1,500", 1.5], ["3.29", 3.29]].forEach(function (t) {
+    var c = sayiCozumle(t[0], "oran");
+    ol("oran " + JSON.stringify(t[0]) + " → " + t[1],
+       c.gecerli && yakin(c.deger, t[1], 0.0001), c.gecerli ? String(c.deger) : "geçersiz");
+  });
+  ol("oran alanında binlik gruplama yok: \"1.234.567\"",
+     !sayiCozumle("1.234.567", "oran").gecerli);
+
+  /* ══ C · Bozuk satır sessizce düşmesin (27.08.2026) ════════════════
+     `d.kredi > 0` süzgeci, kredi NaN olduğunda HER ZAMAN false döner.
+     Kullanıcı 3 ders girip 2 dersin ortalamasını görüyordu: 75 yerine 85,
+     hiçbir uyarı olmadan. */
+  bas("C · Not ortalaması — bozuk ders sessizce düşmesin");
+  var no = notOrtalamasi([
+    { ad: "Türkçe", not: 70, kredi: 4 },
+    { ad: "Matematik", not: 100, kredi: NaN },
+    { ad: "Fen", not: 80, kredi: 2 }
+  ]);
+  ol("bozuk ders hesaba KATILMIYOR", no.dersSayisi === 2, "dersSayisi=" + no.dersSayisi);
+  ol("bozuk ders SAYILIYOR", no.atlananSayisi === 1, "atlanan=" + no.atlananSayisi);
+  ol("atlanan dersin ADI bildiriliyor",
+     JSON.stringify(no.atlananlar || []).indexOf("Matematik") >= 0,
+     JSON.stringify(no.atlananlar));
+  ol("ortalama yalnız geçerli derslerden",
+     yakin(no.ortalama, (70 * 4 + 80 * 2) / 6), String(no.ortalama));
+  ol("sağlam listede atlanan yok",
+     notOrtalamasi([{ ad: "A", not: 70, kredi: 4 }, { ad: "B", not: 80, kredi: 2 }]).atlananSayisi === 0);
+
+  /* ══ D · Para değişmezleri — bağımsız aritmetik ════════════════════
+     Ekrandaki sayı kendi parçalarıyla tutmalı. "Aynı değer için iki
+     farklı sayı" sınıfı bu projede kıdem tazminatında yaşandı. */
+  bas("D · Para değişmezleri");
+  var p = netMaasPlani(75000, 1), a1 = p.aylar[0];
+  ol("net maaş: brüt − kesintiler = net",
+     yakin(a1.brut - (a1.sgkIsci + a1.issizlik + a1.gelirVergisi + a1.damga), a1.net),
+     "fark=" + (a1.brut - (a1.sgkIsci + a1.issizlik + a1.gelirVergisi + a1.damga) - a1.net).toFixed(4));
+  ol("net maaş: yıllık net = 12 ayın toplamı",
+     yakin(p.yillikNet, p.aylar.reduce(function (s, x) { return s + x.net; }, 0)));
+  ol("net maaş 12 ay üretiyor", p.aylar.length === 12, "ay=" + p.aylar.length);
+
+  var k = krediHesapla(100000, 3.5, 12, true);
+  ol("kredi: taksit × vade = toplam ödeme", yakin(k.taksit * 12, k.toplamOdeme, 0.05));
+  ol("kredi: toplam ödeme − anapara = toplam faiz",
+     yakin(k.toplamOdeme - 100000, k.toplamFaiz, 0.05));
+  ol("kredi: ödeme planı vade kadar satır", !!(k.plan && k.plan.length === 12));
+
+  var m = mevduatHesapla(100000, 45, 32, 15, false, 1);
+  ol("mevduat: brüt faiz − stopaj = net faiz", yakin(m.brutFaiz - m.stopaj, m.netFaiz));
+  ol("mevduat: anapara + net faiz = vade sonu", yakin(100000 + m.netFaiz, m.vadeSonu));
+
+  var kt = kidemTazminati(50000, "2020-01-01", "2026-01-01");
+  ol("kıdem: brüt − damga = net", yakin(kt.brut - kt.damga, kt.net));
+  ol("kıdem: ters tarihte sayı ÜRETİLMİYOR",
+     kidemTazminati(50000, "2026-01-01", "2020-01-01") === null);
+
+  /* ══ E · Bozuk girdide uydurma sayı yok ════════════════════════════
+     Ölçüldü: bu işlevler `null` DÖNMÜYOR, nesneyi döndürüp içindeki
+     sayıları `null` yapıyorlar. Aranan şey "null döndü mü" değil,
+     "sonlu bir sayı UYDURULDU mu". İlk yazdığımda yanlış iddia
+     etmiştim; sınama kendi hatamı yakaladı. */
+  bas("E · Bozuk girdi — sonlu sayı uydurulmuyor");
+  function uydurmaYok(v) { return v === null || v === undefined || !Number.isFinite(v); }
+  ol("netMaasPlani(NaN) net üretmiyor", uydurmaYok(netMaasPlani(NaN, 1).aylar[0].net),
+     String(netMaasPlani(NaN, 1).aylar[0].net));
+  ol("netMaasPlani(\"abc\") net üretmiyor", uydurmaYok(netMaasPlani("abc", 1).aylar[0].net));
+  ol("krediHesapla faiz NaN ise taksit üretmiyor",
+     uydurmaYok(krediHesapla(100000, NaN, 12, true).taksit));
+  ol("kidemTazminati(NaN) net üretmiyor",
+     uydurmaYok(kidemTazminati(NaN, "2020-01-01", "2026-01-01").net));
+
+  /* ══ E2 · Saat/süre okuma (SAYI-SINAMA.md · B bölümü) ══════════════
+     `parseInt(p[0], 10) || 0` hatayı gizliyordu: "abc:def" → 0 dakika,
+     "10 pm" → 0 dakika, "12:75" → 795 dakika, "25:00" → 1500 dakika.
+     Ayrıca `sureTopla` okunamayan satırı SESSİZCE düşürüyordu — aynı
+     dosyadaki `notOrtalamasi` hatasının ikizi. */
+  bas("E2 · Saat ve süre okuma");
+  [["21:00", 21 * 60], ["9:05", 9 * 60 + 5], ["00:00", 0], ["23:59", 23 * 60 + 59],
+   ["7,5", 450], ["30:00", 30 * 60]
+  ].forEach(function (t) {
+    ol("süre okunuyor: " + JSON.stringify(t[0]) + " → " + t[1] + " dk",
+       dakikayaCevir(t[0]) === t[1], String(dakikayaCevir(t[0])));
+  });
+  ["abc:def", "10 pm", "12:75", "1:2:3", "abc"].forEach(function (y) {
+    ol("reddediliyor: " + JSON.stringify(y), dakikayaCevir(y) === null,
+       String(dakikayaCevir(y)));
+  });
+  ol("günün saati olarak \"25:00\" geçersiz", dakikayaCevir("25:00", true) === null);
+  ol("süre olarak \"25:00\" geçerli (25 saat çalışılmış olabilir)",
+     dakikayaCevir("25:00") === 25 * 60);
+  ol("saatFarki bozuk saatte sayı üretmiyor", saatFarki("25:00", "30:00", 0) === null);
+  ol("saatFarki sağlam saatte çalışıyor",
+     (saatFarki("09:00", "17:30", 30) || {}).toplamDakika === 8 * 60);
+
+  var st = sureTopla(["2:30", "abc", "1:15", ""]);
+  ol("süre toplamı yalnız geçerli satırlardan", st.toplamDakika === 225,
+     String(st.toplamDakika));
+  ol("okunamayan satır SAYILIYOR", st.atlananSayisi === 1, "atlanan=" + st.atlananSayisi);
+  ol("okunamayan satırın kendisi bildiriliyor",
+     (st.atlananlar || []).indexOf("abc") >= 0, JSON.stringify(st.atlananlar));
+  ol("boş satır atlanan sayılmıyor", sureTopla(["2:30", ""]).atlananSayisi === 0);
+
+  /* ══ F · Sayı olmayan girdi EKRANDA görünüyor mu (27.08.2026) ══════
+     Ölçüldü: kredi sayfasında faiz alanına "abc" yazılınca ekranda
+     "Toplam faiz 0,00 ₺" ve %0'lık bir kredi çıkıyordu, uyarı yoktu.
+     0 meşru bir faizdir (0 faizli kampanya kredisi vardır), o yüzden
+     "0 geldi" ile "anlaşılmadı" ayırt edilemiyordu. `sayiGecersizMi`
+     tam bunun için yazılmıştı ama 47 sayfanın hiçbiri çağırmıyordu. */
+  bas("F · Sayı olmayan girdi görünür oluyor mu");
+  ol("sayiGecersizMi: \"abc\" geçersiz", sayiGecersizMi("abc"));
+  ol("sayiGecersizMi: boş kutu geçersiz DEĞİL", !sayiGecersizMi(""));
+  ol("sayiGecersizMi: \"0\" geçersiz DEĞİL", !sayiGecersizMi("0"));
+  ol("ortak denetim işlevi var", typeof girdileriDenetle === "function");
+  ol("dinle() denetimi çağırıyor",
+     typeof dinle === "function" && /girdileriDenetle/.test(dinle.toString()));
+
+  var kap = document.createElement("div");
+  kap.style.display = "none";
+  kap.innerHTML =
+    '<input id="_sBozuk" type="text" inputmode="decimal" value="abc">' +
+    '<input id="_sSaglam" type="text" inputmode="decimal" value="1.500,50">' +
+    '<input id="_sTarih" type="date" value="2026-01-01">' +
+    '<input id="_sMetin" type="text" value="Matematik">';
+  document.body.appendChild(kap);
+  girdileriDenetle(["_sBozuk", "_sSaglam", "_sTarih", "_sMetin"]);
+  ol("bozuk alan işaretleniyor",
+     document.getElementById("_sBozuk").classList.contains("girdi-bozuk"));
+  ol("bozuk alanın yanına uyarı yazılıyor", !!kap.querySelector(".girdi-uyari"));
+  ol("geçerli alan işaretlenMİyor",
+     !document.getElementById("_sSaglam").classList.contains("girdi-bozuk"));
+  ol("tarih alanı yanlış alarm vermiyor",
+     !document.getElementById("_sTarih").classList.contains("girdi-bozuk"));
+  ol("düz metin alanı (ders adı) yanlış alarm vermiyor",
+     !document.getElementById("_sMetin").classList.contains("girdi-bozuk"));
+  document.getElementById("_sBozuk").value = "1500";
+  girdileriDenetle(["_sBozuk"]);
+  ol("düzeltilince uyarı kalkıyor",
+     !document.getElementById("_sBozuk").classList.contains("girdi-bozuk") &&
+     !kap.querySelector(".girdi-uyari"));
+  kap.remove();
+
+  /* ══ G · Gizli `type="number"` — SAYFAYI AÇARAK say ════════════════
+     27.08.2026, Kur Pusulası: HTML'deki 21 alan düzeltilmişti ama
+     `arayuz.js` içinde ŞABLONLA üretilen 9 kutu `type="number"` kalmıştı
+     — biri fon fiyatı, yani para alanı. Projenin kendi sınaması bunu
+     KAÇIRDI, çünkü dosyaya bakıyordu, açık sayfaya değil.
+     Dosya taraması aday üretir, KANIT üretmez. Burada her sayfa gerçekten
+     açılıyor, "ekle" düğmelerine basılıyor ve canlı DOM sayılıyor. */
+  bas("G · Gizli type=\"number\" — sayfa açılarak sayılıyor");
+  var sayfalar = ["net-maas-hesaplama.html", "kredi-hesaplama.html",
+                  "mevduat-faizi-hesaplama.html", "kidem-tazminati-hesaplama.html",
+                  "not-ortalamasi-hesaplama.html", "butce-hesaplama.html",
+                  "birikim-hesaplama.html", "issizlik-maasi-hesaplama.html"];
+  for (const ad of sayfalar) {
+    var cerceve = document.createElement("iframe");
+    cerceve.style.display = "none";
+    cerceve.src = ad + "?t=" + T;
+    document.body.appendChild(cerceve);
+    await new Promise(function (c) { cerceve.onload = c; setTimeout(c, 3000); });
+    try {
+      var d = cerceve.contentDocument;
+      // Dinamik satır ekleyen düğmelere bas ki şablon kutuları da doğsun.
+      Array.from(d.querySelectorAll("button")).slice(0, 8).forEach(function (b) {
+        if (/ekle|\+/i.test(b.textContent)) { try { b.click(); } catch (e) { } }
+      });
+      await new Promise(function (c) { setTimeout(c, 250); });
+      var n = d.querySelectorAll('input[type=number]').length;
+      var toplam = d.querySelectorAll("input").length;
+      ol(ad + " → canlı type=\"number\" yok", n === 0,
+         n ? (n + " adet gizli kutu") : (toplam + " girdi tarandı"));
+    } catch (e) {
+      ol(ad + " açılamadı", false, String(e));
+    }
+    cerceve.remove();
+  }
+
+  /* ══ H · `|| 0` kalıbı — hatayı gizleyen kurtarma ══════════════════
+     `parseFloat(x) || 0`: "12,5" yazanın faizi sessizce %0 olur.
+     `|| 0` sayıyı kurtarmaz, hatayı gizler. Bu proje `oku()` üzerinden
+     `sayiCozumle`ye gidiyor; kalıp geri sızarsa burada yakalanır. */
+  bas("H · Hatayı gizleyen `|| 0` kalıbı geri gelmiş mi");
+  for (const dosya of ["hesap.js", "sayfa.js"]) {
+    try {
+      const c = await fetch(dosya + "?t=" + T);
+      const metin = await c.text();
+      const kod = metin.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^[ \t]*\/\/.*$/gm, "");
+      const bulgu = kod.match(/(parseFloat|Number|parseInt)\s*\([^)]*\)\s*\|\|\s*0/g) || [];
+      ol(dosya + " → `|| 0` kurtarması yok", bulgu.length === 0,
+         bulgu.length ? bulgu.join(" · ") : "");
+      // `type="number"` yalnız HTML'de değil, ŞABLONDA da aranır:
+      // Kur Pusulası'nda `arayuz.js` içinde 9 gizli kutu böyle kaçmıştı.
+      const sablon = (kod.match(/type\s*=\s*\\?["']number\\?["']/g) || []).length;
+      ol(dosya + " → şablonda type=\"number\" yok", sablon === 0,
+         sablon ? (sablon + " adet") : "");
+    } catch (e) { ol(dosya + " okunamadı", false, String(e)); }
+  }
+
+  /* ══ Sonuç ════════════════════════════════════════════════════════ */
+  document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
+    if (s.bolum) return "<h2>" + s.bolum + "</h2>";
+    return '<div class="s ' + (s.gecti ? "ok" : "yok") + '">' + (s.gecti ? "✓ " : "✗ ") +
+           s.ad + (s.ayrinti ? ' <code>' + s.ayrinti + "</code>" : "") + "</div>";
+  }).join("");
+  var adet = sonuclar.filter(function (s) { return !s.bolum; }).length;
+  var o = document.getElementById("ozet");
+  o.className = hata ? "kaldi" : "gecti";
+  o.textContent = hata ? hata + " SINAMA KALDI (" + adet + " toplam)"
+                       : "TAMAM — " + adet + " sınamanın hepsi geçti";
+  window.__sinama = { toplam: adet, hata: hata, sonuclar: sonuclar };
+});
+</script>
+</body>
+</html>

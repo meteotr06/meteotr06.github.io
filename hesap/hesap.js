@@ -1362,15 +1362,32 @@ function istatistik(dizi) {
 // ---------- 31) SAAT VE SÜRE HESABI ----------
 // Bordroda en çok karıştırılan şey: 7 saat 30 dakika = 7,5 saat (7,30 değil).
 
-function dakikayaCevir(metin) {
-    const s = String(metin || "").trim();
+// `saatKipi` true ise deger GUNUN SAATIdir (0-23). false/atlanirsa SUREdir
+// ve 30:00 gibi 24'u asan degerler mesrudur (30 saat calisilmis olabilir).
+//
+// ONCEDEN `parseInt(p[0], 10) || 0` yaziyordu ve HATAYI GIZLIYORDU:
+//     "abc:def" -> 0 dakika        (sessiz)
+//     "10 pm"   -> sayiOku 0 -> 0  (sessiz)
+//     "12:75"   -> 795 dakika      (dakika 59'u asamaz)
+//     "25:00"   -> 1500 dakika     (gunun saati olarak gecersiz)
+// `|| 0` sayiyi kurtarmaz, hatayi gizler. SAYI-SINAMA.md B bolumu bu dort
+// satiri acikca null istiyor. Cozumleyici duzgun olsa bile bicime
+// bakmayan bir okuma onu bosa cikarir.
+function dakikayaCevir(metin, saatKipi) {
+    const s = String(metin === null || metin === undefined ? "" : metin).trim();
     if (s === "") return null;
     const p = s.split(":");
     if (p.length === 2) {
-        const sa = parseInt(p[0], 10) || 0, dk = parseInt(p[1], 10) || 0;
+        if (!/^-?\d{1,3}$/.test(p[0]) || !/^\d{1,2}$/.test(p[1])) return null;
+        const sa = parseInt(p[0], 10), dk = parseInt(p[1], 10);
+        if (dk > 59) return null;                            // "12:75"
+        if (saatKipi && (sa < 0 || sa > 23)) return null;     // "25:00"
         return sa * 60 + (s.charAt(0) === "-" ? -dk : dk);
     }
-    return Math.round(sayiOku(s) * 60);   // "7,5" yazıldıysa saat kabul edilir
+    if (p.length !== 1) return null;                          // "1:2:3"
+    const d = sayiCozumle(s);
+    if (!d.gecerli) return null;          // "10 pm" sessizce 0 olmasin
+    return Math.round(d.deger * 60);      // "7,5" yazildiysa saat kabul edilir
 }
 
 function dakikayiSaate(toplamDk) {
@@ -1390,7 +1407,8 @@ function dakikayiSaate(toplamDk) {
 }
 
 function saatFarki(baslangic, bitis, molaDk) {
-    const b = dakikayaCevir(baslangic), s = dakikayaCevir(bitis);
+    // Gunun saati: 25:00 kabul edilmemeli.
+    const b = dakikayaCevir(baslangic, true), s = dakikayaCevir(bitis, true);
     if (b === null || s === null) return null;
     let fark = s - b;
     const gecelik = fark < 0;
@@ -1403,13 +1421,21 @@ function saatFarki(baslangic, bitis, molaDk) {
 }
 
 function sureTopla(satirlar) {
-    let toplam = 0; const gecerli = [];
+    let toplam = 0; const gecerli = [], atlananlar = [];
     satirlar.forEach(x => {
+        const ham = String(x === null || x === undefined ? "" : x).trim();
+        if (ham === "") return;                 // bos satir: kullanici yazmamis
         const d = dakikayaCevir(x);
-        if (d !== null && d !== 0) { toplam += d; gecerli.push(d); }
+        // OKUNAMAYAN SATIRI SESSIZCE DUSURME. Ayni hata bu dosyada
+        // `notOrtalamasi`da yasandi: kullanici 3 satir girip 2 satirin
+        // toplamini goruyordu, hicbir uyari olmadan.
+        if (d === null) { atlananlar.push(ham); return; }
+        if (d === 0) return;                    // gercekten sifir sure
+        toplam += d; gecerli.push(d);
     });
     const c = dakikayiSaate(toplam);
     c.adet = gecerli.length; c.satirlar = gecerli;
+    c.atlananlar = atlananlar; c.atlananSayisi = atlananlar.length;
     c.ortalamaDakika = gecerli.length ? toplam / gecerli.length : 0;
     return c;
 }

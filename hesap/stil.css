@@ -947,3 +947,21 @@ td.hayir { color: var(--azalis); font-weight: 600; white-space: nowrap; }
 /* Kutu başlıkları anlamsal olarak h2 (h1'den h3'e atlamamak için) ama
    görsel olarak bölüm başlıklarından küçük dursunlar. */
 .kutu-baslik { font-size: 17px; margin: 0 0 12px; font-weight: 600; }
+
+
+/* Sayı olarak okunamayan girdi — sessiz yanlışı görünür yapar.
+   Bkz. sayfa.js / girdileriDenetle (27.08.2026 ölçümü). */
+.girdi-bozuk {
+    border-color: #d93025 !important;
+    background: #fff5f4;
+}
+.girdi-uyari {
+    color: #b3261e;
+    font-size: .85rem;
+    line-height: 1.35;
+    margin: .3rem 0 0;
+}
+@media (prefers-color-scheme: dark) {
+    .girdi-bozuk { background: #2a1614; }
+    .girdi-uyari { color: #ff9a90; }
+}
