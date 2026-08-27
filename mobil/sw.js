@@ -7,7 +7,7 @@
 /* DIKKAT: index.html / yerler.js degistiginde bu SURUM NUMARASINI artirin.
    Yoksa telefona kurmus kullanicilar eski surumu gormeye devam eder
    (onbellekten servis edilir). Numara degisince eski onbellek silinir. */
-const ONBELLEK = "hava-durumu-20260826-1558";
+const ONBELLEK = "hava-durumu-20260827-0730";
 const DOSYALAR = [
   "index.html",
   "yerler.js",
@@ -59,12 +59,26 @@ self.addEventListener("fetch", olay => {
     return;
   }
 
-  // Diger dosyalar (js/css/png): once onbellek (hizli), yoksa agdan al + sakla
+  // Diger dosyalar (js/css/png): onbellekten VER ama arkada YENILE.
+  //
+  // NEDEN DEGISTI (26.08.2026, capraz denetim): Burasi saf onbellek-onceydi
+  // ve arkadan tazeleme yoktu. Sonuc: bir duzeltme yapilsa bile kullanici
+  // ESKI kodu calistirmaya devam ediyor. Yayinda en sinsi hata turu budur —
+  // duzeltirsin, sinamalar gecer, kullanici hala hatali surumde.
+  //
+  // Dosyanin basindaki "SURUM NUMARASINI artirin" notu bunu insan
+  // disiplinine birakiyordu. O disiplin tutmuyor: kardes projede ayni tuzaga
+  // UC KEZ dusuldu ve ancak otomatik denetimle (damga_denetle.py) cozuldu.
+  //
+  // Simdi en fazla BIR acilis eski kaliyor, sonraki acilista kendini duzeltiyor.
   olay.respondWith(
-    caches.match(istek).then(c => c || fetch(istek).then(cevap => {
-      const kopya = cevap.clone();
-      caches.open(ONBELLEK).then(o => o.put(istek, kopya));
-      return cevap;
-    }))
+    caches.match(istek).then(c => {
+      const agdan = fetch(istek).then(cevap => {
+        const kopya = cevap.clone();
+        caches.open(ONBELLEK).then(o => o.put(istek, kopya)).catch(() => {});
+        return cevap;
+      }).catch(() => c);        // ag yoksa onbellektek is gorur
+      return c || agdan;
+    })
   );
 });

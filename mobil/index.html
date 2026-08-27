@@ -404,6 +404,20 @@ const POLEN = { grass_pollen:"Çim", birch_pollen:"Huş ağacı", olive_pollen:"
                 alder_pollen:"Kızılağaç", mugwort_pollen:"Pelin otu", ragweed_pollen:"Kanarya otu" };
 
 /* ---- veri çekme ---- */
+/* EKSIK VERIYI SIFIR GIBI GOSTERME.
+   Math.round(null) === 0. Yani API bir alani null dondurdugunde ekranda
+   "0" yaziyordu -- ve bu degerlerin cogunda 0 GECERLI, hatta guven verici
+   bir sayi: "UV 0" korunmaya gerek yok demek, "AQI 0" hava mukemmel demek,
+   kis gunu "0°C" gayet inandirici. Kullanici veri gelmedigini anlamiyor,
+   yanlis bir sayi okuyor. (Gorus mesafesi satirinda yazar bu tuzagi zaten
+   gormus ve `!= null` yazmis; ayni koruma diger 12 alanda yoktu.)
+   Sayi cozulemezse "—" doner: yanlis cevap vermektense cevap vermemek. */
+function sy(x, once, sonra){
+  const s = Number(x);
+  if (x === null || x === undefined || x === "" || !Number.isFinite(s)) return "—";
+  return (once || "") + Math.round(s) + (sonra || "");
+}
+
 async function havaAl(enlem, boylam){
   const p = new URLSearchParams({
     latitude:enlem, longitude:boylam,
@@ -462,11 +476,31 @@ async function modelKarsilastir(enlem, boylam){
 function grafikCiz(saatler){
   const G=320, Y=110, sol=26, sag=8, ust=14, alt=18;
   const gw=G-sol-sag, gh=Y-ust-alt;
-  const t = saatler.map(s => s.sicaklik);
+
+  /* SAYIYA GUVENME, OLC.
+     Olculdu (26.08.2026, capraz denetim): API eksik veri dondugunde bu
+     fonksiyon SVG'ye NaN koordinat yaziyordu. Cokme yok, hata mesaji yok —
+     grafik sessizce bos ciziliyordu.
+         tek saatlik veri   -> t.length-1 = 0  -> x = NaN
+         sicaklik alani yok -> Math.min/max    -> tmin = tmax = NaN
+         bos dizi           -> Infinity / -Infinity
+     `typeof NaN === "number"` oldugu icin tip kontrolu bunu YAKALAMAZ;
+     Number.isFinite sart.
+     KURAL: NaN koordinat uretilecekse grafigi HIC CIZME. Yanlis cizmektense
+     "veri yetersiz" demek dogrusu. */
+  const t = saatler.map(s => s.sicaklik).filter(Number.isFinite);
+  if (t.length < 2) {
+    return `<div class="hata" style="font-size:12px;padding:8px 0">` +
+           `Saatlik sıcaklık verisi yetersiz, grafik çizilemedi.</div>`;
+  }
+  /* Filtreleme sonrasi dizi kisalmis olabilir; cizim ayni uzunlukta
+     kalsin diye saatleri de ayni olcute gore suzuyoruz. */
+  saatler = saatler.filter(s => Number.isFinite(s.sicaklik));
+
   const tmin=Math.min(...t), tmax=Math.max(...t)===tmin ? tmin+1 : Math.max(...t);
   const nokta = (i,v) => [sol+gw*i/(t.length-1), ust+gh*(1-(v-tmin)/(tmax-tmin))];
   const cubuklar = saatler.map((s,i) => {
-    const p = s.olasilik||0; if(!p) return "";
+    const p = Number.isFinite(s.olasilik) ? s.olasilik : 0; if(!p) return "";
     const [x] = nokta(i,t[i]); const h = gh*p/100;
     return `<rect x="${x-3}" y="${ust+gh-h}" width="6" height="${h}" fill="var(--yagis)" opacity="0.35"/>`;
   }).join("");
@@ -496,7 +530,7 @@ function goster(yer, v, hk, modeller){
   if (bas < 0) bas = 0;
   const saatler = [];
   for (let i=bas; i<Math.min(bas+24, v.hourly.time.length); i++)
-    saatler.push({ saat:v.hourly.time[i].slice(11,16), sicaklik:Math.round(v.hourly.temperature_2m[i]),
+    saatler.push({ saat:v.hourly.time[i].slice(11,16), sicaklik:v.hourly.temperature_2m[i],
       nem:v.hourly.relative_humidity_2m[i], yagis:v.hourly.precipitation[i]||0,
       olasilik:v.hourly.precipitation_probability[i]||0, kod:v.hourly.weather_code[i], ilk:i===bas });
 
@@ -504,8 +538,8 @@ function goster(yer, v, hk, modeller){
     <div class="saat-kart ${s.ilk?'simdi-kart':''}">
       <div class="s">${s.ilk?"Şimdi":s.saat}</div>
       ${ikon(kodCoz(s.kod)[1],34)}
-      <div class="d">${s.sicaklik}°</div>
-      <div class="v" style="color:var(--nem)">%${s.nem}</div>
+      <div class="d">${sy(s.sicaklik,"","°")}</div>
+      <div class="v" style="color:var(--nem)">${sy(s.nem,"%","")}</div>
       <div class="v" style="color:var(--ruzgar)">${s.yagis.toFixed(1)} mm</div>
     </div>`).join("");
 
@@ -514,7 +548,7 @@ function goster(yer, v, hk, modeller){
     return `<div class="gun">${ikon(kodCoz(v.daily.weather_code[i])[1],30)}
       <span class="ad">${gunAdi(t,i)}</span>
       <span class="ols">${ols?("%"+ols):""}</span>
-      <span class="dd">${Math.round(v.daily.temperature_2m_max[i])}° <i>${Math.round(v.daily.temperature_2m_min[i])}°</i></span>
+      <span class="dd">${sy(v.daily.temperature_2m_max[i],"","°")} <i>${sy(v.daily.temperature_2m_min[i],"","°")}</i></span>
     </div>`; }).join("");
 
   /* yağmur ne zaman başlıyor (15 dk çözünürlük, önümüzdeki 2 saat) */
@@ -536,9 +570,9 @@ function goster(yer, v, hk, modeller){
     aqiHTML = `<div class="kart">
       <h2 style="margin:0 0 4px">Hava Kalitesi</h2>
       <div class="aqi-satir">
-        <span class="aqi-sayi" style="color:${renk}">${Math.round(hk.aqi)}</span>
+        <span class="aqi-sayi" style="color:${renk}">${sy(hk.aqi)}</span>
         <div><b style="color:${renk};font-size:15px">${ad}</b>
-          <div class="aqi-alt">PM2.5 ${Math.round(hk.pm25)} · PM10 ${Math.round(hk.pm10)} · Polen: ${hk.polen}</div>
+          <div class="aqi-alt">PM2.5 ${sy(hk.pm25)} · PM10 ${sy(hk.pm10)} · Polen: ${hk.polen}</div>
         </div>
       </div></div>`;
   }
@@ -552,22 +586,22 @@ function goster(yer, v, hk, modeller){
       <div class="simdi">
         ${ikon(kat,86)}
         <div>
-          <div class="derece">${Math.round(g.temperature_2m)}°C</div>
+          <div class="derece">${sy(g.temperature_2m,"","°C")}</div>
           <div class="durum">${acik}</div>
-          <div class="hissedilen">Hissedilen ${Math.round(g.apparent_temperature)}°C</div>
+          <div class="hissedilen">Hissedilen ${sy(g.apparent_temperature,"","°C")}</div>
         </div>
       </div>
       <div class="gunes-satir">
         <span>↑ ${v.daily.sunrise[0].slice(11,16)}</span>
         <span>↓ ${v.daily.sunset[0].slice(11,16)}</span>
-        <span>UV ${Math.round(g.uv_index)}</span>
+        <span>UV ${sy(g.uv_index)}</span>
       </div>
       ${yagmurUyari}
     </div>
 
     <div class="uclu">
       <div class="mini"><b>NEM</b><span style="color:var(--nem)">%${g.relative_humidity_2m}</span></div>
-      <div class="mini"><b>RÜZGÂR</b><span style="color:var(--ruzgar)">${Math.round(g.wind_speed_10m)}<small style="font-size:10px"> km/s ${ruzgarYonu(g.wind_direction_10m)}</small></span></div>
+      <div class="mini"><b>RÜZGÂR</b><span style="color:var(--ruzgar)">${sy(g.wind_speed_10m)}<small style="font-size:10px"> km/s ${ruzgarYonu(g.wind_direction_10m)}</small></span></div>
       <div class="mini"><b>YAĞIŞ</b><span style="color:var(--yagis)">${(g.precipitation||0).toFixed(1)}<small style="font-size:10px"> mm</small></span></div>
     </div>
 
@@ -583,10 +617,10 @@ function goster(yer, v, hk, modeller){
     <div class="kart">
       <h2 style="margin:0">Detaylar</h2>
       <div class="detay">
-        <div><b>BASINÇ</b><span>${Math.round(g.surface_pressure)} hPa</span></div>
+        <div><b>BASINÇ</b><span>${sy(g.surface_pressure,""," hPa")}</span></div>
         <div><b>GÖRÜŞ</b><span>${km}</span></div>
-        <div><b>ÇİY NOKTASI</b><span>${Math.round(g.dew_point_2m)}°</span></div>
-        <div><b>HAMLE</b><span>${Math.round(g.wind_gusts_10m)} km/s</span></div>
+        <div><b>ÇİY NOKTASI</b><span>${sy(g.dew_point_2m,"","°")}</span></div>
+        <div><b>HAMLE</b><span>${sy(g.wind_gusts_10m,""," km/s")}</span></div>
         <div><b>BULUT</b><span>%${g.cloud_cover}</span></div>
         <div><b>AY EVRESİ</b><span class="kucuk">${ayEvresi(g.time)}</span></div>
       </div>
@@ -710,11 +744,12 @@ async function haritaSicakliklari(){
     sicaklikKatman = L.layerGroup();
     veri.forEach((s,i) => {
       const y = gorunen[i]; if (!y || !s.current) return;
-      const t = Math.round(s.current.temperature_2m);
+      // Harita etiketinde de eksik veri "0°" olmasin.
+      const t = sy(s.current.temperature_2m);
       const kat = kodCoz(s.current.weather_code)[1];
       const im = L.divIcon({
         className: "sic-etiket",
-        html: `<div class="sic-ic"><span class="sic-ust">${ikon(kat,18)}<b>${t}°</b></span>`
+        html: `<div class="sic-ic"><span class="sic-ust">${ikon(kat,18)}<b>${t==="—"?t:t+"°"}</b></span>`
             + `<span class="ad">${y.ad}</span></div>`
       });
       L.marker([y.e, y.b], {icon:im, keyboard:false}).addTo(sicaklikKatman);
