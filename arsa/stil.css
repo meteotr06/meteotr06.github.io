@@ -1,0 +1,548 @@
+/* ================= ARSA REHBERİ — STİL =================
+   Tasarım yönü: 07 Kur Pusulası ile aynı aile.
+   - Açık zemin, kurumsal mavi, gölge yok
+   - Kutu içinde kutu yok; bölümler ince ayraç çizgileriyle ayrılır
+   - Rakamlar iri ve hizalı (tabular), yazılar sakin
+   - Renkler ASLA doğrudan yazılmaz, hepsi değişkenden gelir
+   Ek olarak bu uygulamaya özel: risk seviyeleri için üç renk
+   (kritik / uyarı / bilgi) ve "belirsizlik bandı" görselleştirmesi.
+   ======================================================== */
+
+:root {
+    --zemin: #f5f6f8;
+    --zemin2: #ffffff;
+    --kart: #ffffff;
+    --kart-ust: #f2f4f7;
+    --cizgi: #e3e6eb;
+    --yazi: #0f172a;
+    --yazi2: #6b7382;
+    --vurgu: #1c5fd6;
+    --vurgu2: #123f96;
+    --iyi: #067647;
+    --kritik: #b42318;
+    --uyari: #b54708;
+    --kritik-zemin: #fef3f2;
+    --uyari-zemin: #fffaeb;
+    --iyi-zemin: #ecfdf3;
+    --yuvarlak: 12px;
+}
+
+html[data-tema="koyu"] {
+    --zemin: #0c0e13;
+    --zemin2: #12151c;
+    --kart: #12151c;
+    --kart-ust: #1a1e27;
+    --cizgi: #242935;
+    --yazi: #eef1f6;
+    --yazi2: #939cab;
+    --vurgu: #6b9bff;
+    --vurgu2: #a5c2ff;
+    --iyi: #34c77b;
+    --kritik: #f4685c;
+    --uyari: #e3a008;
+    --kritik-zemin: #2a1512;
+    --uyari-zemin: #2a2110;
+    --iyi-zemin: #0f2419;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--zemin);
+    color: var(--yazi);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    padding-bottom: calc(74px + env(safe-area-inset-bottom));
+}
+
+/* Rakamlar her yerde aynı genişlikte olsun; tablo gibi hizalansın */
+.deger, .bant b, .kapsam-ust b, .sayi, .ozet-deger, .puan {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+}
+
+/* ---------- Üst bar ---------- */
+.ust {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 16px; background: var(--zemin2);
+    border-bottom: 1px solid var(--cizgi);
+    position: sticky; top: 0; z-index: 20;
+}
+.ust-sol { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ust h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
+.ust h1 span { color: var(--vurgu); font-weight: 600; }
+.ust-sag { display: flex; gap: 6px; flex-shrink: 0; }
+
+.rozet {
+    font-size: 12px; padding: 3px 8px; border-radius: 999px;
+    border: 1px solid var(--cizgi); color: var(--yazi2); white-space: nowrap;
+}
+.rozet.iyi  { color: var(--iyi);   border-color: var(--iyi); }
+.rozet.orta { color: var(--uyari); border-color: var(--uyari); }
+.rozet.bekle{ color: var(--yazi2); }
+
+/* ---------- Düğmeler ---------- */
+button { font-family: inherit; font-size: 15px; cursor: pointer; }
+
+.ikincil {
+    /* OLCULDU (320 px genislikte): 40x40 idi, dokunma hedefi sinirinin
+       (44 px) ALTINDA kaliyordu. Parmakla isabet ettirmek zorlasiyor.
+       Kaynak: SINAMA-LISTESI E bolumu. */
+    min-width: 44px; min-height: 44px;
+    padding: 8px 12px; border-radius: 10px;
+    background: var(--kart); color: var(--yazi);
+    border: 1px solid var(--cizgi);
+}
+.ikincil:hover { border-color: var(--vurgu); color: var(--vurgu); }
+
+.birincil {
+    width: 100%; min-height: 48px; padding: 13px 18px;
+    border: none; border-radius: var(--yuvarlak);
+    background: var(--vurgu); color: #fff; font-weight: 600;
+    margin-top: 6px;
+}
+.birincil:hover { background: var(--vurgu2); }
+.birincil.buyuk { min-height: 54px; font-size: 17px; margin-top: 18px; }
+
+/* ---------- Gezinti ---------- */
+.sekmeler {
+    display: flex; gap: 4px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: var(--zemin2); border-top: 1px solid var(--cizgi);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+}
+.sekme {
+    flex: 1; min-height: 48px; padding: 8px 4px;
+    background: none; border: none; border-radius: 10px;
+    color: var(--yazi2); font-size: 13px; font-weight: 600;
+}
+.sekme.aktif { background: var(--kart-ust); color: var(--vurgu); }
+
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+.sayfa { display: none; }
+.sayfa.aktif { display: block; }
+
+.giris { color: var(--yazi2); font-size: 14px; margin: 0 0 16px; }
+.giris b { color: var(--yazi); }
+
+/* ---------- Bilgi kapsamı göstergesi ----------
+   Kullanıcı ne kadar bilgi verdiğini GÖRMELİ. Kesinlik taklidine
+   karşı en basit ve en dürüst araç bu. */
+.kapsam-kutu {
+    background: var(--kart); border: 1px solid var(--cizgi);
+    border-radius: var(--yuvarlak); padding: 12px 14px; margin-bottom: 16px;
+}
+.kapsam-ust {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 13px; color: var(--yazi2); margin-bottom: 8px;
+}
+.kapsam-ust b { font-size: 18px; color: var(--yazi); }
+.kapsam-cubuk {
+    height: 6px; background: var(--kart-ust); border-radius: 999px; overflow: hidden;
+}
+.kapsam-cubuk i {
+    display: block; height: 100%; background: var(--vurgu);
+    border-radius: 999px; transition: width .25s ease;
+}
+.kapsam-not { font-size: 12px; color: var(--yazi2); margin: 8px 0 0; }
+
+/* ---------- Katlanır bölümler ---------- */
+.bolum {
+    background: var(--kart); border: 1px solid var(--cizgi);
+    border-radius: var(--yuvarlak); margin-bottom: 12px; overflow: hidden;
+}
+.bolum-baslik {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; min-height: 52px;
+    background: none; border: none; color: var(--yazi);
+    font-size: 15px; font-weight: 600; text-align: left;
+}
+.bolum-ok { color: var(--yazi2); transition: transform .2s ease; }
+.bolum.acik .bolum-ok { transform: rotate(180deg); }
+.bolum-govde { display: none; padding: 0 16px 16px; border-top: 1px solid var(--cizgi); }
+.bolum.acik .bolum-govde { display: block; }
+
+.alt-baslik {
+    font-size: 13px; font-weight: 600; color: var(--yazi2);
+    margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .4px;
+}
+
+/* ---------- Form ---------- */
+.alan { display: block; margin-top: 14px; }
+.etiket {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; margin-bottom: 6px;
+}
+.etiket i { font-style: normal; font-weight: 400; color: var(--yazi2); }
+
+input[type="number"], input[type="text"], select {
+    width: 100%; min-height: 46px; padding: 10px 12px;
+    font-family: inherit; font-size: 16px;      /* 16px: iOS yakınlaştırmasın */
+    background: var(--zemin2); color: var(--yazi);
+    border: 1px solid var(--cizgi); border-radius: 10px;
+}
+input:focus, select:focus { outline: 2px solid var(--vurgu); outline-offset: -1px; }
+
+.ikili { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.onay {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; min-height: 44px; font-size: 15px; cursor: pointer;
+}
+.onay input { width: 20px; height: 20px; margin-top: 2px; flex-shrink: 0; accent-color: var(--vurgu); }
+
+.onay-izgara { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.mesafe-izgara { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+
+.alt-not { font-size: 13px; color: var(--yazi2); margin: 8px 0 0; }
+.alt-not b { color: var(--yazi); }
+.alt-not.vurgulu {
+    background: var(--uyari-zemin); border-left: 3px solid var(--uyari);
+    padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0;
+}
+
+.yardim {
+    width: 20px; height: 20px; padding: 0; border-radius: 999px;
+    background: var(--kart-ust); border: 1px solid var(--cizgi);
+    color: var(--yazi2); font-size: 12px; line-height: 1;
+}
+
+/* ---------- Hukuki vasıf sonucu ---------- */
+.vasif-kutu {
+    margin-top: 14px; padding: 14px; border-radius: 10px;
+    border: 1px solid var(--cizgi); background: var(--kart-ust);
+}
+.vasif-kutu.arsa   { background: var(--iyi-zemin);    border-color: var(--iyi); }
+.vasif-kutu.uyari  { background: var(--uyari-zemin);  border-color: var(--uyari); }
+.vasif-kutu.arazi  { background: var(--kritik-zemin); border-color: var(--kritik); }
+.vasif-sonuc { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+.vasif-kutu.arsa  .vasif-sonuc { color: var(--iyi); }
+.vasif-kutu.uyari .vasif-sonuc { color: var(--uyari); }
+.vasif-kutu.arazi .vasif-sonuc { color: var(--kritik); }
+.vasif-gerekce { font-size: 14px; margin: 0; }
+
+/* ---------- Rapor kartları ---------- */
+.kart-blok {
+    background: var(--kart); border: 1px solid var(--cizgi);
+    border-radius: var(--yuvarlak); padding: 16px; margin-bottom: 12px;
+}
+.kart-blok h2 {
+    margin: 0 0 12px; font-size: 15px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .4px; color: var(--yazi2);
+}
+
+/* Belirsizlik bandı: tek rakam yerine ARALIK gösterilir. */
+.bant { text-align: center; padding: 8px 0 4px; }
+.bant .orta { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+.bant .aralik { font-size: 14px; color: var(--yazi2); margin-top: 4px; }
+.bant .aralik b { color: var(--yazi); font-weight: 600; }
+.bant-cizgi {
+    position: relative; height: 6px; margin: 14px 4px 6px;
+    background: var(--kart-ust); border-radius: 999px;
+}
+.bant-cizgi i {
+    position: absolute; top: 0; height: 100%;
+    background: var(--vurgu); opacity: .35; border-radius: 999px;
+}
+.bant-cizgi u {
+    position: absolute; top: -3px; width: 2px; height: 12px;
+    background: var(--vurgu); border-radius: 2px;
+}
+
+.satir {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 10px 0; border-top: 1px solid var(--cizgi); font-size: 14px;
+}
+.satir:first-child { border-top: none; }
+.satir .ad { color: var(--yazi2); }
+.satir .deger { font-weight: 600; text-align: right; }
+.satir .deger.artis { color: var(--iyi); }
+.satir .deger.azalis { color: var(--kritik); }
+
+.etiket-kucuk {
+    display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 4px;
+    background: var(--kart-ust); color: var(--yazi2); margin-left: 6px;
+    vertical-align: middle;
+}
+.etiket-kucuk.tahmin { background: var(--uyari-zemin); color: var(--uyari); }
+
+/* ---------- Risk bulguları ---------- */
+.bulgu {
+    border-left: 3px solid var(--cizgi); padding: 12px 14px;
+    border-radius: 0 8px 8px 0; margin-bottom: 10px; background: var(--kart-ust);
+}
+.bulgu.kritik { border-color: var(--kritik); background: var(--kritik-zemin); }
+.bulgu.uyari  { border-color: var(--uyari);  background: var(--uyari-zemin); }
+.bulgu-baslik { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+.bulgu.kritik .bulgu-baslik { color: var(--kritik); }
+.bulgu.uyari  .bulgu-baslik { color: var(--uyari); }
+.bulgu p { margin: 4px 0 0; font-size: 14px; }
+.bulgu .yapilacak {
+    margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--cizgi);
+    font-size: 13px;
+}
+.bulgu .yapilacak b { display: block; margin-bottom: 2px; color: var(--yazi2); }
+
+.risk-ozet { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.risk-say {
+    flex: 1; min-width: 90px; text-align: center; padding: 10px;
+    border-radius: 10px; background: var(--kart-ust); border: 1px solid var(--cizgi);
+}
+.risk-say b { display: block; font-size: 24px; font-weight: 700; }
+.risk-say span { font-size: 12px; color: var(--yazi2); }
+.risk-say.kritik b { color: var(--kritik); }
+.risk-say.uyari  b { color: var(--uyari); }
+
+/* ---------- Boş durum ---------- */
+.bos-durum {
+    text-align: center; padding: 48px 20px; color: var(--yazi2);
+    border: 1px dashed var(--cizgi); border-radius: var(--yuvarlak);
+}
+.bos-durum p { margin: 0 0 6px; }
+
+/* ---------- Defter ---------- */
+.defter-kart {
+    background: var(--kart); border: 1px solid var(--cizgi);
+    border-radius: var(--yuvarlak); padding: 14px; margin-top: 12px;
+}
+.defter-ust { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.defter-ad { font-weight: 700; font-size: 16px; margin: 0; }
+.defter-tarih { font-size: 12px; color: var(--yazi2); }
+.defter-sil {
+    background: none; border: none; color: var(--yazi2);
+    font-size: 20px; line-height: 1; padding: 4px 8px; min-height: 44px;
+}
+.defter-sil:hover { color: var(--kritik); }
+.defter-satir { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; }
+.defter-satir .ad { color: var(--yazi2); }
+
+/* ---------- Yardım katmanı ---------- */
+.katman {
+    position: fixed; inset: 0; z-index: 40;
+    background: rgba(0,0,0,.45);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+/* TUZAK: yazdığımız `display: flex`, tarayıcının [hidden] için koyduğu
+   `display: none` kuralını EZİYOR. Yani hidden özniteliği işe yaramıyor ve
+   pencere hep açık kalıyordu. Ekran görüntüsü almasak fark etmeyecektik —
+   metin testleri bunu görmüyor. Aşağıdaki satır şart. */
+.katman[hidden] { display: none; }
+.katman-kutu {
+    background: var(--kart); border-radius: var(--yuvarlak);
+    padding: 20px; max-width: 480px; width: 100%; max-height: 80vh; overflow-y: auto;
+}
+.katman-kutu h3 { margin: 0 0 10px; font-size: 17px; }
+.katman-kutu p { font-size: 14px; margin: 0 0 10px; }
+.katman-kutu .ikincil { width: 100%; margin-top: 10px; }
+
+/* ---------- Hukuk notu ve dip ---------- */
+.hukuk-notu {
+    font-size: 13px; color: var(--yazi2); padding: 14px;
+    border: 1px solid var(--cizgi); border-radius: var(--yuvarlak);
+    background: var(--kart-ust);
+}
+.hukuk-notu b { color: var(--yazi); }
+
+.kaynak-liste { font-size: 12px; color: var(--yazi2); margin-top: 10px; }
+.kaynak-liste li { margin-bottom: 4px; }
+
+.dip {
+    max-width: 760px; margin: 24px auto 0; padding: 16px;
+    border-top: 1px solid var(--cizgi); color: var(--yazi2); font-size: 13px;
+}
+.dip p { margin: 0 0 6px; }
+.dip b { color: var(--yazi); }
+.dip .kucuk { font-size: 12px; }
+/* Dip bagalantisi olculdugunde 84x16 idi — parmak hedefi olarak cok kucuk.
+   Satir ici bagalantiyi kutu yapip dikey bosluk vererek 44 px'e cikariyoruz. */
+.dip a {
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding: 0 2px;
+}
+
+/* ---------- Geniş ekran ---------- */
+@media (min-width: 720px) {
+    body { padding-bottom: 0; }
+    .sekmeler {
+        position: static; border-top: none; justify-content: center;
+        padding: 12px 8px; background: transparent;
+    }
+    .sekme { flex: 0 0 auto; min-width: 110px; }
+    .onay-izgara { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- Bayat rapor uyarısı ----------
+   Rapor bir kez hesaplanıp bırakılıyor; kullanıcı sonradan formu değiştirirse
+   ekrandaki sayılar artık onun parseline ait değil. Sayıları silmek yerine
+   "bunlar eski" diye işaretliyoruz — kullanıcı neye baktığını bilsin. */
+.bayat-serit {
+    background: var(--uyari-zemin); border: 1px solid var(--uyari);
+    border-radius: var(--yuvarlak); padding: 12px 14px; margin-bottom: 12px;
+    font-size: 14px; color: var(--uyari);
+}
+.bayat-serit b { color: var(--uyari); }
+#raporIcerik.bayat, #imarIcerik.bayat { opacity: .45; }
+
+/* ---- Kritik engel bandı (değerin ÜSTÜNDE) ----
+   Ölçüldü 27.08.2026: kritik bulgular sayının 600 px altında kalıyordu.
+   Uyarı, yalanladığı sayının üstünde durmalı. */
+.engel-bandi {
+    border: 2px solid var(--tehlike, #c0392b);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--tehlike, #c0392b) 8%, transparent);
+    padding: 12px 14px;
+    margin: 0 0 14px;
+}
+.engel-baslik {
+    margin: 0 0 6px;
+    font-weight: 700;
+    color: var(--tehlike, #c0392b);
+}
+.engel-baslik::before { content: "⚠ "; }
+.engel-liste {
+    margin: 0 0 8px;
+    padding-left: 20px;
+}
+.engel-liste li { margin: 2px 0; font-weight: 600; }
+.engel-not {
+    margin: 0;
+    font-size: .9em;
+    line-height: 1.45;
+    opacity: .9;
+}
+
+/* Güven seviyeleri — üçü de ayrı görünür.
+   Etiketsiz satır okuyan için "kesin" demektir; ölçülmüş bir sayıyla
+   bizim başlangıç tahminimizi aynı göstermek güveni şişirir. */
+.etiket-kucuk.mevzuat  { background: var(--vurgu-zemin, #e8f0fe); color: var(--vurgu, #1a56c4); }
+.etiket-kucuk.olculdu  { background: var(--iyi-zemin, #e6f4ea);  color: var(--iyi, #1e7e34); }
+.etiket-kucuk.kalibre  { background: var(--notr-zemin, #eceff1); color: var(--notr, #4a5568); }
+
+/* ---- Aralığı daraltan sorular ----
+   Geniş bir bant gören kullanıcının ilk sorusu "ne yapmalıyım";
+   cevabı değerin hemen altında duruyor. */
+.daraltan {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border: 1px solid var(--cizgi);
+    border-radius: 10px;
+    background: var(--kart-zemin, transparent);
+}
+.daraltan-baslik { margin: 0 0 4px; font-size: 15px; }
+.daraltan-not    { margin: 0 0 10px; font-size: .92em; opacity: .9; line-height: 1.5; }
+.daraltan-liste  { margin: 0; padding-left: 20px; }
+.daraltan-liste li { margin: 0 0 12px; }
+.daraltan-ust    { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.daraltan-ad     { font-weight: 700; }
+.daraltan-etki {
+    font-size: .8em; font-weight: 600;
+    padding: 1px 7px; border-radius: 999px;
+    background: var(--uyari-zemin); color: var(--uyari);
+}
+.daraltan-soru   { margin: 3px 0 6px; font-size: .92em; opacity: .92; line-height: 1.45; }
+.daraltan-git {
+    font: inherit; font-size: .88em; cursor: pointer;
+    padding: 7px 14px; min-height: 44px;
+    border: 1px solid var(--vurgu); border-radius: 8px;
+    background: transparent; color: var(--vurgu);
+}
+.daraltan-git:hover { background: var(--vurgu); color: #fff; }
+.daraltan-alt { margin: 4px 0 0; font-size: .85em; opacity: .75; }
+
+/* Cevaplanacak alan kısaca vurgulanır — "nereye baktım" belli olsun */
+.alan-vurgu {
+    outline: 3px solid var(--vurgu);
+    outline-offset: 2px;
+    transition: outline-color .3s;
+}
+
+/* Boş durumdaki örnek teklifi — çıkmaz sokağı eyleme çevirir */
+.kapsam-ornek {
+    display: block; width: 100%; margin: 10px 0 0;
+    font: inherit; font-size: .92em; cursor: pointer;
+    padding: 11px 14px; min-height: 44px;
+    border: 1px solid var(--vurgu); border-radius: 8px;
+    background: transparent; color: var(--vurgu);
+}
+.kapsam-ornek:hover { background: var(--vurgu); color: #fff; }
+
+/* ---- Raporu dışarı çıkarma ---- */
+.rapor-eylem {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin: 18px 0 6px;
+}
+.rapor-eylem button {
+    font: inherit; font-size: .92em; cursor: pointer;
+    padding: 11px 16px; min-height: 44px;
+    border: 1px solid var(--vurgu); border-radius: 8px;
+    background: transparent; color: var(--vurgu);
+}
+.rapor-eylem button:hover { background: var(--vurgu); color: #fff; }
+.kopya-durum { font-size: .88em; opacity: .85; }
+.yazdir-basligi { display: none; }
+
+/* ═══════════════ YAZDIRMA ═══════════════
+   Ölçüldü (27.08.2026): yazdırma düzeni HİÇ yoktu — kâğıda sekmeler,
+   form ve düğmeler de basılıyordu.
+
+   Kâğıtta da EKRANDAKİ SIRA korunur: kritik engeller sayının üstünde,
+   güven etiketleri satırların yanında, hukuki ibare en altta. Ekranda
+   düzeltip kâğıtta bozmak, aynı hatayı ikinci kez yapmak olurdu. */
+@media print {
+    @page { margin: 14mm; }
+
+    /* Koyu tema kâğıda basılmaz: mürekkep yer, okunmaz. */
+    :root, body {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    /* Yalnız rapor basılır. */
+    header, nav, .sekmeler, footer,
+    #sParsel, #sImar, #sDefter,
+    .rapor-eylem, .bayat-serit, .daraltan-git,
+    #temaBtn, #sifirlaBtn, #ornekBtn, #kapsamOrnekBtn, .kapsam-kutu,
+    /* Yardım penceresi açıkken yazdırılırsa raporun üstüne biner.
+       Açıklama bir yol göstericidir, raporun parçası değil. */
+    #yardimKatman, .yardim {
+        display: none !important;
+    }
+    #sRapor { display: block !important; }
+
+    .yazdir-basligi {
+        display: flex; justify-content: space-between; align-items: baseline;
+        border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 12px;
+        font-size: 12pt;
+    }
+
+    /* Kutu sayfa ortasından bölünmesin — yarım kalan bir uyarı,
+       hiç olmayan bir uyarıdan kötüdür. */
+    .kart-blok, .engel-bandi, .daraltan, .bulgu, .vasif-kutu {
+        break-inside: avoid; page-break-inside: avoid;
+    }
+
+    /* Zeminler kâğıtta çerçeveye döner. */
+    .engel-bandi {
+        background: #fff !important;
+        border: 2px solid #000 !important;
+    }
+    .engel-baslik { color: #000 !important; }
+    .etiket-kucuk {
+        background: #fff !important; color: #000 !important;
+        border: 1px solid #666;
+    }
+    .kart-blok, .daraltan { border-color: #999 !important; background: #fff !important; }
+    .bant-cizgi i { background: #666 !important; }
+
+    /* Bağlantılar kâğıtta hedefini göstersin. */
+    a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; }
+
+    .hukuk-notu {
+        border-top: 1px solid #000; padding-top: 8px; margin-top: 14px;
+        font-size: 9pt;
+    }
+}
