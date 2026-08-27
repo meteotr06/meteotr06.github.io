@@ -547,6 +547,57 @@ function paraGirisi(idler) {
     });
 }
 
+// ---------- REKLAM YUKLEYICI: ERTELENMIS ----------
+//
+// OLCUM (27 Agustos 2026, canli sayfada):
+//     show_ads_impl_fy2021.js   166 KB
+//     sodar + zrt_lookup         18 KB   -> reklam toplam ~184 KB
+//     hesap.js + sayfa.js + css  57 KB   -> butun uygulamamiz
+// Reklam makinesi uygulamanin UC KATI. Ustelik AdSense onayi gelmedigi ve
+// data-ad-slot olmadigi icin su an hicbir reklam DOLMUYOR: kullanici
+// karsiligi sifir olan 184 KB indiriyor. Telefonda mobil veriyle giren
+// icin bu gercek bir zarar -- hem veri hem bekleme.
+//
+// COZUM: betigi silmiyoruz (onay sureci icin sayfada bulunmali), sadece
+// SAYFA ACILDIKTAN SONRA yukluyoruz. Kullanici cevabini once goruyor.
+// Sahiplik dogrulamasi <meta name="google-adsense-account"> ile yapilir;
+// o her sayfada duruyor, bu erteleme onu etkilemez.
+//
+// ONAY GELINCE: asagidaki ERTELE'yi false yap. Reklam basta yuklenir.
+// (O gun ayrica reklam biriminin data-ad-slot'u eklenmeli, bkz. reklamAlani.)
+function reklamYukleyiciyiErtele() {
+    const ERTELE = true;                       // onay gelince false
+    const ADRES = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                + "?client=ca-pub-4471538043632173";
+
+    let yuklendi = false;
+    const yukle = () => {
+        if (yuklendi) return;
+        yuklendi = true;
+        const b = document.createElement("script");
+        b.async = true;
+        b.src = ADRES;
+        b.crossOrigin = "anonymous";
+        document.head.appendChild(b);
+    };
+
+    if (!ERTELE) { yukle(); return; }
+
+    // Iki yol: kullanici sayfayla ilgilenirse hemen, ilgilenmezse bosta.
+    // Ikincisi Googlebot icin de gecerli -- oturup beklemesi gerekmez.
+    ["pointerdown", "keydown", "touchstart", "scroll"].forEach(o =>
+        addEventListener(o, yukle, { once: true, passive: true }));
+
+    const bosta = () => {
+        if (typeof requestIdleCallback === "function") requestIdleCallback(yukle, { timeout: 4000 });
+        else setTimeout(yukle, 2500);
+    };
+    if (document.readyState === "complete") bosta();
+    else addEventListener("load", bosta, { once: true });
+}
+
+reklamYukleyiciyiErtele();
+
 // ---------- REKLAM ALANI ----------
 // KURAL: Reklam, hesap sonucunun YANINA ya da ARASINA konmaz.
 // Kullanıcı cevabını aldıktan sonra, açıklama bölümünden önce gelir.

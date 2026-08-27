@@ -9,13 +9,23 @@
 //   3) Sayfa yerine geçen yedek yalnızca "navigate" isteğine döner.
 //      (Eskiden .js isteğine index.html dönüyordu ve site komple çöküyordu.)
 
-const SURUM = "hesap-v41";
+const SURUM = "hesap-v42";
+
+// DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
+// Sebep (27 Agustos 2026, olculdu): SURUM "hesap-v42"e cikarilmis ama bu
+// listedeki adresler "?v=40" kalmisti. Sayfalar "?v=42" istiyor, on-bellege
+// alinan ise "?v=40" -- FARKLI ANAHTAR. Sonuc: on-bellekleme bosa gidiyor
+// (her kurulumda ~176 KB bosuna iniyor) ve asil onemlisi, kurulumdan hemen
+// sonra CEVRIMDISI acilista CSS/JS bulunamiyor. Yani cevrimdisi katmani
+// tam da is gormesi gereken anda calismiyordu.
+// Artik ikisi ayri yerden yazilamaz; damga tek kaynaktan gelir.
+const DAMGA = "v=" + SURUM.replace(/^\D*v/, "");
 const CEKIRDEK = [
     "./",
     "./index.html",
-    "./stil.css?v=40",
-    "./hesap.js?v=40",
-    "./sayfa.js?v=40",
+    "./stil.css?" + DAMGA,
+    "./hesap.js?" + DAMGA,
+    "./sayfa.js?" + DAMGA,
     "./simge.svg",
     "./ikon-192.png",
     "./manifest.json"
