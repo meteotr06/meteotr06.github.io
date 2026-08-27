@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Doğum İzni Hesaplama 2026 — 24 Hafta (Yeni Düzenleme)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/dogum-izni-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -47,7 +47,7 @@
                     </select>
                 </label>
                 <label>Doğuma kaç hafta kalana kadar çalışacaksınız?
-                    <input id="calisma" type="number" inputmode="numeric" min="2" max="10" placeholder="boş = hiç çalışmayacağım" />
+                    <input id="calisma" type="text" inputmode="decimal" min="2" max="10" placeholder="boş = hiç çalışmayacağım" />
                 </label>
             </div>
             <p class="kucuk">Son kutu <b>isteğe bağlı</b>. Doktor onayı alırsanız doğuma <b>2 hafta</b>
@@ -104,8 +104,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("dogum-izni-hesaplama.html");
 gizlilikBaglantisi();
@@ -123,8 +123,13 @@ const ALANLAR = ["dogum", "cogul", "calisma"];
 function hesapla() {
     const tarih = document.getElementById("dogum").value;
     const cogul = document.getElementById("cogul").value === "1";
-    const calismaHam = document.getElementById("calisma").value;
-    const calisma = calismaHam === "" ? null : Number(calismaHam);
+    // Number() KULLANMIYORUZ: "2,5" yazan kullanicida NaN donuyor ve ekranda
+    // "NaN hafta" yaziyordu. Ortak cozumleyici Turkce bicimi de okur.
+    const calismaHam = document.getElementById("calisma").value.trim();
+    // Icinde hic rakam yoksa ("abc") bos kabul et. sayiOku bu durumda 0 doner,
+    // 0 ise "2 haftaya kadar calisacagim" gibi gecerli bir cevaba kirpilir --
+    // yani sacma yazi sessizce cevabi degistirirdi.
+    const calisma = /\d/.test(calismaHam) ? sayiOku(calismaHam) : null;
 
     const i = dogumIzni(tarih, cogul, calisma);
     if (!i) {

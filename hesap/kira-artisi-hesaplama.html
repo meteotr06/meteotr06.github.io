@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Kira Artışı Hesaplama — Yasal Üst Sınır (TÜFE Ortalaması)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kira-artisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -44,13 +44,13 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Şu anki aylık kira (TL)
-                    <input id="kira" type="number" step="any" inputmode="decimal" value="20000" />
+                    <input id="kira" type="text" inputmode="decimal" value="20000" />
                 </label>
                 <label>12 aylık TÜFE ortalaması (%)
-                    <input id="tufe" type="number" step="0.01" inputmode="decimal" value="42.5" />
+                    <input data-tur="oran" id="tufe" type="text" inputmode="decimal" value="42.5" />
                 </label>
                 <label>Ev sahibinin istediği zam (%)
-                    <input id="istenen" type="number" step="0.01" inputmode="decimal" placeholder="boş = yasal sınır" />
+                    <input data-tur="oran" id="istenen" type="text" inputmode="decimal" placeholder="boş = yasal sınır" />
                 </label>
             </div>
             <p class="kucuk">Güncel oranı <a href="https://data.tuik.gov.tr" target="_blank" rel="noopener">TÜİK</a>
@@ -88,8 +88,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("kira-artisi-hesaplama.html");
 gizlilikBaglantisi();

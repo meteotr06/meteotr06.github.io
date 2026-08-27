@@ -1,17 +1,43 @@
-/* Muhasebe mobil - servis calisani (cevrimdisi calisma).
-   Onbellek surumu HER YAYINDA artmali (surum_artir.py otomatik yapar) ki
-   kullanici eski surumde kalmasin. */
-const SURUM = "muhasebe-v5";
+/* Muhasebe mobil — çevrimdışı katmanı.
+
+   ESKİ HÂLİ NEDEN DEĞİŞTİ (26 Ağustos 2026, ölçülerek):
+   Eski sürüm HER İSTEĞİ önce önbellekten veriyordu ("cache-first") ve
+   arkadan tazelemiyordu. Bu uygulamanın tamamı tek bir index.html
+   olduğu için sonucu şuydu: index.html bir kez önbelleğe girdikten sonra,
+   bir hatayı düzeltip yayınlasak bile kullanıcı ESKİ SÜRÜMDE kalıyordu.
+   Yani "düzelttik" dediğimiz şey kullanıcıya hiç ulaşmıyordu.
+
+   Ayrıca üç sessiz tuzağı vardı:
+     1) Dış alan adlarına giden istekleri de yakalıyordu.
+     2) Çevrimdışıyken HER isteğe index.html döndürüyordu — bir .png ya da
+        .json isteğine HTML dönmesi sayfayı komple bozar.
+     3) Ağdan gelen cevapları önbelleğe hiç yazmıyordu; yalnızca kurulumda
+        listelenen 4 dosya vardı, gizlilik.html çevrimdışı hiç açılmıyordu.
+
+   Yeni kurallar (09 Hesap Araçları'nın sınanmış sw.js'i ile aynı):
+     1) Sadece kendi alan adımız, sadece GET.
+     2) Sayfa (HTML) isteğinde ÖNCE AĞ — düzeltme aynı gün ulaşsın.
+     3) Diğer varlıklarda önbellekten ver, ARKADAN tazele.
+     4) Yedek sayfa yalnızca gerçek sayfa (navigate) isteğine döner.
+*/
+
+const SURUM = "muhasebe-v6";
 const DOSYALAR = [
+  "./",
   "index.html",
+  "gizlilik.html",
   "manifest.json",
   "simge-192.png",
-  "simge-512.png"
+  "simge-512.png",
+  "simge-maskeli-512.png"
 ];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(SURUM).then((c) => c.addAll(DOSYALAR)).then(() => self.skipWaiting())
+    caches.open(SURUM)
+      // Tek bir dosya inmezse kurulum komple çökmesin diye tek tek ekliyoruz.
+      .then((c) => Promise.all(DOSYALAR.map((u) => c.add(u).catch(() => null))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -23,10 +49,50 @@ self.addEventListener("activate", (e) => {
   );
 });
 
-// Once onbellek, yoksa ag; ag da yoksa (cevrimdisi) index.html'e dus.
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+  const istek = e.request;
+
+  // KURAL 1: yalnızca kendi alan adımız, yalnızca GET
+  if (istek.method !== "GET") return;
+  let url;
+  try { url = new URL(istek.url); } catch (h) { return; }
+  if (url.origin !== self.location.origin) return;
+
+  const sayfaMi = istek.mode === "navigate" ||
+                  (istek.headers.get("accept") || "").indexOf("text/html") >= 0;
+
+  if (sayfaMi) {
+    // KURAL 2: sayfada önce ağ. Düzeltme yayınlandığı gün görünsün.
+    e.respondWith(
+      fetch(istek)
+        .then((cevap) => {
+          if (cevap && cevap.ok) {
+            const kopya = cevap.clone();
+            caches.open(SURUM).then((c) => c.put(istek, kopya)).catch(() => {});
+          }
+          return cevap;
+        })
+        .catch(() => caches.match(istek).then((bulunan) => {
+          if (bulunan) return bulunan;
+          // KURAL 4: yedek sayfa yalnızca gerçek sayfa isteğine
+          if (istek.mode === "navigate") return caches.match("index.html");
+          return new Response("", { status: 504, statusText: "Baglanti yok" });
+        }))
+    );
+    return;
+  }
+
+  // KURAL 3: görsel / manifest: önce önbellek (hızlı açılsın), arkadan tazele
   e.respondWith(
-    caches.match(e.request).then((r) => r || fetch(e.request).catch(() => caches.match("index.html")))
+    caches.match(istek).then((bulunan) => {
+      const agdan = fetch(istek).then((cevap) => {
+        if (cevap && cevap.ok) {
+          const kopya = cevap.clone();
+          caches.open(SURUM).then((c) => c.put(istek, kopya)).catch(() => {});
+        }
+        return cevap;
+      }).catch(() => bulunan);
+      return bulunan || agdan;
+    })
   );
 });

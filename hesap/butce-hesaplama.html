@@ -28,7 +28,7 @@
 <meta property="og:image:alt" content="Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/butce-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -48,10 +48,10 @@
         <h2 class="kutu-baslik">Gelir</h2>
         <div class="form-izgara">
             <label>Net maaş (TL)
-                <input id="maas" type="number" step="any" inputmode="decimal" value="58000" />
+                <input id="maas" type="text" inputmode="decimal" value="58000" />
             </label>
             <label>Ek gelir (TL)
-                <input id="ekGelir" type="number" step="any" inputmode="decimal" value="0" />
+                <input id="ekGelir" type="text" inputmode="decimal" value="0" />
             </label>
         </div>
         <p class="kucuk">Net maaşınızı bilmiyorsanız
@@ -70,16 +70,16 @@
         <div class="katlanir-ic">
             <div class="form-izgara">
                 <label>Mevduat faizi (%)
-                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="37" />
+                    <input data-tur="oran" id="faiz" type="text" inputmode="decimal" value="37" />
                 </label>
                 <label>Yıllık enflasyon (%)
-                    <input id="enflasyon" type="number" step="0.01" inputmode="decimal" value="34.88" />
+                    <input data-tur="oran" id="enflasyon" type="text" inputmode="decimal" value="34.88" />
                 </label>
                 <label>Kalan kredi borcu (TL)
-                    <input id="kalanBorc" type="number" step="any" inputmode="decimal" value="0" />
+                    <input id="kalanBorc" type="text" inputmode="decimal" value="0" />
                 </label>
                 <label>Kredinin aylık faizi (%)
-                    <input id="krediFaiz" type="number" step="0.01" inputmode="decimal" value="3.29" />
+                    <input data-tur="oran" id="krediFaiz" type="text" inputmode="decimal" value="3.29" />
                 </label>
             </div>
             <div id="oneriler"></div>
@@ -111,8 +111,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("butce-hesaplama.html");
 gizlilikBaglantisi();
@@ -127,7 +127,7 @@ document.getElementById("giderAlani").innerHTML = Object.keys(gruplar).map(g => 
         <div class="katlanir-ic">
             <div class="form-izgara">
                 ${gruplar[g].map(k => `<label>${k.ad}
-                    <input id="g_${k.kod}" type="number" step="any" inputmode="decimal"
+                    <input id="g_${k.kod}" type="text" inputmode="decimal"
                            placeholder="0" data-gider="${k.kod}" />
                 </label>`).join("")}
             </div>

@@ -1,23 +1,204 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Türkiye Hava Durumu</title>
-<!-- Bu sayfa sadece yonlendirir: asil uygulama mobil/ klasorunde.
-     Boylece https://kullanici.github.io/depo/ adresi dogrudan calisir. -->
-<meta http-equiv="refresh" content="0; url=mobil/">
-<link rel="canonical" href="mobil/">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Ücretsiz Türkçe Uygulamalar — Hava Durumu, Hesap Araçları, Kur ve Altın</title>
+<meta name="description" content="Kurulum gerektirmeyen ücretsiz Türkçe uygulamalar: hava durumu, 42 hesaplama aracı, döviz ve altın takibi, haftalık planlayıcı, muhasebe ve göz molası. Kayıt yok, telefonda ve bilgisayarda çalışır." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<link rel="canonical" href="https://meteotr06.github.io/" />
+<link rel="icon" href="/hesap/simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/hesap/ikon-192.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="meteotr06 uygulamaları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Ücretsiz Türkçe Uygulamalar — Hava Durumu, Hesap Araçları, Kur ve Altın" />
+<meta property="og:description" content="Altı ücretsiz uygulama, tek adreste. Kurulum yok, kayıt yok. Telefonda ve bilgisayarda çalışır." />
+<meta property="og:url" content="https://meteotr06.github.io/" />
+<meta property="og:image" content="https://meteotr06.github.io/onizleme.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Hava Durumu, Hesap Araçları, Kur Pusulası, Haftalık Planlayıcı, Muhasebe ve Göz Molası" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/onizleme.png" />
+<link rel="stylesheet" href="/hesap/stil.css?v=40" />
 <style>
-  body { font-family:-apple-system,"Segoe UI",Roboto,sans-serif; background:#0f1620;
-         color:#fff; display:flex; align-items:center; justify-content:center;
-         height:100vh; margin:0; text-align:center; }
-  a { color:#1f8fff; }
+  /* Kok sayfa: hesap sitesinin tasarimini kullaniyoruz ama ust bar yok --
+     burasi bir arac sayfasi degil, uygulamalarin vitrini. */
+  body { padding: 22px 16px 40px; }
+  main { max-width: 900px; margin: 0 auto; }
+  .vitrin-basi { margin-bottom: 22px; }
+  .uyg-kart b { display: block; }
+  /* Rozet once opacity:.75 idi; olctum, karsitlik 2.99 cikti (AA icin 4.5
+     gerekiyor). Saydamlik yerine temanin kendi vurgu rengi kullaniliyor --
+     hem okunuyor hem koyu temada da dogru renge doner. */
+  .uyg-kart .rozet {
+      display: inline-block; margin-top: 7px; font-size: .78rem;
+      color: var(--vurgu); font-weight: 600; letter-spacing: .01em;
+  }
 </style>
 </head>
 <body>
-  <div>
-    <p>Türkiye Hava Durumu açılıyor…</p>
-    <p><a href="mobil/">Açılmazsa buraya dokunun</a></p>
-  </div>
+
+<main>
+    <div class="vitrin-basi">
+        <h1>Ücretsiz Türkçe uygulamalar</h1>
+        <p class="ozet">Altı uygulama, tek adreste. Kurulum yok, üyelik yok, ücretsiz.
+        Telefonda da bilgisayarda da açılır.</p>
+    </div>
+
+    <!-- Kartlar HTML icinde SABIT duruyor, JavaScript ile uretilmiyor:
+         arama motorlari ve JavaScript kapali tarayicilar da gorsun. -->
+    <div class="arac-izgara">
+        <a class="arac-kart uyg-kart" href="/mobil/">
+            <b>Hava Durumu</b>
+            <span>Saatlik ve 7 günlük tahmin, yağış ve rüzgâr</span>
+            <span class="rozet">Türkiye'nin her ilçesi</span>
+        </a>
+        <a class="arac-kart uyg-kart" href="/hesap/">
+            <b>Hesap Araçları</b>
+            <span>Net maaş, kredi taksiti, kira artışı, KDV ve daha fazlası</span>
+            <span class="rozet">42 araç + rehberler</span>
+        </a>
+        <a class="arac-kart uyg-kart" href="/kur-pusulasi/">
+            <b>Kur Pusulası</b>
+            <span>Dolar, euro, altın ve kripto; geçmiş grafikleri ve tahmin</span>
+            <span class="rozet">Günlük güncellenir</span>
+        </a>
+        <a class="arac-kart uyg-kart" href="/planlayici/">
+            <b>Haftalık Planlayıcı</b>
+            <span>Ders ve iş programı, tekrarlayan görevler, kategoriler</span>
+            <span class="rozet">Her hafta sıfırdan</span>
+        </a>
+        <a class="arac-kart uyg-kart" href="/muhasebe/">
+            <b>Muhasebe</b>
+            <span>Gelir, gider, kasa ve cari takibi; raporlar ve bütçe</span>
+            <span class="rozet">Küçük işletme ve esnaf</span>
+        </a>
+        <a class="arac-kart uyg-kart" href="/goz-molasi/">
+            <b>Göz Molası</b>
+            <span>Ekran başında göz yorgunluğuna karşı 20-20-20 hatırlatıcısı</span>
+            <span class="rozet">Bilgisayar ve web</span>
+        </a>
+    </div>
+
+    <h2 class="grup-baslik">Bir hesap mı arıyorsunuz?</h2>
+    <p class="kucuk">Aradığınızı yazın, doğrudan aracına götürelim.</p>
+    <div class="arama-kutu" role="search">
+        <label class="gorsel-gizli" for="aramaGirdi">Araç ara</label>
+        <span class="arama-simge" aria-hidden="true">⌕</span>
+        <input id="aramaGirdi" type="search" autocomplete="off" enterkeyhint="go"
+               placeholder="maaş, kira, kredi, yakıt, kalori…" />
+        <button type="button" id="aramaTemizle" class="arama-temizle" hidden
+                aria-label="Aramayı temizle">×</button>
+    </div>
+    <p id="aramaDurum" class="kucuk arama-durum" aria-live="polite"></p>
+    <div id="aracListesi"></div>
+
+    <section class="anlatim">
+        <h2>Bunlar nedir?</h2>
+        <p>Buradaki uygulamaların hepsi tarayıcıda çalışır. Mağazadan indirme,
+        kurulum ya da üyelik gerekmez; adresi açan herkes doğrudan kullanır.</p>
+        <ul>
+            <li><b>Ana ekrana eklenebilir.</b> Telefonda uygulamayı açıp menüden
+            &laquo;Ana ekrana ekle&raquo; derseniz simgesi ana ekranınıza gelir ve
+            normal bir uygulama gibi açılır.</li>
+            <li><b>İnternetsiz de açılır.</b> Bir kez açtıktan sonra çoğu ekran
+            bağlantı olmadan da çalışır. Hava durumu ve kur gibi güncel veri
+            gerektiren yerler tabii ki bağlantı ister.</li>
+            <li><b>Türkiye'ye göre yapıldı.</b> Resmî oranlar, Türk lirası,
+            Türkçe tarih ve sayı yazımı.</li>
+        </ul>
+
+        <h2>Bilgileriniz nereye gidiyor?</h2>
+        <p>Hiçbir yere. Bu uygulamalarda üyelik yoktur; girdiğiniz maaş, gider,
+        kira gibi bilgiler <b>kendi cihazınızda kalır</b>, bize gönderilmez.
+        Ayrıntılar için uygulamaların gizlilik sayfalarına bakabilirsiniz:
+        <a href="/hesap/gizlilik.html">Hesap Araçları</a>,
+        <a href="/kur-pusulasi/gizlilik.html">Kur Pusulası</a>,
+        <a href="/muhasebe/gizlilik.html">Muhasebe</a>.</p>
+
+        <h2>Ücretsiz mi, ne zamana kadar?</h2>
+        <p>Ücretsiz ve öyle kalacak. Uygulamaların masrafı yok; tek gelir kaynağı
+        bazı sayfalarda görünen reklamlardır. Reklamlar sonucun yanına değil,
+        altına konur — hesabınızı okumanızı engellemez.</p>
+    </section>
+
+    <p class="kucuk" style="margin-top:26px">
+        Aradığınız sayfayı bulamadıysanız yukarıdaki arama kutusunu kullanın.
+    </p>
+</main>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "meteotr06 ücretsiz Türkçe uygulamaları",
+  "itemListOrder": "https://schema.org/ItemListUnordered",
+  "numberOfItems": 6,
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "item": { "@type": "WebApplication", "name": "Hava Durumu", "url": "https://meteotr06.github.io/mobil/", "applicationCategory": "WeatherApplication", "operatingSystem": "Web", "inLanguage": "tr", "description": "Saatlik ve 7 günlük hava tahmini, yağış ve rüzgâr.", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" } } },
+    { "@type": "ListItem", "position": 2, "item": { "@type": "WebApplication", "name": "Hesap Araçları", "url": "https://meteotr06.github.io/hesap/", "applicationCategory": "FinanceApplication", "operatingSystem": "Web", "inLanguage": "tr", "description": "Net maaş, kredi taksiti, kira artışı, KDV ve 40'tan fazla hesaplama aracı.", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" } } },
+    { "@type": "ListItem", "position": 3, "item": { "@type": "WebApplication", "name": "Kur Pusulası", "url": "https://meteotr06.github.io/kur-pusulasi/", "applicationCategory": "FinanceApplication", "operatingSystem": "Web", "inLanguage": "tr", "description": "Dolar, euro, altın ve kripto fiyatları; geçmiş grafikleri ve kur tahmini.", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" } } },
+    { "@type": "ListItem", "position": 4, "item": { "@type": "WebApplication", "name": "Haftalık Planlayıcı", "url": "https://meteotr06.github.io/planlayici/", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "inLanguage": "tr", "description": "Ders ve iş programı, tekrarlayan görevler ve kategoriler.", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" } } },
+    { "@type": "ListItem", "position": 5, "item": { "@type": "WebApplication", "name": "Muhasebe", "url": "https://meteotr06.github.io/muhasebe/", "applicationCategory": "FinanceApplication", "operatingSystem": "Web", "inLanguage": "tr", "description": "Gelir, gider, kasa ve cari takibi; raporlar ve bütçe.", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" } } },
+    { "@type": "ListItem", "position": 6, "item": { "@type": "WebApplication", "name": "Göz Molası", "url": "https://meteotr06.github.io/goz-molasi/", "applicationCategory": "HealthApplication", "operatingSystem": "Web", "inLanguage": "tr", "description": "Ekran başında göz yorgunluğuna karşı 20-20-20 hatırlatıcısı.", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" } } }
+  ]
+}
+</script>
+
+<script src="/hesap/hesap.js?v=40"></script>
+<script src="/hesap/sayfa.js?v=40"></script>
+<script>
+// Arac aramasi. Listeler sayfa.js icinde (ARACLAR, REHBERLER) -- burada
+// kopyasi TUTULMUYOR, yoksa iki yer birbirinden kayar.
+(function () {
+    const KOK = "/hesap/";
+    const liste = document.getElementById("aracListesi");
+    const girdi = document.getElementById("aramaGirdi");
+    const durum = document.getElementById("aramaDurum");
+    const temizle = document.getElementById("aramaTemizle");
+
+    if (typeof ARACLAR === "undefined") {          // sayfa.js inmediyse sessizce cekil
+        document.querySelector(".arama-kutu").hidden = true;
+        return;
+    }
+
+    function hepsi() {
+        return ARACLAR.concat((typeof REHBERLER !== "undefined" ? REHBERLER : [])
+            .map(r => Object.assign({ rehberMi: true }, r)));
+    }
+    function kart(a) {
+        return `<a class="arac-kart${a.rehberMi ? " rehber-kart" : ""}" href="${KOK}${a.yol}">
+            <b>${a.rehberMi ? "Rehber: " : ""}${a.ad}</b><span>${a.aciklama}</span></a>`;
+    }
+    function ciz() {
+        const sorgu = sadelestir(girdi.value).trim();
+        temizle.hidden = !girdi.value;
+        if (!sorgu) { liste.innerHTML = ""; durum.textContent = ""; return; }
+        // Kelime kelime puanla: ad'da gecmek aciklamada gecmekten agir bassin.
+        const kelimeler = sorgu.split(/\s+/).filter(k => k.length > 2);
+        if (!kelimeler.length) { liste.innerHTML = ""; durum.textContent = ""; return; }
+        const bulunan = hepsi().map(a => {
+            const t = sadelestir(a.ad + " " + a.aciklama + " " + (a.grup || "") + " " + (a.anahtar || ""));
+            const ad = sadelestir(a.ad);
+            let p = 0;
+            kelimeler.forEach(k => {
+                if (ad.indexOf(k) >= 0) p += 5;
+                else if (t.indexOf(k) >= 0) p += 1;
+            });
+            return { a: a, p: p };
+        }).filter(x => x.p > 0).sort((x, y) => y.p - x.p).slice(0, 12).map(x => x.a);
+        liste.innerHTML = bulunan.length
+            ? `<div class="arac-izgara">${bulunan.map(kart).join("")}</div>`
+            : `<div class="kutu"><p class="kucuk">Sonuç yok.
+               <a href="${KOK}">Bütün araçlara göz atın</a>.</p></div>`;
+        durum.textContent = bulunan.length ? bulunan.length + " sonuç" : "Sonuç yok";
+    }
+    girdi.addEventListener("input", ciz);
+    temizle.addEventListener("click", () => { girdi.value = ""; ciz(); girdi.focus(); });
+})();
+</script>
 </body>
 </html>

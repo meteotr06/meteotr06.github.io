@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Yakıt Maliyeti Hesaplama — Yol Kaç Lira Tutar?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/yakit-maliyeti-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,16 +38,16 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Mesafe (km)
-                    <input id="mesafe" type="number" step="any" inputmode="decimal" value="450" />
+                    <input id="mesafe" type="text" inputmode="decimal" value="450" />
                 </label>
                 <label>Ortalama tüketim (L / 100 km)
-                    <input id="tuketim" type="number" step="0.1" inputmode="decimal" value="6.5" />
+                    <input id="tuketim" type="text" inputmode="decimal" value="6.5" />
                 </label>
                 <label>Yakıt fiyatı (TL / litre)
-                    <input id="fiyat" type="number" step="0.01" inputmode="decimal" value="48" />
+                    <input id="fiyat" type="text" inputmode="decimal" value="48" />
                 </label>
                 <label>Yolcu sayısı (masraf paylaşımı)
-                    <input id="kisi" type="number" inputmode="numeric" value="1" />
+                    <input id="kisi" type="text" inputmode="decimal" value="1" />
                 </label>
                 <label class="onay"><input id="gidisDonus" type="checkbox" />
                     <span>Gidiş-dönüş<br><span class="not">Mesafe iki katı sayılır</span></span>
@@ -80,8 +80,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("yakit-maliyeti-hesaplama.html");
 gizlilikBaglantisi();

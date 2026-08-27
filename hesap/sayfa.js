@@ -183,13 +183,19 @@ function dinle(idler, isle) {
     isle();
 }
 
-// <input type="number"> her zaman NOKTALI ondalık verir; onu doğrudan okuruz.
-// Metin kutularında ise Türkçe biçim (12.500,50) gelebilir, sayiOku onu çözer.
+// NEDEN type="number" KULLANMIYORUZ (ölçüldü, 26 Ağustos 2026):
+// Kullanıcı Türkçe biçimde "33.030,00" yazdığında tarayıcı virgülü ATIYOR,
+// noktayı ondalık sayıyor ve kutuda "33.03000" kalıyor. Uygulama bunu
+// 33,03 TL okuyor ve net maaşı -4.921,47 ₺ diye gösteriyordu. Çökme yok,
+// uyarı yok — sadece yanlış. Telefonda daha da kötü: Türkçe klavye virgül
+// tuşu veriyor, kutu onu yutuyor.
+// Bu yüzden sayı kutuları type="text" + inputmode; biçimi sayiOku çözüyor.
+// data-tur="oran" olan alanlarda nokta her zaman ondalıktır (faiz "3.29").
 function oku(id) {
     const el = document.getElementById(id);
     if (!el) return 0;
     if (el.type === "number") { const d = parseFloat(el.value); return isFinite(d) ? d : 0; }
-    return sayiOku(el.value);
+    return sayiOku(el.value, el.dataset ? el.dataset.tur : undefined);
 }
 function isaretli(id) { return document.getElementById(id).checked; }
 
@@ -609,6 +615,11 @@ function kurulumDugmesi() {
 // Çevrimdışı katmanını kaydet. Hata olursa site normal çalışmaya devam eder.
 function cevrimdisiKur() {
     if (!("serviceWorker" in navigator)) return;
+    // Bu dosya kok ana sayfada da yukleniyor (arac aramasi icin). Orada
+    // "sw.js" adresi /sw.js'e cozulur, yoktur ve her aciliista bosuna bir
+    // istek atilir. Manifest'i olmayan sayfa kurulabilir uygulama degildir;
+    // cevrimdisi katmani da orada islevsizdir.
+    if (!document.querySelector('link[rel="manifest"]')) return;
     if (location.protocol !== "https:" && location.hostname !== "localhost") return;
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("sw.js").catch(() => { });
@@ -694,8 +705,17 @@ function sonucBekliyor(mesaj) {
         <p class="bekleyen-baslik">Sonuç burada görünecek</p>
         <p class="kucuk">${mesaj || "Yukarıdaki alanları doldurun — hesap siz yazarken anında yapılır."}</p>
     </div>`;
-    const d = document.getElementById("dokum");
-    if (d) d.innerHTML = "";
+    // BAYAT SONUC HATASI (27 Agustos 2026): burasi yalnizca #ozet ve #dokum'u
+    // temizliyordu. net-maas sayfasinda 12 aylik tablo (#tablo) ONCEKI hesabi
+    // gostermeye devam ediyordu: kutu bosaltilinca ustte "Brut maasinizi yazin"
+    // yaziyor, altta hala "Ocak 90.251,22 TL" duruyordu. Kullanici artik
+    // girmedigi bir maasin dokumunu okuyor -- cokme yok, sadece yalan.
+    // Yeni sayfa eklerken sonuc kabina data-sonuc koymak yeterli.
+    ["dokum", "tablo", "liste"].forEach(function (kimlik) {
+        const k = document.getElementById(kimlik);
+        if (k) k.innerHTML = "";
+    });
+    document.querySelectorAll("[data-sonuc]").forEach(function (k) { k.innerHTML = ""; });
 }
 
 // ---------- Mobilde yapışkan sonuç çubuğu ----------

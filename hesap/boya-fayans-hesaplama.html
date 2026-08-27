@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Boya ve Fayans Hesaplama — Oda Kaç Litre Boya, Kaç Karo?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/boya-fayans-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,31 +38,31 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Oda eni (m)
-                    <input id="en" type="number" step="0.1" inputmode="decimal" value="4" />
+                    <input id="en" type="text" inputmode="decimal" value="4" />
                 </label>
                 <label>Oda boyu (m)
-                    <input id="boy" type="number" step="0.1" inputmode="decimal" value="5" />
+                    <input id="boy" type="text" inputmode="decimal" value="5" />
                 </label>
                 <label>Tavan yüksekliği (m)
-                    <input id="yukseklik" type="number" step="0.1" inputmode="decimal" value="2.7" />
+                    <input id="yukseklik" type="text" inputmode="decimal" value="2.7" />
                 </label>
                 <label>Kapı + pencere alanı (m²)
-                    <input id="bosluk" type="number" step="0.1" inputmode="decimal" value="5" />
+                    <input id="bosluk" type="text" inputmode="decimal" value="5" />
                 </label>
                 <label>Boya verimi (m² / litre)
-                    <input id="verim" type="number" step="0.5" inputmode="decimal" value="12" />
+                    <input id="verim" type="text" inputmode="decimal" value="12" />
                 </label>
                 <label>Kaç kat boya
-                    <input id="kat" type="number" inputmode="numeric" value="2" />
+                    <input id="kat" type="text" inputmode="decimal" value="2" />
                 </label>
                 <label>Karo eni (cm)
-                    <input id="karoEn" type="number" step="1" inputmode="numeric" value="60" />
+                    <input id="karoEn" type="text" inputmode="numeric" value="60" />
                 </label>
                 <label>Karo boyu (cm)
-                    <input id="karoBoy" type="number" step="1" inputmode="numeric" value="60" />
+                    <input id="karoBoy" type="text" inputmode="numeric" value="60" />
                 </label>
                 <label>Fire payı (%)
-                    <input id="fire" type="number" step="1" inputmode="numeric" value="10" />
+                    <input data-tur="oran" id="fire" type="text" inputmode="decimal" value="10" />
                 </label>
             </div>
             <p class="kucuk">Boya verimi kutunun üstünde yazar; genelde <b>10–14 m²/litre</b> arasındadır. Fire payı kesim ve kırılma içindir; desenli karoda <b>%15</b> daha güvenlidir.</p>
@@ -92,8 +92,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("boya-fayans-hesaplama.html");
 gizlilikBaglantisi();

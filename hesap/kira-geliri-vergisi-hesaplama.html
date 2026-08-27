@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Kira Geliri Vergisi Hesaplama 2026 — İstisna 58.000 ₺" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kira-geliri-vergisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,10 +38,10 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Aylık kira (TL)
-                    <input id="aylik" type="number" step="any" inputmode="decimal" value="25000" />
+                    <input id="aylik" type="text" inputmode="decimal" value="25000" />
                 </label>
                 <label>Kaç ay kiraya verildi?
-                    <input id="ay" type="number" inputmode="numeric" min="1" max="12" value="12" />
+                    <input id="ay" type="text" inputmode="decimal" min="1" max="12" value="12" />
                 </label>
                 <label>Gider yöntemi
                     <select id="yontem">
@@ -50,7 +50,7 @@
                     </select>
                 </label>
                 <label id="etGercek">Belgeli giderler (TL)
-                    <input id="gercek" type="number" step="any" inputmode="decimal" value="0" />
+                    <input id="gercek" type="text" inputmode="decimal" value="0" />
                 </label>
                 <label class="onay">
                     <input id="istisnaYok" type="checkbox" />
@@ -106,8 +106,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("kira-geliri-vergisi-hesaplama.html");
 gizlilikBaglantisi();

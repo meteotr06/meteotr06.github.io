@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Kredi Kartı Asgari Ödeme Hesaplama — Borç Kaç Ayda Biter?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kredi-karti-asgari-odeme-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,16 +38,16 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Kart borcunuz (TL)
-                    <input id="borc" type="number" step="any" inputmode="decimal" value="30000" />
+                    <input id="borc" type="text" inputmode="decimal" value="30000" />
                 </label>
                 <label>Aylık akdi faiz oranı (%)
-                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="4.25" />
+                    <input data-tur="oran" id="faiz" type="text" inputmode="decimal" value="4.25" />
                 </label>
                 <label>Asgari ödeme oranı (%)
-                    <input id="oran" type="number" step="1" inputmode="numeric" value="20" />
+                    <input data-tur="oran" id="oran" type="text" inputmode="decimal" value="20" />
                 </label>
                 <label>Bunun yerine sabit ödesem (TL)
-                    <input id="sabit" type="number" step="any" inputmode="decimal" placeholder="boş = ilk asgari tutar" />
+                    <input id="sabit" type="text" inputmode="decimal" placeholder="boş = ilk asgari tutar" />
                 </label>
             </div>
             <p class="kucuk">Faiz oranını kart ekstrenizden alın — bankaya ve karta göre değişir. Asgari ödeme oranı genelde <b>%20</b>, yüksek limitli kartlarda <b>%40</b> uygulanır.</p>
@@ -80,8 +80,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("kredi-karti-asgari-odeme-hesaplama.html");
 gizlilikBaglantisi();

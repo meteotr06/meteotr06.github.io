@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Fazla Mesai Ücreti Hesaplama — Saat Ücreti ve 1,5 Kat" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/fazla-mesai-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,16 +38,16 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Aylık brüt ücret (TL)
-                    <input id="brut" type="number" step="any" inputmode="decimal" value="60000" />
+                    <input id="brut" type="text" inputmode="decimal" value="60000" />
                 </label>
                 <label>Fazla çalışma (saat)
-                    <input id="fazlaCalisma" type="number" step="any" inputmode="decimal" value="10" />
+                    <input id="fazlaCalisma" type="text" inputmode="decimal" value="10" />
                 </label>
                 <label>Fazla sürelerle çalışma (saat)
-                    <input id="fazlaSure" type="number" step="any" inputmode="decimal" value="0" />
+                    <input id="fazlaSure" type="text" inputmode="decimal" value="0" />
                 </label>
                 <label>Tatil / bayram çalışması (saat)
-                    <input id="tatil" type="number" step="any" inputmode="decimal" value="0" />
+                    <input id="tatil" type="text" inputmode="decimal" value="0" />
                 </label>
                 <label>Gelir vergisi diliminiz
                     <select id="dilim">
@@ -86,8 +86,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("fazla-mesai-hesaplama.html");
 gizlilikBaglantisi();

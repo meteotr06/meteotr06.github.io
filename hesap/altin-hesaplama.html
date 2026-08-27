@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Altın Hesaplama — Çeyrek, Yarım, Tam Altın Kaç Gram, Kaç TL?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/altin-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,7 +38,7 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Gram altın fiyatı (TL)
-                    <input id="gramFiyat" type="number" step="any" inputmode="decimal" value="7200" />
+                    <input id="gramFiyat" type="text" inputmode="decimal" value="7200" />
                 </label>
                 <label>Altın türü
                     <select id="tur">
@@ -53,10 +53,10 @@
                     </select>
                 </label>
                 <label>Adet / gram
-                    <input id="adet" type="number" step="any" inputmode="decimal" value="5" />
+                    <input id="adet" type="text" inputmode="decimal" value="5" />
                 </label>
                 <label>Aldığınız birim fiyat (TL, isteğe bağlı)
-                    <input id="alis" type="number" step="any" inputmode="decimal" placeholder="kâr hesabı için" />
+                    <input id="alis" type="text" inputmode="decimal" placeholder="kâr hesabı için" />
                 </label>
             </div>
             <p class="kucuk">Güncel gram altın fiyatını <a href="https://meteotr06.github.io/kur-pusulasi/" target="_blank" rel="noopener">Kur Pusulası</a> uygulamasından canlı görebilirsiniz. Buraya <b>külçe/gram fiyatını</b> yazın; kuyumcu işçilik ekler.</p>
@@ -90,8 +90,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("altin-hesaplama.html");
 gizlilikBaglantisi();

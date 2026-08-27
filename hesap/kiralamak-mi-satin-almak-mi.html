@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Ev Kiralamak mı Satın Almak mı? — Dürüst Karşılaştırma" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kiralamak-mi-satin-almak-mi.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,40 +38,40 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Ev fiyatı (TL)
-                    <input id="fiyat" type="number" step="any" inputmode="decimal" value="4000000" />
+                    <input id="fiyat" type="text" inputmode="decimal" value="4000000" />
                 </label>
                 <label>Peşinat (TL)
-                    <input id="pesinat" type="number" step="any" inputmode="decimal" value="1200000" />
+                    <input id="pesinat" type="text" inputmode="decimal" value="1200000" />
                 </label>
                 <label>Kredi aylık faizi (%)
-                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="2.5" />
+                    <input data-tur="oran" id="faiz" type="text" inputmode="decimal" value="2.5" />
                 </label>
                 <label>Kredi vadesi (ay)
-                    <input id="vade" type="number" inputmode="numeric" value="120" />
+                    <input id="vade" type="text" inputmode="decimal" value="120" />
                 </label>
                 <label>Aynı evin aylık kirası (TL)
-                    <input id="kira" type="number" step="any" inputmode="decimal" value="25000" />
+                    <input id="kira" type="text" inputmode="decimal" value="25000" />
                 </label>
                 <label>Yıllık kira artışı (%)
-                    <input id="kiraArtis" type="number" step="0.1" inputmode="decimal" value="35" />
+                    <input data-tur="oran" id="kiraArtis" type="text" inputmode="decimal" value="35" />
                 </label>
                 <label>Yıllık ev değer artışı (%)
-                    <input id="evArtis" type="number" step="0.1" inputmode="decimal" value="30" />
+                    <input data-tur="oran" id="evArtis" type="text" inputmode="decimal" value="30" />
                 </label>
                 <label>Paranın yatırım getirisi (%/yıl)
-                    <input id="yatirim" type="number" step="0.1" inputmode="decimal" value="37" />
+                    <input id="yatirim" type="text" inputmode="decimal" value="37" />
                 </label>
                 <label>Aylık aidat (TL)
-                    <input id="aidat" type="number" step="any" inputmode="decimal" value="1500" />
+                    <input id="aidat" type="text" inputmode="decimal" value="1500" />
                 </label>
                 <label>Emlak vergisi (binde)
-                    <input id="emlak" type="number" step="0.1" inputmode="decimal" value="2" />
+                    <input id="emlak" type="text" inputmode="decimal" value="2" />
                 </label>
                 <label>Yıllık bakım-onarım (% ev değeri)
-                    <input id="bakim" type="number" step="0.1" inputmode="decimal" value="1" />
+                    <input id="bakim" type="text" inputmode="decimal" value="1" />
                 </label>
                 <label>Karşılaştırma süresi (yıl)
-                    <input id="yil" type="number" inputmode="numeric" min="1" max="30" value="10" />
+                    <input id="yil" type="text" inputmode="decimal" min="1" max="30" value="10" />
                 </label>
             </div>
             <p class="kucuk">"Paranın yatırım getirisi", peşinatı eve yatırmasaydınız o parayla
@@ -126,8 +126,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("kiralamak-mi-satin-almak-mi.html");
 gizlilikBaglantisi();

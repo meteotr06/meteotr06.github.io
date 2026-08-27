@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Doğalgaz Faturası Hesaplama — m³'ten kWh'a, Sayaçtan Faturaya" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/dogalgaz-faturasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,22 +38,22 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Önceki sayaç değeri (m³)
-                    <input id="ilk" type="number" step="any" inputmode="decimal" value="1200" />
+                    <input id="ilk" type="text" inputmode="decimal" value="1200" />
                 </label>
                 <label>Şimdiki sayaç değeri (m³)
-                    <input id="son" type="number" step="any" inputmode="decimal" value="1450" />
+                    <input id="son" type="text" inputmode="decimal" value="1450" />
                 </label>
                 <label>Üst ısıl değer (kWh/m³)
-                    <input id="isil" type="number" step="0.01" inputmode="decimal" value="10.64" />
+                    <input id="isil" type="text" inputmode="decimal" value="10.64" />
                 </label>
                 <label>Birim fiyat (TL/kWh)
-                    <input id="fiyat" type="number" step="any" inputmode="decimal" value="1.85" />
+                    <input id="fiyat" type="text" inputmode="decimal" value="1.85" />
                 </label>
                 <label>Sabit / abonelik bedeli (TL)
-                    <input id="sabit" type="number" step="any" inputmode="decimal" value="25" />
+                    <input id="sabit" type="text" inputmode="decimal" value="25" />
                 </label>
                 <label>KDV oranı (%)
-                    <input id="kdv" type="number" step="any" inputmode="decimal" value="20" />
+                    <input data-tur="oran" id="kdv" type="text" inputmode="decimal" value="20" />
                 </label>
             </div>
             <p class="kucuk"><b>Üst ısıl değer</b> ve <b>birim fiyat</b> faturanızın üzerinde yazar;
@@ -99,8 +99,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("dogalgaz-faturasi-hesaplama.html");
 gizlilikBaglantisi();

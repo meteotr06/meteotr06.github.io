@@ -28,7 +28,7 @@
 <meta property="og:image:alt" content="Mevduat Faizi Hesaplama 2026 — Vade Sonu Net Getiri" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/mevduat-faizi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -42,23 +42,23 @@
     <div class="kutu">
         <div class="form-izgara">
             <label>Anapara (TL)
-                <input id="anapara" type="number" step="any" inputmode="decimal" value="100000" />
+                <input id="anapara" type="text" inputmode="decimal" value="100000" />
             </label>
             <label>Yıllık brüt faiz (%)
-                <input id="faiz" type="number" step="0.01" inputmode="decimal" value="37" />
+                <input data-tur="oran" id="faiz" type="text" inputmode="decimal" value="37" />
             </label>
             <label>Vade (gün)
-                <input id="vade" type="number" inputmode="numeric" value="32" />
+                <input id="vade" type="text" inputmode="decimal" value="32" />
             </label>
             <label>Stopaj (%)
-                <input id="stopaj" type="number" step="0.1" inputmode="decimal" value="15" />
+                <input data-tur="oran" id="stopaj" type="text" inputmode="decimal" value="15" />
             </label>
             <label class="onay">
                 <input id="bilesik" type="checkbox" />
                 <span>Vade sonunda yenile<br><span class="not">Faiz de yeniden yatırılır</span></span>
             </label>
             <label>Kaç kez yenilensin
-                <input id="donem" type="number" inputmode="numeric" value="12" disabled />
+                <input id="donem" type="text" inputmode="decimal" value="12" disabled />
             </label>
         </div>
     </div>
@@ -73,7 +73,7 @@
         <div class="katlanir-ic">
             <div class="form-izgara">
                 <label>Yıllık enflasyon (%)
-                    <input id="enflasyon" type="number" step="0.01" inputmode="decimal" value="34.88" />
+                    <input data-tur="oran" id="enflasyon" type="text" inputmode="decimal" value="34.88" />
                 </label>
             </div>
             <div id="reel" class="sonuc-kutu"></div>
@@ -101,8 +101,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("mevduat-faizi-hesaplama.html");
 gizlilikBaglantisi();

@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Not Ortalaması Hesaplama — Ağırlıklı Ortalama ve Kredili Sistem" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/not-ortalamasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,23 +38,23 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>1. ders<input id="ad1" type="text" value="Matematik" /></label>
-                <label>Not<input id="n1" type="number" step="any" inputmode="decimal" value="75" /></label>
-                <label>Kredi<input id="k1" type="number" step="any" inputmode="decimal" value="4" /></label>
+                <label>Not<input id="n1" type="text" inputmode="decimal" data-tur="oran" value="75" /></label>
+                <label>Kredi<input id="k1" type="text" inputmode="decimal" data-tur="oran" value="4" /></label>
                 <label>2. ders<input id="ad2" type="text" value="Fizik" /></label>
-                <label>Not<input id="n2" type="number" step="any" inputmode="decimal" value="60" /></label>
-                <label>Kredi<input id="k2" type="number" step="any" inputmode="decimal" value="3" /></label>
+                <label>Not<input id="n2" type="text" inputmode="decimal" data-tur="oran" value="60" /></label>
+                <label>Kredi<input id="k2" type="text" inputmode="decimal" data-tur="oran" value="3" /></label>
                 <label>3. ders<input id="ad3" type="text" value="Türkçe" /></label>
-                <label>Not<input id="n3" type="number" step="any" inputmode="decimal" value="85" /></label>
-                <label>Kredi<input id="k3" type="number" step="any" inputmode="decimal" value="2" /></label>
+                <label>Not<input id="n3" type="text" inputmode="decimal" data-tur="oran" value="85" /></label>
+                <label>Kredi<input id="k3" type="text" inputmode="decimal" data-tur="oran" value="2" /></label>
                 <label>4. ders<input id="ad4" type="text" value="" /></label>
-                <label>Not<input id="n4" type="number" step="any" inputmode="decimal" value="0" /></label>
-                <label>Kredi<input id="k4" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>Not<input id="n4" type="text" inputmode="decimal" data-tur="oran" value="0" /></label>
+                <label>Kredi<input id="k4" type="text" inputmode="decimal" data-tur="oran" value="0" /></label>
                 <label>5. ders<input id="ad5" type="text" value="" /></label>
-                <label>Not<input id="n5" type="number" step="any" inputmode="decimal" value="0" /></label>
-                <label>Kredi<input id="k5" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>Not<input id="n5" type="text" inputmode="decimal" data-tur="oran" value="0" /></label>
+                <label>Kredi<input id="k5" type="text" inputmode="decimal" data-tur="oran" value="0" /></label>
                 <label>6. ders<input id="ad6" type="text" value="" /></label>
-                <label>Not<input id="n6" type="number" step="any" inputmode="decimal" value="0" /></label>
-                <label>Kredi<input id="k6" type="number" step="any" inputmode="decimal" value="0" /></label>
+                <label>Not<input id="n6" type="text" inputmode="decimal" data-tur="oran" value="0" /></label>
+                <label>Kredi<input id="k6" type="text" inputmode="decimal" data-tur="oran" value="0" /></label>
             </div>
             <p class="kucuk">Kullanmadığınız satırların <b>kredisini 0</b> bırakın. Kredi yerine ders saati veya katsayı da yazabilirsiniz.</p>
         </div>
@@ -82,8 +82,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("not-ortalamasi-hesaplama.html");
 gizlilikBaglantisi();

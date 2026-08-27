@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="İşsizlik Maaşı Hesaplama 2026 — Ne Kadar, Kaç Ay?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/issizlik-maasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,10 +38,10 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Son 4 ayın brüt ücret ortalaması (TL)
-                    <input id="ortalama" type="number" step="any" inputmode="decimal" value="50000" />
+                    <input id="ortalama" type="text" inputmode="decimal" value="50000" />
                 </label>
                 <label>Son 3 yıldaki prim gün sayınız
-                    <input id="prim" type="number" inputmode="numeric" value="1080" />
+                    <input id="prim" type="text" inputmode="decimal" value="1080" />
                 </label>
             </div>
             <p class="kucuk">Prim gün sayınızı <b>e-Devlet → SGK Tescil ve Hizmet Dökümü</b> ekranından öğrenebilirsiniz. Ödenek için <b>son 120 gün kesintisiz</b> çalışmış ve son 3 yılda en az <b>600 gün</b> prim ödemiş olmak gerekir.</p>
@@ -81,8 +81,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("issizlik-maasi-hesaplama.html");
 gizlilikBaglantisi();

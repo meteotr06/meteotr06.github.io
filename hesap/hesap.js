@@ -72,16 +72,103 @@ function yuzdeOn(deger, basamak) {
 }
 
 // Kullanıcının yazdığı metni sayıya çevirir.
-// DİKKAT — burada bir hata yapmıştık: noktayı KOŞULSUZ binlik ayracı sayıyorduk,
-// bu yüzden "3.29" faiz oranı 329 olarak okunup taksit 60 kat yanlış çıkıyordu.
-// Doğrusu: virgül varsa Türkçe biçimdir (nokta binlik), virgül yoksa nokta ONDALIKTIR.
-function sayiOku(metin) {
-    if (typeof metin === "number") return metin;
-    if (metin === null || metin === undefined || metin === "") return 0;
-    let s = String(metin).trim().replace(/\s/g, "");
-    if (s.indexOf(",") >= 0) s = s.replace(/\./g, "").replace(",", ".");
-    const d = parseFloat(s);
-    return isFinite(d) ? d : 0;
+//
+// BURASI ÜÇ KEZ HATA ÜRETTİ. Üçünü de yazıyorum ki dördüncüsü olmasın:
+//   1) Nokta koşulsuz binlik sayıldı: "3.29" faiz 329 okundu, taksit 60 kat şişti.
+//   2) Sonra koşulsuz ondalık sayıldı: "1.500" tutar 1,5 oldu, 1000 kat küçüldü.
+//   3) Harf ve üstel yazım sessizce kırpıldı: "12abc" -> 12, "1e3" -> 13.
+//      Bu en kötüsü: kullanıcı saçma bir şey yazdı, ekranda makul bir sayı çıktı.
+//
+// Sınavı ortak: HESAP MAKİNESİ\SAYI-SINAMA.md (24 zorunlu satır).
+// Kararlarımız o dosyaya göre:
+//   "1.500"       -> 1500      (tek ayraç, arkasında tam 3 hane -> binlik)
+//   "3.29"        -> 3.29      (arkasında 3 hane yok -> ondalık)
+//   "1.500,50"    -> 1500.50   (iki ayraç -> SONDAKİ ondalıktır)
+//   "1,500.50"    -> 1500.50   (aynı kural, İngilizce yazım)
+//   "1,2,3"       -> GEÇERSİZ  (binlik grupları 3 hane değil)
+//   "1.500.5"     -> GEÇERSİZ  (aynı sebep; belirsiz yazımı tahmin etmiyoruz)
+//   "1e3" "nan"   -> GEÇERSİZ
+//   "1500 TL"     -> 1500      (para birimi ve % işareti kırpılır -- bizim kararımız)
+//
+// tur === "oran" ise (faiz, yüzde, TÜFE) binlik yorumu HİÇ yapılmaz:
+// oran alanında "1.500" diye bir şey yazılmaz, ayraç her zaman ondalıktır.
+
+// Çekirdek: { bos, gecerli, deger }. Geçersiz ile boş AYRI şeylerdir --
+// boş "henüz yazmadı", geçersiz "yazdı ama sayı değil".
+function sayiCozumle(metin, tur) {
+    const bosCevap = { bos: true, gecerli: false, deger: 0 };
+    if (typeof metin === "number")
+        return isFinite(metin) ? { bos: false, gecerli: true, deger: metin } : { bos: false, gecerli: false, deger: 0 };
+    if (metin === null || metin === undefined) return bosCevap;
+
+    let s = String(metin).replace(/\s/g, "").replace(/TL/gi, "").replace(/[₺%]/g, "");
+    if (s === "") return bosCevap;
+
+    const eksi = s.charAt(0) === "-";
+    if (eksi || s.charAt(0) === "+") s = s.slice(1);
+    // ARTIK yalnız rakam, nokta, virgül olmalı. Harf kırpmak yok:
+    // "12abc" sayı değildir, 12 değildir.
+    if (!/^[\d.,]+$/.test(s)) return { bos: false, gecerli: false, deger: 0 };
+
+    const noktaSayisi = (s.match(/\./g) || []).length;
+    const virgulSayisi = (s.match(/,/g) || []).length;
+    let ondalik = null, binlik = null;
+
+    if (noktaSayisi && virgulSayisi) {
+        ondalik = s.lastIndexOf(",") > s.lastIndexOf(".") ? "," : ".";
+        binlik = ondalik === "," ? "." : ",";
+    } else if (virgulSayisi === 1) {
+        ondalik = ",";                                  // Türkçe: tek virgül hep ondalık
+    } else if (virgulSayisi > 1) {
+        binlik = ",";
+    } else if (noktaSayisi === 1) {
+        const p = s.split(".");
+        // "1.500" binlik; "3.29" ondalık. Ayıran şey: arkasında TAM 3 hane var mı
+        // ve baştaki grup 1-3 haneli mi. "0.500" binlik olamaz (0 bin diye bir şey yok).
+        if (tur !== "oran" && p[1].length === 3 && /^[1-9]\d{0,2}$/.test(p[0])) binlik = ".";
+        else ondalik = ".";
+    } else if (noktaSayisi > 1) {
+        if (tur === "oran") return { bos: false, gecerli: false, deger: 0 };
+        binlik = ".";                                   // "1.234.567"
+    }
+
+    let tamKisim = s, ondalikKisim = "";
+    if (ondalik) {
+        const k = s.lastIndexOf(ondalik);
+        tamKisim = s.slice(0, k);
+        ondalikKisim = s.slice(k + 1);
+        if (ondalikKisim.indexOf(",") >= 0 || ondalikKisim.indexOf(".") >= 0)
+            return { bos: false, gecerli: false, deger: 0 };
+    }
+
+    if (binlik) {
+        const g = tamKisim.split(binlik);
+        // İlk grup 1-3 hane, KALAN HER GRUP tam 3 hane. "1,2,3" burada elenir.
+        if (!/^\d{1,3}$/.test(g[0])) return { bos: false, gecerli: false, deger: 0 };
+        for (let i = 1; i < g.length; i++)
+            if (!/^\d{3}$/.test(g[i])) return { bos: false, gecerli: false, deger: 0 };
+        tamKisim = g.join("");
+    } else if (tamKisim !== "" && !/^\d+$/.test(tamKisim)) {
+        return { bos: false, gecerli: false, deger: 0 };
+    }
+
+    if (tamKisim === "" && ondalikKisim === "") return { bos: false, gecerli: false, deger: 0 };
+    const d = parseFloat((tamKisim || "0") + "." + (ondalikKisim || "0"));
+    if (!isFinite(d)) return { bos: false, gecerli: false, deger: 0 };
+    return { bos: false, gecerli: true, deger: eksi ? -d : d };
+}
+
+// Eski çağrı biçimi: her zaman SAYI döner, geçersizde 0.
+function sayiOku(metin, tur) {
+    const c = sayiCozumle(metin, tur);
+    return c.gecerli ? c.deger : 0;
+}
+
+// "Kullanıcı bir şey yazdı ama sayı değil" durumunu ayırt etmek için.
+// Boş kutu geçersiz sayılmaz; henüz yazılmamıştır.
+function sayiGecersizMi(metin, tur) {
+    const c = sayiCozumle(metin, tur);
+    return !c.bos && !c.gecerli;
 }
 
 // ---------- 1) KREDİ TAKSİTİ ----------
@@ -1071,7 +1158,20 @@ function sayiyiYaziyaCevir(sayi) {
 
 function notOrtalamasi(dersler) {
     let toplamAgirlikli = 0, toplamKredi = 0;
-    const satirlar = dersler.filter(d => d.kredi > 0).map(d => {
+
+    // BOZUK SATIRI SESSIZCE DUSURME.
+    // Olculdu (27.08.2026, capraz denetim): `d.kredi > 0` suzgeci, kredi
+    // NaN oldugunda HER ZAMAN false doner (NaN ile yapilan her karsilastirma
+    // false'tur). Sonuc: kullanici 3 ders girer, 2 ders hesaplanir, ortalama
+    // 75 yerine 85 cikar ve HICBIR UYARI OLMAZ.
+    // Ayni dosyada istatistik aracinda dogru desen zaten var (isFinite
+    // suzgeci); burada eksikti.
+    const atlanan = dersler.filter(d =>
+        !Number.isFinite(d.kredi) || !Number.isFinite(d.not) || d.kredi <= 0);
+
+    const satirlar = dersler.filter(d =>
+        Number.isFinite(d.kredi) && Number.isFinite(d.not) && d.kredi > 0
+    ).map(d => {
         toplamAgirlikli += d.not * d.kredi;
         toplamKredi += d.kredi;
         return { ad: d.ad, not: d.not, kredi: d.kredi, katki: d.not * d.kredi };
@@ -1081,7 +1181,11 @@ function notOrtalamasi(dersler) {
         satirlar: satirlar, ortalama: ort,
         toplamKredi: toplamKredi, toplamAgirlikli: toplamAgirlikli,
         dortluk: ort / 25,          // yaklaşık dönüşüm
-        dersSayisi: satirlar.length
+        dersSayisi: satirlar.length,
+        // Hesaba KATILMAYAN satirlar. Arayuz bunu gostermezse bile burada
+        // durur; "3 ders girdim ama 2 ders hesaplandi" sessiz kalmasin.
+        atlananSayisi: atlanan.length,
+        atlananlar: atlanan.map(d => d.ad || "(adsiz)")
     };
 }
 
@@ -1578,8 +1682,11 @@ function dogumIzni(dogumTarihi, cogulMu, calisilacakHafta) {
 
     // Doktor onayıyla doğuma "calisilacakHafta" kalana dek çalışılabilir.
     // Boş bırakılırsa hakkın tamamı doğum öncesinde kullanılır.
+    // NaN KORUMASI: Math.max(2, Math.min(8, NaN)) yine NaN verir ve ekrana
+    // "NaN hafta" diye yazilirdi. Sayi olmayan her sey "bos" sayilir.
     let oncesi = (calisilacakHafta === null || calisilacakHafta === undefined || calisilacakHafta === "")
         ? oncesiHak : Number(calisilacakHafta);
+    if (!isFinite(oncesi)) oncesi = oncesiHak;
     oncesi = Math.max(DOGUM_IZNI.enAzOncesi, Math.min(oncesiHak, oncesi));
 
     // Kullanılmayan doğum öncesi süre, doğum sonrasına EKLENİR

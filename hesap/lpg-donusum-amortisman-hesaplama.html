@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="LPG Dönüşümü Kaç Ayda Amorti Eder? — Tasarruf Hesabı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/lpg-donusum-amortisman-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,25 +38,25 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Dönüşüm maliyeti (TL)
-                    <input id="maliyet" type="number" step="any" inputmode="decimal" value="35000" />
+                    <input id="maliyet" type="text" inputmode="decimal" value="35000" />
                 </label>
                 <label>Aylık kaç km?
-                    <input id="km" type="number" step="any" inputmode="decimal" value="1500" />
+                    <input id="km" type="text" inputmode="decimal" value="1500" />
                 </label>
                 <label>Benzin tüketimi (L / 100 km)
-                    <input id="bTuketim" type="number" step="0.1" inputmode="decimal" value="7" />
+                    <input id="bTuketim" type="text" inputmode="decimal" value="7" />
                 </label>
                 <label>Benzin fiyatı (TL / litre)
-                    <input id="bFiyat" type="number" step="0.01" inputmode="decimal" value="52" />
+                    <input id="bFiyat" type="text" inputmode="decimal" value="52" />
                 </label>
                 <label>LPG fiyatı (TL / litre)
-                    <input id="lFiyat" type="number" step="0.01" inputmode="decimal" value="27" />
+                    <input id="lFiyat" type="text" inputmode="decimal" value="27" />
                 </label>
                 <label>LPG'de fazla tüketim (%)
-                    <input id="artis" type="number" step="1" inputmode="numeric" value="20" />
+                    <input data-tur="oran" id="artis" type="text" inputmode="decimal" value="20" />
                 </label>
                 <label>LPG'nin yıllık ek bakımı (TL)
-                    <input id="ekBakim" type="number" step="any" inputmode="decimal" value="3000" />
+                    <input id="ekBakim" type="text" inputmode="decimal" value="3000" />
                 </label>
             </div>
             <p class="kucuk"><b>Fazla tüketim:</b> LPG'nin enerji yoğunluğu benzinden düşüktür, aynı yolu
@@ -106,8 +106,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("lpg-donusum-amortisman-hesaplama.html");
 gizlilikBaglantisi();

@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Ne Kadar Kredi Çekebilirim? — Gelire Göre Kredi Limiti Hesaplama" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/ne-kadar-kredi-cekebilirim.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,19 +38,19 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Aylık net geliriniz (TL)
-                    <input id="gelir" type="number" step="any" inputmode="decimal" value="60000" />
+                    <input id="gelir" type="text" inputmode="decimal" value="60000" />
                 </label>
                 <label>Hâlihazırdaki aylık taksitler (TL)
-                    <input id="mevcut" type="number" step="any" inputmode="decimal" value="0" />
+                    <input id="mevcut" type="text" inputmode="decimal" value="0" />
                 </label>
                 <label>Aylık faiz oranı (%)
-                    <input id="faiz" type="number" step="0.01" inputmode="decimal" value="3.29" />
+                    <input data-tur="oran" id="faiz" type="text" inputmode="decimal" value="3.29" />
                 </label>
                 <label>Vade (ay)
-                    <input id="vade" type="number" inputmode="numeric" value="36" />
+                    <input id="vade" type="text" inputmode="decimal" value="36" />
                 </label>
                 <label>Taksit/gelir sınırı (%)
-                    <input id="sinir" type="number" step="1" inputmode="numeric" value="50" />
+                    <input data-tur="oran" id="sinir" type="text" inputmode="decimal" value="50" />
                 </label>
                 <label class="onay"><input id="vergi" type="checkbox" checked />
                     <span>KKDF + BSMV ekle<br><span class="not">İhtiyaç kredisi</span></span>
@@ -82,8 +82,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("ne-kadar-kredi-cekebilirim.html");
 gizlilikBaglantisi();

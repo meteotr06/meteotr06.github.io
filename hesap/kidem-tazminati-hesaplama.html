@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Kıdem ve İhbar Tazminatı Hesaplama 2026 — Tavan Dahil" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kidem-tazminati-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -45,7 +45,7 @@
                     <input id="cikis" type="date" value="2026-08-26" />
                 </label>
                 <label>Giydirilmiş brüt ücret (aylık, TL)
-                    <input id="ucret" type="number" step="any" inputmode="decimal" value="60000" />
+                    <input id="ucret" type="text" inputmode="decimal" value="60000" />
                 </label>
                 <label>Gelir vergisi diliminiz (ihbar için)
                     <select id="dilim">
@@ -107,8 +107,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("kidem-tazminati-hesaplama.html");
 gizlilikBaglantisi();
@@ -140,14 +140,17 @@ function hesapla() {
     document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
         <div class="dev-deger">${para(k.hakEdiyorMu ? k.net : 0)}</div>
         <div class="dev-etiket">net kıdem tazminatı</div>
+        ${!k.hakEdiyorMu ? `<p class="kucuk" style="color:var(--azalis)">
+            <b>1 yıldan az çalışma — kıdem tazminatı hakkı doğmaz.</b>
+            Kıdem tazminatı için en az bir yıl çalışmış olmak gerekir (${k.toplamGun} gün çalıştınız,
+            365 gün gerekiyor). Aşağıdaki tutarlar <b>yalnızca "bir yılı doldursaydınız ne olurdu"</b>
+            sorusunun cevabıdır; şu an alacağınız kıdem tazminatı <b>0,00 ₺</b>'dir.</p>` : ""}
         ${satir("Çalışma süresi", `${k.yil} yıl ${k.artanGun} gün (${k.toplamGun} gün)`)}
         ${satir("Hesaba esas ücret", para(k.esasUcret))}
-        ${satir("Brüt kıdem tazminatı", para(k.brut))}
+        ${satir(k.hakEdiyorMu ? "Brüt kıdem tazminatı" : "Brüt (hak doğsaydı)", para(k.brut))}
         ${satir("Damga vergisi", "−" + para(k.damga))}
-        ${satir("Net kıdem tazminatı", para(k.net), "buyuk")}
-        ${!k.hakEdiyorMu ? `<p class="kucuk" style="color:var(--azalis)">
-            <b>1 yıldan az çalışma.</b> Kıdem tazminatı için en az bir yıl çalışmış olmak gerekir;
-            bu sürede kıdem hakkı doğmaz.</p>` : ""}
+        ${satir(k.hakEdiyorMu ? "Net kıdem tazminatı" : "Net (hak doğsaydı — ödenmez)",
+                para(k.net), "buyuk")}
         ${k.tavanAsildi ? `<p class="kucuk" style="color:var(--uyari)">
             <b>Tavan uygulandı.</b> Giydirilmiş ücretiniz ${para(k.giydirilmis)} ama yasal tavan
             ${para(k.tavan)}. Hesap tavan üzerinden yapıldı; aradaki fark

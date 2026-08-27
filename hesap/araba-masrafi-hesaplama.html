@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Araba Masrafı Hesaplama — Aylık Gerçek Maliyet" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/araba-masrafi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=40" />
 </head>
 <body>
 
@@ -38,40 +38,40 @@
         <div class="kutu">
             <div class="form-izgara">
                 <label>Aracın alış fiyatı (TL)
-                    <input id="alis" type="number" step="any" inputmode="decimal" value="1200000" />
+                    <input id="alis" type="text" inputmode="decimal" value="1200000" />
                 </label>
                 <label>Yıllık değer kaybı (%)
-                    <input id="kayip" type="number" step="0.5" inputmode="decimal" value="15" />
+                    <input data-tur="oran" id="kayip" type="text" inputmode="decimal" value="15" />
                 </label>
                 <label>Kaç yıl kullanacaksınız?
-                    <input id="yil" type="number" inputmode="numeric" min="1" max="20" value="5" />
+                    <input id="yil" type="text" inputmode="decimal" min="1" max="20" value="5" />
                 </label>
                 <label>Yılda kaç km?
-                    <input id="km" type="number" step="any" inputmode="decimal" value="15000" />
+                    <input id="km" type="text" inputmode="decimal" value="15000" />
                 </label>
                 <label>Yakıt tüketimi (L / 100 km)
-                    <input id="tuketim" type="number" step="0.1" inputmode="decimal" value="7" />
+                    <input id="tuketim" type="text" inputmode="decimal" value="7" />
                 </label>
                 <label>Yakıt fiyatı (TL / litre)
-                    <input id="yakitFiyat" type="number" step="0.01" inputmode="decimal" value="52" />
+                    <input id="yakitFiyat" type="text" inputmode="decimal" value="52" />
                 </label>
                 <label>MTV (yıllık, TL)
-                    <input id="mtv" type="number" step="any" inputmode="decimal" value="6000" />
+                    <input id="mtv" type="text" inputmode="decimal" value="6000" />
                 </label>
                 <label>Sigorta + kasko (yıllık, TL)
-                    <input id="sigorta" type="number" step="any" inputmode="decimal" value="18000" />
+                    <input id="sigorta" type="text" inputmode="decimal" value="18000" />
                 </label>
                 <label>Bakım ve onarım (yıllık, TL)
-                    <input id="bakim" type="number" step="any" inputmode="decimal" value="12000" />
+                    <input id="bakim" type="text" inputmode="decimal" value="12000" />
                 </label>
                 <label>Lastik takımı (TL)
-                    <input id="lastikFiyat" type="number" step="any" inputmode="decimal" value="14000" />
+                    <input id="lastikFiyat" type="text" inputmode="decimal" value="14000" />
                 </label>
                 <label>Lastik kaç yılda bir?
-                    <input id="lastikYil" type="number" step="0.5" inputmode="decimal" value="4" />
+                    <input id="lastikYil" type="text" inputmode="decimal" value="4" />
                 </label>
                 <label>Otopark / garaj (aylık, TL)
-                    <input id="otopark" type="number" step="any" inputmode="decimal" value="0" />
+                    <input id="otopark" type="text" inputmode="decimal" value="0" />
                 </label>
             </div>
             <p class="kucuk"><b>Yıllık değer kaybı:</b> sıfır araçta ilk yıl %20–25, sonraki yıllarda
@@ -122,8 +122,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=38"></script>
-<script src="sayfa.js?v=38"></script>
+<script src="hesap.js?v=40"></script>
+<script src="sayfa.js?v=40"></script>
 <script>
 iskeletKur("araba-masrafi-hesaplama.html");
 gizlilikBaglantisi();
