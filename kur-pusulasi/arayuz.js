@@ -18,6 +18,18 @@ const $$ = (s) => Array.from(document.querySelectorAll(s));
 
 // ---------- Yardımcılar ----------
 
+// seviyeOlasiligi() tahmin yoksa ya da oynaklik sifirsa NULL doner.
+// Uc cagri yeri bunu denetlemeden ".ustunde" okuyordu ve sayfa cokuyordu.
+// Ne zaman oluyor: gecmis verisi HENUZ GELMEMISKEN (yavas baglanti) ya da
+// gecmisi hic olmayan bir varlikta -- yani Dogecoin olayiyla ayni kok.
+// Olcum: girdilere veri gelmeden dokununca 4 kez "Cannot read properties
+// of null (reading 'ustunde')" cikiyordu.
+// Artik null yerine bos deger doner; sayi() onu "—" diye yazar.
+function olasilikGuvenli(tahmin, hedef) {
+    const o = seviyeOlasiligi(tahmin, hedef);
+    return o || { ustunde: null, altinda: null, yontem: null, ornek: 0 };
+}
+
 function birim(kod) { return kod === "ONSALTIN" ? "$" : "₺"; }
 function fiyatYaz(kod, deger, basamak) { return sayi(deger, basamak) + " " + birim(kod); }
 function renkSinif(x) { return x > 0.005 ? "yukari" : x < -0.005 ? "asagi" : "notr-renk"; }
@@ -527,7 +539,7 @@ function otomatikAyarCiz() {
                 <span>${k.ad}<br><span class="not">${k.aciklama}</span></span>
             </label>
             ${k.esikli ? `<label style="margin:-4px 0 10px 30px;max-width:180px">Eşik (%)
-                <input type="number" step="0.1" min="0.1" id="otoSertEsik" value="${a.sertEsik !== undefined ? a.sertEsik : k.varsayilanEsik}" />
+                <input type="text" inputmode="decimal" data-tur="oran" id="otoSertEsik" value="${a.sertEsik !== undefined ? a.sertEsik : k.varsayilanEsik}" />
             </label>` : ""}
         `).join("")}
 
@@ -552,7 +564,10 @@ function otomatikAyarCiz() {
 
     const esik = $("#otoSertEsik");
     if (esik) esik.onchange = () => {
-        durum.ayar.otomatik.sertEsik = Math.max(0.1, parseFloat(esik.value) || 1);
+        // sayiOku okuyamazsa null doner; o zaman eski deger korunur,
+        // sessizce 1'e dusmez.
+        const e = sayiOku(esik.value, "oran");
+        if (e !== null) durum.ayar.otomatik.sertEsik = Math.max(0.1, e);
         kaydet();
     };
 
@@ -797,7 +812,7 @@ function tahminCiz() {
     const tahminler = vadeler.map(x => tahminYap(s, x.g, tahminAyari(kod, x.g))).filter(Boolean);
 
     $("#tahminKartlar").innerHTML = tahminler.map((t, i) => `
-        <div class="tahmin-kart"> <div class="vade">${vadeler[i].ad}</div> <div class="merkez">${fiyatYaz(kod, t.merkez)}</div> <div class="fark ${renkSinif(t.degisimYuzde)}">${okIsareti(t.degisimYuzde)} ${yuzde(t.degisimYuzde)} · bugün ${fiyatYaz(kod, t.spot)}</div> <div class="band-satir"><span>%68 olasılıkla</span><b>${sayi(t.alt68)} – ${sayi(t.ust68)}</b></div> <div class="band-satir"><span>%95 olasılıkla</span><b>${sayi(t.alt95)} – ${sayi(t.ust95)}</b></div> <div class="band-satir"><span>Yükselme olasılığı</span><b>%${sayi(seviyeOlasiligi(t, t.spot).ustunde, 0)}</b></div> </div>`).join("") +
+        <div class="tahmin-kart"> <div class="vade">${vadeler[i].ad}</div> <div class="merkez">${fiyatYaz(kod, t.merkez)}</div> <div class="fark ${renkSinif(t.degisimYuzde)}">${okIsareti(t.degisimYuzde)} ${yuzde(t.degisimYuzde)} · bugün ${fiyatYaz(kod, t.spot)}</div> <div class="band-satir"><span>%68 olasılıkla</span><b>${sayi(t.alt68)} – ${sayi(t.ust68)}</b></div> <div class="band-satir"><span>%95 olasılıkla</span><b>${sayi(t.alt95)} – ${sayi(t.ust95)}</b></div> <div class="band-satir"><span>Yükselme olasılığı</span><b>%${sayi(olasilikGuvenli(t, t.spot).ustunde, 0)}</b></div> </div>`).join("") +
         `<p class="kucuk"style="grid-column:1/-1"> Bu aralıklar, modelin <b>son ${tahminler[0].kalibreAdet || 80} tahmininde
         ne kadar yanıldığına</b> bakılarak çizildi. Piyasa uzun süredir sakin olduğu için bandlar dar.
         Beklenmedik bir haber (faiz kararı, seçim, kriz) gelirse kur bu aralığın <b>dışına çıkabilir</b>.</p>`;
@@ -846,7 +861,7 @@ function senaryoCiz() {
     const kod = durum.secili;
     const s = seriAl(kod);
     if (!s) return;
-    const gun = parseInt($("#senaryoVade").value, 10);
+    const gun = sayiOku($("#senaryoVade").value);
     const t = tahminYap(s, gun, tahminAyari(kod, gun));
     if (!t) { $("#senaryoSonuc").innerHTML = '<p class="kucuk">Yeterli veri yok.</p>'; return; }
 
@@ -875,11 +890,11 @@ function olasilikHesapla() {
     const kod = durum.secili;
     const s = seriAl(kod);
     if (!s) return;
-    const gun = parseInt($("#hedefVade").value, 10);
-    const hedef = parseFloat($("#hedefFiyat").value);
+    const gun = sayiOku($("#hedefVade").value);
+    const hedef = sayiOku($("#hedefFiyat").value);
     const t = tahminYap(s, gun, tahminAyari(kod, gun));
     if (!t || !hedef) { $("#olasilikSonuc").innerHTML = '<p class="kucuk">Bir hedef seviye yazın.</p>'; return; }
-    const ol = seviyeOlasiligi(t, hedef);
+    const ol = olasilikGuvenli(t, hedef);
     const vadeAd = { 1: "yarın", 7: "1 hafta içinde", 30: "1 ay içinde", 90: "3 ay içinde", 365: "1 yıl içinde" }[gun];
     $("#olasilikSonuc").innerHTML = `
         <div class="sonuc-satir"><span>${fiyatYaz(kod, hedef)} <b>üstünde</b> olma olasılığı (${vadeAd})</span><b class="yukari">%${sayi(ol.ustunde, 1)}</b></div> <div class="sonuc-satir"><span>${fiyatYaz(kod, hedef)} <b>altında</b> olma olasılığı</span><b class="asagi">%${sayi(ol.altinda, 1)}</b></div> <div class="sonuc-satir"><span>Merkezi tahmin</span><b>${fiyatYaz(kod, t.merkez)}</b></div> <p class="kucuk">Log-normal dağılım varsayımıyla, %${sayi(t.yillikOynaklik, 1)} yıllık oynaklık üzerinden hesaplandı.</p>`;
@@ -891,29 +906,52 @@ function faizHesapla() {
     // Mevduat
     const bilesik = $("#mBilesik").checked;
     $("#mDonem").disabled = !bilesik;
+    // ZORUNLU alanlar null ise HESAP YAPILMIYOR.
+    // Eskiden `|| 0` vardi: bos ya da okunamayan ana para sessizce 0
+    // oluyor, ekranda "Vade sonu toplam 0,00 ₺" yaziyordu. Daha kotusu
+    // faiz alaninda `|| 0` %0 FAIZ demekti - sonuc dogru gorunen bir
+    // yanlistir. Istege bagli alanlar (vade, stopaj, donem) makul
+    // varsayilanlarini koruyor.
+    const mAna = sayiOku($("#mAna").value);
+    const mFaiz = sayiOku($("#mFaiz").value, "oran");
+    if (mAna === null || mFaiz === null || mAna <= 0) {
+        $("#mevduatSonuc").innerHTML =
+            '<p class="kucuk">Ana para ve faiz oranını yazın. ' +
+            'Örnek: 100.000 ve 37,5</p>';
+    } else {
     const m = mevduatHesapla(
-        parseFloat($("#mAna").value) || 0,
-        parseFloat($("#mFaiz").value) || 0,
-        parseInt($("#mVade").value, 10) || 1,
-        parseFloat($("#mStopaj").value) || 0,
+        mAna,
+        mFaiz,
+        sayiOku($("#mVade").value) || 1,
+        sayiOku($("#mStopaj").value, "oran") ?? 0,
         bilesik,
-        parseInt($("#mDonem").value, 10) || 1
+        sayiOku($("#mDonem").value) || 1
     );
     $("#mevduatSonuc").innerHTML = `
         <div class="sonuc-satir"><span>Brüt faiz</span><b>${paraYaz(m.brutFaiz)}</b></div> <div class="sonuc-satir"><span>Stopaj kesintisi</span><b class="asagi">−${paraYaz(m.stopaj)}</b></div> <div class="sonuc-satir"><span>Net faiz (${m.toplamGun} gün)</span><b class="yukari">${paraYaz(m.netFaiz)}</b></div> <div class="sonuc-satir buyuk"><span>Vade sonu toplam</span><b>${paraYaz(m.vadeSonu)}</b></div> <div class="sonuc-satir"><span>Yıllık net getiri oranı</span><b>${yuzdeOn(m.netYillik)}</b></div> <div class="sonuc-satir"><span>Enflasyon %${sayi(durum.ayar.enflasyon, 2)} ise reel getiri</span> <b class="${reelGetiri(m.netYillik, durum.ayar.enflasyon) > 0 ? "yukari" : "asagi"}">${yuzdeOn(reelGetiri(m.netYillik, durum.ayar.enflasyon))}</b></div>`;
+    }
 
     // Başabaş
     const kod = $("#bbVarlik").value;
     const s = seriAl(kod);
     if (s) {
         const spot = guncelFiyat(kod);
-        const gun = parseInt($("#bbGun").value, 10) || 30;
-        const bb = basabasKuru(spot, parseFloat($("#bbTlFaiz").value) || 0, parseFloat($("#bbDvFaiz").value) || 0,
-            gun, parseFloat($("#bbStopaj").value) || 0);
+        const gun = sayiOku($("#bbGun").value) || 30;
+        const bbTl = sayiOku($("#bbTlFaiz").value, "oran");
+        const bbDv = sayiOku($("#bbDvFaiz").value, "oran");
+        // return KULLANILMIYOR: bu blok faizHesapla() icinde ve
+        // return altindaki "reel getiri" ile "kredi" bolumlerini de
+        // atlardi. Once yazip sonra fark ettim.
+        if (bbTl === null || bbDv === null) {
+            $("#basabasSonuc").innerHTML =
+                '<p class="kucuk">TL ve döviz faiz oranlarını yazın.</p>';
+        } else {
+        const bb = basabasKuru(spot, bbTl, bbDv,
+            gun, sayiOku($("#bbStopaj").value, "oran") ?? 0);
         const t = tahminYap(s, gun, tahminAyari(kod, gun));
         let yorum = "";
         if (t) {
-            const ol = seviyeOlasiligi(t, bb.kur);
+            const ol = olasilikGuvenli(t, bb.kur);
             yorum = `<div class="sonuc-satir"><span>Modelin ${gun} günlük merkezi tahmini</span><b>${fiyatYaz(kod, t.merkez)}</b></div> <div class="sonuc-satir"><span>Kurun başabaşı geçme olasılığı</span><b>%${sayi(ol.ustunde, 0)}</b></div> <p class="kucuk">${ol.ustunde > 55
                     ? "Model, kurun başabaşı geçmesini daha olası buluyor — yani bu senaryoda döviz önde biter."
                     : ol.ustunde < 45
@@ -924,17 +962,32 @@ function faizHesapla() {
         $("#basabasSonuc").innerHTML = `
             <div class="sonuc-satir"><span>Bugünkü kur</span><b>${fiyatYaz(kod, spot)}</b></div> <div class="sonuc-satir"><span>TL mevduatın ${gun} günlük net getirisi</span><b>${yuzdeOn(bb.tlGetiri)}</b></div> <div class="sonuc-satir buyuk"><span>Başabaş kur</span><b>${fiyatYaz(kod, bb.kur)}</b></div> <div class="sonuc-satir"><span>Bunun için gereken artış</span><b>${yuzde(bb.gerekliArtis)}</b></div> ${yorum}`;
     }
+    }
 
     // Reel getiri
-    const r = reelGetiri(parseFloat($("#rNominal").value) || 0, parseFloat($("#rEnf").value) || 0);
+    const rNom = sayiOku($("#rNominal").value, "oran");
+    const rEnf = sayiOku($("#rEnf").value, "oran");
+    if (rNom === null || rEnf === null) {
+        $("#reelSonuc").innerHTML =
+            '<p class="kucuk">Nominal getiri ve enflasyon oranını yazın.</p>';
+    } else {
+    const r = reelGetiri(rNom, rEnf);
     const anapara = 100000;
     $("#reelSonuc").innerHTML = `
         <div class="sonuc-satir buyuk"><span>Reel (gerçek) getiri</span><b class="${r > 0 ? "yukari" : "asagi"}">${yuzdeOn(r)}</b></div> <div class="sonuc-satir"><span>100.000 ₺'nin 1 yıl sonraki alım gücü</span><b>${paraYaz(anapara * (1 + r / 100))}</b></div> <p class="kucuk">${r > 0 ? "Paranız enflasyonun üstünde kazandırıyor — alım gücünüz artıyor."
             : "Nominal olarak kazanıyorsunuz ama alım gücünüz azalıyor."}</p>`;
+    }
 
     // Kredi
-    const k = krediHesapla(parseFloat($("#kTutar").value) || 0, parseFloat($("#kFaiz").value) || 0,
-        parseInt($("#kTaksit").value, 10) || 1, $("#kVergi").checked);
+    const kTutar = sayiOku($("#kTutar").value);
+    const kFaiz = sayiOku($("#kFaiz").value, "oran");
+    const kTaksit = sayiOku($("#kTaksit").value);
+    if (kTutar === null || kFaiz === null || kTaksit === null || kTutar <= 0) {
+        $("#krediSonuc").innerHTML =
+            '<p class="kucuk">Kredi tutarı, faiz oranı ve taksit sayısını yazın.</p>';
+        return;
+    }
+    const k = krediHesapla(kTutar, kFaiz, kTaksit, $("#kVergi").checked);
     $("#krediSonuc").innerHTML = `
         <div class="sonuc-satir buyuk"><span>Aylık taksit</span><b>${paraYaz(k.taksit)}</b></div> <div class="sonuc-satir"><span>Toplam ödeme</span><b>${paraYaz(k.toplamOdeme)}</b></div> <div class="sonuc-satir"><span>Toplam faiz</span><b class="asagi">${paraYaz(k.toplamFaiz)}</b></div> <div class="sonuc-satir"><span>Vergili aylık maliyet</span><b>${yuzdeOn(k.efektifAylik)}</b></div> <div class="sonuc-satir"><span>Yıllık bileşik maliyet</span><b>${yuzdeOn(k.yillikMaliyet)}</b></div>`;
 }
@@ -944,15 +997,27 @@ function faizHesapla() {
 function ekonomiCiz() {
     // Faiz kartları
     const onemli = ["USD", "EUR", "GBP", "CHF", "JPY"];
-    let html = `<div class="faiz-kart"> <div class="fad"> TCMB politika faizi</div> <input type="number"step="0.25"value="${durum.ayar.tlFaiz}"data-faiz="TL" /> </div> <div class="faiz-kart"> <div class="fad"> TL mevduat faizi</div> <input type="number"step="0.25"value="${durum.ayar.mevduatFaiz}"data-faiz="MEVDUAT" /> </div> <div class="faiz-kart"> <div class="fad"> Yıllık enflasyon</div> <input type="number"step="0.1"value="${durum.ayar.enflasyon}"data-faiz="ENFLASYON" /> </div>`;
+    let html = `<div class="faiz-kart"> <div class="fad"> TCMB politika faizi</div> <input type="text"inputmode="decimal"data-tur="oran"value="${durum.ayar.tlFaiz}"data-faiz="TL" /> </div> <div class="faiz-kart"> <div class="fad"> TL mevduat faizi</div> <input type="text"inputmode="decimal"data-tur="oran"value="${durum.ayar.mevduatFaiz}"data-faiz="MEVDUAT" /> </div> <div class="faiz-kart"> <div class="fad"> Yıllık enflasyon</div> <input type="text"inputmode="decimal"data-tur="oran"value="${durum.ayar.enflasyon}"data-faiz="ENFLASYON" /> </div>`;
     onemli.forEach(kod => {
         const v = varlikBul(kod);
-        html += `<div class="faiz-kart"> <div class="fad">${v.bayrak} ${kod} faizi</div> <input type="number"step="0.25"value="${yabanciFaizAl(kod)}"data-faiz="${kod}" /> </div>`;
+        html += `<div class="faiz-kart"> <div class="fad">${v.bayrak} ${kod} faizi</div> <input type="text"inputmode="decimal"data-tur="oran"value="${yabanciFaizAl(kod)}"data-faiz="${kod}" /> </div>`;
     });
     $("#faizKartlari").innerHTML = html;
     $$("#faizKartlari input").forEach(inp => {
         inp.onchange = () => {
-            const d = inp.dataset.faiz, deger = parseFloat(inp.value) || 0;
+            const d = inp.dataset.faiz, ham = sayiOku(inp.value, "oran");
+            // Okunamayan girdi %0 faiz demek DEGILDIR. parseFloat(...)||0
+            // yuzunden "12,5" yazan kullanicinin faizi sessizce sifirlaniyordu.
+            if (ham === null) {
+                // Kutuya eski degeri geri yaz ki kullanici ne oldugunu gorsun.
+                inp.value = d === "TL" ? durum.ayar.tlFaiz
+                          : d === "MEVDUAT" ? durum.ayar.mevduatFaiz
+                          : d === "ENFLASYON" ? durum.ayar.enflasyon
+                          : ((durum.ayar.yabanciFaiz || {})[d] !== undefined
+                                ? durum.ayar.yabanciFaiz[d] : yabanciFaizAl(d));
+                return;
+            }
+            const deger = ham;
             if (d === "TL") durum.ayar.tlFaiz = deger;
             else if (d === "MEVDUAT") durum.ayar.mevduatFaiz = deger;
             else if (d === "ENFLASYON") durum.ayar.enflasyon = deger;
@@ -1098,7 +1163,7 @@ function portfoyCiz() {
         return `<div class="portfoy-satir"> <span class="bayrak">${k.simge}</span> <span><b>${k.ad}</b><br> <span style="font-size:12px;color:var(--yazi2)"> ${sayi(k.miktar, 4)} × ${paraYaz(k.fiyat)}
                 ${k.tur === "fon" ? ` · <span class="${eski ? "asagi" : ""}">fiyat ${k.guncelleme ? tarihYaz(k.guncelleme) : "girilmedi"}</span>` : ""}
  </span></span> <span style="text-align:right"><b>${paraYaz(k.deger)}</b> ${kazanc !== null ? `<br><span class="${kazanc >= 0 ? "yukari" : "asagi"}"style="font-size:12px">${yuzde(kazanc)}</span>` : ""}</span> <button class="sil"data-sil-tur="${k.tur}"data-sil="${k.tur === "fon" ? k.id : k.dizin}"title="Sil"></button> </div> ${k.tur === "fon" ? `<div class="fon-guncelle"> <label>Yeni birim fiyat
-                <input type="number"step="any"inputmode="decimal"placeholder="${sayi(k.fiyat, 4)}"data-fon-fiyat="${k.id}" /> </label> <button class="ikincil"data-fon-kaydet="${k.id}">Güncelle</button> </div>` : ""}`;
+                <input type="text"inputmode="decimal"placeholder="${sayi(k.fiyat, 4)}"data-fon-fiyat="${k.id}" /> </label> <button class="ikincil"data-fon-kaydet="${k.id}">Güncelle</button> </div>` : ""}`;
     }).join("");
 
     $$("#portfoyListe .sil").forEach(b => b.onclick = () => {
@@ -1113,8 +1178,9 @@ function portfoyCiz() {
     $$("[data-fon-kaydet]").forEach(b => b.onclick = () => {
         const id = b.dataset.fonKaydet;
         const kutu = document.querySelector(`[data-fon-fiyat="${id}"]`);
-        const yeni = parseFloat(kutu.value);
-        if (!yeni || yeni <= 0) { kutu.focus(); return; }
+        // PARA alani: "1.234,56" gibi Turkce yazim parseFloat'ta 1,234 olur.
+        const yeni = sayiOku(kutu.value);
+        if (yeni === null || yeni <= 0) { kutu.focus(); kutu.select(); return; }
         const f = (durum.ayar.fonlar || []).find(x => x.id === id);
         if (f) { f.fiyat = yeni; f.guncelleme = isoTarih(new Date()); ayarYaz(durum.ayar); portfoyCiz(); uyarilariCiz(); }
     });
@@ -1467,7 +1533,7 @@ function baslat() {
     // Alarm ekle
     $("#aEkleBtn").onclick = async () => {
         const kod = $("#aVarlik").value;
-        const seviye = parseFloat($("#aSeviye").value);
+        const seviye = sayiOku($("#aSeviye").value);
         if (!seviye || seviye <= 0) { $("#aSeviye").focus(); return; }
         durum.ayar.alarmlar = durum.ayar.alarmlar || [];
         durum.ayar.alarmlar.push({
@@ -1486,9 +1552,9 @@ function baslat() {
     // Fon / özel varlık ekle
     $("#fEkleBtn").onclick = () => {
         const ad = ($("#fAd").value || "").trim();
-        const miktar = parseFloat($("#fMiktar").value);
-        const fiyat = parseFloat($("#fFiyat").value);
-        const alis = parseFloat($("#fAlis").value);
+        const miktar = sayiOku($("#fMiktar").value);
+        const fiyat = sayiOku($("#fFiyat").value);
+        const alis = sayiOku($("#fAlis").value);
         if (!ad) { $("#fAd").focus(); return; }
         if (!miktar || miktar <= 0) { $("#fMiktar").focus(); return; }
         if (!fiyat || fiyat <= 0) { $("#fFiyat").focus(); return; }
@@ -1516,7 +1582,7 @@ function baslat() {
     tahminSecimDoldur();
     $("#tahminVarlik").onchange = () => { durum.secili = $("#tahminVarlik").value; $("#hedefFiyat").value = ""; tahminCiz(); };
     $("#agirlik").oninput = () => {
-        durum.ayar.pariteAgirlik = parseInt($("#agirlik").value, 10);
+        durum.ayar.pariteAgirlik = sayiOku($("#agirlik").value);
         $("#agirlikDeger").textContent = durum.ayar.pariteAgirlik + "%";
         ayarYaz(durum.ayar);
         tahminCiz();
@@ -1573,8 +1639,8 @@ function baslat() {
     // Portföy
     $("#pEkleBtn").onclick = () => {
         const kod = $("#pVarlik").value;
-        const miktar = parseFloat($("#pMiktar").value);
-        const alis = parseFloat($("#pAlis").value);
+        const miktar = sayiOku($("#pMiktar").value);
+        const alis = sayiOku($("#pAlis").value);
         if (!miktar || miktar <= 0) { $("#pMiktar").focus(); return; }
         durum.ayar.portfoy = durum.ayar.portfoy || [];
         durum.ayar.portfoy.push({ kod: kod, miktar: miktar, alis: isFinite(alis) ? alis : null });

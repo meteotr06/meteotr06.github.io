@@ -31,7 +31,7 @@
 <meta name="application-name" content="Kur Pusulası" />
 <!-- iPhone'da uygulama açılırken görünen ekran (Safari manifest'i kullanmaz) -->
 <link rel="apple-touch-startup-image" href="acilis-ekrani.png" />
-<link rel="stylesheet" href="stil.css?v=32" />
+<link rel="stylesheet" href="stil.css?v=35" />
 </head>
 <body>
 
@@ -176,7 +176,7 @@
         <summary><span>Olasılık hesabı</span><span class="ipuc">"şu seviyeyi geçer mi?"</span></summary>
         <div class="katlanir-ic">
             <div class="form-satir">
-                <label>Hedef seviye<input id="hedefFiyat" type="number" step="0.01" inputmode="decimal" /></label>
+                <label>Hedef seviye<input id="hedefFiyat" type="text" step="0.01" inputmode="decimal" /></label>
                 <label>Süre
                     <select id="hedefVade">
                         <option value="1">Yarın</option>
@@ -199,12 +199,12 @@
     <div class="kutu">
         <h3>Mevduat (vadeli hesap)</h3>
         <div class="form-izgara">
-            <label>Anapara (TL)<input id="mAna" type="number" value="100000" inputmode="decimal" /></label>
-            <label>Yıllık faiz (%)<input id="mFaiz" type="number" value="37" step="0.01" inputmode="decimal" /></label>
-            <label>Vade (gün)<input id="mVade" type="number" value="32" inputmode="numeric" /></label>
-            <label>Stopaj (%)<input id="mStopaj" type="number" value="15" step="0.1" inputmode="decimal" /></label>
+            <label>Anapara (TL)<input id="mAna" type="text" value="100000" inputmode="decimal" /></label>
+            <label>Yıllık faiz (%)<input id="mFaiz" type="text" value="37" step="0.01" inputmode="decimal" /></label>
+            <label>Vade (gün)<input id="mVade" type="text" value="32" inputmode="numeric" /></label>
+            <label>Stopaj (%)<input id="mStopaj" type="text" value="15" step="0.1" inputmode="decimal" /></label>
             <label class="onay"><input id="mBilesik" type="checkbox" /> Vade sonunda yenile (bileşik)</label>
-            <label>Kaç kez yenilensin<input id="mDonem" type="number" value="12" inputmode="numeric" disabled /></label>
+            <label>Kaç kez yenilensin<input id="mDonem" type="text" value="12" inputmode="numeric" disabled /></label>
         </div>
         <div id="mevduatSonuc" class="sonuc-kutu"></div>
     </div>
@@ -216,10 +216,10 @@
             eşitleneceğini</b> söyler.</p>
             <div class="form-izgara">
                 <label>Varlık<select id="bbVarlik"></select></label>
-                <label>TL yıllık faiz (%)<input id="bbTlFaiz" type="number" value="37" step="0.01" inputmode="decimal" /></label>
-                <label>Döviz yıllık faiz (%)<input id="bbDvFaiz" type="number" value="0" step="0.01" inputmode="decimal" /></label>
-                <label>Süre (gün)<input id="bbGun" type="number" value="30" inputmode="numeric" /></label>
-                <label>Stopaj (%)<input id="bbStopaj" type="number" value="15" step="0.1" inputmode="decimal" /></label>
+                <label>TL yıllık faiz (%)<input id="bbTlFaiz" type="text" value="37" step="0.01" inputmode="decimal" /></label>
+                <label>Döviz yıllık faiz (%)<input id="bbDvFaiz" type="text" value="0" step="0.01" inputmode="decimal" /></label>
+                <label>Süre (gün)<input id="bbGun" type="text" value="30" inputmode="numeric" /></label>
+                <label>Stopaj (%)<input id="bbStopaj" type="text" value="15" step="0.1" inputmode="decimal" /></label>
             </div>
             <div id="basabasSonuc" class="sonuc-kutu"></div>
         </div>
@@ -229,8 +229,8 @@
         <summary><span>Reel getiri</span><span class="ipuc">enflasyona karşı</span></summary>
         <div class="katlanir-ic">
             <div class="form-izgara">
-                <label>Nominal getiri (%)<input id="rNominal" type="number" value="37" step="0.01" inputmode="decimal" /></label>
-                <label>Enflasyon (%)<input id="rEnf" type="number" value="34.88" step="0.01" inputmode="decimal" /></label>
+                <label>Nominal getiri (%)<input id="rNominal" type="text" value="37" step="0.01" inputmode="decimal" /></label>
+                <label>Enflasyon (%)<input id="rEnf" type="text" value="34.88" step="0.01" inputmode="decimal" /></label>
             </div>
             <div id="reelSonuc" class="sonuc-kutu"></div>
         </div>
@@ -240,9 +240,9 @@
         <summary><span>Kredi taksiti</span><span class="ipuc">aylık ödeme</span></summary>
         <div class="katlanir-ic">
             <div class="form-izgara">
-                <label>Kredi tutarı (TL)<input id="kTutar" type="number" value="100000" inputmode="decimal" /></label>
-                <label>Aylık faiz (%)<input id="kFaiz" type="number" value="3.29" step="0.01" inputmode="decimal" /></label>
-                <label>Taksit sayısı<input id="kTaksit" type="number" value="12" inputmode="numeric" /></label>
+                <label>Kredi tutarı (TL)<input id="kTutar" type="text" value="100000" inputmode="decimal" /></label>
+                <label>Aylık faiz (%)<input id="kFaiz" type="text" value="3.29" step="0.01" inputmode="decimal" /></label>
+                <label>Taksit sayısı<input id="kTaksit" type="text" value="12" inputmode="numeric" /></label>
                 <label class="onay"><input id="kVergi" type="checkbox" checked /> KKDF+BSMV ekle</label>
             </div>
             <div id="krediSonuc" class="sonuc-kutu"></div>
@@ -296,8 +296,8 @@
         <h3>Varlık ekle</h3>
         <div class="form-izgara">
             <label>Varlık<select id="pVarlik"></select></label>
-            <label>Miktar<input id="pMiktar" type="number" step="any" inputmode="decimal" placeholder="1000" /></label>
-            <label>Alış fiyatı (TL, isteğe bağlı)<input id="pAlis" type="number" step="any" inputmode="decimal" placeholder="boş bırakılabilir" /></label>
+            <label>Miktar<input id="pMiktar" type="text" step="any" inputmode="decimal" placeholder="1000" /></label>
+            <label>Alış fiyatı (TL, isteğe bağlı)<input id="pAlis" type="text" step="any" inputmode="decimal" placeholder="boş bırakılabilir" /></label>
             <button id="pEkleBtn" class="birincil">Ekle</button>
         </div>
     </div>
@@ -310,9 +310,9 @@
             gündür güncellenmediğini hatırlatır.</p>
             <div class="form-izgara">
                 <label>Adı<input id="fAd" type="text" placeholder="AFA - Ak Portföy Hisse Fonu" /></label>
-                <label>Pay / adet<input id="fMiktar" type="number" step="any" inputmode="decimal" placeholder="1500" /></label>
-                <label>Güncel birim fiyat (TL)<input id="fFiyat" type="number" step="any" inputmode="decimal" placeholder="12,4567" /></label>
-                <label>Alış birim fiyatı (TL)<input id="fAlis" type="number" step="any" inputmode="decimal" placeholder="isteğe bağlı" /></label>
+                <label>Pay / adet<input id="fMiktar" type="text" step="any" inputmode="decimal" placeholder="1500" /></label>
+                <label>Güncel birim fiyat (TL)<input id="fFiyat" type="text" step="any" inputmode="decimal" placeholder="12,4567" /></label>
+                <label>Alış birim fiyatı (TL)<input id="fAlis" type="text" step="any" inputmode="decimal" placeholder="isteğe bağlı" /></label>
                 <button id="fEkleBtn" class="birincil">Fon ekle</button>
             </div>
         </div>
@@ -343,7 +343,7 @@
                         <option value="alt">Şu seviyenin ALTINA inerse</option>
                     </select>
                 </label>
-                <label>Seviye<input id="aSeviye" type="number" step="any" inputmode="decimal" /></label>
+                <label>Seviye<input id="aSeviye" type="text" step="any" inputmode="decimal" /></label>
                 <button id="aEkleBtn" class="birincil">Alarm kur</button>
             </div>
             <div id="alarmListe"></div>
@@ -399,8 +399,8 @@
     </div>
 </footer>
 
-<script src="cekirdek.js?v=32"></script>
-<script src="arayuz.js?v=32"></script>
+<script src="cekirdek.js?v=35"></script>
+<script src="arayuz.js?v=35"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

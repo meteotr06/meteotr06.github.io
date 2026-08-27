@@ -233,6 +233,88 @@ function degisimYuzde(eski, yeni) {
     return (yeni / eski - 1) * 100;
 }
 
+
+// ---------- SAYI OKUMA ----------
+// Kullanicinin yazdigi metni sayiya cevirir. Turkce ve Ingilizce
+// yazimlarin ikisini de dogru okur.
+//
+// NEDEN AYRI BIR ISLEV: alanlar `parseFloat(x.value)` ile okunuyordu ve
+// type="number" degeri parseFloat'a ulasmadan bozuyordu. Olculdu:
+//   "1.500"    -> tarayici 1.5 veriyor      (sessiz 1000 kat)
+//   "1.500,50" -> alan bosaliyor -> NaN -> `|| 0` -> sessizce 0
+// Ana para alaninda birincisi 100.000 TL'yi 100 TL yapiyordu; faiz
+// alaninda ikincisi faizi %0 yapiyordu.
+//
+// Bu surum "09 Hesap Araclari/hesap.js" icindeki SINANMIS cozumleyiciden
+// alindi (28 yazim denenmis). Yeni bir surum yazilmadi: "04 Muhasebe"de
+// dogru cozumleyici dururken fatura ve stok alanlari kendi basit
+// surumlerini yazmis ve miktarlar 1000 kat yanlis kaydediliyor.
+//
+// TEK FARK: bos/bozuk girdide 0 DEGIL null doner. Sifir gecerli bir
+// sayidir; "okuyamadim" ile "sifir yazdi" ayni sey degil. Cagiran taraf
+// null gorunce hesap YAPMAZ, kullaniciya soyler.
+//
+// tur="oran": faiz/enflasyon gibi alanlarda binlik ayirac yazilmaz,
+// nokta her zaman ondaliktir ("1.500" oran alaninda 1,5 demektir).
+function sayiOku(metin, tur) {
+    if (typeof metin === "number") return isFinite(metin) ? metin : null;
+    if (metin === null || metin === undefined) return null;
+
+    let s = String(metin).trim().replace(/\s/g, "").replace(/[₺%]|TL/gi, "");
+    if (s === "") return null;
+    const eksi = s.charAt(0) === "-";
+    if (eksi) s = s.slice(1);
+    // Rakam ve ayirac disinda ne varsa REDDET (kirpma yok: "12abc" -> null)
+    if (!/^[\d.,]+$/.test(s)) return null;
+
+    const sonNokta = s.lastIndexOf(".");
+    const sonVirgul = s.lastIndexOf(",");
+
+    if (sonNokta >= 0 && sonVirgul >= 0) {
+        // Ikisi de var -> SONDAKI ondaliktir, oteki binlik.
+        //   "1.500,50" (Turkce)    -> virgul sonda -> 1500.50
+        //   "1,500.50" (Ingilizce) -> nokta  sonda -> 1500.50
+        s = sonVirgul > sonNokta
+            ? s.replace(/\./g, "").replace(/,(?=[^,]*$)/, ".").replace(/,/g, "")
+            : s.replace(/,/g, "");
+    } else if (sonVirgul >= 0) {
+        // Yalniz virgul. Birden fazlaysa binlik olabilir ("1,234,567")
+        // ama GRUPLAR UC HANE OLMALI. Bu denetim nokta icin vardi,
+        // virgul icin YOKTU: "1,2,3" sessizce 123 oluyordu.
+        // SAYI-SINAMA kumesi yakaladi.
+        const vParca = s.split(",");
+        if (vParca.length > 2) {
+            const duzgun = vParca.slice(1).every(p => /^\d{3}$/.test(p)) &&
+                           /^[1-9]\d{0,2}$/.test(vParca[0]);
+            if (!duzgun) return null;
+            s = vParca.join("");
+        } else {
+            s = s.replace(",", ".");
+        }
+    } else if (sonNokta >= 0) {
+        const parca = s.split(".");
+        const son = parca[parca.length - 1];
+        if (tur === "oran") {
+            s = parca.slice(0, -1).join("") + "." + son;
+        } else if (son.length === 3 && /^[1-9]\d{0,2}$/.test(parca[0])) {
+            s = parca.join("");                          // "1.500" -> 1500
+        } else if (parca.length > 2) {
+            // "1.500.5" belirsiz: 1500,5 mi yoksa yanlis yazim mi?
+            // 09 Hesap Araclari bunu 1500.5 kabul ediyor. Burada
+            // REDDEDIYORUZ - para alaninda yanlis tutar hesaplamaktansa
+            // kullaniciya yeniden yazdirmak ucuz. SAYI-SINAMA kumesinin
+            // karari da bu. Ayrim bilerek yapildi, sessiz degil.
+            const hepsiUc = parca.slice(1).every(p => /^\d{3}$/.test(p));
+            if (!hepsiUc) return null;
+            s = parca.join("");
+        }
+    }
+
+    const d = parseFloat(s);
+    if (!isFinite(d)) return null;
+    return eksi ? -d : d;
+}
+
 // ---------- 4) VERİ ÇEKME ----------
 
 // Bütün paraların geçmişini TEK istekte alır.
@@ -397,7 +479,24 @@ function hamTahmin(seri, takvimGun, secenek) {
     const yabanciFaiz = ayar.yabanciFaiz !== undefined ? ayar.yabanciFaiz : 0;
     const w = (ayar.pariteAgirlik !== undefined ? ayar.pariteAgirlik : 60) / 100;
 
+    /* SUZGEC SESSIZ OLMASIN.
+       Bozuk/eksik noktalar buradan sessizce dusuyor ve model geri kalani
+       BITISIK gunler sanip devam ediyor. Olculdu (27.08.2026): 300 gunluk
+       bir seride son 150 gun (oynak donem) bozuk gelirse bant %68,7'den
+       %0,5'e iniyor -- yani veri kotulestikce uygulama DAHA emin
+       gorunuyor, hem de bunu hic soylemeden.
+
+       Uygulama bu duruma su an DUSMUYOR: hem `seriAl` hem `kurGecmisi`
+       bosluklari son bilinen fiyatla dolduruyor, o yuzden seride ic
+       bosluk kalmiyor (tasima bandi daraltmiyor, ölçüldü: genisletiyor).
+       Ama `tahminYap` disa acik bir API; cagiran her zaman bu dolduran
+       yollardan gecmek zorunda degil. Cagiranin dikkatli olmasi bir
+       tercihtir, sozlesme degil.
+
+       Sayiyi DEGISTIRMIYORUZ; yalnizca kac nokta dustugunu sonuca
+       yaziyoruz ki susan bir suzgec olmaktan ciksin. */
     const temiz = seri.filter(x => x && isFinite(x));
+    const atlanan = seri.length - temiz.length;
     if (temiz.length < 40) return null;
 
     const spot = temiz[temiz.length - 1];
@@ -424,6 +523,8 @@ function hamTahmin(seri, takvimGun, secenek) {
 
     return {
         gun: takvimGun,
+        atlananNokta: atlanan,          /* suzgecin dustugu nokta sayisi */
+        kullanilanNokta: temiz.length,
         spot: spot,
         merkez: merkez,
         trend: trendTahmin,
