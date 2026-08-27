@@ -22,32 +22,32 @@ var SURUM = '0.1.0';
    Koddaki katsayılar buraya atıfla açıklanır. KARARLAR.md ile aynı kodlar.
    ------------------------------------------------------------------- */
 var KAYNAK = {
-  K1: 'Afsar, Yilmazel & Yilmazel (2017), Konut Fiyatlarini Etkileyen ' +
-      'Faktorlerin Hedonik Model ile Belirlenmesi: Eskisehir Ornegi, ' +
-      'Selcuk Un. Sos. Bil. Ens. Der. 37:195-205. 4311 konut, R2=0,842.',
-  K2: 'Baser, V. (2020), Tarımsal Arazi Degerlemesinde Mevcut Sorunlar ve ' +
-      'Cozum Yaklasimlari, Karadeniz Fen Bil. Der. 10(2):431-442.',
+  K1: 'Afşar, Yılmazel & Yılmazel (2017), Konut Fiyatlarını Etkileyen ' +
+      'Faktörlerin Hedonik Model ile Belirlenmesi: Eskişehir Örneği, ' +
+      'Selçuk Un. Sos. Bil. Ens. Der. 37:195-205. 4311 konut, R2=0,842.',
+  K2: 'Başer, V. (2020), Tarımsal Arazi Değerlemesinde Mevcut Sorunlar ve ' +
+      'Çözüm Yaklaşımları, Karadeniz Fen Bil. Der. 10(2):431-442.',
   K5: 'Yargıtay 18. Hukuk Dairesi 2014/4328 E., 2014/6755 K. — belediye ' +
       'hizmeti almayan taşınmaz arazi niteliğiyle değerlemeye konu edilir.',
-  K6: 'Ozguven, M. & Erenoglu, R.C. (2020), Taşınmaz değer haritalarinin CBS ile ' +
-      'uretilmesi: Çanakkale ornegi, Jeodezi ve Jeoinformasyon Der. 7(1):29-46. ' +
+  K6: 'Özgüven, M. & Erenoğlu, R.C. (2020), Taşınmaz değer haritalarının CBS ile ' +
+      'üretilmesi: Çanakkale örneği, Jeodezi ve Jeoinformasyon Der. 7(1):29-46. ' +
       '87 YAPISIZ ARSA parseli, 15 SPK lisanslı uzmana AHS anketi, CR=0,05. ' +
-      'ARSA-OZEL ağırlık seti.',
-  K7: 'Doldur, M. & Alkan, R.M. (2021), Nominal Değerleme Yontemi ile CBS Destekli ' +
-      'Taşınmaz Değer Haritalari: Avanos/Nevsehir, AKU FEMUBID 21(4):846-863. ' +
+      'ARSA-ÖZEL ağırlık seti.',
+  K7: 'Doldur, M. & Alkan, R.M. (2021), Nominal Değerleme Yöntemi ile CBS Destekli ' +
+      'Taşınmaz Değer Haritaları: Avanos/Nevşehir, AKÜ FEMÜBİD 21(4):846-863. ' +
       'AHP CR=0,00004. Yayımlanmış PUANLAMA TABLOLARI.',
-  K8: 'Kilic, O., Baser, U. & Gulser, C. (2019), Factors explaining urban land value ' +
-      'variability: Atakum, Samsun, New Medit 18(4):79-88. 2017 yilinda satilmis ' +
+  K8: 'Kılıç, O., Başer, U. & Gülser, C. (2019), Factors explaining urban land value ' +
+      'variability: Atakum, Samsun, New Medit 18(4):79-88. 2017 yılında satılmış ' +
       '64 ARSA parseli, hedonik regresyon, R2=0,798.',
-  K9: 'Cakir, P. & Sesli, F.A. (2013), Arsa Vasifli Tasinmazlarin Degerine Etki Eden ' +
-      'Faktorler, Harita Tek. Elektronik Der. 5(3):1-16. 50 yetkin uzman ' +
-      '(kamulastirma bilirkisisi + SPK uzmani), Cronbach alfa=0,933.',
-  K10: 'Yalpir, S. & Bunyan Unel, F. (2016), Arsa Degerlemede Kullanilan Kriterlerin ' +
-       'Irdelenmesi ve Faktör Analizi ile Azaltimi, AKU FEMUBID 16(2):303-322. ' +
+  K9: 'Çakır, P. & Sesli, F.A. (2013), Arsa Vasıflı Taşınmazların Değerine Etki Eden ' +
+      'Faktörler, Harita Tek. Elektronik Der. 5(3):1-16. 50 yetkin uzman ' +
+      '(kamulaştırma bilirkişisi + SPK uzmanı), Cronbach alfa=0,933.',
+  K10: 'Yalpır, S. & Bünyan Ünel, F. (2016), Arsa Değerlemede Kullanılan Kriterlerin ' +
+       'İrdelenmesi ve Faktör Analizi ile Azaltımı, AKÜ FEMÜBİD 16(2):303-322. ' +
        'N=559 uzman, KMO=0,865. 125 soru -> 64 kriter, 10 faktör. ' +
-       'ONEMLI NEGATIF BULGU: "arsanin hisseli olmasi" ve "arsanin alanı" ' +
-       'korelasyon <%30 oldugu için ELENDI; "arsanin eğimi" faktör yuku <0,40 ' +
-       'oldugu için ELENDI.'
+       'ÖNEMLİ NEGATIF BULGU: "arsanın hisseli olması" ve "arsanın alanı" ' +
+       'korelasyon <%30 olduğu için ELENDİ; "arsanın eğimi" faktör yükü <0,40 ' +
+       'olduğu için ELENDİ.'
 };
 
 /* Güven seviyeleri. Kullanıcıya gösterilecek dil de buradan gelir. */
@@ -61,7 +61,7 @@ var GUVEN = {
 var GUVEN_ETIKET = {
   mevzuat:   'Mevzuat',
   olculdu:   'Olculmus',
-  kalibre:   'Uzman siralamasiyla ayarlandi',
+  kalibre:   'Uzman sıralamasıyla ayarlandı',
   baslangic: 'Tahmin (kalibre edilecek)'
 };
 
@@ -135,8 +135,33 @@ var DUZELTME = {
   kaks: {
     ad: 'Yapılaşma hakkı (KAKS / Emsal)',
     soru: 'İmar durumunda emsal kaç?',
+    /* GUVEN DEGISMEDI: 'baslangic'. Literatur taramasi 27.08.2026'da
+       yapildi ve ISLEV BICIMINI dogruladi, BUYUKLUGU dogrulamadi.
+
+       Ne bulundu: arsa fiyatinin emsale (FAR/KAKS) gore esnekligi,
+       icbukeylik geregi KURAMSAL OLARAK 1'in ALTINDADIR — yani azalan
+       getiri varsayimimiz uydurma degil, turetilmis bir sonuc. Ayrica
+       esneklik SABIT DEGIL: kisit ne kadar bagliyorsa o kadar buyuyor
+       ve sehir merkezinden uzaklastikca dusuyor.
+
+       Ne BULUNAMADI: Turkiye icin olculmus bir buyukluk. Olculen aralik
+       da genis — bes ABD sehrinde temel belirtimde 0,42-0,98; posta kodu
+       sabit etkileri eklenince 0,09-0,52 (San Francisco'da anlamsiz).
+       Ustelimiz 0,60 bu araligin ICINDE ama Turkiye'den bir sayi degil.
+
+       GECERLILIK ALANI: kaynak bes ABD sehri (New York, Chicago,
+       Washington D.C., Boston, San Francisco), 2000-2018 BOS ARSA
+       satislari, kent merkezleri. Turkiye ornekte YOK. Bu sayiyi buraya
+       tasimak, nominal modelde kendi koydugumuz gecerlilik alani
+       kuralini cignemek olurdu. O yuzden etiket 'tahmin' KALIYOR. */
     guven: GUVEN.BASLANGIC,
-    kaynak: 'Azalan getiri varsayımı. Üstel kalibre edilecek.',
+    kaynak: 'İşlev biçimi (üstel < 1, azalan getiri) kuramsal olarak ' +
+            'türetilmiş ve olculmustur: Brueckner & Singh (2020), Journal ' +
+            'of Urban Economics 116, doi:10.1016/j.jue.2020.103239; aynı ' +
+            'çerçeve Brueckner, Fu, Gu & Zhang (2017), Rev. Econ. Stat. ' +
+            '99(4) 663-677 (Çin). Ölçülen esneklik aralığı 0,09-0,98 ' +
+            '(şehre ve belirtime göre). ÜSTEL 0,60 bu aralığın içinde ama ' +
+            'Türkiye için ÖLÇÜLMEDİ — büyüklük tahmindir.',
     tip: 'surekli',
     referans: 1.00,
     ustel: 0.60,
@@ -166,9 +191,9 @@ var DUZELTME = {
     soru: 'Elektrik, su, kanalizasyon geliyor mu?',
     guven: GUVEN.KALIBRE,
     kaynak: 'K9: 50 uzman anketinde 15 anlamlı faktör arasında 4. sırada ' +
-            '(69,80/100) — "caddeye cikis"tan (66,50) DAHA onemli bulunmus. ' +
-            'Bizim ilk tahminimiz bunu 7. siraya koyuyordu; etki araligi ' +
-            'yukseltildi. Buyukluk hala bizim, sadece SIRASI denetlendi.',
+            '(69,80/100) — "caddeye çıkış"tan (66,50) DAHA önemli bulunmuş. ' +
+            'Bizim ilk tahminimiz bunu 7. sıraya koyuyordu; etki aralığı ' +
+            'yükseltildi. Büyüklük hâlâ bizim, sadece SIRASI denetlendi.',
     tip: 'secenek',
     secenek: {
       tam:   { ad: 'Elektrik + su + kanalizasyon var', carpan: 1.00 },
@@ -182,7 +207,7 @@ var DUZELTME = {
     soru: 'Merkeze göre neresi?',
     guven: GUVEN.OLCULDU,
     kaynak: 'K1: mahalle katsayıları +%5,5 ile +%20,6 arasında ölçüldü. ' +
-            'Bandin genisligi oradan gelir; secenek eslesmesi tahminidir.',
+            'Bandın genişliği oradan gelir; seçenek eşleşmesi tahminidir.',
     tip: 'secenek',
     secenek: {
       merkez: { ad: 'Merkez / gelişmiş mahalle', carpan: 1.21 },
@@ -223,16 +248,16 @@ var DUZELTME = {
     soru: 'Parselin şekli düzgün mü?',
     guven: GUVEN.KALIBRE,
     kaynak: 'K8: Atakum/Samsun, 64 arsa parseli, hedonik regresyon. Düzgün ' +
-            'şekilli parsel duzensiz olandan +138,11 TL/m2 pahali (p<0,05, ' +
-            'ISTATISTIKSEL OLARAK ANLAMLI). Ayni modelde 1 birim emsal artışı ' +
-            '+233,06 TL/m2; yani sekil, emsalin yaklasik %59 kadari etkili. ' +
-            'Ilk tahminimiz şekli en zayif faktör yapiyordu, guclendirildi. ' +
-            'Mutlak TL degerleri 2017 Samsun fiyatidir, taşınmaz.',
+            'şekilli parsel düzensiz olandan +138,11 TL/m2 pahalı (p<0,05, ' +
+            'ISTATISTIKSEL OLARAK ANLAMLI). Aynı modelde 1 birim emsal artışı ' +
+            '+233,06 TL/m2; yani şekil, emsalin yaklaşık %59 kadarı etkili. ' +
+            'Ilk tahminimiz şekli en zayıf faktör yapıyordu, güçlendirildi. ' +
+            'Mutlak TL değerleri 2017 Samsun fiyatıdır, taşınmaz.',
     tip: 'secenek',
     secenek: {
       duzgun:   { ad: 'Düzgün (kare / dikdörtgen)', carpan: 1.00 },
       duzensiz: { ad: 'Düzensiz şekilli',           carpan: 0.90 },
-      dar:      { ad: 'Cok dar / uzun şerit',       carpan: 0.80 }
+      dar:      { ad: 'Çok dar / uzun şerit',       carpan: 0.80 }
     }
   }
 };
@@ -446,7 +471,7 @@ var BELEDIYE_HIZMETLERI = ['yol', 'su', 'elektrik', 'ulasim',
 
 var HIZMET_ADI = {
   yol: 'Yol', su: 'Su', elektrik: 'Elektrik', ulasim: 'Ulasim',
-  cop: 'Cop toplama', kanalizasyon: 'Kanalizasyon', aydinlatma: 'Aydinlatma'
+  cop: 'Çöp toplama', kanalizasyon: 'Kanalizasyon', aydinlatma: 'Aydinlatma'
 };
 
 function vasif_belirle(g) {
@@ -465,16 +490,16 @@ function vasif_belirle(g) {
   if (!belediye_icinde) {
     kod = 'arazi';
     sonuc = 'ARAZI';
-    gerekce = 'Belediye veya mucavir alan sinirlari disinda.';
+    gerekce = 'Belediye veya mücavir alan sınırları dışında.';
   } else if (gelen.length === 0) {
     kod = 'arazi';
     sonuc = 'ARAZI';
-    gerekce = 'Belediye sınırında olsa da hicbir belediye hizmeti gelmiyor. ' +
-              'K5 uyarinca arazi niteliginde degerlendirilir.';
+    gerekce = 'Belediye sınırında olsa da hiçbir belediye hizmeti gelmiyor. ' +
+              'K5 uyarinca arazi niteliginde değerlendirilir.';
   } else if (!imar_plani) {
     kod = 'arsa_plansiz';
     sonuc = 'ARSA (imar planı yok)';
-    gerekce = 'Belediye hizmeti var ama imar planı bulunmuyor; yapilasma ' +
+    gerekce = 'Belediye hizmeti var ama imar planı bulunmuyor; yapılaşma ' +
               'hakkı belirsiz.';
   } else {
     kod = 'arsa';
@@ -545,8 +570,8 @@ function imar_hesapla(g) {
     tahmini_daire_sayisi: daire,
     uyari: uyari,
     not: 'Çekme mesafeleri, minimum parsel büyüklüğü ve emsal harici alanlar ' +
-         '(bodrum, otopark, siginak) belediyenin imar durum belgesinde yazar. ' +
-         'Bu hesap UST SINIRDIR; gercek proje daha kucuk cikabilir.'
+         '(bodrum, otopark, sığınak) belediyenin imar durum belgesinde yazar. ' +
+         'Bu hesap ÜST SINIRDIR; gerçek proje daha küçük çıkabilir.'
   };
 }
 
@@ -562,7 +587,7 @@ function deger_tahmini(emsal, hedef) {
 
   var birim = sayi(emsal.birim_fiyat);
   if (!birim || birim <= 0) {
-    return { hata: 'Emsal birim fiyati (TL/m2) girilmeden tahmin yapilamaz.' };
+    return { hata: 'Emsal birim fiyatı (TL/m2) girilmeden tahmin yapılamaz.' };
   }
   var alan = sayi(hedef.alan);
 
@@ -658,10 +683,10 @@ function deger_tahmini(emsal, hedef) {
   }
 
   sonuc.guven_notu =
-    'Bu bir DEĞERLEME RAPORU DEĞİLDİR, bilgilendirme amaclidir. ' +
-    'Hakemli bir hedonik modelin bile aciklama gucu %84 civarindadir (K1); ' +
-    'yani en iyi durumda bile fiyatin yaklasik altida biri aciklanamaz. ' +
-    (eksik.length ? (eksik.length + ' bilgi eksik oldugu için bant genisledi. ') : '') +
+    'Bu bir DEĞERLEME RAPORU DEĞİLDİR, bilgilendirme amaçlıdır. ' +
+    'Hakemli bir hedonik modelin bile açıklama gücü %84 civarındadır (K1); ' +
+    'yani en iyi durumda bile fiyatın yaklaşık altıda biri aciklanamaz. ' +
+    (eksik.length ? (eksik.length + ' bilgi eksik olduğu için bant genişledi. ') : '') +
     'Kesin değer için SPK lisanslı değerleme uzmanına başvurun.';
 
   return sonuc;
@@ -683,14 +708,14 @@ function risk_tara(g) {
   var vasif = vasif_belirle(g);
 
   if (vasif.kod === 'arazi') {
-    ekle('kritik', 'Bu taşınmaz hukuken ARSA degil, ARAZI',
-      vasif.gerekce + ' Arazi vasfindaki taşınmazın değeri arsaya göre kat kat dusuktur.',
-      'Satici "arsa" diyorsa tapu kaydini ve belediyeden imar durumunu isteyin. ' +
+    ekle('kritik', 'Bu taşınmaz hukuken ARSA değil, ARAZI',
+      vasif.gerekce + ' Arazi vasfindaki taşınmazın değeri arsaya göre kat kat düşüktür.',
+      'Satıcı "arsa" diyorsa tapu kaydını ve belediyeden imar durumunu isteyin. ' +
       'Eksik hizmetler: ' + (vasif.eksik_hizmetler.join(', ') || '-'));
   } else if (vasif.kod === 'arsa_plansiz') {
     ekle('uyari', 'İmar planı yok',
-      'Belediye hizmeti var ama imar planı bulunmuyor; ne yapabileceginiz belirsiz.',
-      'Belediyeden imar durum belgesi (cap) isteyin. Plan yapilana kadar ' +
+      'Belediye hizmeti var ama imar planı bulunmuyor; ne yapabileceğiniz belirsiz.',
+      'Belediyeden imar durum belgesi (çap) isteyin. Plan yapilana kadar ' +
       'inşaat ruhsatı alinamayabilir.');
   }
 
@@ -712,7 +737,7 @@ function risk_tara(g) {
   } else if (g.yola_cephe === 'kadastro') {
     ekle('uyari', 'Sadece kadastro yoluna cepheli',
       'Kadastro yolu imar yolu değildir; ruhsat için yeterli olmayabilir.',
-      'Belediyeden yolun imar planindaki durumunu teyit ettirin.');
+      'Belediyeden yolun imar planındaki durumunu teyit ettirin.');
   }
 
   if (g.takyidat_var) {
@@ -738,7 +763,7 @@ function risk_tara(g) {
   if (g.egim === 'dik') {
     ekle('bilgi', 'Dik arazi',
       'Eğim; istinat duvarı, hafriyat ve temel maliyeti demektir.',
-      'Insaat maliyetine eğim payi ekleyin; proje oncesi zemin etudu yaptirin.');
+      'İnşaat maliyetine eğim payı ekleyin; proje öncesi zemin etudu yaptırın.');
   }
 
   var sirala = { kritik: 0, uyari: 1, bilgi: 2 };
@@ -953,7 +978,7 @@ function nominal_puan(parsel) {
   });
 
   if (agirlik_toplami === 0) {
-    return { hata: 'Nominal puan için hicbir faktör bilgisi girilmedi.',
+    return { hata: 'Nominal puan için hiçbir faktör bilgisi girilmedi.',
              eksik: eksik };
   }
 
@@ -1023,18 +1048,18 @@ function nominal_gecerli_mi(parsel) {
   var sebep = [];
 
   if (parsel.nitelik && NOMINAL_GECERLI.nitelik.indexOf(parsel.nitelik) === -1) {
-    sebep.push('Nominal ağırlık seti YAPISIZ ARSA parselleriyle uretildi; ' +
-               'arazi/tarla vasfinda gecerli degil.');
+    sebep.push('Nominal ağırlık seti YAPISIZ ARSA parselleriyle üretildi; ' +
+               'arazi/tarla vasfında geçerli değil.');
   }
   if (parsel.imar_fonksiyon &&
       NOMINAL_GECERLI.imar_fonksiyon.indexOf(parsel.imar_fonksiyon) === -1) {
     sebep.push('İmar fonksiyonu "' + parsel.imar_fonksiyon + '" modelin ' +
-               'dogrulandigi kentsel kullanimlar disinda.');
+               'dogrulandigi kentsel kullanimlar dışında.');
   }
   var k = sayi(parsel.kaks);
   if (k !== null && (k < NOMINAL_GECERLI.kaks_alt || k > NOMINAL_GECERLI.kaks_ust)) {
     sebep.push('Emsal ' + k + '; model ' + NOMINAL_GECERLI.kaks_alt + '-' +
-               NOMINAL_GECERLI.kaks_ust + ' araliginda dogrulandi.');
+               NOMINAL_GECERLI.kaks_ust + ' aralığında doğrulandı.');
   }
 
   return { gecerli: sebep.length === 0, sebep: sebep };
@@ -1045,13 +1070,13 @@ function nominal_gecerli_mi(parsel) {
 function deger_nominal(emsal, hedef) {
   var birim = sayi(emsal && emsal.birim_fiyat);
   if (!birim || birim <= 0) {
-    return { hata: 'Emsal birim fiyati girilmeden nominal tahmin yapilamaz.' };
+    return { hata: 'Emsal birim fiyatı girilmeden nominal tahmin yapılamaz.' };
   }
   /* Once gecerlilik alani: disaridaysa SAYI URETMIYORUZ. */
   var alan_kontrol = nominal_gecerli_mi(hedef);
   if (!alan_kontrol.gecerli) {
     return {
-      hata: 'Nominal yöntem bu parsel için gecerli degil.',
+      hata: 'Nominal yöntem bu parsel için geçerli değil.',
       gecerlilik_disi: true,
       sebep: alan_kontrol.sebep,
       kaynak: KAYNAK.K6
@@ -1063,7 +1088,7 @@ function deger_nominal(emsal, hedef) {
   if (pe.hata) return { hata: 'Emsal parsel için: ' + pe.hata };
   if (ph.hata) return { hata: 'Hedef parsel için: ' + ph.hata };
   if (pe.puan <= 0) {
-    return { hata: 'Emsal parselin nominal puani sifir; oran kurulamaz.' };
+    return { hata: 'Emsal parselin nominal puanı sıfır; oran kurulamaz.' };
   }
 
   var puan_orani = ph.puan / pe.puan;
@@ -1086,8 +1111,8 @@ function deger_nominal(emsal, hedef) {
     hedef_kalemler: ph.kalemler,
     eksik: ph.eksik,
     not: 'Nominal ağırlık seti (K6) yola cephe, tapu türü ve arsa/arazi vasfını ' +
-         'icermez. Bu uc faktorun duzeltmesi ayrica uygulanmistir; aksi halde ' +
-         'yöntem parselin en agir kusurlarini goremezdi.',
+         'içermez. Bu uc faktörün düzeltmesi ayrıca uygulanmistir; aksi halde ' +
+         'yöntem parselin en ağır kusurlarını göremezdi.',
     kaynak: KAYNAK.K6 + ' | ' + KAYNAK.K7
   };
 }
@@ -1118,7 +1143,7 @@ function deger_nominal(emsal, hedef) {
 var BOLGE_PROFILI = {
   canakkale: {
     ad: 'Kıyı ilçesi (Çanakkale)',
-    kume: '87 yapisiz arsa parseli, Çanakkale Merkez/Esenler Mah., ' +
+    kume: '87 yapısız arsa parseli, Çanakkale Merkez/Esenler Mah., ' +
           '15 SPK lisanslı uzman AHS, CR=0,05',
     kaynak: 'K6',
     /* Varsayilan agirliklar zaten bu setten geliyor */
@@ -1126,14 +1151,14 @@ var BOLGE_PROFILI = {
   },
   avanos_m1: {
     ad: 'Ic Anadolu ilçesi — literatür ağırlıkları (Avanos M-1)',
-    kume: 'Avanos/Nevsehir; agirliklar Nisanci 2005, Erbil 2014, Mete 2019 ' +
+    kume: 'Avanos/Nevşehir; ağırlıklar Nişancı 2005, Erbil 2014, Mete 2019 ' +
           'calismalarindan devralinmis',
     kaynak: 'K7',
     agirlik: { merkez: 5.37, kamu_hizmetleri: 6.37, egim: 3.22 }
   },
   avanos_m2: {
     ad: 'Ic Anadolu ilçesi — AHP ağırlıkları (Avanos M-2)',
-    kume: 'Avanos/Nevsehir; ayni 19 faktör, arastirmacilarin kendi AHP ' +
+    kume: 'Avanos/Nevşehir; aynı 19 faktör, arastirmacilarin kendi AHP ' +
           'anketi, CR=0,00004',
     kaynak: 'K7',
     agirlik: { merkez: 12.21, kamu_hizmetleri: 8.46, egim: 3.24 }
@@ -1144,7 +1169,7 @@ var BOLGE_PROFILI = {
    Profilde tanimli olmayan faktorler varsayilan (K6) agirligini korur. */
 function nominal_puan_profilli(parsel, profil_adi) {
   var profil = BOLGE_PROFILI[profil_adi];
-  if (!profil) return { hata: 'Bilinmeyen bolge profili: ' + profil_adi };
+  if (!profil) return { hata: 'Bilinmeyen bölge profili: ' + profil_adi };
 
   var yedek = {};
   Object.keys(profil.agirlik).forEach(function (k) {
@@ -1169,11 +1194,11 @@ function nominal_puan_profilli(parsel, profil_adi) {
 /* Yayimlanmis butun profilleri kosup aralarindaki yayilimi olcer. */
 function profil_yayilimi(emsal, hedef) {
   var birim = sayi(emsal && emsal.birim_fiyat);
-  if (!birim || birim <= 0) return { hata: 'Emsal birim fiyati gerekli.' };
+  if (!birim || birim <= 0) return { hata: 'Emsal birim fiyatı gerekli.' };
 
   var alan_kontrol = nominal_gecerli_mi(hedef);
   if (!alan_kontrol.gecerli) {
-    return { hata: 'Nominal yöntem bu parsel için gecerli degil.',
+    return { hata: 'Nominal yöntem bu parsel için geçerli değil.',
              gecerlilik_disi: true, sebep: alan_kontrol.sebep };
   }
 
@@ -1190,7 +1215,7 @@ function profil_yayilimi(emsal, hedef) {
     });
   });
 
-  if (!sonuclar.length) return { hata: 'Hicbir profil hesaplanamadi.' };
+  if (!sonuclar.length) return { hata: 'Hiçbir profil hesaplanamadı.' };
 
   var fiyatlar = sonuclar.map(function (x) { return x.birim_fiyat; });
   var enAz = Math.min.apply(null, fiyatlar);
@@ -1203,7 +1228,7 @@ function profil_yayilimi(emsal, hedef) {
     en_az: enAz, en_cok: enCok, ortalama: yuvarla(ortalama, 0),
     yayilim_yuzde: yuvarla(yayilim * 100, 1),
     not: 'Yayımlanmış ağırlık setleri arasındaki fark. Büyükse, bölgeye ' +
-         'göre degisen bir sey olcuyoruz demektir ve bant genisler.'
+         'göre değişen bir şey ölçüyoruz demektir ve bant genişler.'
   };
 }
 
@@ -1295,10 +1320,10 @@ function deger_analizi(emsal, hedef) {
       ? ('İki bağımsız yöntem kullanıldı; aralarındaki ayrışma %' +
          sonuc.ayrisma_yuzde + '. ')
       : (nominal_sonuc.gecerlilik_disi
-          ? ('Ikinci yöntem (nominal puanlama) bu parsel için GECERLI DEGIL, ' +
+          ? ('Ikinci yöntem (nominal puanlama) bu parsel için GEÇERLİ DEĞİL, ' +
              'kullanilmadi: ' + nominal_sonuc.sebep.join(' ') +
-             ' Tek yontemle kalindigi için bant genisletildi. ')
-          : 'Tek yöntem kullanilabildi; bant bu yuzden genis. ')) +
+             ' Tek yöntemle kalındığı için bant genişletildi. ')
+          : 'Tek yöntem kullanılabildi; bant bu yüzden geniş. ')) +
     'Bu bir DEĞERLEME RAPORU DEĞİLDİR. Kesin değer için SPK lisanslı ' +
     'değerleme uzmanına başvurun.';
 

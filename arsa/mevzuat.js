@@ -45,19 +45,19 @@ function sayi(x, tur) {
 var YIL = 2026;
 
 var MEVZUAT_KAYNAK = {
-  M1: 'Çevre, Sehircilik ve Iklim Degisikligi Bakanligi — 2026 Yili Yapı ' +
-      'Yaklasik Birim Maliyetleri Hakkinda Teblig. RG 3/2/2026, Sayi 33157. ' +
-      'Yururluk: 1/1/2026.',
-  M2: '492 sayili Harclar Kanunu, (4) sayili tarife I-20/a (tapu satış harci) ' +
-      've md. 63 (matrah, emlak vergisi degerinden az olamaz).',
-  M3: '1319 sayili Emlak Vergisi Kanunu md. 8 (bina) ve md. 18 (arazi/arsa). ' +
-      'Buyuksehirde oranlar iki kat (5216 s.K.).',
+  M1: 'Çevre, Şehircilik ve Iklim Değişikliği Bakanlığı — 2026 Yılı Yapı ' +
+      'Yaklaşık Birim Maliyetleri Hakkında Tebliğ. RG 3/2/2026, Sayı 33157. ' +
+      'Yürürlük: 1/1/2026.',
+  M2: '492 sayılı Harçlar Kanunu, (4) sayılı tarife I-20/a (tapu satış harcı) ' +
+      've md. 63 (matrah, emlak vergisi değerinden az olamaz).',
+  M3: '1319 sayılı Emlak Vergisi Kanunu md. 8 (bina) ve md. 18 (arazi/arsa). ' +
+      'Büyükşehirde oranlar iki kat (5216 s.K.).',
   M4: 'GVK mukerrer md. 80/6, 81 ve md. 103. 2026 istisna ve tarife: ' +
-      '332 Seri No.lu Gelir Vergisi Genel Tebligi, RG 31/12/2025, ' +
-      'Sayi 33124 (5. Mukerrer).',
-  M5: 'Planli Alanlar İmar Yonetmeligi, RG 3/7/2017-30113. Son degisiklikler: ' +
+      '332 Seri No.lu Gelir Vergisi Genel Tebliği, RG 31/12/2025, ' +
+      'Sayı 33124 (5. Mukerrer).',
+  M5: 'Planlı Alanlar İmar Yönetmeliği, RG 3/7/2017-30113. Son değişiklikler: ' +
       'RG 13/8/2025-32985, RG 14/1/2026-33137, RG 1/7/2026-33297.',
-  M6: 'TKGM 2026 Yili Doner Sermaye Tarife Cetveli. Yururluk 1/1/2026.'
+  M6: 'TKGM 2026 Yılı Döner Sermaye Tarife Cetveli. Yürürlük 1/1/2026.'
 };
 
 /* ---------------------------------------------------------------------
@@ -75,12 +75,12 @@ var YAPI_BIRIM_MALIYET = {
   '1D': { tl: 4800,   ad: 'I-D — Güneş enerji santrali (GES)' },
   '2A': { tl: 8100,   ad: 'II-A — Genel amaçlı depo, tarımsal endüstri, deniz iskelesi' },
   '2B': { tl: 12500,  ad: 'II-B — Konteyner kent, hangar, halı saha, kapalı pazar yeri' },
-  '2C': { tl: 15100,  ad: 'II-C — Bag/köy/yayla evi (kırsal, brüt <200 m2), bungalov' },
+  '2C': { tl: 15100,  ad: 'II-C — Bağ/köy/yayla evi (kırsal, brüt <200 m2), bungalov' },
   '3A': { tl: 19800,  ad: 'III-A — KONUT: apartman tipi, uc kata kadar (uc kat dahil)' },
   '3B': { tl: 21050,  ad: 'III-B — KONUT: uc kat üzeri, yapı yüksekliği <=21,50 m; ' +
                            'müstakil/ikiz konut (brüt <200 m2)' },
   '3C': { tl: 23400,  ad: 'III-C — KONUT: 21,50 m < H <= 30,50 m; müstakil/ikiz ' +
-                           '(200-500 m2); lise; ogrenci yurdu' },
+                           '(200-500 m2); lise; öğrenci yurdu' },
   '4A': { tl: 26450,  ad: 'IV-A — KONUT: 30,50 m < H <= 51,50 m; AVM (<25.000 m2); otel 1-2 yıldız' },
   '4B': { tl: 33900,  ad: 'IV-B — KONUT: H > 51,50 m; müstakil/ikiz (>=500 m2); banka; düğün salonu' },
   '4C': { tl: 40500,  ad: 'IV-C — Adalet sarayı, AVM (>=25.000 m2), hastane (<200 yatak), otel 3 yıldız' },
@@ -101,7 +101,7 @@ function konut_sinifi(g) {
 
   if (mustakil) {
     /* Mustakil/ikiz konutlarda olcut bagimsiz bolum brut alanidir (M1). */
-    if (!isFinite(brut)) return { hata: 'Müstakil konutta bağımsız bolum brüt alanı gerekli.' };
+    if (!isFinite(brut)) return { hata: 'Müstakil konutta bağımsız bölüm brüt alanı gerekli.' };
     if (brut < 200) return { sinif: '3B', gerekce: 'Müstakil/ikiz konut, brüt < 200 m2' };
     if (brut < 500) return { sinif: '3C', gerekce: 'Müstakil/ikiz konut, brüt 200-500 m2' };
     return { sinif: '4B', gerekce: 'Müstakil/ikiz konut, brüt >= 500 m2' };
@@ -122,10 +122,10 @@ function konut_sinifi(g) {
       return { hata: 'Kat adedi veya yapı yüksekliği (m) gerekli.' };
     }
     yukseklik = kat * 3.00;
-    uyari = 'Yapı yüksekliği girilmedi; kat basina 3,00 m kabul edilerek ' +
+    uyari = 'Yapı yüksekliği girilmedi; kat başına 3,00 m kabul edilerek ' +
             kat + ' kat = ' + yukseklik.toFixed(2) + ' m varsayildi ' +
-            '(Planli Alanlar İmar Yon. md. 23/1-d kat adedi olcutu). ' +
-            'Gercek yukseklik farkliysa yapı sinifi ve maliyet degisir.';
+            '(Planlı Alanlar İmar Yön. md. 23/1-d kat adedi ölçütü). ' +
+            'Gerçek yükseklik farklıysa yapı sınıfı ve maliyet değişir.';
   }
 
   var sonuc;
@@ -145,8 +145,8 @@ function insaat_maliyeti(toplam_insaat_alani, sinif, secenek) {
   var alan = sayi(toplam_insaat_alani);
   var kayit = YAPI_BIRIM_MALIYET[sinif];
 
-  if (!isFinite(alan) || alan <= 0) return { hata: 'Toplam inşaat alanı gecersiz.' };
-  if (!kayit) return { hata: 'Bilinmeyen yapı sinifi: ' + sinif };
+  if (!isFinite(alan) || alan <= 0) return { hata: 'Toplam inşaat alanı geçersiz.' };
+  if (!kayit) return { hata: 'Bilinmeyen yapı sınıfı: ' + sinif };
 
   var kdv_haric = alan * kayit.tl;
   var kdv_orani = isFinite(sayi(secenek.kdv_orani, 'oran')) ? sayi(secenek.kdv_orani, 'oran') : null;
@@ -161,8 +161,8 @@ function insaat_maliyeti(toplam_insaat_alani, sinif, secenek) {
     kaynak: MEVZUAT_KAYNAK.M1,
     dahil: 'Genel giderler (%15) ve yüklenici kârı (%10) DAHİLDİR.',
     dahil_degil: 'Arsa bedeli, çevre düzenlemesi (peyzaj, ihata duvarı, ada içi yol, ' +
-                 'drenaj, çevre aydinlatma) ve bina dışı altyapı (zemin iyilestirme, ' +
-                 'elektrik/su/dogalgaz/kanalizasyon/haberlesme) DAHIL DEĞİLDİR.'
+                 'drenaj, çevre aydınlatma) ve bina dışı altyapı (zemin iyileştirme, ' +
+                 'elektrik/su/doğalgaz/kanalizasyon/haberlesme) DAHIL DEĞİLDİR.'
   };
 
   if (kdv_orani !== null) {
@@ -185,17 +185,17 @@ function tapu_harci(g) {
   var beyan = sayi(g.beyan_bedeli);
   var emlak_degeri = sayi(g.emlak_vergi_degeri);
 
-  if (!isFinite(beyan) || beyan <= 0) return { hata: 'Beyan bedeli gecersiz.' };
+  if (!isFinite(beyan) || beyan <= 0) return { hata: 'Beyan bedeli geçersiz.' };
 
   var matrah = beyan;
   var uyari = null;
   /* Harclar Kanunu md. 63: matrah emlak vergisi degerinden dusuk olamaz. */
   if (isFinite(emlak_degeri) && emlak_degeri > beyan) {
     matrah = emlak_degeri;
-    uyari = 'Beyan bedeli emlak vergisi degerinin altinda kaldi; harc emlak ' +
-            'vergisi değeri uzerinden hesaplandi (Harclar K. md. 63). ' +
-            'Dusuk beyan halinde harc farki ikmalen tarh edilir ve %25 vergi ' +
-            'ziyai cezasi uygulanir.';
+    uyari = 'Beyan bedeli emlak vergisi değerinin altında kaldı; harç emlak ' +
+            'vergisi değeri üzerinden hesaplandı (Harçlar K. md. 63). ' +
+            'Düşük beyan hâlinde harç farkı ikmalen tarh edilir ve %25 vergi ' +
+            'ziyaı cezası uygulanır.';
   }
 
   var taraf = matrah * TAPU_HARCI_ORANI;
@@ -208,7 +208,7 @@ function tapu_harci(g) {
     toplam_harc: Math.round(taraf * 2),
     uyari: uyari,
     not: 'Uygulamada harcın tamamı çoğu zaman alıcı tarafından ödenir; ancak ' +
-         'KANUNEN alıcı ve satici ayri ayri sorumludur.',
+         'KANUNEN alıcı ve satıcı ayrı ayrı sorumludur.',
     kaynak: MEVZUAT_KAYNAK.M2
   };
 }
@@ -239,7 +239,7 @@ function emlak_vergisi(g) {
   var kayit = EMLAK_VERGISI_ORANI[tur];
 
   if (!kayit) return { hata: 'Bilinmeyen taşınmaz türü: ' + tur };
-  if (!isFinite(deger) || deger <= 0) return { hata: 'Vergi değeri gecersiz.' };
+  if (!isFinite(deger) || deger <= 0) return { hata: 'Vergi değeri geçersiz.' };
 
   var oran = kayit.normal * (buyuksehir ? 2 : 1);
   var vergi = deger * oran;
@@ -257,9 +257,9 @@ function emlak_vergisi(g) {
     yillik_vergi: Math.round(vergi),
     kultur_varliklari_katki_payi: Math.round(katki_payi),
     toplam: Math.round(vergi + katki_payi),
-    odeme: '1. taksit Mart-Nisan-Mayis, 2. taksit Kasim (EVK md. 30).',
-    not_2026: '2026 için hesaplanan vergi değeri, 2025 vergi degerinin uc katini ' +
-              'gecemez (7566 s.K. ile degisik EVK gecici md. 23).',
+    odeme: '1. taksit Mart-Nisan-Mayıs, 2. taksit Kasım (EVK md. 30).',
+    not_2026: '2026 için hesaplanan vergi değeri, 2025 vergi değerinin uc katını ' +
+              'geçemez (7566 s.K. ile degisik EVK geçici md. 23).',
     kaynak: MEVZUAT_KAYNAK.M3
   };
 }
@@ -316,7 +316,7 @@ function deger_artis_kazanci(g) {
   var giderler = isFinite(giderlerHam) ? giderlerHam : 0;
 
   if (!isFinite(alis) || !isFinite(satis)) {
-    return { hata: 'Alis ve satış bedeli gerekli.' };
+    return { hata: 'Alış ve satış bedeli gerekli.' };
   }
 
   var sure = null;
@@ -328,7 +328,7 @@ function deger_artis_kazanci(g) {
     return {
       vergi_var_mi: false,
       gerekce: 'Bedelsiz iktisap (miras/bağış) yoluyla edinilen taşınmazın ' +
-               'elden cikarilmasi değer artis kazancina tabi değildir ' +
+               'elden çıkarılması değer artış kazancina tabi değildir ' +
                '(GVK mukerrer md. 80).',
       kaynak: MEVZUAT_KAYNAK.M4
     };
@@ -338,8 +338,8 @@ function deger_artis_kazanci(g) {
     return {
       vergi_var_mi: false,
       elde_tutma_yili: Math.round(sure * 100) / 100,
-      gerekce: DAK_YIL_SINIRI + ' yildan fazla elde tutuldugu için değer artis ' +
-               'kazanci vergisi DOGMAZ (GVK mukerrer md. 80/6).',
+      gerekce: DAK_YIL_SINIRI + ' yıldan fazla elde tutulduğu için değer artış ' +
+               'kazancı vergisi DOĞMAZ (GVK mukerrer md. 80/6).',
       kaynak: MEVZUAT_KAYNAK.M4
     };
   }
@@ -352,10 +352,10 @@ function deger_artis_kazanci(g) {
     var artis = (ay2 - ay) / ay;
     if (artis >= 0.10) {
       maliyet = alis * (ay2 / ay);
-      endeks_notu = 'Maliyet Yi-UFE ile endekslendi (artis %' +
+      endeks_notu = 'Maliyet Yi-UFE ile endekslendi (artış %' +
                     (Math.round(artis * 1000) / 10) + ').';
     } else {
-      endeks_notu = 'Yi-UFE artışı %10\'un altinda kaldigi için endeksleme ' +
+      endeks_notu = 'Yi-UFE artışı %10\'un altında kaldığı için endeksleme ' +
                     'YAPILAMAZ (GVK mukerrer md. 81).';
     }
   }
@@ -379,7 +379,7 @@ function deger_artis_kazanci(g) {
     matrah: Math.round(matrah),
     vergi: Math.round(vergi),
     efektif_oran: safi > 0 ? Math.round(vergi / safi * 1000) / 10 : 0,
-    beyan: 'Izleyen yilin MART ayinda yillik gelir vergisi beyannamesi ile ' +
+    beyan: 'Izleyen yılın MART ayında yıllık gelir vergisi beyannamesi ile ' +
            'beyan edilir (GVK md. 92).',
     kaynak: MEVZUAT_KAYNAK.M4
   };
@@ -404,10 +404,10 @@ function taks_siniri(g) {
     return { sinir: 0.60, taban_kaks_taks: 0.40,
              gerekce: 'KAKS verilmeyen parsel: %40 ile bulunan KAKS içinde kalmak ve ' +
                       'TAKS %60\'i gecmemek sartiyla yapı yaklaşma mesafelerine göre ' +
-                      'uygulama yapilir.' };
+                      'uygulama yapılır.' };
   }
   return { sinir: 0.60,
-           gerekce: 'Yapı yaklaşma mesafesi ve KAKS var, TAKS yok: TAKS %60\'i gecemez.' };
+           gerekce: 'Yapı yaklaşma mesafesi ve KAKS var, TAKS yok: TAKS %60\'i geçemez.' };
 }
 
 /* Md. 23 — cekme (bahce) mesafeleri.
@@ -440,9 +440,9 @@ function cekme_mesafeleri(g) {
     arka: 3.00 + artis,
     kat_adedi: kat,
     artis: artis,
-    gerekce: 'On bahçe 5,00 m (kat artışı uygulanmaz). Yan ve arka bahçe 3,00 m; ' +
-             '4 katı asan her kat için +0,50 m.' +
-             (park_komsu ? ' Park alanına komşu cephede artis uygulanmadi.' : ''),
+    gerekce: 'Ön bahçe 5,00 m (kat artışı uygulanmaz). Yan ve arka bahçe 3,00 m; ' +
+             '4 katı aşan her kat için +0,50 m.' +
+             (park_komsu ? ' Park alanına komşu cephede artış uygulanmadı.' : ''),
     kaynak: MEVZUAT_KAYNAK.M5
   };
 }
@@ -456,7 +456,7 @@ function emsal_harici_kontrol(g) {
   var emsale_esas = sayi(g.emsale_esas_alan);
   var harici = sayi(g.emsal_harici_alan);
   if (!isFinite(emsale_esas) || emsale_esas <= 0) {
-    return { hata: 'Emsale esas alan gecersiz.' };
+    return { hata: 'Emsale esas alan geçersiz.' };
   }
   if (!isFinite(harici) || harici < 0) harici = 0;
 
@@ -470,7 +470,7 @@ function emsal_harici_kontrol(g) {
     kullanim_yuzde: Math.round(harici / emsale_esas * 1000) / 10,
     not: 'Yangın merdiveni, teras çatı, bahçedeki açık otopark, deprem yalıtım katı ' +
          've bodrumdaki zorunlu otoparkin 2 katı gibi kalemler bu %30 TAVANINA ' +
-         'GIRMEZ (md. 5/8 "Ancak..." bolumu). Ayni kullanim normal katta yapilirsa ' +
+         'GIRMEZ (md. 5/8 "Ancak..." bölümü). Aynı kullanım normal katta yapılırsa ' +
          'md. 22\'ye tabidir ve tavana DAHIL olur.',
     kaynak: MEVZUAT_KAYNAK.M5
   };
@@ -485,8 +485,8 @@ var DONER_SERMAYE = {
   dogrulanma: true,
   katsayi_dogrulanma: false,   /* il/ilce yoresel katsayi listesi teyit edilemedi */
   not: 'Ücret = (gösterge + varsa ilave gösterge) x yöresel katsayı. KDV dahil. ' +
-       'Yöresel katsayilar 1 / 1,5 / 2 / 2,5 / 3 olarak il-ilçe bazinda degisir; ' +
-       'KATSAYI LISTESI DOGRULANMADI, kullanicidan alinmali.',
+       'Yöresel katsayılar 1 / 1,5 / 2 / 2,5 / 3 olarak il-ilçe bazında değişir; ' +
+       'KATSAYI LISTESI DOĞRULANMADI, kullanıcıdan alinmali.',
   kaynak: MEVZUAT_KAYNAK.M6
 };
 

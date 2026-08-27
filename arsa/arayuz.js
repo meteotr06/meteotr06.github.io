@@ -623,7 +623,7 @@ function rapor_metni() {
     }
 
     var orta = kok.querySelector('.bant .orta');
-    var aralik = kok.querySelector('.bant .aralik');
+    var aralik = kok.querySelector('.bant .aralık');
     if (orta) {
         satir.push('DEĞER TAHMİNİ');
         satir.push('  ' + orta.textContent.trim());
