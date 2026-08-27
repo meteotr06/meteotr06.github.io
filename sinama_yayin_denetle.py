@@ -3,14 +3,16 @@
 
 NEDEN AYRI DOSYA
     Bir koruma, kaldırıldığında sınama düşmüyorsa süstür. Bugün bunu
-    yaşadık: Kur Pusulası'nın sınaması "geçti" diyordu ama 9 bozuk kutu
-    yayındaydı — sınama sayfa açılır açılmaz tek bakış atıyordu.
-    O yüzden nöbetçinin kendisini de kasten bozup ölçüyoruz.
+    yaşadık: bir sınama "geçti" diyordu ama 9 bozuk kutu yayındaydı —
+    sayfa açılır açılmaz tek bakış atıyor, sonradan üretilenleri görmüyordu.
 
-    Bir uyarı: nöbet sınamasının KENDİSİ de yanlış kurulabilir. Bugün
-    bir korumayı sınarken bozmayı sınamadan ÖNCE yaptım, sınama haklı
-    olarak düşmedi ve az kalsın "koruma çalışmıyor" diyecektim.
-    Bozma, sınamanın İÇİNDE olmalı.
+İKİ TUZAK, ikisi de bugün yaşandı:
+    1. Nöbet sınamasının KENDİSİ yanlış kurulabilir. Bir korumayı sınarken
+       bozmayı sınamadan ÖNCE yaptım; sınama haklı olarak düşmedi ve az
+       kalsın "koruma çalışmıyor" diyecektim. Bozma, sınamanın İÇİNDE olmalı.
+    2. Sınav ESKİYEBİLİR. Nöbetçinin hükmü damgadan içeriğe taşındı ama
+       sınamalar hâlâ damgayı ölçüyordu ve "kaldı" veriyordu — kod değil,
+       sınav eskimişti. Koruma değişince sınavı da değişir.
 
 ÇALIŞTIRMA
     python sinama_yayin_denetle.py
@@ -21,80 +23,96 @@ sys.stdout.reconfigure(encoding="utf-8")
 import yayin_denetle as N
 
 sonuc = []
+CR, LF = chr(13), chr(10)
+HESAP_KAYNAK = "D:" + chr(92) + "Projeler" + chr(92) + "09 Hesap Araclari"
+
+
 def kontrol(ad, kosul):
     sonuc.append((ad, bool(kosul)))
 
-# --- damga çıkarma ---
+
+# ---------- damga okuma (artık hüküm değil, yalnızca ipucu) ----------
 kontrol("damga: ?v=40 okunuyor", N.damga('<script src="a.js?v=40">') == {"40"})
-# SURUM adi ile ?v= damgasi AYNI surumu anlatir; nobetci ikisini esitlemeli,
-# yoksa "hesap-v40" ile "v=40" farkli sanilir ve her kosuda yanlis alarm verir.
 kontrol("damga: SURUM okunuyor", N.damga('const SURUM = "hesap-v40";') == {"40"})
 kontrol("damga: tek tırnaklı SURUM da okunur (Göz Molası öyle yazıyor)",
         N.damga("const SURUM = 'goz-molasi-v82';") == {"82"})
-kontrol("damga: ?s=v82 biçimi okunur (kör noktanın kök sebebi)",
+kontrol("damga: ?s=v82 biçimi okunur (birinci kör noktanın kök sebebi)",
         N.damga('<link href="stil.css?s=v82">') == {"82"})
-kontrol("damga: SURUM ile ?v= aynı sürümde EŞLEŞİR",
-        N.damga('a.js?v=40') == N.damga('const SURUM = "hesap-v40";'))
-kontrol("damga: uyumsuz damgaları ayrı görür", N.damga("a.css?v=17 b.js?v=19") == {"17", "19"})
-kontrol("damga: boş metin boş küme", N.damga("") == set())
+kontrol("damga: YORUMDAKİ damgayı saymaz (birinci yanlış alarm)",
+        N.damga("// ornekte ?s=v55 gibi bir etiket gecer") == set())
 
-# --- type="number" sayımı: yorumları saymamalı, yoksa yanlış alarm verir ---
+# ---------- type="number" sayımı ----------
 kontrol("sayım: gerçek girdiyi sayar", N.sayi_kutusu('<input type="number">') == 1)
 kontrol("sayım: HTML yorumunu saymaz",
         N.sayi_kutusu('<!-- eskiden type="number" idi --><input type="text">') == 0)
 kontrol("sayım: JS yorumunu saymaz",
-        N.sayi_kutusu('// type="number" bozuyordu\nvar a=1;') == 0)
+        N.sayi_kutusu('// type="number" bozuyordu' + LF + 'var a=1;') == 0)
 kontrol("sayım: tek tırnağı yakalar", N.sayi_kutusu("<input type='number'>") == 1)
 kontrol("sayım: boşluklu yazımı yakalar", N.sayi_kutusu('<input type = "number">') == 1)
 
-# --- NÖBET SINAMALARI: canlıyı kasten bozup yakalıyor mu ---
+# ---------- içerik özeti: satır sonuna duyarlı OLMAMALI ----------
+kontrol("özet: CRLF ile LF aynı sayılır (üçüncü yanlış alarm sınıfı)",
+        N.ozet("a" + CR + LF + "b", "x.css") == N.ozet("a" + LF + "b", "x.css"))
+kontrol("özet: gerçek içerik farkını görür",
+        N.ozet("bir", "x.js") != N.ozet("iki", "x.js"))
+
+# ---------- NÖBET SINAMALARI: kasten boz, yakalıyor mu ----------
 gercek = N.getir
 
-def geri_al_canliyi(adres):
-    """Canlı sayfayı bir sürüm ESKİ göster: nöbetçi fark etmeli."""
+
+def icerigi_boz(adres):
+    """Canlı stil.css'e satır ekle: nöbetçi 'canlıya ulaşmamış' demeli."""
     k, g = gercek(adres)
-    if adres.startswith(N.CANLI + "/hesap/"):
-        for yeni in ("v=41", "v=40"):
-            g = g.replace(yeni, "v=39")
+    if adres.startswith(N.CANLI + "/hesap/stil.css") and isinstance(g, str):
+        g = g + LF + "/* sinama: kasten eklenmis satir */" + LF
     return k, g
 
-N.getir = geri_al_canliyi
-satirlar, _ = N.uygulama_denetle("Hesap Araçları", r"D:\Projeler\09 Hesap Araclari",
-                                 "hesap", "/hesap/", False)
+
+N.getir = icerigi_boz
+satirlar = N.uygulama_denetle("Hesap Araçları", HESAP_KAYNAK, "hesap", "/hesap/", False)[0]
 N.getir = gercek
-kontrol("NÖBET: canlı geride kalınca yakalar", any("CANLI GERİDE" in s for s in satirlar))
+kontrol("NÖBET: canlı içerik farklıysa yakalar",
+        any("ULAŞMAMIŞ" in x for x in satirlar))
+
 
 def bozuk_girdi_ekle(adres):
-    """Canlıya type="number" enjekte et: nöbetçi görmeli."""
+    """Canlıya bir sayı kutusu enjekte et: nöbetçi görmeli."""
     k, g = gercek(adres)
-    if adres.startswith(N.CANLI + "/muhasebe/"):
-        g += '<input type="number" id="tuzak">'
+    if "/muhasebe/" in adres and isinstance(g, str):
+        g = g + chr(60) + 'input type="number" id="tuzak"' + chr(62)
     return k, g
+
 
 N.getir = bozuk_girdi_ekle
-satirlar2, _ = N.uygulama_denetle("Muhasebe", None, "muhasebe", "/muhasebe/", False)
+satirlar2 = N.uygulama_denetle("Muhasebe", None, "muhasebe", "/muhasebe/", False)[0]
 N.getir = gercek
 kontrol("NÖBET: canlıya bozuk girdi girince yakalar",
-        any('type="number"' in s for s in satirlar2))
+        any('type="number"' in x for x in satirlar2))
 
 
-# --- NÖBET: ölçülemeyeni "güncel" saymamalı ---
-# Bugünün kör noktası buydu: damga bulunamayınca hiçbir şey karşılaştırılmadan
-# "✓ güncel" yazılıyordu. Damgasız bir uygulama taklit edip kontrol ediyoruz.
-def damgasiz(adres):
+def crlf_yap(adres):
+    """Canlıyı CRLF'e çevir. İÇERİK AYNI — nöbetçi SUSMALI.
+
+    Üçüncü yanlış-alarm sınıfı buydu: Git, Windows'ta çalışma ağacına CRLF
+    yazar, sunucuda LF durur. Ham bayt karşılaştırması her metin dosyasını
+    'farklı' gösterip 'hiçbir şey yayınlanmamış' diye rapor verecekti."""
     k, g = gercek(adres)
-    if adres.startswith(N.CANLI + "/muhasebe/"):
-        import re as _re
-        g = _re.sub(r"[?&](v|s|ver|surum)=[\w.]+", "", g)
+    if adres.startswith(N.CANLI + "/hesap/") and isinstance(g, str):
+        g = g.replace(LF, CR + LF)
     return k, g
 
-N.getir = damgasiz
-satirlar3, _ = N.uygulama_denetle("Muhasebe", None, "muhasebe", "/muhasebe/", False)
+
+N.getir = crlf_yap
+satirlar3 = N.uygulama_denetle("Hesap Araçları", HESAP_KAYNAK, "hesap", "/hesap/", False)[0]
 N.getir = gercek
-kontrol("NÖBET: damga yoksa 'güncel' DEMEZ",
-        not any("güncel" in x for x in satirlar3))
-kontrol("NÖBET: bunun yerine 'karşılaştırılamadı' der",
-        any("karşılaştırılamadı" in x for x in satirlar3))
+kontrol("NÖBET: satır sonu farkı YANLIŞ ALARM üretmez",
+        not any("ULAŞMAMIŞ" in x for x in satirlar3))
+
+# Yerelde karşılığı olmayan uygulamaya "güncel" DEMEMELİ.
+# Ölçülmemişe onay vermek, hiç ölçmemekten kötüdür.
+satirlar4 = N.uygulama_denetle("Deneme", None, None, "/goz-molasi/", False)[0]
+kontrol("NÖBET: karşılaştıramadığına 'güncel' demez",
+        not any("güncel" in x for x in satirlar4))
 
 kaldi = [a for a, k in sonuc if not k]
 for ad, k in sonuc:

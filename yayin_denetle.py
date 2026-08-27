@@ -29,6 +29,7 @@ KULLANIM
     python yayin_denetle.py --ayrinti  (her adresin ayrıntısını yaz)
 """
 
+import hashlib
 import io
 import os
 import re
@@ -106,6 +107,15 @@ def damga(metin):
     (06'da stil.css?v=17 ile betikler ?v=19 uyumsuzdu)."""
     if not metin:
         return set()
+    # YORUMLARI AT. f2 gercek bir yanlis alarm buldu: Goz Molasi'nin
+    # sw.js'inde "// ...?s=v55 gibi surum etiketi var" diye bir ACIKLAMA
+    # satiri vardi ve nobetci onu gercek damga sandi, "CANLI GERIDE" dedi.
+    # Yanlis alarm, gercek alarmi sagirlastirir: birkac kez bosa otan
+    # nobetci artik okunmaz. sayi_kutusu() zaten yorumlari atliyordu;
+    # burada atlamamak kendi icimizde tutarsizliktı.
+    metin = re.sub(r"<!--.*?-->", "", metin, flags=re.S)
+    metin = re.sub(r"/\*.*?\*/", "", metin, flags=re.S)
+    metin = re.sub(r"(?m)^\s*//.*$", "", metin)
     # ?v=40 · ?s=v82 · ?ver=3 · ?surum=12 · &v=40
     d = set(re.findall(r"[?&](?:v|s|ver|surum|version)=v?([\w.]+)", metin, re.I))
     d |= set(re.findall(r"""SURUM\s*=\s*['"]([^'"]+)['"]""", metin))
@@ -122,116 +132,178 @@ def sayi_kutusu(metin):
     return len(re.findall(r'type\s*=\s*["\']number["\']', temiz))
 
 
+
+def cevrimdisi_eksigi(kaynak_klasor, depo_klasor, canli_html):
+    """Sayfanin kullandigi CSS/JS, servis calisaninin on-bellek listesinde var mi?
+
+    f2 nin fikri. Kacirilmasi kolay, cunku CEVRIMICI HICBIR SEY BOZULMAZ:
+    uygulama normal calisir, yalnizca internet kesikken yarim acilir.
+    Bugun 09 da tam bu vardi: sayfalar ?v=41 istiyordu, on-bellek listesi
+    ?v=40 sakliyordu -- farkli anahtar, hic eslesmiyor. Yani cevrimdisi
+    katmani, tam da is gormesi gereken anda bos donuyordu.
+
+    Yalnizca kendi alan adimizdaki .css/.js bakilir; disaridan gelen
+    (reklam vb.) zaten on-belleklenmez, onu istemek yanlis alarm olurdu.
+    """
+    TIRNAKLAR = chr(34) + chr(39)          # duz tirnak ve tek tirnak
+    Q = chr(91) + TIRNAKLAR + chr(93)      # ["']
+
+    sw = None
+    if depo_klasor is not None:
+        sw = dosya_oku(KOK, depo_klasor, "sw.js")
+    if not sw and kaynak_klasor:
+        sw = dosya_oku(kaynak_klasor, "sw.js")
+    if not sw:
+        return []
+
+    # ignoreSearch: TRUE ise damgasiz on-bellek kaydi, damgali istegi de
+    # karsilar. Goz Molasi boyle yapiyor. Bunu gormezsek "cevrimdisi
+    # listesinde YOK" diye YANLIS ALARM veririz -- f2'yi bosuna avlatirdik.
+    # Yanlis alarm, gercek alarmi sagirlastirir.
+    if "ignoreSearch" in sw:
+        return []
+
+    # sw.js damgayi SURUM den turetiyorsa listede degisken durur; cozelim.
+    m = re.search("SURUM" + r"\s*=\s*" + Q + "([^" + TIRNAKLAR + "]+)" + Q, sw)
+    surum_damga = ("v=" + re.sub(r"^\D*v", "", m.group(1))) if m else ""
+    sw_coz = sw.replace(chr(34) + " + DAMGA", surum_damga + chr(34))
+    sw_coz = sw_coz.replace(chr(39) + " + DAMGA", surum_damga + chr(39))
+
+    varlik = r"(?:\./)?([\w.\-]+\.(?:css|js)(?:\?[\w.=]+)?)"
+    onbellekte = set(re.findall(Q + varlik + Q, sw_coz))
+    istenen = set(re.findall("(?:src|href)=" + chr(34) + "(?!https?://)" + varlik + chr(34),
+                             canli_html))
+    return sorted(istenen - onbellekte)
+
+
+
+METIN_UZANTI = (".css", ".js", ".html", ".json", ".xml", ".txt", ".svg")
+
+
+def ozet(veri, ad=""):
+    """Icerigin parmak izi.
+
+    SATIR SONU NORMALLESTIRILIR -- yoksa UCUNCU YANLIS ALARM olurdu:
+    Git, Windows'ta calisma agacina CRLF yazar, depoda ve sunucuda LF durur.
+    Ham bayt karsilastirmasi bu yuzden HER metin dosyasini "farkli" gosterir.
+    Olculdu: hesap/stil.css yerelde 47.119 bayt, canlida 46.152 -- fark tam
+    olarak satir sayisi kadar. 
+ atilinca md5'ler birebir ayni cikiyor.
+    Ham bayta guvenseydik "hicbir sey yayinlanmamis" diye rapor verecektik.
+    Ikili dosyalarda (png vb.) dokunmuyoruz, orada her bayt anlamli."""
+    if veri is None:
+        return None
+    if isinstance(veri, str):
+        veri = veri.encode("utf-8", "ignore")
+    if ad.lower().endswith(METIN_UZANTI):
+        CR, LF = bytes([13]), bytes([10])
+        veri = veri.replace(CR + LF, LF).replace(CR, LF).strip()
+    return hashlib.md5(veri).hexdigest()
+
+
+def icerik_karsilastir(kaynak_klasor, depo_klasor, yol, canli_html):
+    """Kullanici ESKI dosya mi aliyor? Dogrudan bunu olcer.
+
+    NEDEN DAMGA KARSILASTIRMIYORUZ (f2'nin tespiti, 27 Agustos 2026):
+    "damgalar birbirine esit mi" YANLIS SORU. Iki gecerli strateji var:
+      - tek tip damga (05): butun dosyalar ayni surumde
+      - dosya basina damga (06): degismeyen dosya eski damgada kalir,
+        boylece bosuna yeniden indirilmez -- daha verimli
+    Nobetci ikincisini "uyumsuz" sanip yanlis alarm veriyordu. O uyariya
+    uyan biri CALISAN bir onbellek stratejisini bozacakti: hata olmayan
+    seyi duzeltmek. Ustelik damgasiz projeler (Hava Durumu, Muhasebe) hic
+    olculemiyordu.
+
+    DOGRU SORU: yereldeki dosya ile canlidaki dosya AYNI MI?
+    Bu, stratejiden bagimsiz, damgasiz projelerde de calisiyor ve
+    "yayinladim ama ulasti mi" sorusuna dogrudan cevap veriyor.
+    """
+    kok = None
+    if depo_klasor is not None:
+        kok = os.path.join(KOK, depo_klasor)
+    elif kaynak_klasor:
+        kok = kaynak_klasor
+    if not kok or not os.path.isdir(kok):
+        return [], 0
+
+    varlik = r"(?:src|href)=" + chr(34) + r"(?!https?://)(?:\./)?([\w.\-]+\.(?:css|js))(?:\?[\w.=]+)?" + chr(34)
+    # Sayfanin KENDISI de karsilastirilir. Ana sayfa baska klasordeki
+    # dosyalari cagiriyor, Muhasebe ise tek parca index.html -- ikisinde de
+    # disaridan cagrilan dosya yok ve "karsilastirilamadi" cikiyordu.
+    # Oysa asil merak ettigimiz sey zaten sayfanin kendisi.
+    dosyalar = ["index.html"] + sorted(set(re.findall(varlik, canli_html)))
+    farkli, bakilan = [], 0
+    for d in dosyalar:
+        yerel = os.path.join(kok, d)
+        if not os.path.exists(yerel):
+            continue
+        yo = ozet(io.open(yerel, "rb").read(), d)
+        kod, govde2 = getir(CANLI + yol + ("" if d == "index.html" else d))
+        if kod != 200:
+            farkli.append("%s (canlıda HTTP %s)" % (d, kod))
+            continue
+        bakilan += 1
+        if ozet(govde2, d) != yo:
+            farkli.append(d)
+    return farkli, bakilan
+
+
 # ---------- denetimler ----------
 
 def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
     bulgular = []
-    karsilastirilamadi_sebep = ""
     adres = CANLI + yol
 
     kod, govde = getir(adres)
 
-    # C1) Canlı ayakta mı?
+    # 1) Canlı ayakta mı?
     if kod != 200:
         if kod == 404 and ad in HENUZ_YOK_SERBEST:
             return ["  %-22s —      henüz yayında değil" % ad], 0
         sebep = "ağ hatası: " + str(govde)[:40] if kod is None else "HTTP %s" % kod
         return ["  %-22s %s AYAKTA DEĞİL  (%s)" % (ad, CARPI, sebep)], 1
 
-    # C2) Statik bozuk girdi kalmış mı?
+    # 2) Statik bozuk girdi kalmış mı?
     kalan = sayi_kutusu(govde)
     if kalan:
         bulgular.append('%d adet type="number" (Türkçe sayı yazımını bozar)' % kalan)
 
-    canli_damga = damga(govde)
-    if len(canli_damga) > 1:
-        # Ayni sayfada farkli damgalar: bir varlik ESKI anahtarla servis
-        # ediliyor demektir. O dosyayi degistirsek bile, daha once ziyaret
-        # etmis kullanicinin onbellegindeki eski kopya kalir.
-        # Gercek ornek: Planlayici'da stil.css?v=17 ama betikler ?v=19.
-        bulgular.append("sayfa içinde UYUMSUZ damga: %s — en düşüğüyle "
-                        "gelen dosya güncellenmiş olsa bile kullanıcıya ulaşmaz"
-                        % sirala(canli_damga))
+    # 3) Çevrimdışı listesi eksik mi?
+    eksik = cevrimdisi_eksigi(kaynak, depo, govde)
+    if eksik:
+        bulgular.append("çevrimdışı listesinde YOK: %s — çevrimiçi sorunsuz "
+                        "çalışır, internet kesikken yarım açılır"
+                        % ", ".join(eksik[:4]))
 
-    # B) Yayın deposundaki kopya ile canlı aynı mı?
-    if depo is not None:
-        yerel = dosya_oku(KOK, depo, "index.html")
-        if yerel is None:
-            bulgular.append("depoda index.html yok (%s)" % (depo or "kök"))
-        else:
-            yerel_damga = damga(yerel)
-            # Damga okunamadiysa KARSILASTIRMA YAPILMAMISTIR. Bunu "guncel"
-            # diye gecmek, kor noktanin ta kendisi: Hava Durumu ve Muhasebe
-            # damgasiz oldugu icin hicbir sey olculmeden onay aliyordu.
-            if not yerel_damga or not canli_damga:
-                karsilastirilamadi_sebep = "sürüm damgası yok (dosyalarda ?v= / SURUM bulunamadı)"
-            if yerel_damga and canli_damga and yerel_damga != canli_damga:
-                bulgular.append("CANLI GERİDE — depo %s, canlı %s (push edildi mi? "
-                                "Pages yayınlaması 1-2 dk sürer)"
-                                % (sirala(yerel_damga), sirala(canli_damga)))
+    # 4) ASIL HÜKÜM: kullanıcı eski dosyayı mı alıyor?
+    #
+    # Eskiden burada DAMGALAR karşılaştırılıyordu ve iki kez yanlış alarm
+    # verdi: (a) yorumda geçen "?s=v55" gerçek damga sanıldı, (b) dosya
+    # başına damgalayan proje "uyumsuz" sanıldı — oysa o strateji geçerli
+    # ve daha verimli, değişmeyen dosya boşuna indirilmiyor.
+    # İkisi de aynı kökten: araç GÖRÜNÜŞE bakıyordu.
+    # Artık SONUCA bakıyor: yereldeki dosya ile canlıdaki dosya aynı mı.
+    # Bu, damgalama stratejisinden bağımsız ve damgasız projede de çalışır.
+    farkli, bakilan = icerik_karsilastir(kaynak, depo, yol, govde)
+    if farkli:
+        bulgular.append("CANLIYA ULAŞMAMIŞ: %s — yereldeki hâli farklı "
+                        "(push edildi mi? Pages yayınlaması 1-2 dk sürer)"
+                        % ", ".join(farkli[:4]))
 
-    # A2) AYRI DEPODAN yayınlananlar (05, 06, 10): ana depoda kopyası yok ama
-    # KAYNAK klasör elimizde. Kopyası olmaması karşılaştırmayı imkânsız
-    # kılmaz — canlıyı doğrudan kaynakla karşılaştırırız. Eskiden bu durumda
-    # hiçbir şey karşılaştırılmıyor, buna rağmen "güncel" yazılıyordu.
-    if depo is None and kaynak is not None:
-        k = dosya_oku(kaynak, "index.html")
-        # sw.js'teki SURUM daha saglam capa: tek satir, tek kaynak.
-        ksw = dosya_oku(kaynak, "sw.js")
-        if ksw:
-            k = (k or "") + chr(10) + ksw
-            kod2, csw = getir(CANLI + yol + "sw.js")
-            if kod2 == 200:
-                canli_damga = canli_damga | damga(csw)
-        if k is None:
-            karsilastirildi = False
-            neden = "kaynak klasörde index.html yok"
-        else:
-            kd = damga(k)
-            if not kd or not canli_damga:
-                karsilastirildi = False
-                neden = "sürüm damgası okunamadı"
-            else:
-                karsilastirildi = True
-                if kd != canli_damga:
-                    bulgular.append("CANLI GERİDE — kaynak %s, canlı %s "
-                                    "(ayrı depodan yayınlanıyor, push edilmiş mi?)"
-                                    % (sirala(kd), sirala(canli_damga)))
-    elif depo is None:
-        karsilastirildi = False
-        neden = "ne depo kopyası ne kaynak klasör tanımlı"
-    else:
-        karsilastirildi = not karsilastirilamadi_sebep
-        neden = karsilastirilamadi_sebep
+    if bulgular:
+        satirlar = ["  %-22s %s %s" % (ad, CARPI, bulgular[0])]
+        for b in bulgular[1:]:
+            satirlar.append("  %-22s   %s" % ("", b))
+        return satirlar, len(bulgular)
 
-    # A) Kaynak klasördeki düzeltme yayın deposuna kopyalanmış mı?
-    if kaynak is not None and depo is not None:
-        k = dosya_oku(kaynak, "index.html")
-        y = dosya_oku(KOK, depo, "index.html")
-        if k is not None and y is not None:
-            kd, yd = damga(k), damga(y)
-            if kd and yd and kd != yd:
-                bulgular.append("KAYNAK KOPYALANMAMIŞ — kaynak %s, depo %s "
-                                "(bugün iki hata tam bu yüzden canlıda kaldı)"
-                                % (sirala(kd), sirala(yd)))
-        if k is not None and sayi_kutusu(k) == 0 and kalan > 0:
-            bulgular.append("kaynak düzeltilmiş ama canlı hâlâ eski")
+    if bakilan == 0:
+        # Ölçülemeyene "güncel" denmez — üçüncü cevap şart.
+        return ["  %-22s ~ ayakta — içerik karşılaştırılamadı "
+                "(yerelde eşleşen dosya bulunamadı)" % ad], 0
 
-    if not bulgular:
-        ek = ""
-        if ayrinti:
-            ek = "  [damga: %s]" % (sirala(canli_damga) or "yok")
-        if not karsilastirildi:
-            # ÖLÇÜLMEYEN ŞEYE "GÜNCEL" DENMEZ. Bugün tam bu yüzden Göz
-            # Molası'na "güncel" dedik, oysa canlı v77 / yerel v82 idi.
-            # Hiç ölçmemek, yanlış "ölçtüm" demekten iyidir.
-            return ["  %-22s ~ ayakta — sürüm karşılaştırılamadı (%s)"
-                    % (ad, neden)], 0
-        return ["  %-22s %s güncel%s" % (ad, TIK, ek)], 0
-    satirlar = ["  %-22s %s %s" % (ad, CARPI, bulgular[0])]
-    for b in bulgular[1:]:
-        satirlar.append("  %-22s   %s" % ("", b))
-    return satirlar, len(bulgular)
+    ek = "  [damga: %s]" % (sirala(damga(govde)) or "yok") if ayrinti else ""
+    return ["  %-22s %s güncel — %d dosya içerikçe doğrulandı%s"
+            % (ad, TIK, bakilan, ek)], 0
 
 
 def sirala(kume):
@@ -258,10 +330,18 @@ def sitemap_denetle():
 
     adresler = sorted(set(a for a in adresler if not a.endswith(".xml")))
     kirik = []
+    damgalar = {}          # damga -> ornek adres
     for a in adresler:
-        k3, _ = getir(a)
+        k3, g3 = getir(a)
         if k3 != 200:
             kirik.append("%s (HTTP %s)" % (a.replace(CANLI, ""), k3))
+            continue
+        # ASIMETRI (f2'nin notu): "surum artti mi" diye bakmak yetmiyor,
+        # "artti ama bir sayfa geride mi kaldi" diye de sormak gerek.
+        # Nobetci uygulama basina TEK sayfa cekiyordu; alt sayfalar
+        # gozden kaciyordu. Ornek: 09'da 142 adres v41 ama 1 tanesi v40.
+        for d in damga(g3):
+            damgalar.setdefault(d, []).append(a.replace(CANLI, ""))
 
     if kirik:
         satirlar = ["  %s sitemap'te %d kırık adres (%d adresin içinde):"
@@ -270,6 +350,9 @@ def sitemap_denetle():
         if len(kirik) > 8:
             satirlar.append("      ... ve %d tane daha" % (len(kirik) - 8))
         return satirlar, len(kirik)
+    # Sayfalar arasi DAMGA karsilastirmasi KALDIRILDI: dosya basina
+    # damgalayan projede yanlis alarm veriyordu. Hukum artik icerik
+    # karsilastirmasindan geliyor (bkz. icerik_karsilastir).
     return ["  %s sitemap: %d adresin %d'i açılıyor" % (TIK, len(adresler), len(adresler))], 0
 
 
