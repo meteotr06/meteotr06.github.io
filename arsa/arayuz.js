@@ -864,7 +864,35 @@ function deger_karti(an, g, ek_kutu) {
 
     if (an.yontem_sayisi === 2) {
         satir_ekle(k, 'Yöntem 1 — emsal düzeltme', tl(an.yontemler.carpan) + '/m²');
-        satir_ekle(k, 'Yöntem 2 — nominal puanlama', tl(an.yontemler.nominal) + '/m²');
+        var n2 = satir_ekle(k, 'Yöntem 2 — nominal puanlama',
+                            tl(an.yontemler.nominal) + '/m²');
+        /* GECERLILIK ALANINI SOYLE.
+           Olculdu (28.08.2026): rapor bu sayiyi veriyor ama agirliklarin
+           NEREDEN geldigini hicbir yerde soylemiyordu. Agirlik seti 87
+           yapisiz arsa parselinden turetilmis ve hepsi Canakkale Merkez /
+           Esenler Mahallesi. Nevsehir'deki bir kullaniciya, kendi bolgesi
+           icin olculmemis bir agirlikla sayi uretiliyor ve bunu bilmiyor.
+
+           Hesap savunulabilir; savunulamayan sey, KOSULUN soylenmemesi.
+           Cekirdekte baska bolge profilleri VAR (BOLGE_PROFILI) ama
+           arayuzden secilemiyor -- kodda olmasi isin bittigi anlamina
+           gelmez, kullaniciya ulasmayan ozellik yoktur.
+           Secim arayuze eklenene kadar en azindan kosul yaziliyor. */
+        if (n2) {
+            /* IPUCU TELEFONDA GORUNMEZ. Uygulama mobil oncelikli; `title`
+               yalnizca fare ustune gelince cikar. Kosulu yalniz ipucuna
+               yazmak, sadece masaustunde soylemek demektir.
+               O yuzden var olan etiket deseni kullaniliyor: gorunur bir
+               rozet + ayrintisi ipucunda. */
+            var rz = el('span', 'etiket-kucuk baslangic', 'bölgesel');
+            rz.title = 'Bu yöntemin ağırlıkları 87 yapısız arsa parselinden ' +
+                       'türetildi (Çanakkale Merkez / Esenler Mah., 15 SPK ' +
+                       'lisanslı uzman AHS). Başka bir bölgede ağırlıklar ' +
+                       'farklı olabilir — bu sayı sizin bölgeniz için ' +
+                       'ölçülmedi.';
+            var ad2 = n2.querySelector('.ad');
+            if (ad2) { ad2.appendChild(document.createTextNode(' ')); ad2.appendChild(rz); }
+        }
         satir_ekle(k, 'İki yöntem arası fark', yuzde(an.ayrisma_yuzde));
     }
 

@@ -221,11 +221,12 @@ var DUZELTME = {
     ad: 'Tapu türü',
     soru: 'Tapu müstakil mi, hisseli mi?',
     guven: GUVEN.BASLANGIC,
-    kaynak: 'Başlangıç tahmini. Hisseli tapu piyasada ciddi iskonto görür.',
+    kaynak: 'ÖLÇÜLMÜŞ ARALIK VAR, TÜRKİYE İÇİN DEĞİL. Bölünmemiş pay (fractional / undivided interest) iskontosu için uygulamadan derlenmiş aralık: en düşük %15, en yüksek %67; işlemlerin ÇOĞUNLUĞU %25-35 arasında (Valbridge Property Advisors, Fractional Interest Discounts in Real Estate, Beyaz Kitap, Mayıs 2020). Buradaki 0,68 yani -%32 bu çoğunluk bandının içinde. AMA ÜÇ ÇEKİNCE: (1) kaynak hakemli bir çalışma değil, değerleme uzmanlarının piyasa deneyimi; örneklem sayısı verilmemiş. (2) ABD miras ve hibe vergisi değerlemesi bağlamı; hukuki kurum Türk hukukundaki paylı mülkiyetle aynı değil. (3) Türkiye için ÖLÇÜLMEDİ. K10 kaynağındaki 559 uzmanlı çalışmada bu ölçütün korelasyonu %30 altında kaldığı için elenmişti; yani Türkiye verisinde sayısal dayanak hâlâ YOK. Bu yüzden güven seviyesi TAHMİN kaldı: büyüklük dış kaynakla tutarlı ama doğrulanmış değil.',
     tip: 'secenek',
     secenek: {
       mustakil: { ad: 'Müstakil (tam) tapu',               carpan: 1.00 },
       hisseli:  { ad: 'Hisseli tapu (müşterek mülkiyet)',  carpan: 0.68 },
+      /* 0,60 (-%40) yukaridaki bandin DISINDA ve bir cikarim: hisseli olmanin ustune fiili taksim ve ifraz imkansizligi biniyor. Valbridge aralığının üst yarısında (15-67) ama çoğunluk bandının (25-35) dışında. Bileşik kusur için daha derin iskonto makul görünüyor, ama bu ÇIKARIM, ölçüm değil. */
       ifrazsiz: { ad: 'Hisseli + fiili taksim, ifraz yok', carpan: 0.60 }
     }
   },
