@@ -187,6 +187,25 @@ input[type="number"], input[type="text"], select {
 }
 input:focus, select:focus { outline: 2px solid var(--vurgu); outline-offset: -1px; }
 
+/* BOZUK GIRDI GORUNUR OLMALI.
+   Olculdu (27.08.2026, tarayicida): alana "abc" yazildiginda hicbir sey
+   olmuyordu -- kirmizi yok, mesaj yok, aria-invalid yok. Cekirdek dogru
+   davraniyordu (degeri EKSIK sayip araligi genisletiyor, uydurma sayi
+   uretmiyor) ama kullanici bunu bilmiyordu: yazdigini girdi saniyor,
+   aralik neden genis diye anlamiyordu.
+   Rakam yanlis degildi; kullanicinin ZANNI yanlisti. */
+input.gecersiz, select.gecersiz {
+    border-color: var(--uyari);
+    background: var(--uyari-zemin);
+}
+.girdi-uyari {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: var(--uyari);
+}
+
 .ikili { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 .onay {

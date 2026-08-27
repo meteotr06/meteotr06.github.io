@@ -251,7 +251,7 @@ var DUZELTME = {
             'şekilli parsel düzensiz olandan +138,11 TL/m2 pahalı (p<0,05, ' +
             'İSTATİSTİKSEL OLARAK ANLAMLI). Aynı modelde 1 birim emsal artışı ' +
             '+233,06 TL/m2; yani şekil, emsalin yaklaşık %59 kadarı etkili. ' +
-            'Ilk tahminimiz şekli en zayıf faktör yapıyordu, güçlendirildi. ' +
+            'İlk tahminimiz şekli en zayıf faktör yapıyordu, güçlendirildi. ' +
             'Mutlak TL değerleri 2017 Samsun fiyatıdır, taşınmaz.',
     tip: 'secenek',
     secenek: {
@@ -287,6 +287,20 @@ var FAKTOR_SIRASI = ['nitelik', 'imar_fonksiyon', 'kaks', 'yola_cephe',
 
    `tur` parametresi zorunlu: oran alanlarinda (TAKS/KAKS) ayrac HER
    ZAMAN ondalik olmalidir, yoksa "1,500" KAKS 1500 okunur. */
+/* TURKCE SAYI YAZIMI CIKTIDA DA GECERLIDIR.
+   Butun gun GIRDI tarafi kovalandi ("1.500" -> 1,5 hatasi). Cikti tarafi
+   hic sorulmamisti. Ekranda "ayrisma %13.7" ve "12.00 m" yaziyordu:
+   JavaScript ondalik ayraci NOKTA koyar, Turkce'de ayrac VIRGULDUR.
+   Turkiye'de nokta BINLIK ayracidir; "%13.7" okuyan biri 137 anlayabilir.
+   Girdi hatasiyla ayni sinif: sessiz yanlis sayi. */
+function tr_sayi(x, basamak) {
+    if (x === null || x === undefined || !isFinite(x)) return '—';
+    return Number(x).toLocaleString('tr-TR', {
+        minimumFractionDigits: basamak || 0,
+        maximumFractionDigits: basamak === undefined ? 1 : basamak
+    });
+}
+
 function sayi(x, tur) {
   return sayi_oku(x, tur);
 }
@@ -1125,7 +1139,7 @@ function deger_nominal(emsal, hedef) {
    yakinlik" 5,37 -> 12,21 (2,3 KAT) degisiyor. Yani agirliklar bolgeye
    ve yonteme gore ciddi oynuyor.
 
-   NE YAPMIYORUZ: Uydurma bir bolge sayisi secip "Ic Anadolu profili"
+   NE YAPMIYORUZ: Uydurma bir bolge sayisi secip "İç Anadolu profili"
    gibi seyler tanimlamiyoruz. Elimizde YAYIMLANMIS bes Turkiye seti var
    (Canakkale, Avanos M1, Avanos M2, Istanbul BWM, Foca); bes ornek
    istatistiksel kumeleme icin yetmez ve uydurmak, olculmus gibi
@@ -1150,14 +1164,14 @@ var BOLGE_PROFILI = {
     agirlik: {}
   },
   avanos_m1: {
-    ad: 'Ic Anadolu ilçesi — literatür ağırlıkları (Avanos M-1)',
+    ad: 'İç Anadolu ilçesi — literatür ağırlıkları (Avanos M-1)',
     kume: 'Avanos/Nevşehir; ağırlıklar Nişancı 2005, Erbil 2014, Mete 2019 ' +
           'calismalarindan devralinmis',
     kaynak: 'K7',
     agirlik: { merkez: 5.37, kamu_hizmetleri: 6.37, egim: 3.22 }
   },
   avanos_m2: {
-    ad: 'Ic Anadolu ilçesi — AHP ağırlıkları (Avanos M-2)',
+    ad: 'İç Anadolu ilçesi — AHP ağırlıkları (Avanos M-2)',
     kume: 'Avanos/Nevşehir; aynı 19 faktör, arastirmacilarin kendi AHP ' +
           'anketi, CR=0,00004',
     kaynak: 'K7',
@@ -1318,10 +1332,10 @@ function deger_analizi(emsal, hedef) {
   sonuc.guven_notu =
     (tahminler.length === 2
       ? ('İki bağımsız yöntem kullanıldı; aralarındaki ayrışma %' +
-         sonuc.ayrisma_yuzde + '. ')
+         tr_sayi(sonuc.ayrisma_yuzde, 1) + '. ')
       : (nominal_sonuc.gecerlilik_disi
-          ? ('Ikinci yöntem (nominal puanlama) bu parsel için GEÇERLİ DEĞİL, ' +
-             'kullanilmadi: ' + nominal_sonuc.sebep.join(' ') +
+          ? ('İkinci yöntem (nominal puanlama) bu parsel için GEÇERLİ DEĞİL, ' +
+             'kullanılmadı: ' + nominal_sonuc.sebep.join(' ') +
              ' Tek yöntemle kalındığı için bant genişletildi. ')
           : 'Tek yöntem kullanılabildi; bant bu yüzden geniş. ')) +
     'Bu bir DEĞERLEME RAPORU DEĞİLDİR. Kesin değer için SPK lisanslı ' +

@@ -123,7 +123,9 @@ function konut_sinifi(g) {
     }
     yukseklik = kat * 3.00;
     uyari = 'Yapı yüksekliği girilmedi; kat başına 3,00 m kabul edilerek ' +
-            kat + ' kat = ' + yukseklik.toFixed(2) + ' m varsayildi ' +
+            kat + ' kat = ' + yukseklik.toLocaleString('tr-TR',
+                { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+            ' m varsayıldı ' +
             '(Planlı Alanlar İmar Yön. md. 23/1-d kat adedi ölçütü). ' +
             'Gerçek yükseklik farklıysa yapı sınıfı ve maliyet değişir.';
   }
@@ -379,7 +381,7 @@ function deger_artis_kazanci(g) {
     matrah: Math.round(matrah),
     vergi: Math.round(vergi),
     efektif_oran: safi > 0 ? Math.round(vergi / safi * 1000) / 10 : 0,
-    beyan: 'Izleyen yılın MART ayında yıllık gelir vergisi beyannamesi ile ' +
+    beyan: 'İzleyen yılın MART ayında yıllık gelir vergisi beyannamesi ile ' +
            'beyan edilir (GVK md. 92).',
     kaynak: MEVZUAT_KAYNAK.M4
   };

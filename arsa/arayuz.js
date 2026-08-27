@@ -1151,11 +1151,67 @@ function baglantilari_kur() {
         b.onclick = function () { b.parentElement.classList.toggle('acik'); };
     });
 
-    /* Her değişiklikte kapsam ve vasıf canlı güncellensin. */
+    /* Her değişiklikte kapsam, vasıf ve GİRDİ GEÇERLİLİĞİ güncellensin. */
     document.querySelectorAll('input, select').forEach(function (i) {
         i.addEventListener('input', kapsam_guncelle);
         i.addEventListener('change', kapsam_guncelle);
+        i.addEventListener('input', girdileri_denetle);
+        i.addEventListener('blur', girdileri_denetle);
     });
+
+    /* ---- BOZUK GIRDIYI GOSTER ----------------------------------------
+       Cekirdek okuyamadigi degeri null dondurur ve o bilgi EKSIK sayilir;
+       sayi uydurulmaz, aralik genisler. Dogru davranis. Ama kullanici
+       "abc" yazdiginda ekranda hicbir sey degismiyordu: yazdigini girdi
+       saniyor, araligin neden genis oldugunu anlamiyordu.
+
+       Hata sayida degil, KULLANICININ ZANNINDA. Sessiz yanlis sayinin
+       kardesi: sessiz yanlis GUVEN.
+
+       Sebep alanin ALTINA yazilir ve `aria-describedby` ile alana
+       baglanir -- ekran okuyucu kullanan biri de sebebi duyar. Uyari
+       kutusu `data-icin` ile isaretlenir; kardes secici kullanmak
+       (`:scope >`) 09'da yanlislikla komsu uyarilari siliyordu. */
+    function girdileri_denetle() {
+        document.querySelectorAll('input[inputmode]').forEach(function (a) {
+            var ham = (a.value || '').trim();
+            var eski = document.querySelector('.girdi-uyari[data-icin="' + a.id + '"]');
+            var sebep = null;
+
+            if (ham !== '') {
+                var d = C.sayi_oku(ham, a.dataset.tur || null);
+                if (d === null || !isFinite(d)) {
+                    sebep = 'Bu sayı okunamadı. Ondalık için virgül kullanın ' +
+                            '(örn. 1.500,50). Harf ve boşluk olmamalı. ' +
+                            'Şu an bu bilgi GİRİLMEMİŞ sayılıyor.';
+                } else if (d < 0) {
+                    sebep = 'Eksi değer olamaz.';
+                }
+            }
+
+            a.classList.toggle('gecersiz', !!sebep);
+            if (sebep) {
+                a.setAttribute('aria-invalid', 'true');
+            } else {
+                a.removeAttribute('aria-invalid');
+            }
+
+            if (!sebep) {
+                if (eski) { eski.remove(); a.removeAttribute('aria-describedby'); }
+                return;
+            }
+            if (!eski) {
+                eski = document.createElement('span');
+                eski.className = 'girdi-uyari';
+                eski.dataset.icin = a.id;
+                eski.id = 'uyari-' + a.id;
+                a.insertAdjacentElement('afterend', eski);
+            }
+            eski.textContent = sebep;
+            a.setAttribute('aria-describedby', eski.id);
+        });
+    }
+    girdileri_denetle();
 
     $('hesaplaBtn').onclick = function () {
         if (rapor_ciz()) sekme_ac('sRapor');
