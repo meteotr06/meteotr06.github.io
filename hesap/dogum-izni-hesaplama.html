@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Doğum İzni Hesaplama 2026 — 24 Hafta (Yeni Düzenleme)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/dogum-izni-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=50" />
+<link rel="stylesheet" href="stil.css?v=51" />
 </head>
 <body>
 
@@ -112,8 +112,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=50"></script>
-<script src="sayfa.js?v=50"></script>
+<script src="hesap.js?v=51"></script>
+<script src="sayfa.js?v=51"></script>
 <script>
 iskeletKur("dogum-izni-hesaplama.html");
 gizlilikBaglantisi();
@@ -145,8 +145,36 @@ function hesapla() {
         document.getElementById("dokum").innerHTML = ""; return;
     }
 
+    /* ARALIK DISI GIRDIYI SESSIZCE KIRPMA -- SOYLE.
+       Olculdu (28 Agustos 2026, CANLIDA): "99" yazan da "-5" yazan da
+       "12abc" yazan da uyarisiz bir sonuc goruyordu; cekirdek degeri
+       sessizce yasal aralia kirpiyordu. Kirpma DOGRU (4857/74), ama
+       kullanici yazdiginin dikkate alinmadigini bilmiyordu.
+       Alandaki min="2" max="10" da islevsiz: bunlar type="text"
+       kutusunda tarayici tarafindan UYGULANMAZ -- var olduklari icin
+       koruma sanilabilirdi.
+       Aralik burada UYDURULMUYOR; cekirdegin kendi kullandigi sinirlar
+       (DOGUM_IZNI) okunuyor, boylece iki yerde ayrisamaz. */
+    const enAz = DOGUM_IZNI.enAzOncesi;
+    const enCok = cogul ? DOGUM_IZNI.oncesiCogul : DOGUM_IZNI.oncesiTekil;
+    let kirpmaNotu = "";
+    if (calisma !== null && isFinite(calisma) && (calisma < enAz || calisma > enCok)) {
+        kirpmaNotu = `<div class="kutu uyari-kutu"><p><b>Girdiğiniz değer
+            kullanılmadı.</b> Doğum öncesi izin ${enAz}–${enCok} hafta
+            aralığında olabilir; “${calismaHam.slice(0, 12)}” bu aralığın
+            dışında. Aşağıdaki tarihler
+            <b>${Math.max(enAz, Math.min(enCok, calisma))} hafta</b> kabul
+            edilerek hesaplandı.</p>
+            <p class="kucuk">Dayanak: ${DOGUM_IZNI.dayanak}</p></div>`;
+    } else if (calismaHam !== "" && calisma === null) {
+        kirpmaNotu = `<div class="kutu uyari-kutu"><p><b>“${calismaHam.slice(0, 12)}”
+            sayı olarak okunamadı</b> ve dikkate alınmadı. Aşağıdaki tarihler,
+            doğum öncesi iznin tamamı kullanılacak varsayımıyla
+            hesaplandı.</p></div>`;
+    }
+
     const kalan = i.kalanGun;
-    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+    document.getElementById("ozet").innerHTML = kirpmaNotu + `<div class="kutu one-cikan">
         <div class="dev-deger">${i.toplamHafta} hafta</div>
         <div class="dev-etiket">toplam analık izniniz (${i.toplamGun} gün)</div>
         ${satir("İzin başlangıcı", tarihYaz(i.baslangic), "buyuk")}

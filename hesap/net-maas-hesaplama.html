@@ -36,7 +36,7 @@
 <meta property="og:image:alt" content="Net Maaş Hesaplama 2026 — Brütten Nete, 12 Ayın Tamamı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/net-maas-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=50" />
+<link rel="stylesheet" href="stil.css?v=51" />
 </head>
 <body>
 
@@ -130,8 +130,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=50"></script>
-<script src="sayfa.js?v=50"></script>
+<script src="hesap.js?v=51"></script>
+<script src="sayfa.js?v=51"></script>
 <script>
 iskeletKur("net-maas-hesaplama.html");
 gizlilikBaglantisi();
@@ -145,6 +145,65 @@ document.getElementById("kaynakSerit").innerHTML = `
     <span class="etiket-rozet">Güncelleme <b>${PARAMETRE.guncelleme}</b></span>`;
 
 const ALANLAR = ["brut", "baslangic"];
+
+/* MAAS NE ZAMAN DUSUYOR — donem ozeti.
+   Olculdu: dusus kademeli degil, vergi dilimi degistikce BASAMAKLI.
+   Aylik butce yapan icin asil bilgi "ne zaman", ve bunu ne baslik ne
+   de ozet notu soyluyordu; 12 satirlik tabloyu okumak gerekiyordu.
+   Grafik YAPILMADI: cubuk sifirdan baslamak zorunda, %11'lik dusus
+   gorunmez kalir; sifirdan baslamayan cubuk ise yaniltir. Uc seviye
+   uc satira sigiyor - metin hem daha kesin hem ekran okuyucuya acik. */
+function donemOzeti(p) {
+    const AY = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+                "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    /* ONEMLI FARKA gore grupla, her kurusa degil.
+       Ilk hâli 1 TL tolerans kullaniyordu ve BES donem cikiyordu:
+       ikisi "Mart -62,50 TL" ve "Temmuz -147,65 TL" gibi gecis
+       aylariydi. Onemsiz iki satir, asil iki basamagi (-3.125 ve
+       -2.911) gorunmez yapiyordu - yani kendi kuralimi kendi isimde
+       cignemisim: her seyi vurgulamak, hicbir seyi vurgulamamaktir.
+       Esik: ilk ay netinin %1'i. Altindaki dalgalanma aylik butce
+       icin gurultu. */
+    const ESIK = Math.max(1, p.aylar[0].net * 0.01);
+    const donemler = [];
+    p.aylar.forEach(function (a, i) {
+        const son = donemler[donemler.length - 1];
+        if (son && Math.abs(son.net - a.net) < ESIK) {
+            son.bit = i; son.tutarlar.push(a.net); return;
+        }
+        donemler.push({ bas: i, bit: i, net: a.net, tutarlar: [a.net] });
+    });
+    /* Donem icinde kucuk oynama olabilir; EN SIK gorulen tutari
+       yaziyoruz - kullanicinin cogu ay gorecegi rakam o. Ortalama
+       ya da en dusuk yazmak, hicbir ay gormedigi bir sayi olurdu. */
+    donemler.forEach(function (d) {
+        const sayim = new Map();
+        d.tutarlar.forEach(function (t) {
+            const anahtar = Math.round(t);
+            sayim.set(anahtar, (sayim.get(anahtar) || 0) + 1);
+        });
+        let enCok = null, adet = -1;
+        sayim.forEach(function (n, t) { if (n > adet) { adet = n; enCok = t; } });
+        d.net = d.tutarlar.find(function (t) { return Math.round(t) === enCok; });
+    });
+    if (donemler.length < 2) return "";
+    const ad = (d) => d.bas === d.bit ? AY[d.bas]
+        : AY[d.bas] + "–" + AY[d.bit];
+    const satirlar = donemler.map(function (d, i) {
+        const fark = i === 0 ? "" :
+            `<span class="do-fark">−${para(donemler[i - 1].net - d.net)}</span>`;
+        return `<div class="do-satir"><span class="do-ay">${ad(d)}</span>
+                <b class="do-tutar">${para(d.net)}</b>${fark}</div>`;
+    }).join("");
+    /* Ekran okuyucuya TEK cumlede: gorsel duzen ona ulasmiyor. */
+    const sesli = donemler.map((d) => ad(d) + " " + para(d.net)).join(", ");
+    return `<div class="donem-ozeti" role="group"
+                 aria-label="Maaşınızın yıl içindeki dönemleri: ${sesli}">
+        <div class="do-baslik">Maaşınız yıl içinde ${donemler.length - 1 === 1
+            ? "bir kez" : donemler.length - 1 + " kez"} değişiyor</div>
+        ${satirlar}
+    </div>`;
+}
 
 function hesapla() {
     const brut = oku("brut");
@@ -165,6 +224,7 @@ function hesapla() {
         ${satir("Gelir vergisi", "−" + para(ilk.gelirVergisi))}
         ${satir("Damga vergisi", "−" + para(ilk.damga))}
         ${satir("Net maaş", para(p.ilkAyNet), "buyuk")}
+        ${p.dususTutari > 1 ? donemOzeti(p) : ""}
         ${p.dususTutari > 1 ? `<p class="kucuk">Yıl sonunda net maaşınız
             <b>${para(p.sonAyNet)}</b> olacak — üst vergi dilimine geçtiğiniz için
             aylık ${para(p.dususTutari)} düşüş var. Yıllık toplam net:

@@ -473,6 +473,41 @@ window.addEventListener("load", async function () {
        Number(fs) >= 16, fs + "px");
   } catch (e) { ol("stil.css okunamadı", false, String(e)); }
 
+  /* ══ O · BOZUK GİRDİ SESSİZCE SIFIR OLMASIN — sayfa korumaları ═══
+     42 aracın hepsinde "abc" davranışı ölçüldü (28 Ağustos 2026).
+     Üç araç sahte sonuç veriyordu:
+
+       sayi-yaziyla-yazma  → "abc" yazınca tam güvenle "SIFIR LİRA".
+         Aracın kendi etiketi "çek ve senet için yazım" — kullanıcının
+         kopyalayıp çeke geçireceği metin buydu. Boş kutu da aynısını
+         veriyordu.
+       alan-cevre-hacim    → "abc", "0" ve BOŞ kutu üçü de "0 m²".
+         Sayfa açılır açılmaz, hiçbir şey yazılmadan "0 m²" bir SONUÇ
+         gibi duruyordu.
+       dogum-izni          → "99" ve "-5" sessizce yasal aralığa
+         kırpılıyordu. Kırpma doğru; söylenmemesi yanlıştı. Alandaki
+         min/max ise type="text" kutusunda tarayıcı tarafından
+         UYGULANMAZ — var oldukları için koruma sanılabilirdi.
+
+     GERÇEK SIFIR AYRI ŞEYDİR: "0" yazan biri "Sıfır lira" görmeli. */
+  bas("O · Bozuk girdi sessizce sıfır olmasın");
+  for (const t of [["sayi-yaziyla-yazma.html", "sayiGecersizMi", "okunamadı"],
+                   ["alan-cevre-hacim-hesaplama.html", "bozukOlan", "sıfırdan büyük"],
+                   ["dogum-izni-hesaplama.html", "kirpmaNotu", "kullanılmadı"]]) {
+    try {
+      const c6 = await fetch(t[0] + "?t=" + T);
+      const m6 = await c6.text();
+      ol(t[0] + " → koruma var (" + t[1] + ")", m6.indexOf(t[1]) >= 0);
+      ol(t[0] + " → kullanıcıya sebep yazıyor", m6.indexOf(t[2]) >= 0);
+    } catch (e) { ol(t[0] + " okunamadı", false, String(e)); }
+  }
+  /* Çekirdek tarafı: `sayiGecersizMi` üç durumu ayırabiliyor mu?
+     Sayfaların hepsi bu ayrımı ondan alıyor. */
+  ol("geçersiz ayırt ediliyor", sayiGecersizMi("abc") === true);
+  ol("boş geçersiz DEĞİL (henüz yazmadı)", sayiGecersizMi("") === false);
+  ol("gerçek sıfır geçersiz DEĞİL", sayiGecersizMi("0") === false);
+  ol("kısmen sayı da geçersiz", sayiGecersizMi("12abc") === true);
+
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
     if (s.bolum) return "<h2>" + s.bolum + "</h2>";

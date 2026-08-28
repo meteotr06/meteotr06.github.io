@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Alan, Çevre ve Hacim Hesaplama — Kare, Daire, Üçgen, Silindir" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/alan-cevre-hacim-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=50" />
+<link rel="stylesheet" href="stil.css?v=51" />
 </head>
 <body>
 
@@ -109,8 +109,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=50"></script>
-<script src="sayfa.js?v=50"></script>
+<script src="hesap.js?v=51"></script>
+<script src="sayfa.js?v=51"></script>
 <script>
 iskeletKur("alan-cevre-hacim-hesaplama.html");
 gizlilikBaglantisi();
@@ -138,6 +138,39 @@ function hesapla() {
     const sekil = document.getElementById("sekil").value;
     const birim = document.getElementById("birim").value;
     const s = SEKILLER[sekil];
+    /* BOS FORM SONUC GOSTERMEZ, BOZUK GIRDI SIFIR SAYILMAZ.
+       Olculdu (28 Agustos 2026, CANLIDA): "abc", "0" ve BOS kutu ucu de
+       "0 m²" veriyordu. Uc ayri durum, tek cevap. Sayfa acilir acilmaz,
+       kullanici hicbir sey yazmadan, ekranda "0 m²" bir SONUC gibi
+       duruyordu.
+       Sekle gore hangi alanlarin gerektigini `SEKILLER` zaten biliyor;
+       denetim de ondan turetiliyor -- boylece yeni bir sekil eklendiginde
+       liste iki yerde ayrisamaz. */
+    const gerekliAlanlar = s.girdiler.map(x => x[0]);
+    const bosOlan = [], bozukOlan = [], sifirOlan = [];
+    gerekliAlanlar.forEach(function (kod) {
+        const el = document.getElementById("g-" + kod);
+        const ham = (el && el.value || "").trim();
+        if (ham === "") { bosOlan.push(kod); return; }
+        if (sayiGecersizMi(ham)) { bozukOlan.push(ham.slice(0, 12)); return; }
+        if (oku("g-" + kod) <= 0) sifirOlan.push(kod);
+    });
+    if (bozukOlan.length) {
+        sonucBekliyor("“" + bozukOlan[0] + "” sayı olarak okunamadı. " +
+                      "Ondalık için virgül kullanın (örn. 2,5).");
+        baglantiyaYaz(ALANLAR); return;
+    }
+    if (bosOlan.length) {
+        sonucBekliyor("Ölçüleri girin: " +
+            s.girdiler.filter(x => bosOlan.indexOf(x[0]) >= 0)
+                      .map(x => x[1]).join(", ") + ".");
+        baglantiyaYaz(ALANLAR); return;
+    }
+    if (sifirOlan.length) {
+        sonucBekliyor("Ölçüler sıfırdan büyük olmalı.");
+        baglantiyaYaz(ALANLAR); return;
+    }
+
     const g = { a: oku("g-a"), b: oku("g-b"), c: oku("g-c"), h: oku("g-h"), r: oku("g-r") };
     const sonuc = geometri(sekil, g);
 

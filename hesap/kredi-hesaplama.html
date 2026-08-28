@@ -36,7 +36,7 @@
 <meta property="og:image:alt" content="Kredi Hesaplama 2026 — Aylık Taksit ve Ödeme Planı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kredi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=50" />
+<link rel="stylesheet" href="stil.css?v=51" />
 </head>
 <body>
 
@@ -103,8 +103,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=50"></script>
-<script src="sayfa.js?v=50"></script>
+<script src="hesap.js?v=51"></script>
+<script src="sayfa.js?v=51"></script>
 <script>
 iskeletKur("kredi-hesaplama.html");
 gizlilikBaglantisi();
@@ -115,6 +115,40 @@ document.getElementById("kaynakSerit").innerHTML = `
     <span class="etiket-rozet">Ay ay ödeme planı</span>`;
 
 const ALANLAR = ["tutar", "faiz", "vade", "vergi"];
+
+/* YARIYOL NOTU — "taksitlerin yarisini odedim, borcumun yarisi bitti"
+   yaygin ve pahali bir yanlis.
+   Olculdu (100.000 TL / 24 ay): 12. ayda odenen anapara %39, KALAN
+   BORC 61.412 TL. Insanlar bu yanlis uzerine erken kapatma ve
+   yeniden yapilandirma karari veriyor.
+   Sayfa bunu hic soylemiyordu.
+   Grafik YAPILMADI: sekli uc sayi zaten anlatiyor (1. taksit %61
+   faiz, 8. ayda donum, son taksit %4). Eksik olan sekil degil, tek
+   bir SAYI idi: yariyolda ne kadari kalir.
+   Butun degerler plandan turetiliyor; sabit ornek baska girdide
+   yalan olurdu. */
+function yariyolNotu(k, tutar) {
+    const plan = k.plan || [];
+    if (plan.length < 4 || !tutar) return "";
+    const yariIndeks = Math.floor(plan.length / 2) - 1;
+    const yari = plan[yariIndeks];
+    if (!yari || !isFinite(yari.kalan)) return "";
+    const kalanYuzde = Math.round(yari.kalan / tutar * 100);
+    // Anlamli degilse hic yazma: faizsiz kredide yariyol gercekten yari.
+    if (kalanYuzde <= 52) return "";
+    const toplamFaiz = plan.reduce((t, s) => t + s.faiz, 0);
+    let birikim = 0, faizYarisiAy = plan.length;
+    for (const s of plan) {
+        birikim += s.faiz;
+        if (birikim >= toplamFaiz / 2) { faizYarisiAy = s.ay; break; }
+    }
+    return `<p class="varsayim"><b>Yarı yolda ne olur?</b>
+        ${yari.ay}. taksitten sonra — yani taksitlerin yarısını ödediğinizde —
+        borcunuzun <b>${para(yari.kalan)}</b>'si (%${kalanYuzde}) duruyor.
+        İlk aylarda ödediğinizin çoğu faize gittiği için borç beklediğinizden
+        yavaş eriyor: toplam faizin yarısını ilk <b>${faizYarisiAy} ayda</b>
+        ödüyorsunuz.</p>`;
+}
 
 function hesapla() {
     const tutar = oku("tutar"), faiz = oku("faiz"), vade = Math.round(oku("vade"));
@@ -133,6 +167,7 @@ function hesapla() {
         ${satir("Yıllık bileşik maliyet", yuzdeOn(k.yillikMaliyet), "buyuk")}
         <p class="kucuk">Aldığınız her 100 ₺ için toplam
         <b>${sayi(k.toplamOdeme / tutar * 100, 1)} ₺</b> geri ödüyorsunuz.</p>
+        ${yariyolNotu(k, tutar)}
     </div>`;
 
     // Adım adım döküm

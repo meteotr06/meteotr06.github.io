@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Kıdem ve İhbar Tazminatı Hesaplama 2026 — Tavan Dahil" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kidem-tazminati-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=50" />
+<link rel="stylesheet" href="stil.css?v=51" />
 </head>
 <body>
 
@@ -115,8 +115,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=50"></script>
-<script src="sayfa.js?v=50"></script>
+<script src="hesap.js?v=51"></script>
+<script src="sayfa.js?v=51"></script>
 <script>
 iskeletKur("kidem-tazminati-hesaplama.html");
 gizlilikBaglantisi();
@@ -163,6 +163,19 @@ function hesapla() {
             <b>Tavan uygulandı.</b> Giydirilmiş ücretiniz ${para(k.giydirilmis)} ama yasal tavan
             ${para(k.tavan)}. Hesap tavan üzerinden yapıldı; aradaki fark
             (${para(k.giydirilmis - k.tavan)}/ay) tazminata yansımıyor.</p>` : ""}
+        ${/* KOSUL, SAYIYA BITISIK OLMALI.
+             Olculdu (28.08.2026): sonuc kutusu y=5683'te bitiyor, "kendi
+             istegiyle istifa edildiginde kidem odenmez" cumlesi y=9101'de
+             - 3.400 px asagida, duz metin icinde. Kutuda SIFIR kez geciyordu.
+             Oysa ayni sayfa IHBAR tazminati icin bu kosulu kutunun ICINE
+             koymus. Buyuk olan sayida eksikti.
+             326.924 TL goren ve istifa etmeyi dusunen biri, o parayi
+             kaybedecegini ogrenmeden karar veriyordu. */""}
+        ${k.hakEdiyorMu ? `<p class="onemli"><b>Bu tutarı ne zaman alırsınız?</b>
+            İşten çıkarıldıysanız ya da haklı sebeple istifa ettiyseniz.
+            <b>Kendi isteğinizle istifa ederseniz kıdem tazminatı ödenmez</b> —
+            askerlik, emeklilik ve kadın çalışanın evlilik nedeniyle bir yıl
+            içinde ayrılması istisnadır.</p>` : ""}
     </div>
 
     <div class="kutu">

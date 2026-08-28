@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Sayıyı Yazıyla Yazma — Çek ve Senet İçin Tutar Yazımı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/sayi-yaziyla-yazma.png" />
-<link rel="stylesheet" href="stil.css?v=50" />
+<link rel="stylesheet" href="stil.css?v=51" />
 </head>
 <body>
 
@@ -78,8 +78,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=50"></script>
-<script src="sayfa.js?v=50"></script>
+<script src="hesap.js?v=51"></script>
+<script src="sayfa.js?v=51"></script>
 <script>
 iskeletKur("sayi-yaziyla-yazma.html");
 gizlilikBaglantisi();
@@ -87,6 +87,24 @@ gizlilikBaglantisi();
 const ALANLAR = ["sayiGirdi"];
 
 function hesapla() {
+    /* CEK VE SENET METNI URETEN ARACTA SESSIZ SIFIR OLMAZ.
+       Olculdu (28 Agustos 2026, CANLIDA): "abc" yazilinca ekranda
+       tam guvenle "Sifir lira" yaziyordu -- alan isaretsiz, uyari yok.
+       Kullanicinin kopyalayip CEKE yazacagi metin bu. Bos kutu da ayni
+       ciktiyi veriyordu.
+       Uc durum AYRIDIR ve ucu de farkli cevap ister:
+         bos      -> henuz yazmadi, sonuc bekleniyor
+         gecersiz -> yazdi ama sayi degil; sayi URETILMEZ
+         0        -> gercek sifir, "Sifir lira" DOGRU cevaptir */
+    const ham = (document.getElementById("sayiGirdi").value || "").trim();
+    if (ham === "") { sonucBekliyor("Yazıyla karşılığını görmek için bir sayı yazın."); return; }
+    if (sayiGecersizMi(ham)) {
+        sonucBekliyor("“" + ham.slice(0, 20) + "” bir sayı olarak okunamadı. " +
+                      "Ondalık için virgül kullanın (örn. 1.500,50). " +
+                      "Çek ya da senet yazıyorsanız, yanlış bir metin " +
+                      "üretmemek için sonuç gösterilmiyor.");
+        return;
+    }
     const deger = oku("sayiGirdi");
     const y = sayiyiYaziyaCevir(deger);
     const buyukHarf = (s) => s.charAt(0).toLocaleUpperCase("tr") + s.slice(1);

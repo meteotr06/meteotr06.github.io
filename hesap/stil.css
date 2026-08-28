@@ -149,6 +149,35 @@ h4 { font-size: 14px; margin: 0 0 6px; font-weight: 600; }
    yazmış; yani önemini biliyor ama tasarım taşımıyordu.
    Bir yazarın "Önemli:" yazmak zorunda kalması, tasarımın o ağırlığı
    taşımadığının işaretidir. */
+/* DÖNEM ÖZETİ — maaş yıl içinde ne zaman değişiyor.
+   Grafik yerine metin: veride yalnızca üç seviye var; çubuk grafik
+   sıfırdan başlamak zorunda ve %11'lik düşüş görünmez kalırdı,
+   sıfırdan başlamayan çubuk ise yanıltırdı. Üç satır hem daha kesin
+   hem ekran okuyucuya açık hem 360 px'te sorunsuz. */
+.donem-ozeti {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--cizgi);
+  border-radius: 10px;
+  background: var(--kart-ust);
+}
+.do-baslik {
+  font-size: 13px;
+  color: var(--yazi2);
+  margin-bottom: 6px;
+}
+.do-satir {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 14px;
+  flex-wrap: wrap;              /* 360 px'te alt satira insin, tasmasin */
+}
+.do-ay { color: var(--yazi2); min-width: 118px; }
+.do-tutar { font-variant-numeric: tabular-nums; }
+.do-fark { color: var(--azalis); font-size: 13px; }
+
 .onemli {
   font-size: 14px;
   color: var(--yazi);
