@@ -2258,3 +2258,142 @@ function lpgAmortisman(g) {
         yuzKmLpg: lpgTuketim * lpgFiyat
     };
 }
+
+
+// ================= MOTORLU TAŞITLAR VERGİSİ (MTV) =================
+// Kaynak: Motorlu Taşıtlar Vergisi Genel Tebliği (Seri No: 58),
+//         Resmî Gazete 31.12.2025, sayı 33124 (5. mükerrer).
+//         2026 yeniden değerleme oranı %18,95.
+// Doğrulama: (I) sayılı tarifenin uç değerleri üç bağımsız kaynakta
+//         aynı çıktı (en düşük 5.750 TL, en yüksek 274.415 TL;
+//         1601-1800 cm³ / 1-3 yaş = 19.472 TL).
+//
+// KAPSAM VE SINIRI — BİLEREK DAR:
+// Burada YALNIZCA (I) sayılı tarife var: 1/1/2018 tarihinden itibaren
+// kayıt ve tescil edilen otomobil, kaptıkaçtı, arazi taşıtı ve
+// benzerleri. 31/12/2017 ve öncesi tescilliler (I/A) sayılı tarifeye
+// tabidir ve o tarifeyi DOĞRULANMIŞ bir kaynaktan alamadım.
+// Bu yüzden o taşıtlar için sayı ÜRETİLMEZ — `kapsamDisi` döner.
+// Yanlış tarifeyle hesaplamak, hiç hesaplamamaktan kötüdür: araç
+// çalışır, sayı yanlıştır ve kullanıcının bunu anlamasının yolu yoktur.
+//
+// "Taşıt değeri" ne demek: 197 sayılı Kanun md.5 — taşıtın teslimi,
+// ilk iktisabı ve ithalinde KDV matrahını oluşturan değer (ÖTV ve
+// vade farkı hariç). BUGÜNKÜ PİYASA DEĞERİ DEĞİLDİR. Kullanıcı bugünkü
+// değeri girerse yanlış dilime düşer; sayfa bunu açıkça yazar.
+const MTV_TARIFE = {
+    yil: 2026,
+    kaynak: "MTV Genel Tebliği Seri No: 58 — Resmî Gazete 31.12.2025, sayı 33124 (5. mükerrer)",
+    guncelleme: "2026-01-01",
+    // Her sınıf: hacim üst sınırı (cm³), değer eşikleri ve
+    // her değer dilimi için [1-3, 4-6, 7-11, 12-15, 16+] yaş tutarları.
+    siniflar: [
+        { ustHacim: 1300, esikler: [309100, 541500], tutarlar: [
+            [5750, 4010, 2238, 1689, 593],
+            [6319, 4409, 2459, 1861, 655],
+            [6902, 4807, 2693, 2032, 706]
+        ] },
+        { ustHacim: 1600, esikler: [309100, 541500], tutarlar: [
+            [10016, 7510, 4354, 3077, 1181],
+            [11023, 8264, 4794, 3375, 1290],
+            [12028, 9012, 5220, 3685, 1408]
+        ] },
+        { ustHacim: 1800, esikler: [775100], tutarlar: [
+            [19472, 15226, 8948, 5458, 2113],
+            [21251, 16600, 9775, 5964, 2307]
+        ] },
+        { ustHacim: 2000, esikler: [775100], tutarlar: [
+            [30679, 23625, 13886, 8264, 3248],
+            [33474, 25784, 15147, 9012, 3547]
+        ] },
+        { ustHacim: 2500, esikler: [968100], tutarlar: [
+            [46027, 33413, 20874, 12465, 4930],
+            [50217, 36448, 22768, 13606, 5378]
+        ] },
+        { ustHacim: 3000, esikler: [1937500], tutarlar: [
+            [64175, 55837, 34878, 18758, 6875],
+            [70018, 60905, 38053, 20466, 7503]
+        ] },
+        { ustHacim: 3500, esikler: [1937500], tutarlar: [
+            [97744, 87954, 52976, 26443, 9684],
+            [106641, 95940, 57791, 28839, 10578]
+        ] },
+        { ustHacim: 4000, esikler: [3101800], tutarlar: [
+            [153684, 132712, 78152, 34878, 13886],
+            [167671, 144770, 85271, 38053, 15147]
+        ] },
+        { ustHacim: Infinity, esikler: [3683200], tutarlar: [
+            [251554, 188627, 111714, 50202, 19472],
+            [274415, 205781, 121873, 54769, 21251]
+        ] }
+    ]
+};
+
+const MTV_YAS_GRUPLARI = ["1-3 yaş", "4-6 yaş", "7-11 yaş", "12-15 yaş", "16 ve yukarısı"];
+
+/* Taşıt yaşı: 197 sayılı Kanun md.9 — model yılından sonra gelen ilk
+   takvim yılında taşıt 1 yaşındadır. Yani yaş = hesap yılı − model yılı.
+   Model yılı içindeki taşıt (fark 0) da ilk gruba girer. */
+function mtvYasGrubu(modelYili, yil) {
+    const yas = yil - modelYili;
+    if (yas <= 3) return { yas: yas, sira: 0 };
+    if (yas <= 6) return { yas: yas, sira: 1 };
+    if (yas <= 11) return { yas: yas, sira: 2 };
+    if (yas <= 15) return { yas: yas, sira: 3 };
+    return { yas: yas, sira: 4 };
+}
+
+/* MTV hesabı — (I) sayılı tarife.
+   g: { motorHacmi, tasitDegeri, modelYili, tescilYili, yil }
+   Eksik ya da kapsam dışı girdide SAYI DÖNMEZ; `hata` alanı dolar.
+   "Bir şey hesaplamak" ile "doğru şeyi hesaplamak" ayrı işlerdir. */
+function mtv(g) {
+    const yil = Number(g.yil) || MTV_TARIFE.yil;
+    const hacim = Number(g.motorHacmi);
+    const deger = Number(g.tasitDegeri);
+    const model = Number(g.modelYili);
+    const tescil = Number(g.tescilYili);
+
+    if (!Number.isFinite(hacim) || hacim <= 0) return { hata: "hacimYok" };
+    if (!Number.isFinite(model) || model < 1900 || model > yil + 1) return { hata: "modelYok" };
+    if (!Number.isFinite(tescil) || tescil < 1900 || tescil > yil) return { hata: "tescilYok" };
+
+    /* KAPSAM DIŞI: 2018 öncesi tescil (I/A) tarifesine tabi.
+       Tarifesi elimizde DOĞRULANMIŞ hâlde yok -> sayı verilmez. */
+    if (tescil < 2018) return { hata: "kapsamDisi", tescilYili: tescil };
+
+    if (!Number.isFinite(deger) || deger <= 0) return { hata: "degerYok" };
+
+    const sinif = MTV_TARIFE.siniflar.find(s => hacim <= s.ustHacim);
+    if (!sinif) return { hata: "hacimYok" };
+
+    let dilim = 0;
+    for (let i = 0; i < sinif.esikler.length; i++) {
+        if (deger > sinif.esikler[i]) dilim = i + 1;
+    }
+
+    const yasBilgi = mtvYasGrubu(model, yil);
+    const yillik = sinif.tutarlar[dilim][yasBilgi.sira];
+
+    /* İki eşit taksit (Ocak ve Temmuz). Tek kuruş farkı ilk taksitte
+       bırakılır ki toplam yıllık tutarla BİREBİR eşleşsin. */
+    const ikinci = Math.round(yillik / 2 * 100) / 100;
+    const birinci = Math.round((yillik - ikinci) * 100) / 100;
+
+    return {
+        yillik: yillik,
+        birinciTaksit: birinci,
+        ikinciTaksit: ikinci,
+        yas: yasBilgi.yas,
+        yasGrubu: MTV_YAS_GRUPLARI[yasBilgi.sira],
+        hacimSinifi: sinif.ustHacim === Infinity ? "4001 cm³ ve yukarısı"
+            : (MTV_TARIFE.siniflar.indexOf(sinif) === 0
+                ? "1300 cm³ ve aşağısı"
+                : (MTV_TARIFE.siniflar[MTV_TARIFE.siniflar.indexOf(sinif) - 1].ustHacim + 1) +
+                  "-" + sinif.ustHacim + " cm³"),
+        degerDilimi: dilim,
+        degerEsikleri: sinif.esikler,
+        tarifeKaynak: MTV_TARIFE.kaynak,
+        tarifeYil: MTV_TARIFE.yil
+    };
+}

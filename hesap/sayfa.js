@@ -43,6 +43,7 @@ const ARACLAR = [
     { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" },
     { yol: "kiralamak-mi-satin-almak-mi.html", ad: "Kirala mı Al mı", aciklama: "Ev: dürüst karşılaştırma", grup: "Ev ve Yaşam", anahtar: "ev almak kiralamak kira mı taksit mi konut kredisi peşinat fırsat maliyeti yatırım başabaş değer artışı" },
     { yol: "elektrikli-arac-sarj-maliyeti.html", ad: "Şarj Maliyeti", aciklama: "Elektrikli araç vs benzinli", grup: "Araç", anahtar: "elektrikli araç şarj maliyeti kwh 100 km benzinli karşılaştırma ev şarjı istasyon hızlı şarj togg tesla menzil" },
+    { yol: "mtv-hesaplama.html", ad: "MTV", aciklama: "Motorlu taşıtlar vergisi ve iki taksiti", grup: "Araç", anahtar: "mtv motorlu taşıtlar vergisi araç vergisi otomobil vergi ocak temmuz taksit motor hacmi taşıt değeri yaş tarife trafik" },
     { yol: "araba-masrafi-hesaplama.html", ad: "Araba Masrafı", aciklama: "Değer kaybı dahil gerçek maliyet", grup: "Araç", anahtar: "araba masrafı araç gideri sahip olma maliyeti değer kaybı amortisman mtv kasko sigorta bakım lastik km başına otomobil" },
     { yol: "lpg-donusum-amortisman-hesaplama.html", ad: "LPG Amortismanı", aciklama: "Kaç ayda kendini çıkarır", grup: "Araç", anahtar: "lpg dönüşüm amortisman tasarruf benzin karşılaştırma otogaz tüp montaj kaç ayda amorti başabaş" }
 ];
@@ -157,6 +158,23 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 70,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: MTV (motorlu taşıtlar vergisi) hesaplama.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Motor hacmi, taşıt değeri ve model yılını girin; <b>2026 yıllık " +
+            "MTV</b> tutarınızı ve <b>Ocak-Temmuz taksitlerini</b> gösterir. " +
+            "Tutarlar resmî tarifeden okunur (MTV Genel Tebliği Seri No: 58).",
+            "<b>Taşıt değeri</b>, aracın bugünkü fiyatı değil, ilk " +
+            "iktisabındaki KDV matrahıdır — sayfa bunu ayrıca anlatıyor, " +
+            "çünkü en sık yapılan hata burada.",
+            "1/1/2018 <b>öncesi</b> tescilli taşıtlar farklı tarifeye tabidir " +
+            "ve bu araçta o tarife yok: o durumda size <b>sayı göstermiyoruz</b>. " +
+            "Yanlış tarifeyle hesaplanmış bir tutar, hiç tutar olmamasından kötüdür.",
+        ],
+    },
     {
         surum: 69,
         tarih: "28 Ağustos 2026",
