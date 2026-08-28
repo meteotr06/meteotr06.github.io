@@ -483,21 +483,48 @@ function girdileriDenetle(idler) {
         // girdi kendi sarmalindaydi, o yuzden gorunmuyordu -- ama sayfa
         // duzeni degistiginde sessizce kaybolurdu.
         let not = kap.querySelector('.girdi-uyari[data-icin="' + el.id + '"]');
+        /* EKRAN OKUYUCU ICIN UYARI ALANA BAGLANMALI.
+           Olculdu (test-erisilebilirlik.html): uyari ekranda cikiyordu ama
+           `aria-invalid` yoktu ve uyarinin `id`si olmadigi icin alana da
+           baglanamiyordu. Ekran okuyucu kullanan biri alana geldiginde
+           "Brut aylik maas, metin" duyuyor; hangi alanin bozuk oldugunu
+           ve NEDEN bozuk oldugunu hic ogrenemiyordu. Uyari GORSEL olarak
+           vardi, ISITSEL olarak yoktu.
+           `role="alert"` yalniz uyari CIKTIGI ANDA okunur; kullanici
+           sonradan alana donerse bir daha duymaz -- bagi kuran sey
+           `aria-describedby`. */
+        const uyariKimlik = "uyari-" + el.id;
         if (bozuk || aralikDisi) {
             if (!not) {
                 not = document.createElement("div");
                 not.className = "girdi-uyari";
                 not.setAttribute("role", "alert");
                 not.setAttribute("data-icin", el.id);
+                not.id = uyariKimlik;
                 kap.insertBefore(not, el.nextSibling);
+            }
+            if (!not.id) not.id = uyariKimlik;
+            el.setAttribute("aria-invalid", "true");
+            const mevcut = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+            if (mevcut.indexOf(uyariKimlik) < 0) {
+                mevcut.push(uyariKimlik);
+                el.setAttribute("aria-describedby", mevcut.join(" "));
             }
             not.textContent = bozuk
                 ? "Bu alan sayı olarak okunamadı — hesap 0 kabul ediyor."
                 : "Bu alan " + aralikDisi + " olmalı. Aşağıdaki sonuç " +
                   "girdiğiniz değerle hesaplandı; aralık dışı olduğu için " +
                   "anlamlı olmayabilir.";
-        } else if (not) {
-            not.remove();
+        } else {
+            /* TEMIZLEMEK DE ISIN PARCASI. Kalan bir `aria-invalid="true"`,
+               duzeltilmis bir alani ekran okuyucuya hala bozuk gosterir --
+               ve bu, hic uyarmamaktan daha yaniltici olur. */
+            el.removeAttribute("aria-invalid");
+            const kalan = (el.getAttribute("aria-describedby") || "")
+                .split(/\s+/).filter(function (x) { return x && x !== uyariKimlik; });
+            if (kalan.length) el.setAttribute("aria-describedby", kalan.join(" "));
+            else el.removeAttribute("aria-describedby");
+            if (not) not.remove();
         }
     });
 }
