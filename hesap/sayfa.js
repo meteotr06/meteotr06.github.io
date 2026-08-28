@@ -158,6 +158,23 @@ function ayarYaz(a) {
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
     {
+        surum: 69,
+        tarih: "28 Ağustos 2026",
+        ozet: "Görünüm ayarları eklendi: altı renk, dört yazı boyu ve " +
+              "sade görünüm.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Üst bardaki <b>⚙</b> düğmesinden renk seçebilir, yazıyı " +
+            "büyütebilir ya da <b>sade görünüme</b> geçebilirsiniz. " +
+            "Seçiminiz bu tarayıcıda saklanır.",
+            "Sade görünümde açıklama yazıları, sık sorulan sorular ve " +
+            "öneriler gizlenir; <b>hesap ve girdiler olduğu gibi kalır</b>.",
+            "Her renk ve yazı boyu, <b>okunabilirlik ölçülerek</b> " +
+            "seçildi: altı rengin açık ve koyu temadaki hâlleri tek tek " +
+            "karşıtlık ölçütünden geçirildi.",
+        ],
+    },
+    {
         surum: 68,
         tarih: "28 Ağustos 2026",
         ozet: "Yavaş bağlantıda çıkan “sayfa yüklenemedi” uyarısı, sayfa " +
@@ -367,6 +384,47 @@ function yenilikSeridi() {
     };
 }
 
+/* ---------- Görünüm ayarları (renk · yazı boyu · sade) ----------
+   Renk seçeneği sunmak, okunabilirliği KULLANICININ RİSKİ yapar:
+   seçeneği biz koyduysak her seçenekte yazının okunduğunu da biz
+   kanıtlarız. Buradaki altı rengin ikisi de (açık/koyu) ölçüldü:
+   `sinama-gorunum` 12 birleşimin hepsinde WCAG karşıtlık ölçütünü
+   ekrandan doğruluyor. "okyanus" ilk hâlinde açık temada 4,20
+   veriyordu (sınır 4,5) ve koyulaştırıldı — yayımlanmadan önce.
+
+   Yazı boyu `html` üzerinden yüzde olarak veriliyor; bütün ölçüler
+   `rem` olduğu için sayfa oranlı büyüyor. Yüzde 200'e kadar yatay
+   taşma olmadığı ölçüldü. */
+const GORUNUM_RENKLER = [
+    { deger: "", ad: "Varsayılan" },
+    { deger: "okyanus", ad: "Okyanus" },
+    { deger: "orman", ad: "Orman" },
+    { deger: "gunbatimi", ad: "Günbatımı" },
+    { deger: "lavanta", ad: "Lavanta" },
+    { deger: "gri", ad: "Gri" }
+];
+const GORUNUM_BOYLAR = [
+    { deger: 100, ad: "Normal" },
+    { deger: 115, ad: "Büyük" },
+    { deger: 130, ad: "Daha büyük" },
+    { deger: 150, ad: "En büyük" }
+];
+
+function gorunumUygula(ayar) {
+    const kok = document.documentElement;
+
+    const renk = GORUNUM_RENKLER.some(r => r.deger === ayar.renk) ? ayar.renk : "";
+    if (renk) kok.dataset.renk = renk; else delete kok.dataset.renk;
+
+    /* Kayıtlı değer bozuksa (elle kurcalanmış depo, eski sürüm) sayfayı
+       okunmaz bırakmaktansa normale dön. */
+    const boy = GORUNUM_BOYLAR.some(b => b.deger === ayar.yaziBoyu) ? ayar.yaziBoyu : 100;
+    kok.style.fontSize = boy === 100 ? "" : boy + "%";
+
+    if (ayar.sade === true) kok.dataset.sade = "1"; else delete kok.dataset.sade;
+    return { renk: renk, boy: boy, sade: ayar.sade === true };
+}
+
 // ---------- Üst bar ve alt bilgi ----------
 
 function iskeletKur(aktifYol) {
@@ -390,6 +448,10 @@ function iskeletKur(aktifYol) {
         if (tc) tc.setAttribute("content", koyuMu ? "#0c0e13" : "#ffffff");
     } catch (e) { }
 
+    /* Görünüm ayarları tema ile AYNI anda uygulanır; sonraya
+       bırakılırsa sayfa önce yanlış boyda çizilip zıplar. */
+    const gorunum = gorunumUygula(ayar);
+
     // ERİŞİLEBİLİRLİK: klavyeyle gezenler menüyü atlayıp doğrudan içeriğe geçebilsin
     const atla = document.createElement("a");
     atla.href = "#icerik";
@@ -404,6 +466,30 @@ function iskeletKur(aktifYol) {
             <a href="index.html" class="marka">Hesap <span>Araçları</span></a>
         </div>
         <div class="ust-sag">
+            <div id="gorunumKutu" class="gorunum-kutu">
+                <button id="gorunumBtn" class="ikincil" type="button"
+                        aria-expanded="false" aria-controls="gorunumPanel"
+                        aria-label="Görünüm ayarları" title="Görünüm">&#9881;</button>
+                <div class="gorunum-ic" id="gorunumPanel" role="group"
+                     aria-label="Görünüm ayarları" hidden>
+                    <p class="gorunum-baslik" id="gorunumRenkBaslik">Renk</p>
+                    <div class="gorunum-renkler" role="group" aria-labelledby="gorunumRenkBaslik">
+                        ${GORUNUM_RENKLER.map(r => `<button type="button" class="renk-sec"
+                            data-renk-secim="${r.deger}" aria-pressed="${gorunum.renk === r.deger}"
+                            ><span class="renk-benek" data-benek="${r.deger}" aria-hidden="true"></span>${r.ad}</button>`).join("")}
+                    </div>
+                    <p class="gorunum-baslik" id="gorunumBoyBaslik">Yazı boyu</p>
+                    <div class="gorunum-boylar" role="group" aria-labelledby="gorunumBoyBaslik">
+                        ${GORUNUM_BOYLAR.map(b => `<button type="button" class="boy-sec"
+                            data-boy-secim="${b.deger}" aria-pressed="${gorunum.boy === b.deger}"
+                            >${b.ad}</button>`).join("")}
+                    </div>
+                    <label class="gorunum-sade">
+                        <input type="checkbox" id="sadeSecim" ${gorunum.sade ? "checked" : ""} />
+                        <span>Sade görünüm — açıklama, sık sorulanlar ve öneriler gizlenir</span>
+                    </label>
+                </div>
+            </div>
             <button id="temaBtn" class="ikincil" type="button"
                     aria-label="Açık veya koyu temaya geç" title="Açık / koyu tema">${koyuMu ? "◑" : "◐"}</button>
         </div>`;
@@ -459,8 +545,88 @@ function iskeletKur(aktifYol) {
             const tc = document.querySelector('meta[name="theme-color"]');
             if (tc) tc.setAttribute("content", a.tema === "koyu" ? "#0c0e13" : "#ffffff");
         } catch (e) { }
+        /* Tema değişince görünüm ayarları YENİDEN uygulanır.
+           Ölçüldü: `data-tema` tek başına değişince, o an ekranda duran
+           görünüm panelinin düğmeleri eski temanın rengini tutabiliyor
+           (aynı yere konan yeni bir düğme doğru rengi alıyor, eskisi
+           almıyor — tarayıcının biçem tazelemesi o öğede takılıyor).
+           Kök üzerinde bir yazı boyu tazelemesi tam yeniden hesabı
+           zorluyor ve belirsizliği bitiriyor. Ucuz, zararsız ve
+           "acaba boyandı mı" sorusunu ortadan kaldırıyor. */
+        try { gorunumUygula(a); } catch (e) { }
         ayarYaz(a);
     };
+    /* PANEL NEDEN `<details>` DEĞİL.
+       Önce `<details>` kullanılmıştı. Sonra ölçümde koyu temada
+       1,03 karşıtlık göründü ve bunu `<details>`e yükledim —
+       YANLIŞTI: aynı bayat okuma düz bir `<div>` ile de çıkıyordu.
+       Gerçek sebep, bir öğenin hesaplanmış biçemini tema
+       değişmeden ÖNCE okumak: o öğe eski değerde takılı kalıyor
+       (aynı yere konan yeni bir düğme doğru rengi alıyor). Yani
+       bulgu ölçüm aletimindi, `<details>`in değil.
+       Panel yine de düğme + `hidden` olarak kaldı, ama doğru
+       gerekçeyle: `<details>` Esc ile kapanmaz ve dışarı tıklayınca
+       kapanmaz. İkisi de burada elle yazıldı ve ölçülüyor.
+       Yanlış teşhisi silmiyorum: bir sonraki sefer aynı bayat okuma
+       başka bir yerde çıkarsa, aranacak yer burasıdır. */
+    const gBtn = document.getElementById("gorunumBtn");
+    const gPanel = document.getElementById("gorunumPanel");
+    const paneliAc = (ac) => {
+        if (!gBtn || !gPanel) return;
+        gPanel.hidden = !ac;
+        gBtn.setAttribute("aria-expanded", String(!!ac));
+    };
+    if (gBtn && gPanel) {
+        gBtn.onclick = () => paneliAc(gPanel.hidden);
+        document.addEventListener("keydown", (o) => {
+            if (o.key !== "Escape" || gPanel.hidden) return;
+            paneliAc(false);
+            gBtn.focus();
+        });
+        document.addEventListener("click", (o) => {
+            if (gPanel.hidden) return;
+            if (gPanel.contains(o.target) || gBtn.contains(o.target)) return;
+            paneliAc(false);
+        });
+    }
+
+    /* Görünüm seçimleri. Her seçim hem EKRANA hem DEPOYA yazılır;
+       `ayarYaz` başarısız olursa (gizli pencere, dolu depo) kullanıcı
+       zaten uyarılıyor — seçimin ekranda çalışması yine de doğru. */
+    const gorunumTazele = () => {
+        const a = ayarOku();
+        const g = gorunumUygula(a);
+        document.querySelectorAll("[data-renk-secim]").forEach(d =>
+            d.setAttribute("aria-pressed", String(d.dataset.renkSecim === g.renk)));
+        document.querySelectorAll("[data-boy-secim]").forEach(d =>
+            d.setAttribute("aria-pressed", String(Number(d.dataset.boySecim) === g.boy)));
+        const sd = document.getElementById("sadeSecim");
+        if (sd) sd.checked = g.sade;
+    };
+    document.querySelectorAll("[data-renk-secim]").forEach(d => {
+        d.onclick = () => {
+            const a = ayarOku();
+            a.renk = d.dataset.renkSecim;
+            ayarYaz(a);
+            gorunumTazele();
+        };
+    });
+    document.querySelectorAll("[data-boy-secim]").forEach(d => {
+        d.onclick = () => {
+            const a = ayarOku();
+            a.yaziBoyu = Number(d.dataset.boySecim);
+            ayarYaz(a);
+            gorunumTazele();
+        };
+    });
+    const sadeKutu = document.getElementById("sadeSecim");
+    if (sadeKutu) sadeKutu.onchange = () => {
+        const a = ayarOku();
+        a.sade = sadeKutu.checked;
+        ayarYaz(a);
+        gorunumTazele();
+    };
+
     cevrimdisiUyari(aktifYol);
     gecmiseEkle(aktifYol);
     try { yenilikSeridi(); } catch (e) { }
@@ -1009,7 +1175,9 @@ function ilgiliAraclar(aktifYol) {
         .map(x => x.a);
 
     const b = document.createElement("section");
-    b.className = "kutu";
+    /* `ilgili-araclar` sınıfı sade görünümün tutamacı; seçiciyi tahmin
+       etmek yerine kaynağında işaretlendi. */
+    b.className = "kutu ilgili-araclar";
     b.innerHTML = `<h2 class="kutu-baslik">Bunlar da işinize yarayabilir</h2>
         <div class="arac-izgara">${secilen.map(a =>
             `<a class="arac-kart${a.rehberMi ? " rehber-kart" : ""}" href="${a.yol}">

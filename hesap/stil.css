@@ -59,7 +59,11 @@ html[data-tema="koyu"] {
 }
 
 /* ---------- Renk seçenekleri: sadece vurgu rengini değiştirir ---------- */
-html[data-renk="okyanus"] { --vurgu: #0a7ea4; --vurgu2: #075b76; }
+/* OLCULDU (28 Agustos 2026, test-gorunum.html): #0a7ea4 acik temada
+   4,20 karsitlik veriyordu -- AA siniri 4,5. Renk secenegi sunmak,
+   okunabilirligi kullanicinin riski yapar; secenek koyuyorsak her
+   secenekte okundugunu BIZ kanitlariz. Koyulastirildi. */
+html[data-renk="okyanus"] { --vurgu: #0a6d8f; --vurgu2: #06556f; }
 html[data-tema="koyu"][data-renk="okyanus"] { --vurgu: #38bdf8; --vurgu2: #7dd3fc; }
 
 html[data-renk="orman"] { --vurgu: #15803d; --vurgu2: #0f5c2d; }
@@ -1137,4 +1141,105 @@ td.hayir { color: var(--azalis); font-weight: 600; white-space: nowrap; }
 @media (prefers-color-scheme: dark) {
     .girdi-bozuk { background: #2a1614; }
     .girdi-uyari { color: #ff9a90; }
+}
+
+
+/* ============================================================
+   GÖRÜNÜM AYARLARI — renk · yazı boyu · sade görünüm
+   ============================================================
+   Panel `<details>` üzerine kuruldu: açılıp kapanması tarayıcının
+   kendi işi, klavyeyle de çalışır. Kendi menü parçamı yazsaydım
+   odak tuzağını, Esc'i ve ok tuşlarını da ben doğrulamak zorunda
+   kalırdım — hazır ve doğru çalışan davranış varken yenisini
+   yazmak, sınanacak yüzeyi büyütmekten başka işe yaramaz. */
+/* ÜST BAR DAR EKRANDA TAŞMASIN.
+   Ölçüldü: görünüm düğmesini eklemek 320 px genişlikte %200 yazıda
+   üst barı 342 px'e çıkardı ve SAYFANIN TAMAMI yatayda kaydı —
+   yeni bir düğme, ilgisiz görünen bir yerde düzeni bozdu. Marka
+   adı küçülebilir yapıldı, sağ grup küçülmez tutuldu: kırpılacaksa
+   başlık kırpılsın, düğmeler değil. */
+.marka { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ust-sol { min-width: 0; flex: 1 1 auto; }
+.ust-sag { flex: 0 0 auto; }
+
+.gorunum-kutu { position: relative; }
+/* `[hidden]` tek başına yetmez: aşağıdaki kural `display` veriyor ve
+   onu ezer. Gizleme açıkça yazılmazsa panel HER ZAMAN açık kalır. */
+.gorunum-ic[hidden] { display: none; }
+.gorunum-ic {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 60;
+    width: 250px; max-width: calc(100vw - 24px);
+    background: var(--kart); border: 1px solid var(--cizgi);
+    border-radius: 12px; padding: 12px 14px 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .16);
+}
+.gorunum-baslik {
+    margin: 0 0 6px; font-size: .8125rem; font-weight: 700; color: var(--yazi);
+}
+.gorunum-baslik + * { margin-bottom: 12px; }
+.gorunum-renkler { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gorunum-boylar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gorunum-ic button {
+    display: flex; align-items: center; gap: 7px;
+    min-height: 40px; padding: 0 10px; min-width: 0;
+    border: 1px solid var(--cizgi); border-radius: 8px;
+    background: var(--kart-ust); color: var(--yazi);
+    font: inherit; font-size: .8125rem; text-align: left; cursor: pointer;
+}
+.gorunum-ic button:hover { border-color: var(--vurgu); }
+/* Seçili olan yalnızca renkle değil ÇERÇEVEYLE de belli olur:
+   rengi ayırt edemeyen kullanıcı için renk tek başına bilgi değildir. */
+.gorunum-ic button[aria-pressed="true"] {
+    border-color: var(--vurgu); border-width: 2px; padding: 0 9px;
+    font-weight: 700;
+}
+/* BENEK, O SEÇENEĞİN GERÇEKTEN UYGULAYACAĞI RENK OLMALI.
+   İlk yazışta değerleri elle uydurmuştum (#b8430f gibi) ve
+   yukarıdaki gerçek vurgu renkleriyle tutmuyorlardı: kullanıcı
+   bir rengi seçip başka bir renk alacaktı. Küçük ama gerçek bir
+   yalan. Değerler kaynaktan alındı ve `sinama-gorunum` ikisinin
+   eşit kaldığını her koşuda doğruluyor. */
+.renk-benek {
+    width: 14px; height: 14px; border-radius: 50%; flex: 0 0 auto;
+    border: 1px solid rgba(0, 0, 0, .18); background: #1c5fd6;
+}
+.renk-benek[data-benek="okyanus"] { background: #0a6d8f; }
+.renk-benek[data-benek="orman"] { background: #15803d; }
+.renk-benek[data-benek="gunbatimi"] { background: #c2410c; }
+.renk-benek[data-benek="lavanta"] { background: #7c3aed; }
+.renk-benek[data-benek="gri"] { background: #475569; }
+.gorunum-sade {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: .8125rem; line-height: 1.45; cursor: pointer;
+}
+/* 24 px, WCAG 2.5.8 (AA) dokunma hedefi alt sınırı. İlk yazışta
+   18 px vermiştim ve `sinama-gorunum` yakaladı: eklediğim
+   ayarın kendisi ölçütü bozuyordu. */
+.gorunum-sade input { width: 24px; height: 24px; min-height: 24px; flex: 0 0 auto; margin-top: 0; }
+
+/* ---- Sade görünüm ----
+   Hesabın kendisine ve girdilere DOKUNULMAZ; yalnızca ikincil
+   okuma alanları gizlenir. Katlanır kutular hesabın parçası
+   olabildiği için listede yok. Reklam alanlarına da dokunulmuyor:
+   görünümü sadeleştirmek, sayfanın gelirini kullanıcıya sormadan
+   değiştirmek anlamına gelmemeli. */
+html[data-sade] .sss,
+html[data-sade] .anlatim,
+html[data-sade] .ilgili-araclar { display: none; }
+html[data-sade] .kutu { box-shadow: none; }
+html[data-sade] body { line-height: 1.75; }
+
+/* Hareketi azaltmak sadeleştirmenin parçası; ayrıca sistemde
+   "hareketi azalt" açıksa zaten uyulur. */
+html[data-sade] *,
+html[data-sade] *::before,
+html[data-sade] *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        transition-duration: .001ms !important;
+    }
 }
