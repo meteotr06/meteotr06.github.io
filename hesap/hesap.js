@@ -2894,3 +2894,69 @@ function gecikmeZammi(g) {
         kaynak: GECIKME.kaynak
     };
 }
+
+
+// ================= ASKERLİK BORÇLANMASI =================
+// Kaynak: 5510 sayılı Kanun md.41 — er/erbaş olarak silah altında ya
+//         da yedek subay okulunda geçen süreler borçlanılabilir.
+//         Tutar: sigortalının, talep tarihindeki prime esas GÜNLÜK
+//         kazancın ALT ve ÜST sınırları arasında kendisinin
+//         belirleyeceği tutar üzerinden **%32**.
+//
+// PIYASADAKI HESAPLAYICILARIN COGU BUGUN YANLIS. Iki ayri sebeple:
+//   1) "2026" basligiyla 2025 asgari ucretini kullaniyorlar. Bir
+//      kaynak 360 gun icin 99.860,40 TL diyordu; geri hesaplandiginda
+//      gunluk 866,84 cikiyor -- bu 2025'in gunluk asgari ucreti.
+//      2026'da gunluk taban 1.101,00 TL.
+//   2) Ust siniri "asgari ucretin 7,5 kati" sanıyorlar. OLCULDU:
+//      1 Ocak 2026'dan itibaren prime esas kazanc ust siniri alt
+//      sinirin **9 KATI** (gunluk 9.909,00 TL). Tavan 7,5'ten 9'a
+//      cikarildi ve bu, en yuksek borclanma tutarini degistirir.
+// Bizim taban/tavan degerlerimiz (PARAMETRE) bagimsiz olarak
+// dogrulandi; buradaki hesap onlardan turuyor -- iki dosyada yasayan
+// tek gercek.
+const ASKERLIK = {
+    oran: 0.32,
+    enCokGun: 1095,          // 3 yil; fiilen askerlikte gecen sureyi asamaz
+    kaynak: "5510 sayılı Kanun md.41",
+    guncelleme: "2026-01-01"
+};
+
+/* g: { gunSayisi, gunlukKazanc }
+   `gunlukKazanc` verilmezse TABAN kullanılır (en düşük tutar).
+   Taban altı / tavan üstü değerler kanunen seçilemez: sessizce
+   hesaplamak yerine sınıra çekilir ve bu EKRANDA söylenir. */
+function askerlikBorclanmasi(g) {
+    const gun = Number(g.gunSayisi);
+    if (!Number.isFinite(gun) || gun <= 0) return { hata: "gunYok" };
+    if (gun > ASKERLIK.enCokGun) return { hata: "gunFazla", enCok: ASKERLIK.enCokGun };
+
+    const taban = PARAMETRE.sgkTaban / 30;
+    const tavan = PARAMETRE.sgkTavan / 30;
+
+    let secilen = Number(g.gunlukKazanc);
+    if (!Number.isFinite(secilen) || secilen <= 0) secilen = taban;
+
+    let sinirlandi = null;
+    if (secilen < taban) { secilen = taban; sinirlandi = "taban"; }
+    else if (secilen > tavan) { secilen = tavan; sinirlandi = "tavan"; }
+
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    const gunlukBedel = yuvarla(secilen * ASKERLIK.oran);
+    const toplam = yuvarla(gunlukBedel * gun);
+
+    return {
+        gunSayisi: gun,
+        secilenKazanc: yuvarla(secilen),
+        taban: yuvarla(taban),
+        tavan: yuvarla(tavan),
+        sinirlandi: sinirlandi,
+        oran: ASKERLIK.oran,
+        gunlukBedel: gunlukBedel,
+        toplam: toplam,
+        enAzToplam: yuvarla(taban * ASKERLIK.oran * gun),
+        enCokToplam: yuvarla(tavan * ASKERLIK.oran * gun),
+        kazanilanGun: gun,          // ödenen her gün, prim günü olarak sayılır
+        kaynak: ASKERLIK.kaynak
+    };
+}

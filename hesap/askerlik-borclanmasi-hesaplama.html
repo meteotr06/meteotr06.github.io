@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Askerlik Borçlanması Hesaplama 2026 — Ne Kadar Ödenir?</title>
+<meta name="description" content="Askerlik borçlanması hesaplama 2026: gün sayısı ve seçtiğiniz günlük kazanca göre ödenecek tutar. 2026 taban ve 9 katına çıkan tavanla." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/askerlik-borclanmasi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Askerlik Borçlanması Hesaplama 2026 — Ne Kadar Ödenir?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/askerlik-borclanmasi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/askerlik-borclanmasi-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Askerlik Borçlanması Hesaplama 2026 — Ne Kadar Ödenir?" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/askerlik-borclanmasi-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=77" />
+</head>
+<body>
+
+<main>
+    <h1>Askerlik Borçlanması Hesaplama</h1>
+    <p class="ozet">Askerlikte geçen süreyi prim günü saydırmak, seçtiğiniz günlük kazancın <b>%32'si</b> kadar tutar. Ne seçtiğiniz tutarı <b>dokuz kata kadar</b> değiştirir.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">5510 <b>md.41</b></span><span class="etiket-rozet">Oran <b>%32</b></span><span class="etiket-rozet">Taban <b>1.101 ₺/gün</b></span><span class="etiket-rozet">2026</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Borçlanılacak gün sayısı
+                    <input id="gun" type="text" inputmode="numeric" min="1" max="1095" value="360" />
+                </label>
+                <label>Seçtiğiniz günlük kazanç (TL)
+                    <input id="kazanc" type="text" inputmode="decimal" value="1101" />
+                </label>
+            </div>
+            <p class="kucuk">Günlük kazancı <b>siz seçersiniz</b>: prime esas kazancın günlük
+            <b>alt sınırı (1.101,00 ₺)</b> ile <b>üst sınırı (9.909,00 ₺)</b> arasında.
+            Yüksek seçmek borçlanma bedelini artırır ama <b>emekli aylığınızın hesabına giren
+            kazancı</b> da yükseltir. Bu bir tercih; araç ikisinin de tutarını gösterir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Borçlanma tutarı nasıl bulunur?</h2>
+        <p>5510 sayılı Kanun md.41'e göre tutar, <b>sizin seçeceğiniz bir günlük kazancın
+        %32'si</b> ile bulunur ve borçlanmak istediğiniz gün sayısıyla çarpılır. Seçilecek
+        kazanç, prime esas kazancın <b>günlük alt ve üst sınırları arasında</b> olmak
+        zorundadır; dışına çıkılamaz.</p>
+        <p>2026 için: en düşük <b>1.101,00 ₺/gün</b> (günlük 352,32 ₺ borçlanma bedeli),
+        en yüksek <b>9.909,00 ₺/gün</b> (günlük 3.170,88 ₺). 360 günlük bir askerlik için
+        bu, <b>126.835,20 ₺</b> ile <b>1.141.516,80 ₺</b> arasında bir fark demektir.</p>
+
+        <h2>2026'da değişen iki şey</h2>
+        <p>Bu hesabı yapan birçok yer bugün <b>yanlış sayı veriyor</b>, iki ayrı sebeple:</p>
+        <ul>
+            <li><b>Eski asgari ücret:</b> “2026” başlığıyla 2025'in günlük tutarını
+            (866,84 ₺) kullanıyorlar. 2026'da günlük taban <b>1.101,00 ₺</b>.</li>
+            <li><b>Eski tavan:</b> Üst sınırı hâlâ asgari ücretin <b>7,5 katı</b> sanıyorlar.
+            1 Ocak 2026'dan itibaren prime esas kazanç üst sınırı alt sınırın
+            <b>9 katı</b>dır. Bu, en yüksek borçlanma tutarını doğrudan değiştirir.</li>
+        </ul>
+
+        <h2>Yüksek seçmek mantıklı mı?</h2>
+        <p>Borçlanma yalnızca <b>gün</b> kazandırmaz; ödediğiniz kazanç, emekli aylığı
+        hesabına giren <b>prime esas kazancınıza</b> da yazılır. Yani düşük seçmek bugün
+        ucuz, yüksek seçmek ileride daha yüksek aylık demektir. Hangisinin sizin için
+        doğru olduğu, kalan çalışma sürenize ve mevcut kazancınıza bağlıdır —
+        <b>bu araç o kararı vermez</b>, iki ucun bedelini gösterir.</p>
+
+        <h2>Ödeme ve geçerlilik</h2>
+        <p>Borç tebliğ edildikten sonra <b>bir ay içinde</b> ödenmelidir; ödenmezse
+        borçlanma <b>geçersiz</b> olur ve gün sayılmaz. Kısmi ödeme yapılırsa yalnızca
+        ödenen güne karşılık gelen süre sayılır.</p>
+
+        <h2>Bu araç neyi kapsamıyor</h2>
+        <p><b>Emeklilik tarihinizin ne kadar öne geleceğini hesaplamaz.</b> O hesap
+        sigorta başlangıcınıza, prim gün sayınıza ve tabi olduğunuz geçiş hükümlerine
+        bağlıdır; onlarca dalı vardır ve yanlış bir sonuç işten ayrılma kararınızı
+        etkiler. Doğum ve yurt dışı borçlanmalarının şartları da ayrıdır, burada yoktur.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=77"></script>
+<script src="sayfa.js?v=77"></script>
+<script>
+iskeletKur("askerlik-borclanmasi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["gun", "kazanc"];
+
+function hesapla() {
+    const gun = oku("gun"), kazanc = oku("kazanc");
+    const s = askerlikBorclanmasi({ gunSayisi: gun, gunlukKazanc: kazanc });
+
+    if (s.hata) {
+        sonucBekliyor(s.hata === "gunFazla"
+            ? "Gün sayısı en çok " + sayi(s.enCok, 0) + " olabilir."
+            : "Borçlanmak istediğiniz gün sayısını yazın.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.toplam)}</div>
+        <div class="dev-etiket">${sayi(s.gunSayisi, 0)} gün için ödenecek tutar</div>
+        ${satir("Günlük borçlanma bedeli", para(s.gunlukBedel), "buyuk")}
+        ${satir("Seçilen günlük kazanç", para(s.secilenKazanc))}
+        ${satir("Kazanılan prim günü", sayi(s.kazanilanGun, 0) + " gün")}
+        ${s.sinirlandi ? `<p class="varsayim"><b>Girdiğiniz tutar sınıra çekildi.</b>
+            Kanunen seçilebilecek günlük kazanç
+            ${para(s.taban)} ile ${para(s.tavan)} arasındadır; hesap
+            <b>${para(s.secilenKazanc)}</b> üzerinden yapıldı.</p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h2 class="kutu-baslik">İki uç: en az ve en çok</h2>
+        ${satir("En düşük (taban " + para(s.taban) + ")", para(s.enAzToplam), "buyuk")}
+        ${satir("En yüksek (tavan " + para(s.tavan) + ")", para(s.enCokToplam), "buyuk")}
+        <p class="kucuk">Aynı ${sayi(s.gunSayisi, 0)} gün için aradaki fark
+        <b>${para(s.enCokToplam - s.enAzToplam)}</b>. Yüksek seçmek bugün daha pahalı ama
+        emekli aylığı hesabına giren kazancı yükseltir; düşük seçmek yalnızca <b>gün</b>
+        kazandırır. Bu araç hangisinin doğru olduğunu söylemez, ikisinin bedelini gösterir.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Seçilen günlük kazanç (taban ile tavan arasında).",
+           para(s.taban) + " – " + para(s.tavan), para(s.secilenKazanc));
+    d.ekle("Günlük borçlanma bedeli: kazancın %32'si (md.41).",
+           `${sayi(s.secilenKazanc, 2)} × 0,32`, para(s.gunlukBedel));
+    d.ekle("Gün sayısıyla çarpılır.",
+           `${sayi(s.gunlukBedel, 2)} × ${sayi(s.gunSayisi, 0)}`, para(s.toplam));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Askerlik Borçlanması"));
+yapisalVeri("Askerlik Borçlanması Hesaplama", "Askerlik borçlanması hesaplama 2026: gün sayısı ve seçilen günlük kazanca göre ödenecek tutar.");
+
+sssEkle([
+    { soru: "Askerlik borçlanması 2026'da ne kadar?",
+      cevap: "Seçtiğiniz günlük kazancın %32'si kadardır. En düşük seçimle günlük 352,32 ₺; 360 gün için 126.835,20 ₺. En yüksek seçimle 360 gün 1.141.516,80 ₺ eder." },
+    { soru: "Günlük kazancı ben mi seçiyorum?",
+      cevap: "Evet. 5510 md.41'e göre prime esas kazancın günlük alt (1.101,00 ₺) ve üst (9.909,00 ₺) sınırları arasında istediğiniz tutarı seçebilirsiniz." },
+    { soru: "Başka sitelerde neden farklı çıkıyor?",
+      cevap: "İki yaygın hata var: “2026” başlığıyla 2025 asgari ücretini kullanmak, ve üst sınırı hâlâ 7,5 kat sanmak. 1 Ocak 2026'dan itibaren üst sınır alt sınırın 9 katıdır." },
+    { soru: "Yüksek seçmek işime yarar mı?",
+      cevap: "Ödediğiniz kazanç emekli aylığı hesabına giren prime esas kazancınıza yazılır. Yüksek seçmek bugün pahalı, ileride daha yüksek aylık demektir; karar kalan çalışma sürenize bağlıdır." },
+    { soru: "Ödemezsem ne olur?",
+      cevap: "Borç tebliğinden sonra bir ay içinde ödenmezse borçlanma geçersiz olur ve gün sayılmaz. Kısmi ödemede yalnızca ödenen güne karşılık gelen süre sayılır." },
+    { soru: "Emekliliğim ne kadar öne gelir?",
+      cevap: "Bu araç onu hesaplamaz. O hesap sigorta başlangıcınıza ve tabi olduğunuz geçiş hükümlerine bağlıdır; onlarca dalı vardır ve yanlış sonuç ağır sonuç doğurur." }
+]);
+
+ilgiliAraclar("askerlik-borclanmasi-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>

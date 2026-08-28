@@ -25,6 +25,7 @@ const ARACLAR = [
     { yol: "ne-kadar-kredi-cekebilirim.html", ad: "Kredi Limiti", aciklama: "Gelire göre çekilebilir tutar", grup: "Kredi ve Borç", anahtar: "kredi limiti ne kadar çekebilirim gelir taksit oranı uygunluk" },
     { yol: "fazla-mesai-hesaplama.html", ad: "Fazla Mesai", aciklama: "Saat ücreti ve 1,5 kat", grup: "Maaş ve Çalışma", anahtar: "fazla mesai saat ücreti 1,5 kat ek çalışma hafta tatili bayram" },
     { yol: "yillik-izin-hesaplama.html", ad: "Yıllık İzin", aciklama: "Kaç gün, ne kadar ücret", grup: "Maaş ve Çalışma", anahtar: "yıllık izin kaç gün ücretli izin kıdem yıl izin ücreti" },
+    { yol: "askerlik-borclanmasi-hesaplama.html", ad: "Askerlik Borçlanması", aciklama: "Askerlik süresini prim günü saydırma bedeli", grup: "Maaş ve Çalışma", anahtar: "askerlik borçlanma sgk prim günü emeklilik er erbaş yedek subay 5510 41 gün satın alma bedel" },
     { yol: "rapor-parasi-hesaplama.html", ad: "Rapor Parası", aciklama: "SGK geçici iş göremezlik ödeneği", grup: "Maaş ve Çalışma", anahtar: "rapor parası iş göremezlik ödeneği sgk istirahat hastalık iş kazası meslek hastalığı yatarak ayakta tedavi prim gün sağlık raporu" },
     { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma", anahtar: "işsizlik maaşı ödeneği işkur kaç ay ne kadar prim gün" },
     { yol: "birim-cevirme.html", ad: "Birim Çevirme", aciklama: "Uzunluk, ağırlık, sıcaklık, alan", grup: "Genel", anahtar: "birim çevirme dönüştürme inç fit mil libre pound ons dönüm hektar fahrenhayt kelvin galon knot metre kilo" },
@@ -163,6 +164,21 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 76,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: askerlik borçlanması — ve piyasadaki iki yaygın hata.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Askerlikte geçen süreyi prim günü saydırmak, seçtiğiniz günlük " +
+            "kazancın <b>%32'si</b> kadar tutar. 360 gün için <b>126.835,20 ₺</b> " +
+            "ile <b>1.141.516,80 ₺</b> arasında değişir — ne seçtiğiniz tutarı " +
+            "<b>dokuz kata kadar</b> değiştiriyor.",
+            "Bu hesabı yapan birçok yer bugün yanlış sayı veriyor: “2026” " +
+            "başlığıyla <b>2025 asgari ücretini</b> kullanıyorlar, ve üst sınırı " +
+            "hâlâ 7,5 kat sanıyorlar — <b>1 Ocak 2026'dan beri 9 kat</b>.",
+        ],
+    },
     {
         surum: 75,
         tarih: "28 Ağustos 2026",
