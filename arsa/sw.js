@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v47";
+const SURUM = "arsa-v48";
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"
@@ -30,6 +30,11 @@ const CEKIRDEK = [
     "./cekirdek.js" + ETIKET,
     "./mevzuat.js" + ETIKET,
     "./arayuz.js" + ETIKET,
+    "./rayic.js" + ETIKET,
+    /* Resmi taban veri: 84 KB. Onbellege alinir ki cevrimdisi de calissin --
+       ama kullanici bolumu acmadan indirilmez (rayic.js istek uzerine cekiyor).
+       Burada olmasi, bir kez indirildikten sonra internetsiz de acilmasini saglar. */
+    "./veri/menemen.json",
     "./simge.svg",
     "./ikon-192.png",
     "./manifest.json",

@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Arsa Rehberi" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="application-name" content="Arsa Rehberi" />
-<link rel="stylesheet" href="stil.css?v=47" />
+<link rel="stylesheet" href="stil.css?v=48" />
 </head>
 <body>
 
@@ -107,6 +107,32 @@
                 <b>"buralarda metrekaresi kaça gidiyor"</b> diye sorun.
                 Bu rakamı biz vermiyoruz — sizin verdiğinizi bilimsel katsayılarla düzeltiyoruz.
             </p>
+
+            <!-- Resmi taban: belediyenin emlak vergisine esas ASGARI m2 degeri.
+                 Piyasa degeri DEGIL, tabandir. Olculdu (28.08.2026): ayni mahalle
+                 icinde sokaklar ortanca 4,3 kat ayrisiyor, en fazla 15 kat -- bu
+                 yuzden MAHALLE degil SOKAK soruluyor ve tek sayi yerine gerektiginde
+                 aralik gosteriliyor. -->
+            <details class="resmi-taban" id="resmiTaban">
+                <summary>Bilmiyor musunuz? Resmî taban değere bakın (Menemen)</summary>
+                <div class="resmi-ic">
+                    <p class="kucuk" id="resmiUyari">
+                        Bu, belediyenin <b>emlak vergisine esas asgari</b> m² değeridir —
+                        <b>piyasa değeri değildir</b>, piyasa bunun üstündedir.
+                        Emsal fiyatı bilmiyorsanız <b>alt sınır</b> olarak işinize yarar.
+                    </p>
+                    <label class="alan" for="rMahalle">
+                        <span class="etiket">Mahalle</span>
+                        <select id="rMahalle"><option value="">— seçin —</option></select>
+                    </label>
+                    <label class="alan" for="rYol">
+                        <span class="etiket">Cadde / sokak</span>
+                        <select id="rYol"><option value="">— önce mahalle seçin —</option></select>
+                    </label>
+                    <p id="rSonuc" class="resmi-sonuc" role="status" aria-live="polite"></p>
+                    <button type="button" id="rKullan" class="ikincil" disabled>Bu değeri emsal alanına yaz</button>
+                </div>
+            </details>
         </div>
     </div>
 
@@ -291,10 +317,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=47"></script>
-<script src="cekirdek.js?v=47"></script>
-<script src="mevzuat.js?v=47"></script>
-<script src="arayuz.js?v=47"></script>
+<script src="degisiklikler.js?v=48"></script>
+<script src="cekirdek.js?v=48"></script>
+<script src="mevzuat.js?v=48"></script>
+<script src="rayic.js?v=48"></script>
+    <script src="arayuz.js?v=48"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

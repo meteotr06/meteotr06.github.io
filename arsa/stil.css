@@ -617,3 +617,13 @@ input.gecersiz, select.gecersiz {
     border: 1px solid rgba(255,255,255,.35);
     background: rgba(255,255,255,.12); color: #fff; cursor: pointer;
 }
+
+
+/* Resmî taban değer bölümü — emsal fiyatı bilmeyen kullanıcı için.
+   Kapalı başlıyor: veri ancak açılınca iniyor (84 KB). */
+.resmi-taban { margin: 10px 0 4px; border: 1px solid var(--kenar); border-radius: 10px; background: var(--zemin2); }
+.resmi-taban > summary { padding: 10px 12px; cursor: pointer; font-size: 15px; }
+.resmi-ic { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+.resmi-sonuc { margin: 0; font-size: 15px; line-height: 1.5; }
+.resmi-taban .ikincil { align-self: flex-start; }
+.resmi-taban .ikincil[disabled] { opacity: .5; cursor: not-allowed; }
