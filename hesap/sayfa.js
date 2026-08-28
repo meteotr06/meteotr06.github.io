@@ -608,7 +608,8 @@ function gorunumUygula(ayar) {
    `sayfa.js` hiç yüklenmediğinde görünür — o durumda zaten başka
    şerit yoktur, çakışma imkânsızdır. */
 const SERIT_ONCELIK = {
-    duzeltme: 3,     // "önceki sonucunuz yanlış olabilir" — en acili
+    eskiSurum: 4,    // elindeki kopya eski — eski kopya YANLIŞ SAYI verebilir
+    duzeltme: 3,     // "önceki sonucunuz yanlış olabilir"
     cevrimdisi: 2,   // şu anki durum, kullanıcı bir şey yapabilir
     yenilik: 1       // bilgilendirme, ertelenebilir
 };
@@ -635,6 +636,103 @@ function seritYuvasiBirak(tur) {
 
 /* Sınama için: o an hangi şerit yuvada. */
 function seritDurumu() { return seritYuva ? seritYuva.tur : null; }
+
+/* ---------- SÜRÜM: GÖSTER, DENETLE, SÖYLE (K-55) ----------
+   Kullanıcının kuralı: “eski kopya, yanlış davranan kopyadır.”
+
+   ÖLÇÜLDÜ (28.08.2026): sürüm numarası ekranda hiçbir yerde
+   görünmüyordu. `sw.js` `skipWaiting` + `clients.claim` yapıyor, yani
+   yeni servis çalışanı hemen devralıyor — ama bu, GÜNLERDİR AÇIK DURAN
+   bir sekmeyi ya da ağın bir kez tökezlediği bir açılışı kurtarmaz.
+
+   ASIL SORUN: bayat bir kopya, kendi verisinden bayat olduğunu
+   ANLAYAMAZ. Elindeki `DEGISIKLIKLER` de eskidir; “ne kaçırdın”
+   sorusunu kendi içinden cevaplayamaz. Denetim AĞDAN gelmeli.
+
+   İKİNCİ SAYI ÜRETMİYORUZ: çalışan sürüm, `sayfa.js?v=NN` damgasından
+   okunuyor. Damgayı yayın anında merkez basıyor; elle tutulan ikinci
+   bir sabit olsaydı ikisi kaçınılmaz olarak ayrışırdı — bu dosyada
+   daha önce tam olarak bu oldu (bkz. DEGISIKLIKLER üstündeki not). */
+/* KENDI KOPYAMI YAZMADIM: `surumNo()` bu dosyada zaten var ve aynı
+   damgayı okuyor. Bugün ikinci kez aynı tuzağa düşüyordum (ilki
+   `ayEkle`ydi); aynı işi ikinci kez yazmak, biri düzeltilip öteki
+   unutulacak ikinci bir hata yeri açar.
+
+   K-46 İHLALİ DEĞİL: o kural, ELLE YAZILAN iki sayının eşitliğine
+   dayanan kapıyı yasaklıyor. Burada karşılaştırılan şey çalışan
+   damga ile YAYINDAN OKUNAN damga — ikincisi elle yazılmıyor,
+   ağdan geliyor. */
+
+/* Yayındaki sürümü ağdan öğrenir. `sw.js` zaten damgalı ve küçük;
+   yeni bir dosya uydurmak, güncellenmesi unutulacak ikinci bir yer
+   açardı. `no-store`: önbellekten okursak hiçbir şey ölçmemiş oluruz. */
+async function yayindakiSurum() {
+    try {
+        const c = await fetch("sw.js", { cache: "no-store" });
+        if (!c.ok) return null;
+        const t = await c.text();
+        const m = t.match(/hesap-v(\d+)/);
+        return m ? Number(m[1]) : null;
+    } catch (e) { return null; }   /* ağ yoksa BİLMİYORUZ; iddia etmeyiz */
+}
+
+function eskiSurumSeridi(calisan, yayinda) {
+    const c = document.createElement("div");
+    c.className = "yenilik-serit eski-surum-serit";
+    c.setAttribute("role", "alert");
+    const geri = yayinda - calisan;
+    c.innerHTML =
+        '<div class="ys-govde">' +
+        "<b>Elinizdeki sürüm eski.</b> " + geri + " güncelleme geride kaldınız " +
+        "(sizde " + calisan + ", yayında " + yayinda + "). Eski sürüm " +
+        "<b>eski oranlarla hesap yapıyor olabilir</b>. " +
+        '<a href="neler-degisti.html">Neler değişti?</a>' +
+        "</div>" +
+        '<button type="button" class="ys-tazele ikincil">Temizle ve güncelle</button>' +
+        '<button type="button" class="ys-kapat" aria-label="Kapat">✕</button>';
+
+    const yerlesti = seritYuvasiIste("eskiSurum", function () {
+        document.body.insertBefore(c, document.body.firstChild);
+        return c;
+    });
+    if (!yerlesti) return;
+
+    /* Kendini güncelleyemiyorsa ne yapılacağını YAZMAK yetmez, DÜĞMESİ
+       olmalı: önbelleği temizleyip yeniden yükler. */
+    c.querySelector(".ys-tazele").onclick = function () {
+        const yenile = function () { location.reload(); };
+        try {
+            if (window.caches && caches.keys) {
+                caches.keys().then(function (a) {
+                    return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                }).then(yenile, yenile);
+                return;
+            }
+        } catch (e) { }
+        yenile();
+    };
+    c.querySelector(".ys-kapat").onclick = function () { seritYuvasiBirak("eskiSurum"); };
+}
+
+/* Açılışta ve sekmeye her dönüşte denetler. Günlerdir açık duran bir
+   sekme, gün dönümü düzeltmesindeki mantığın aynısıyla yakalanıyor. */
+function surumDenetle() {
+    const calisan = surumNo();
+    if (!calisan) return;
+    let calisiyor = false;
+    const bak = async () => {
+        if (calisiyor) return;
+        calisiyor = true;
+        try {
+            const yayinda = await yayindakiSurum();
+            if (yayinda && yayinda > calisan && !document.querySelector(".eski-surum-serit"))
+                eskiSurumSeridi(calisan, yayinda);
+        } finally { calisiyor = false; }
+    };
+    bak();
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) bak(); });
+    window.addEventListener("focus", bak);
+}
 
 // ---------- Üst bar ve alt bilgi ----------
 
@@ -738,7 +836,8 @@ function iskeletKur(aktifYol) {
         ${para(PARAMETRE.asgariBrut)} · SGK tavanı ${para(PARAMETRE.sgkTavan)} ·
         damga vergisi binde ${sayi(PARAMETRE.damgaOran * 1000, 2)} ·
         gelir vergisi ilk dilim ${para(PARAMETRE.vergiDilimleri[0][0], 0)} (%15).
-        Son güncelleme: ${PARAMETRE.guncelleme}.</p>`;
+        Son güncelleme: ${PARAMETRE.guncelleme}.</p>
+        <p class="kucuk surum-satiri">Sürüm <b>${surumNo() === null ? "—" : surumNo()}</b></p>`;
     document.body.appendChild(alt);
 
     document.getElementById("temaBtn").onclick = () => {
@@ -838,6 +937,7 @@ function iskeletKur(aktifYol) {
         gorunumTazele();
     };
 
+    try { surumDenetle(); } catch (e) { }
     cevrimdisiUyari(aktifYol);
     gecmiseEkle(aktifYol);
     try { yenilikSeridi(); } catch (e) { }
