@@ -142,6 +142,24 @@ h4 { font-size: 14px; margin: 0 0 6px; font-weight: 600; }
    Sonuç 34 px kalın, sebebi 13 px gri — 2,6 kat küçük.
    Bu bir dipnot değil: başlığın ANLAMINI değiştiriyor, o yüzden
    okunur boyda ve normal renkte. Bağırmıyor, görünüyor. */
+/* ÖNEMLİ NOT — geri dönüşü olmayan seçim, sağlık sınırı, tıbbi sınır.
+   Ölçüldü (28.08.2026): "iki yıl geçmeden dönemezsiniz", "bazal
+   metabolizmanızın altında", "tıbbi teşhis değildir" — üçü de 13 px
+   gri dipnottaydı. Üçünde de yazar metnin başına "Önemli:"/"Dikkat:"
+   yazmış; yani önemini biliyor ama tasarım taşımıyordu.
+   Bir yazarın "Önemli:" yazmak zorunda kalması, tasarımın o ağırlığı
+   taşımadığının işaretidir. */
+.onemli {
+  font-size: 14px;
+  color: var(--yazi);
+  margin: 10px 0 0;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border-left: 3px solid var(--azalis);
+  background: var(--zemin2);
+  border-radius: 0 8px 8px 0;
+}
+
 .varsayim {
   font-size: 14px;
   color: var(--yazi);

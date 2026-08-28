@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Vücut Kitle İndeksi (BKİ) Hesaplama — İdeal Kilo Aralığı" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/vucut-kitle-indeksi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=44" />
+<link rel="stylesheet" href="stil.css?v=48" />
 </head>
 <body>
 
@@ -85,8 +85,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=44"></script>
-<script src="sayfa.js?v=44"></script>
+<script src="hesap.js?v=48"></script>
+<script src="sayfa.js?v=48"></script>
 <script>
 iskeletKur("vucut-kitle-indeksi-hesaplama.html");
 gizlilikBaglantisi();
@@ -97,6 +97,25 @@ function hesapla() {
     const boy = oku("boy"), kilo = oku("kilo");
     if (!boy || boy <= 0 || !kilo || kilo <= 0) {
         sonucBekliyor("Boyunuzu ve kilonuzu girin."); return;
+    }
+    /* GERCEKCI OLMAYAN GIRDIYE HUKUM VERME.
+       Olculdu (28 Agustos 2026): 175 cm / 1 kg girilince uygulama
+       "BKI 0,3 · Zayif" diyor ve "alt sinira 55,7 kg" hesapliyordu --
+       imkansiz bir girdiye tam guvenle siniflandirma.
+       Burada tibbi bir hukum verilmiyor; yalnizca GIRDININ insan
+       olcusu araliginda olup olmadigi soyleniyor. Siniflar (DSO/WHO)
+       oldugu gibi kaliyor -- onlar yayimlanmis bir olcut, bizim
+       yorumumuz degil.
+       Sinirlar genis tutuldu: amac dar bir "normal" dayatmak degil,
+       yalnizca acikca imkansiz olani ayirmak. */
+    const boyMakul = boy >= 50 && boy <= 260;
+    const kiloMakul = kilo >= 2 && kilo <= 500;
+    if (!boyMakul || !kiloMakul) {
+        sonucBekliyor("Girdiğiniz " +
+            (!boyMakul && !kiloMakul ? "boy ve kilo" : !boyMakul ? "boy" : "kilo") +
+            " değeri insan ölçüleri için gerçekçi görünmüyor. " +
+            "Boyu santimetre (örn. 175), kiloyu kilogram (örn. 70) olarak yazın.");
+        return;
     }
     const v = vucutKitleIndeksi(kilo, boy);
 

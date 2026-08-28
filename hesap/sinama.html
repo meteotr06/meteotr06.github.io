@@ -353,6 +353,85 @@ window.addEventListener("load", async function () {
     ol("boş girdi çökmüyor", d6.length === 0);
   })();
 
+  /* ══ L · Birim çevirme — DIŞ REFERANSLA ═══════════════════════════
+     ÖNCE KÖR BİR TARAMA YAZDIM: 207 çifti gidiş-dönüş (a→b→a) ile
+     sınadım, "hepsi temiz" dedi. Sonra `cm` katsayısını 0,01'den 0,1'e
+     çektim — ON KAT yanlış — ve tarama YİNE "temiz" dedi.
+     Sebep: gidiş-dönüşte hata kendini götürür; a→a her zaman 1'dir.
+     Bir ölçüm, hem doğru hem yanlış durumda aynı cevabı veriyorsa
+     hiçbir şey ölçmemiştir.
+     Katsayı doğruluğu ancak BAĞIMSIZ bir referansla ölçülür. Aşağıdaki
+     değerler uluslararası tanımlardan (SI / NIST) alınmıştır. */
+  bas("L · Birim çevirme — dış referans");
+  [["uzunluk","m","cm",1,100], ["uzunluk","km","m",1,1000],
+   ["uzunluk","inc","cm",1,2.54], ["uzunluk","ft","cm",1,30.48],
+   ["uzunluk","yd","m",1,0.9144], ["uzunluk","mil","m",1,1609.344],
+   ["uzunluk","denizmili","m",1,1852], ["uzunluk","mm","m",1000,1],
+   ["agirlik","kg","g",1,1000], ["agirlik","lb","kg",1,0.45359237],
+   ["agirlik","oz","g",1,28.349523], ["agirlik","ton","kg",1,1000],
+   ["alan","hektar","m2",1,10000], ["alan","donum","m2",1,1000],
+   ["alan","ar","m2",1,100], ["alan","km2","m2",1,1000000],
+   ["alan","ft2","m2",1,0.09290304],
+   ["hacim","l","ml",1,1000], ["hacim","m3","l",1,1000],
+   ["hacim","galon","l",1,3.785411784],
+   ["hiz","kmh","ms",3.6,1], ["hiz","mph","kmh",1,1.609344],
+   ["hiz","knot","kmh",1,1.852],
+   ["sicaklik","C","F",0,32], ["sicaklik","C","F",100,212],
+   ["sicaklik","C","K",0,273.15], ["sicaklik","F","C",32,0],
+   ["sicaklik","K","C",373.15,100]
+  ].forEach(function (t) {
+    var v = birimCevir(t[0], t[1], t[2], t[3]);
+    var tol = Math.max(0.000001, Math.abs(t[4]) * 0.000001);
+    ol(t[3] + " " + t[1] + " → " + t[2] + " = " + t[4],
+       isFinite(v) && Math.abs(v - t[4]) <= tol, String(v));
+  });
+  /* Bilinmeyen anahtar sessizce 0 dönüyor; arayüz açılır liste
+     kullandığı için bugün oluşamaz, ama liste ile tablo AYRIŞIRSA
+     oluşur. Ayrışmayı burada sabitliyoruz. */
+  ol("bilinmeyen grup 0 dönüyor (arayüz listeyle sınırlı)",
+     birimCevir("zzz", "m", "cm", 1) === 0);
+
+  /* ══ M · SAĞLIK ARAÇLARI: uygulama kullanıcı adına hüküm vermez ═══
+     Ölçüldü (28 Ağustos 2026): 59.840 profil tarandı. "Hızlı kilo
+     verme" hedefi 38.282'sinde (%64) bazal metabolizmanın ALTINDA
+     kalıyordu; 23 profilde sıfır ya da NEGATİF çıkıyordu (en düşük
+     −106 kcal/gün — 80 yaş / 145 cm / 40 kg / hareketsiz).
+     Sayı doğru hesaplanıyordu; sorun onu bir HEDEF olarak listelemekti.
+     Eski sürümde uyarı vardı ama (a) sayı yine de listeleniyordu,
+     (b) uyarı yalnız HIZLI seçeneği kapsıyordu — örnek profilde YAVAŞ
+     seçenek de bazalın altındaydı ve hiç uyarılmıyordu.
+     İKİ DALI DA ÖLÇ: uyarının çıkmadığı profili görmeden "koşul
+     çalışıyor" denmez. */
+  bas("M · Sağlık araçları — hüküm sınırı");
+  (function () {
+    var riskli = kaloriIhtiyaci(45, 150, 65, "kadin", 1.2);
+    ol("riskli profilde hızlı hedef bazalın ALTINDA (çekirdek böyle hesaplıyor)",
+       riskli.hizliVerme < riskli.bazal,
+       Math.round(riskli.hizliVerme) + " < " + Math.round(riskli.bazal));
+    ol("riskli profilde YAVAŞ hedef de bazalın altında (eski uyarı bunu kaçırıyordu)",
+       riskli.kiloVerme < riskli.bazal,
+       Math.round(riskli.kiloVerme) + " < " + Math.round(riskli.bazal));
+    var guvenli = kaloriIhtiyaci(85, 180, 30, "erkek", 1.55);
+    ol("güvenli profilde iki hedef de bazalın ÜSTÜNDE (ikinci dal)",
+       guvenli.kiloVerme > guvenli.bazal && guvenli.hizliVerme > guvenli.bazal,
+       Math.round(guvenli.hizliVerme) + " > " + Math.round(guvenli.bazal));
+    // Negatif üretilebiliyor mu? (çekirdek sınırlamıyor; sayfa yazmıyor)
+    var uc = kaloriIhtiyaci(40, 145, 80, "kadin", 1.2);
+    ol("uç profilde hedef sıfırın altına inebiliyor — sayfa sayı yazmamalı",
+       uc.hizliVerme < 0, String(Math.round(uc.hizliVerme)));
+  })();
+
+  bas("M2 · Sayfa korumaları yerinde mi (kaynak okunarak)");
+  for (const s of [["kalori-ihtiyaci-hesaplama.html", "hedefSatiri", "önerilmiyor"],
+                   ["vucut-kitle-indeksi-hesaplama.html", "boyMakul", "gerçekçi görünmüyor"]]) {
+    try {
+      const c3 = await fetch(s[0] + "?t=" + T);
+      const m3 = await c3.text();
+      ol(s[0] + " → koruma var (" + s[1] + ")", m3.indexOf(s[1]) >= 0);
+      ol(s[0] + " → kullanıcıya sebep yazıyor", m3.indexOf(s[2]) >= 0);
+    } catch (e) { ol(s[0] + " okunamadı", false, String(e)); }
+  }
+
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
     if (s.bolum) return "<h2>" + s.bolum + "</h2>";

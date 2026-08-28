@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="İşsizlik Maaşı Hesaplama 2026 — Ne Kadar, Kaç Ay?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/issizlik-maasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=44" />
+<link rel="stylesheet" href="stil.css?v=48" />
 </head>
 <body>
 
@@ -89,8 +89,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=44"></script>
-<script src="sayfa.js?v=44"></script>
+<script src="hesap.js?v=48"></script>
+<script src="sayfa.js?v=48"></script>
 <script>
 iskeletKur("issizlik-maasi-hesaplama.html");
 gizlilikBaglantisi();
@@ -109,13 +109,20 @@ function hesapla() {
         ${satir("Günlük kazanç ortalaması", para(i.gunlukKazanc))}
         ${satir("Ödenek (ortalamanın %40'ı)", para(i.hamAylik))}
         ${i.tavanUygulandi ? satir("Yasal tavan", para(i.tavan)) : ""}
-        ${satir("Aylık brüt ödenek", para(i.aylikBrut))}
+        ${/* HAK DOGMUYORSA bu satirlar KOSULLU oldugunu soylemeli.
+              Olculdu (28.08.2026): 600 gun altinda baslik "0,00 TL"
+              iken bu satirlar 20.000 TL gosteriyordu. "Odeme suresi"
+              ve "Toplam alacaginiz" hak durumunu biliyordu, bu ikisi
+              bilmiyordu. Kullanici dokume bakip alacagini sanabilir.
+              Sayiyi SILMIYORUZ - "hak dogsaydi ne olurdu" bilgisi
+              degerli; yalnizca kosullu oldugunu yaziyoruz. */""}
+        ${satir("Aylık brüt ödenek" + (i.hakEdiyorMu ? "" : " (hak doğsaydı)"), para(i.aylikBrut))}
         ${satir("Damga vergisi", "−" + para(i.damga))}
-        ${satir("Aylık net ödenek", para(i.aylikNet), "buyuk")}
+        ${satir("Aylık net ödenek" + (i.hakEdiyorMu ? "" : " (hak doğsaydı)"), para(i.aylikNet), "buyuk")}
         ${satir("Ödeme süresi", i.sureGun > 0 ? i.sureGun + " gün (" + sayi(i.sureAy, 0) + " ay)" : "hak doğmuyor")}
         ${satir("Toplam alacağınız", para(i.hakEdiyorMu ? i.toplamNet : 0), "buyuk")}
-        ${i.tavanUygulandi ? `<p class="kucuk" style="color:var(--uyari)"><b>Tavan uygulandı.</b> Hesaplanan ${para(i.hamAylik)} yasal üst sınırı aştığı için ödenek ${para(i.tavan)} ile sınırlandı.</p>` : ""}
-        ${!i.hakEdiyorMu ? `<p class="kucuk" style="color:var(--azalis)"><b>600 günün altında.</b> İşsizlik ödeneği için son 3 yılda en az 600 gün prim ödemiş olmak gerekir.</p>` : ""}
+        ${i.tavanUygulandi ? `<p class="varsayim" style="color:var(--uyari)"><b>Tavan uygulandı.</b> Hesaplanan ${para(i.hamAylik)} yasal üst sınırı aştığı için ödenek ${para(i.tavan)} ile sınırlandı.</p>` : ""}
+        ${!i.hakEdiyorMu ? `<p class="onemli" style="color:var(--azalis)"><b>600 günün altında.</b> İşsizlik ödeneği için son 3 yılda en az 600 gün prim ödemiş olmak gerekir.</p>` : ""}
     </div>`;
 
     const d = dokumKur("Hesap nasıl yapıldı?");

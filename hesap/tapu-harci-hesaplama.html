@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Tapu Harcı Hesaplama 2026 — Alıcı ve Satıcı Ne Kadar Öder?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/tapu-harci-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=44" />
+<link rel="stylesheet" href="stil.css?v=48" />
 </head>
 <body>
 
@@ -96,8 +96,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=44"></script>
-<script src="sayfa.js?v=44"></script>
+<script src="hesap.js?v=48"></script>
+<script src="sayfa.js?v=48"></script>
 <script>
 iskeletKur("tapu-harci-hesaplama.html");
 gizlilikBaglantisi();
@@ -120,9 +120,11 @@ function hesapla() {
         ${satir("Satıcı harcı (binde 20)", para(t.saticiHarc))}
         ${satir("Harç toplamı (%4)", para(t.toplamHarc), "buyuk")}
         ${satir("Döner sermaye", para(t.donerSermaye))}
-        ${t.dusukBeyan ? `<p class="kucuk" style="color:var(--uyari)"><b>Dikkat:</b>
+        ${t.dusukBeyan ? `<p class="varsayim"><b>Dikkat:</b>
             Yazdığınız satış bedeli (${para(t.satisBedeli)}) belediyenin rayiç değerinden
-            (${para(t.emlakVergiDegeri)}) düşük. Harç <b>rayiç bedel</b> üzerinden alınır.</p>` : ""}
+            (${para(t.emlakVergiDegeri)}) düşük. Harç <b>rayiç bedel</b> üzerinden alınır —
+            yukarıdaki tutar sizin yazdığınız bedele değil, ${para(t.emlakVergiDegeri)}
+            değerine göre hesaplandı.</p>` : ""}
     </div>
 
     <div class="kutu">

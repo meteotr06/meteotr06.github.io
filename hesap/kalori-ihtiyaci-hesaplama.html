@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Günlük Kalori İhtiyacı Hesaplama — Bazal Metabolizma ve TDEE" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kalori-ihtiyaci-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=44" />
+<link rel="stylesheet" href="stil.css?v=48" />
 </head>
 <body>
 
@@ -105,8 +105,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=44"></script>
-<script src="sayfa.js?v=44"></script>
+<script src="hesap.js?v=48"></script>
+<script src="sayfa.js?v=48"></script>
 <script>
 iskeletKur("kalori-ihtiyaci-hesaplama.html");
 gizlilikBaglantisi();
@@ -122,6 +122,26 @@ function hesapla() {
     }
     const k = kaloriIhtiyaci(kilo, boy, yas, cinsiyet, akt);
 
+    /* BAZALIN ALTINDAKI HEDEFE SAYI YAZMA.
+       Olculdu (28 Agustos 2026): 59.840 profil tarandi, hizli verme
+       hedefi 38.282'sinde (%64) bazal metabolizmanin ALTINDA kaliyordu;
+       23 profilde sifir ya da NEGATIF cikiyordu (en dusuk -106 kcal/gun,
+       80 yas / 145 cm / 40 kg / hareketsiz).
+       Sayi dogru hesaplaniyordu -- sorun sayida degil, onu bir HEDEF
+       olarak listelemekteydi. Uygulama kullanicinin saglik kararini
+       veremez; veremeyecegi yerde sayi da yazmamalidir.
+       Eski surumde bir uyari vardi ama (a) sayi yine de listeleniyordu,
+       (b) uyari yalniz HIZLI secenegi kapsiyordu -- ornek profilde YAVAS
+       secenek de bazalin altindaydi ve hic uyarilmiyordu. */
+    const guvensiz = [];
+    function hedefSatiri(etiket, deger, bazal) {
+        if (!isFinite(deger) || deger < bazal) {
+            guvensiz.push(etiket.split(" (")[0].toLocaleLowerCase("tr"));
+            return satir(etiket, "önerilmiyor");
+        }
+        return satir(etiket, sayi(deger, 0) + " kcal");
+    }
+
     document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
         <div class="dev-deger">${sayi(k.gunluk, 0)} kcal</div>
         <div class="dev-etiket">kilonuzu korumak için günlük ihtiyacınız</div>
@@ -132,14 +152,17 @@ function hesapla() {
     <div class="kutu">
         <h2 class="kutu-baslik">Hedefe göre kalori</h2>
         ${satir("Kilo korumak", sayi(k.gunluk, 0) + " kcal")}
-        ${satir("Yavaş kilo vermek (haftada ~0,5 kg)", sayi(k.kiloVerme, 0) + " kcal")}
-        ${satir("Hızlı kilo vermek (haftada ~1 kg)", sayi(k.hizliVerme, 0) + " kcal")}
+        ${hedefSatiri("Yavaş kilo vermek (haftada ~0,5 kg)", k.kiloVerme, k.bazal)}
+        ${hedefSatiri("Hızlı kilo vermek (haftada ~1 kg)", k.hizliVerme, k.bazal)}
         ${satir("Kilo almak (haftada ~0,5 kg)", sayi(k.kiloAlma, 0) + " kcal")}
-        <p class="kucuk">${k.hizliVerme < k.bazal
-            ? `<b>Dikkat:</b> Hızlı verme hedefi (${sayi(k.hizliVerme, 0)} kcal) bazal metabolizmanızın
-               (${sayi(k.bazal, 0)} kcal) altında kalıyor. Bu düzeyde beslenme genellikle önerilmez;
-               mutlaka bir uzmana danışın.`
-            : "1 kg yağ yaklaşık 7.700 kcal'e denktir; günde 500 kcal açık haftada yaklaşık yarım kilo verdirir."}</p>
+        ${guvensiz.length ? `<p class="onemli"><b>Neden sayı yazmadık:</b>
+            ${guvensiz.join(" ve ")} hedefi, bazal metabolizmanızın
+            (${sayi(k.bazal, 0)} kcal) altına düşüyor — yani vücudunuzun
+            hiç hareket etmeden harcadığı enerjiden az. Bu düzeyde bir
+            hedefi uygulama olarak <b>önermiyoruz</b>; ne kadar açık
+            verebileceğinizi bir hekim ya da diyetisyen belirlemeli.</p>`
+          : `<p class="kucuk">1 kg yağ yaklaşık 7.700 kcal'e denktir; günde
+            500 kcal açık haftada yaklaşık yarım kilo verdirir.</p>`}
     </div>`;
 
     const d = dokumKur("Hesap nasıl yapıldı?");

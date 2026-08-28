@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Emlak Vergisi Hesaplama 2026 — Konut, İş Yeri, Arsa ve Arazi" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/emlak-vergisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=44" />
+<link rel="stylesheet" href="stil.css?v=48" />
 </head>
 <body>
 
@@ -123,8 +123,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=44"></script>
-<script src="sayfa.js?v=44"></script>
+<script src="hesap.js?v=48"></script>
+<script src="sayfa.js?v=48"></script>
 <script>
 iskeletKur("emlak-vergisi-hesaplama.html");
 gizlilikBaglantisi();
@@ -152,7 +152,7 @@ function hesapla() {
         ${satir("Yıllık vergi", para(e.yillik), "buyuk")}
         ${satir("1. taksit (son gün Mayıs sonu)", para(e.taksit))}
         ${satir("2. taksit (son gün Kasım sonu)", para(e.taksit))}
-        ${e.muaf ? `<p class="kucuk" style="color:var(--artis)"><b>Muafiyet uygulandı.</b>
+        ${e.muaf ? `<p class="onemli"><b>Muafiyet uygulandı.</b>
             Şartları taşıyorsanız tek meskeniniz için oran <b>sıfırdır</b>. Muafiyet
             kendiliğinden işlemez — belediyeye <b>dilekçe ve belge</b> vermeniz gerekir.</p>` : ""}
     </div>
