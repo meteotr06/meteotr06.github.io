@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Ortalama, Medyan ve Standart Sapma Hesaplama" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/ortalama-standart-sapma-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=43" />
+<link rel="stylesheet" href="stil.css?v=44" />
 </head>
 <body>
 
@@ -90,8 +90,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=43"></script>
-<script src="sayfa.js?v=43"></script>
+<script src="hesap.js?v=44"></script>
+<script src="sayfa.js?v=44"></script>
 <script>
 iskeletKur("ortalama-standart-sapma-hesaplama.html");
 gizlilikBaglantisi();
@@ -112,7 +112,22 @@ function hesapla() {
     const altSinir = i.q1 - 1.5 * i.iqr, ustSinir = i.q3 + 1.5 * i.iqr;
     const aykiri = i.sirali.filter(x => x < altSinir || x > ustSinir);
 
-    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+    /* ATLANANLARI SOYLE.
+       Once okunamayan girdi SIFIR olup listeye giriyordu: "12 abc 15"
+       ortalamasi 9 cikiyordu (dogrusu 13,5). Artik ayiklaniyor -- ama
+       sessizce ayiklamak da yeterli degil: kullanici 3 sayi yazip 2
+       sayinin ortalamasini gorurse yine yanlis okur. Hangi girdinin
+       sayilmadigi yaziliyor. */
+    const atl = dizi.atlananlar || [];
+    const atlUyari = atl.length ? `<div class="kutu uyari-kutu">
+        <p><b>${atl.length} girdi sayı olarak okunamadı</b> ve hesaba
+        katılmadı: <code>${atl.slice(0, 8).map(x =>
+            String(x).replace(/[<>&]/g, "")).join("</code> · <code>")}</code>${
+            atl.length > 8 ? " …" : ""}</p>
+        <p class="kucuk">Aşağıdaki sonuçlar kalan ${i.n} sayıya aittir.</p>
+    </div>` : "";
+
+    document.getElementById("ozet").innerHTML = atlUyari + `<div class="kutu one-cikan">
         <div class="dev-deger">${s4(i.ortalama)}</div>
         <div class="dev-etiket">ortalama (${i.n} sayının)</div>
         ${satir("Toplam", s4(i.toplam))}

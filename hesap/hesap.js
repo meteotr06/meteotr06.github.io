@@ -1338,12 +1338,42 @@ function geometri(sekil, g) {
 
 // ---------- 30) İSTATİSTİK: ORTALAMA, MEDYAN, STANDART SAPMA ----------
 
+// OKUNAMAYAN GIRDI SIFIR OLUP LISTEYE GIRIYORDU.
+//
+// Olculdu (28 Agustos 2026, CANLIDA):
+//     "12 abc 15"     -> [12, 0, 15]   ortalama 9    (dogrusu 13,5)
+//     "10 20 nan 30"  -> [10,20,0,30]  ortalama 15   (dogrusu 20)
+// Cokme yok, uyari yok -- ortalama sifira dogru cekiliyordu.
+//
+// Sebep ince: eski kod sonluluk suzgeciyle korundugunu saniyordu.
+// Ama `sayiOku` gecersiz girdiyi 0 dondurur ve 0 SONLUDUR; suzgec
+// hicbir sey elemiyordu. Sifira cevrilmis bir hata, sonluluk
+// denetiminden her zaman gecer.
+//
+// Daha kotusu: bu arac, not ortalamasi duzeltilirken 'dogru desen'
+// diye ORNEK GOSTERILMISTI (bkz. notOrtalamasi aciklamasi). Ornek
+// alinan uygulamanin kendisi bozuktu.
+//
+// Atmak da cozum degil: 3 sayi yazip 2 sayinin ortalamasini gormek,
+// yanlis ortalamayi gormek kadar sessizdir. Okunamayanlar AYRI
+// tutuluyor ve arayuz onlari yaziyor -- `notOrtalamasi`ndaki
+// `atlanan` deseninin ayni.
 function sayiListesiOku(metin) {
     // Virgül hem ayraç hem ondalık olabilir. Kural: virgülden sonra BOŞLUK
     // varsa ayraç ("1, 2, 3"), yoksa ondalık ("1,5 2,5").
     let s = String(metin || "").replace(/[;\t\r]/g, "\n").replace(/,\s+/g, "\n");
-    return s.split(/[\n ]+/).map(x => x.trim()).filter(x => x !== "")
-            .map(x => sayiOku(x)).filter(x => isFinite(x));
+    const parcalar = s.split(/[\n ]+/).map(x => x.trim()).filter(x => x !== "");
+    const sayilar = [], atlananlar = [];
+    parcalar.forEach(function (x) {
+        const c = sayiCozumle(x);
+        if (c.gecerli && isFinite(c.deger)) sayilar.push(c.deger);
+        else atlananlar.push(x);
+    });
+    /* Eski cagri bicimi DIZI bekliyordu; dizi donmeye devam ediyor,
+       uzerine `atlananlar` ilistiriliyor. Dizi islemleri bozulmaz,
+       atlananlari soran da bulur. */
+    sayilar.atlananlar = atlananlar;
+    return sayilar;
 }
 
 function istatistik(dizi) {

@@ -135,6 +135,23 @@ h2 { font-size: 20px; margin: 0 0 14px; font-weight: 700; letter-spacing: -.3px;
 h3 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
 h4 { font-size: 14px; margin: 0 0 6px; font-weight: 600; }
 .kucuk { font-size: 13px; color: var(--yazi2); margin: 8px 0 0; line-height: 1.5; }
+
+/* VARSAYIM NOTU — uygulamanın kullanıcı adına aldığı karar.
+   Ölçüldü (28.08.2026): doğalgazda bir rakam yanlış yazılınca araç
+   "sayaç turlamış" varsayıp 5.935 ₺ yerine 16.564 ₺ gösteriyordu.
+   Sonuç 34 px kalın, sebebi 13 px gri — 2,6 kat küçük.
+   Bu bir dipnot değil: başlığın ANLAMINI değiştiriyor, o yüzden
+   okunur boyda ve normal renkte. Bağırmıyor, görünüyor. */
+.varsayim {
+  font-size: 14px;
+  color: var(--yazi);
+  margin: 10px 0 0;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border-left: 3px solid var(--uyari);
+  background: var(--zemin2);
+  border-radius: 0 8px 8px 0;
+}
 .ipucu { font-size: 13px; color: var(--yazi2); margin: 0 0 10px; }
 .not { font-size: 12px; color: var(--yazi2); }
 
@@ -222,6 +239,22 @@ input:focus, select:focus { outline: 2px solid var(--vurgu); outline-offset: -1p
     border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; font-size: 13px;
 }
 .uyari.uyari { border-left-color: var(--uyari); }
+
+/* Hesaba KATILMAYAN girdiyi duyuran kutu. Sessizce ayiklamak, sessizce
+   sifir saymak kadar yanilticidir: kullanici 3 sayi yazip 2 sayinin
+   ortalamasini gorurse yine yanlis okur. */
+.uyari-kutu {
+    border-left: 3px solid var(--uyari);
+    background: color-mix(in srgb, var(--uyari) 7%, transparent);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+.uyari-kutu code {
+    background: color-mix(in srgb, var(--uyari) 14%, transparent);
+    padding: 1px 5px;
+    border-radius: 4px;
+}
 .uyari.alarm { border-left-color: var(--artis); }
 .uyari.bilgi { border-left-color: var(--vurgu); }
 .uyari button { min-height: 34px; font-size: 13px; padding: 0 12px; flex: 0 0 auto; }

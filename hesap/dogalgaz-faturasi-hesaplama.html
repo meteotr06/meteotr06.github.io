@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Doğalgaz Faturası Hesaplama — m³'ten kWh'a, Sayaçtan Faturaya" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/dogalgaz-faturasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=43" />
+<link rel="stylesheet" href="stil.css?v=44" />
 </head>
 <body>
 
@@ -107,8 +107,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=43"></script>
-<script src="sayfa.js?v=43"></script>
+<script src="hesap.js?v=44"></script>
+<script src="sayfa.js?v=44"></script>
 <script>
 iskeletKur("dogalgaz-faturasi-hesaplama.html");
 gizlilikBaglantisi();
@@ -136,8 +136,11 @@ function hesapla() {
         ${satir("Ara toplam", para(g.araToplam))}
         ${satir("KDV", para(g.kdv))}
         ${satir("Genel toplam", para(g.toplam), "buyuk")}
-        ${turladi ? `<p class="kucuk">Şimdiki değer öncekinden küçük — <b>sayaç turlamış</b>
-            kabul edildi ve tüketim ona göre hesaplandı.</p>` : ""}
+        ${turladi ? `<p class="varsayim">Şimdiki değer öncekinden küçük.
+            <b>Sayaç turlamış kabul edildi</b> ve tüketim buna göre hesaplandı —
+            bu yüzden tutar yüksek çıkıyor. Daha sık rastlanan sebep
+            <b>okuma değerinin yanlış yazılması</b>; iki sayacı da bir kez
+            daha kontrol edin.</p>` : ""}
     </div>
 
     <div class="kutu">

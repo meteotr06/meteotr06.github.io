@@ -25,7 +25,7 @@ diye silme — sebebi yanında yazılı.</p>
 
 <script>
 /* Önbellek eski kodu vermesin. 27.08.2026'da üç kez yaşandı: sayfa
-   `?v=40` servis ederken diskte `?v=43` duruyordu; servis çalışanı
+   `?v=40` servis ederken diskte `?v=44` duruyordu; servis çalışanı
    `cache:"no-store"` isteğini bile eskisiyle karşıladı.
    "Sınama geçti" ile "düzeltilmiş kod sınandı" AYRI iddialardır. */
 var T = Date.now();
@@ -313,6 +313,45 @@ window.addEventListener("load", async function () {
     ol("hata sessizce yutulmuyor (console.error var)",
        /catch[\s\S]{0,300}console\.error/.test(dinleGovde));
   } catch (e) { ol("sayfa.js okunamadı", false, String(e)); }
+
+  /* ══ K · Sayı listesi: okunamayan girdi sessizce SIFIR olmasın ════
+     Ölçüldü (28 Ağustos 2026, CANLIDA):
+         "12 abc 15"    -> [12, 0, 15]   ortalama 9    (doğrusu 13,5)
+         "10 20 nan 30" -> [10,20,0,30]  ortalama 15   (doğrusu 20)
+     Eski kod sonluluk süzgeciyle korunduğunu sanıyordu; ama `sayiOku`
+     geçersizi 0 döndürür ve 0 SONLUDUR — süzgeç hiçbir şey elemiyordu.
+     Sıfıra çevrilmiş bir hata, sonluluk denetiminden her zaman geçer.
+     Üstelik bu araç, not ortalaması düzeltilirken "doğru desen" diye
+     örnek gösterilmişti: örnek alınan uygulamanın kendisi bozuktu. */
+  bas("K · Sayı listesi — okunamayan girdi");
+  (function () {
+    var d1 = sayiListesiOku("12 abc 15");
+    ol("okunamayan girdi listeye 0 olarak GİRMİYOR", d1.length === 2,
+       JSON.stringify(Array.prototype.slice.call(d1)));
+    ol("ortalama kalan sayılara ait (13,5)",
+       yakin(istatistik(d1).ortalama, 13.5), String(istatistik(d1).ortalama));
+    ol("atlanan girdi BİLDİRİLİYOR (sessizce atılmıyor)",
+       d1.atlananlar && d1.atlananlar.length === 1 && d1.atlananlar[0] === "abc",
+       JSON.stringify(d1.atlananlar));
+
+    var d2 = sayiListesiOku("10 20 nan 30");
+    ol("\"nan\" sayı sayılmıyor", d2.length === 3 && yakin(istatistik(d2).ortalama, 20),
+       String(istatistik(d2).ortalama));
+
+    var d3 = sayiListesiOku("1.500,50 2.000");
+    ol("Türkçe yazım listede de doğru okunuyor",
+       d3.length === 2 && yakin(d3[0], 1500.5) && yakin(d3[1], 2000),
+       JSON.stringify(Array.prototype.slice.call(d3)));
+
+    var d4 = sayiListesiOku("abc def");
+    ol("hepsi bozuksa sayı üretilmiyor", d4.length === 0 && d4.atlananlar.length === 2);
+
+    var d5 = sayiListesiOku("12 15 18");
+    ol("temiz girdide atlanan yok", d5.length === 3 && d5.atlananlar.length === 0);
+
+    var d6 = sayiListesiOku("");
+    ol("boş girdi çökmüyor", d6.length === 0);
+  })();
 
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
