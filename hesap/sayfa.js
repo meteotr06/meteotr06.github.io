@@ -39,6 +39,7 @@ const ARACLAR = [
     { yol: "iskonto-hesaplama.html", ad: "İskonto", aciklama: "Ardışık indirimde gerçek oran", grup: "Ticaret", anahtar: "iskonto indirim ardışık kademeli liste fiyatı net fiyat bayi toptan kampanya ihale teklif" },
     { yol: "dogalgaz-faturasi-hesaplama.html", ad: "Doğalgaz Faturası", aciklama: "m³'ten kWh'a, sayaçtan faturaya", grup: "Ev ve Yaşam", anahtar: "doğalgaz fatura m3 metreküp kwh sayaç ısıl değer kombi ısınma abonelik igdaş başkentgaz" },
     { yol: "dogum-izni-hesaplama.html", ad: "Doğum İzni", aciklama: "24 hafta — yeni düzenleme", grup: "Maaş ve Çalışma", anahtar: "doğum izni analık izni süt izni babalık izni 24 hafta 16 hafta hamile gebe çoğul ücretsiz izin sgk analık ödeneği 7578" },
+    { yol: "kira-stopaji-hesaplama.html", ad: "Kira Stopajı", aciklama: "İşyeri kirasında brüt-net ve beyan sınırı", grup: "Ev ve Yaşam", anahtar: "kira stopaj tevkifat işyeri dükkan ofis brüt net kiracı kiraya veren gvk 94 beyan sınırı mahsup vergi" },
     { yol: "kira-geliri-vergisi-hesaplama.html", ad: "Kira Geliri Vergisi", aciklama: "İstisna, götürü/gerçek gider", grup: "Ev ve Yaşam", anahtar: "kira geliri vergisi gmsi beyanname istisna götürü gider gerçek gider ev sahibi mart temmuz taksit hazır beyan stopaj" },
     { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" },
     { yol: "kiralamak-mi-satin-almak-mi.html", ad: "Kirala mı Al mı", aciklama: "Ev: dürüst karşılaştırma", grup: "Ev ve Yaşam", anahtar: "ev almak kiralamak kira mı taksit mi konut kredisi peşinat fırsat maliyeti yatırım başabaş değer artışı" },
@@ -158,6 +159,23 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 71,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: işyeri kira stopajı — brüt-net çevrimi ve beyan sınırı.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "“Elime 40.000 geçsin” demek, brütün 40.000 <b>olmadığı</b> " +
+            "anlamına gelir: brüt 50.000, stopaj 10.000'dir. Netin %20'sini " +
+            "almak (8.000) yaygın bir hata; araç iki yönü de gösteriyor ve " +
+            "hangisini seçtiğinizi ekranda yazıyor.",
+            "Asıl soruyu da cevaplıyor: <b>stopaj kesildi, yine de beyanname " +
+            "verecek miyim?</b> Yıllık brüt kira 400.000 ₺'yi aşarsa evet — " +
+            "ve o zaman yalnızca aşan kısım değil, <b>tamamı</b> beyan edilir.",
+            "Kiracı tevkifat yapmıyorsa sınır 400.000 değil <b>22.000 ₺</b> " +
+            "olur; araç bunu kendisi değiştiriyor.",
+        ],
+    },
     {
         surum: 70,
         tarih: "28 Ağustos 2026",

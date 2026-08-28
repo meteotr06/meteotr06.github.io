@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Kira Stopajı Hesaplama 2026 — Brüt, Net ve Beyan Sınırı</title>
+<meta name="description" content="İşyeri kira stopajı hesaplama 2026: brüt-net çevrimi, %20 stopaj, kiracının ödeyeceği tutar ve 400.000 ₺ beyan sınırı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/kira-stopaji-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Kira Stopajı Hesaplama 2026 — Brüt, Net ve Beyan Sınırı" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/kira-stopaji-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/kira-stopaji-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Kira Stopajı Hesaplama 2026 — Brüt, Net ve Beyan Sınırı" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kira-stopaji-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=72" />
+</head>
+<body>
+
+<main>
+    <h1>Kira Stopajı Hesaplama</h1>
+    <p class="ozet">İşyeri kirasında stopaj <b>brüt kiranın %20'sidir</b> ve kiracı keser. “Net şu kadar” diye anlaşıldıysa <b>brüt daha yüksektir</b>.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">GVK <b>md.94/5-a</b></span><span class="etiket-rozet">Stopaj <b>%20</b></span><span class="etiket-rozet">Beyan sınırı <b>400.000 ₺</b></span><span class="etiket-rozet">2026</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Aylık kira (TL)
+                    <input id="tutar" type="text" inputmode="decimal" value="40000" />
+                </label>
+                <label>Bu tutar
+                    <select id="tip">
+                        <option value="net">NET — kiraya verenin eline geçen</option>
+                        <option value="brut">BRÜT — sözleşmedeki tutar</option>
+                    </select>
+                </label>
+                <label>Kaç ay
+                    <input id="ay" type="text" inputmode="numeric" min="1" max="12" value="12" />
+                </label>
+                <label class="onay">
+                    <input id="stopajVar" type="checkbox" checked />
+                    <span>Kiracı stopaj yapmakla yükümlü (vergi mükellefi bir işletme)</span>
+                </label>
+                <label class="onay">
+                    <input id="kdvVar" type="checkbox" />
+                    <span>Kira KDV'ye tabi (%20)</span>
+                </label>
+            </div>
+            <p class="kucuk">Kiracı <b>basit usule</b> tabiyse ya da vergi mükellefi değilse
+            stopaj kesilmez; o zaman işaret kutusunu boşaltın. <b>Konut</b> kirası için bu araç
+            değil, <a href="kira-geliri-vergisi-hesaplama.html">Kira Geliri Vergisi</a> aracını
+            kullanın — konutta stopaj yoktur, yıllık beyan vardır.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Stopaj kimden, ne kadar kesilir?</h2>
+        <p>İşyeri kiralamalarında kirayı ödeyen taraf, <b>brüt kiranın %20'sini</b> keser ve
+        kiraya veren adına vergi dairesine yatırır (193 sayılı GVK md.94/5-a). Kiraya verenin
+        eline geçen para, brütün <b>%80'idir</b>. Kesilen tutar kaybolmaz: yıllık beyanname
+        verilirse hesaplanan vergiden <b>mahsup edilir</b>.</p>
+
+        <h2>En sık yapılan hata: “net” ile “brüt”ü karıştırmak</h2>
+        <p>Taraflar çoğu zaman <b>net</b> konuşur: “elime 40.000 geçsin”. Bu, brütün
+        40.000 değil <b>50.000</b> olması demektir; stopaj da 8.000 değil <b>10.000</b>'dir.
+        Aradaki fark küçük görünür ama <b>her ay</b> tekrarlar ve ikisi de makul bir sayı
+        gibi durur. Bu araç iki yönü de gösterir, hangisini seçtiğinizi ekranda yazar.</p>
+
+        <h2>Stopaj kesildi, yine de beyan eder miyim?</h2>
+        <p>Duruma göre. 2026 yılı gelirleri için, <b>stopaja tabi</b> işyeri kira gelirinizin
+        <b>yıllık brüt</b> toplamı <b>400.000 ₺'yi aşarsa</b> yıllık beyanname verirsiniz
+        (GVK md.86/1-c). Aşmazsa kesilen stopaj <b>nihai vergi</b> olur ve beyan gerekmez.</p>
+        <p><b>Bu bir eşiktir, muafiyet değildir:</b> sınır aşılırsa yalnızca aşan kısmı değil,
+        kira gelirinin <b>tamamı</b> beyan edilir. 400.001 ₺ ile 399.999 ₺ arasındaki fark
+        iki lira değil, bir beyanname farkıdır.</p>
+
+        <h2>Stopaj kesilmiyorsa sınır neden çok düşük?</h2>
+        <p>Kiracınız tevkifat yapmakla yükümlü değilse (örneğin basit usule tabiyse) hiç
+        stopaj kesilmez. O zaman sınır 400.000 değil <b>22.000 ₺</b>'dir (GVK md.86/1-d) —
+        çünkü devlet o gelirden henüz hiçbir şey tahsil etmemiştir.</p>
+
+        <h2>KDV'nin stopajla ilişkisi</h2>
+        <p>İşyeri kirası KDV'ye tabi olabilir. <b>KDV stopaj matrahına girmez</b>: stopaj
+        KDV hariç kira üzerinden hesaplanır. Bu araçta KDV'yi işaretlerseniz kiracının
+        elinden çıkan toplam tutarı ayrıca gösteririz, ama stopaj değişmez.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=72"></script>
+<script src="sayfa.js?v=72"></script>
+<script>
+iskeletKur("kira-stopaji-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["tutar", "tip", "ay", "stopajVar", "kdvVar"];
+
+function hesapla() {
+    const tutar = oku("tutar"), ay = oku("ay");
+    const tip = document.getElementById("tip").value;
+    const stopajVar = isaretli("stopajVar");
+    const kdvVar = isaretli("kdvVar");
+
+    const s = kiraStopaji({ tutar: tutar, tutarTipi: tip, ayAdedi: ay,
+                            stopajVar: stopajVar, kdvVar: kdvVar });
+    if (s.hata) {
+        sonucBekliyor(s.hata === "ayYok"
+            ? "Ay sayısı 1 ile 12 arasında olmalı."
+            : "Aylık kira tutarını yazın.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.aylikStopaj)}</div>
+        <div class="dev-etiket">aylık stopaj${s.stopajVar ? "" : " — kiracı tevkifat yapmıyor"}</div>
+        ${satir("Brüt kira (sözleşme)", para(s.aylikBrut), "buyuk")}
+        ${satir("Kiraya verenin eline geçen", para(s.aylikNet), "buyuk")}
+        ${s.aylikKdv ? satir("KDV (%20, ayrıca)", para(s.aylikKdv)) : ""}
+        ${s.aylikKdv ? satir("Kiracının elinden çıkan", para(s.aylikKiraciOdemesi)) : ""}
+        <p class="varsayim">Girdiğiniz ${para(oku("tutar"))} tutarını
+        <b>${tip === "net" ? "NET" : "BRÜT"}</b> olarak aldık.
+        ${s.stopajVar ? `Yönü ters seçseydiniz stopaj
+        <b>${para(s.yanlisYonFarki)}</b> farklı çıkardı.` : ""}</p>
+    </div>
+
+    <div class="kutu ${s.beyanGerekli ? "uyari-kutu" : ""}">
+        <h2 class="kutu-baslik">Yıllık durum ve beyan</h2>
+        ${satir("Yıllık brüt kira", para(s.yillikBrut), "buyuk")}
+        ${satir("Yıl boyunca kesilen stopaj", para(s.yillikStopaj))}
+        ${satir("Beyan sınırı (" + s.yil + ")", para(s.beyanSiniri, 0))}
+        <p class="${s.beyanGerekli ? "" : "kucuk"}">${s.beyanGerekli
+            ? `<b>Beyanname vermeniz gerekiyor.</b> Yıllık brüt kiranız sınırı
+               <b>${para(s.yillikBrut - s.beyanSiniri)}</b> aşıyor. Sınır aşılınca
+               <b>yalnızca aşan kısım değil, kira gelirinin tamamı</b> beyan edilir;
+               kesilen ${para(s.yillikStopaj)} stopaj hesaplanan vergiden mahsup edilir.`
+            : `Bu tutarda <b>beyanname gerekmiyor</b>; kesilen stopaj nihai vergi olur.
+               Sınıra <b>${para(s.sinirinAltindaKalan)}</b> kaldı — kira artarsa
+               ya da başka ${s.stopajVar ? "stopajlı" : ""} kira geliriniz varsa durum değişir.`}</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    if (s.stopajVar && tip === "net") {
+        d.ekle("Net verildi; brüt geri hesaplandı.",
+               `${sayi(s.aylikNet, 2)} ÷ 0,80`, para(s.aylikBrut));
+        d.ekle("Stopaj: brüt − net.",
+               `${sayi(s.aylikBrut, 2)} − ${sayi(s.aylikNet, 2)}`, para(s.aylikStopaj));
+    } else if (s.stopajVar) {
+        d.ekle("Stopaj: brütün %20'si (GVK 94/5-a).",
+               `${sayi(s.aylikBrut, 2)} × 0,20`, para(s.aylikStopaj));
+        d.ekle("Eline geçen: brüt − stopaj.",
+               `${sayi(s.aylikBrut, 2)} − ${sayi(s.aylikStopaj, 2)}`, para(s.aylikNet));
+    } else {
+        d.ekle("Kiracı tevkifat yapmıyor; stopaj kesilmiyor.", "—", para(0));
+    }
+    d.ekle("Yıllık brüt kira.", `${sayi(s.aylikBrut, 2)} × ${sayi(ay, 0)} ay`, para(s.yillikBrut));
+    d.ekle(s.beyanGerekli ? "Yıllık brüt, beyan sınırını AŞIYOR." : "Yıllık brüt, beyan sınırının altında.",
+           `${sayi(s.yillikBrut, 0)} ${s.beyanGerekli ? ">" : "≤"} ${sayi(s.beyanSiniri, 0)}`,
+           s.beyanGerekli ? "beyan gerekli" : "beyan gerekmiyor");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Kira Stopajı " + KIRA_STOPAJ.yil));
+yapisalVeri("Kira Stopajı Hesaplama", "İşyeri kira stopajı hesaplama 2026: brüt-net çevrimi, %20 stopaj, kiracının ödeyeceği tutar ve beyan sınırı.");
+
+sssEkle([
+    { soru: "İşyeri kira stopajı yüzde kaç?",
+      cevap: "2026'da brüt kiranın %20'sidir (GVK md.94/5-a). Kovid döneminde geçici olarak %10'a indirilmişti; 2022 vergilendirme döneminden itibaren yeniden %20 uygulanıyor." },
+    { soru: "Net 40.000 anlaştık, stopaj ne kadar?",
+      cevap: "Brüt 50.000 ₺, stopaj 10.000 ₺'dir. Netin %20'sini almak (8.000 ₺) yaygın bir hatadır; doğru hesap net ÷ 0,80 ile brütü bulup aradaki farkı almaktır." },
+    { soru: "Stopaj kesiliyorsa beyanname verir miyim?",
+      cevap: "2026 gelirleri için yıllık brüt işyeri kiranız 400.000 ₺'yi aşarsa evet. Aşmazsa kesilen stopaj nihai vergi olur ve beyan gerekmez." },
+    { soru: "Sınır aşılırsa sadece aşan kısım mı beyan edilir?",
+      cevap: "Hayır. Sınır bir eşiktir, muafiyet değil: aşılırsa kira gelirinin tamamı beyan edilir. Kesilen stopaj hesaplanan vergiden mahsup edilir." },
+    { soru: "Kiracım stopaj kesmiyorsa ne olur?",
+      cevap: "Kiracı tevkifat yapmakla yükümlü değilse (örneğin basit usule tabiyse) stopaj kesilmez ve beyan sınırı 400.000 değil 22.000 ₺ olur (GVK md.86/1-d)." },
+    { soru: "KDV stopajı etkiler mi?",
+      cevap: "Hayır. Stopaj KDV hariç kira bedeli üzerinden hesaplanır; KDV ayrı bir yükümlülüktür." },
+    { soru: "Konut kiram için de geçerli mi?",
+      cevap: "Hayır. Konut kirasında stopaj yoktur; yıllık beyan ve mesken istisnası vardır. Onun için Kira Geliri Vergisi aracını kullanın." }
+]);
+
+ilgiliAraclar("kira-stopaji-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>

@@ -2397,3 +2397,103 @@ function mtv(g) {
         tarifeYil: MTV_TARIFE.yil
     };
 }
+
+
+// ================= İŞYERİ KİRA STOPAJI =================
+// Kaynak: 193 sayılı Gelir Vergisi Kanunu md.94/5-a (tevkifat),
+//         md.86/1-c ve 86/1-d (beyan sınırları).
+// Oran 2026: %20. Kovid döneminde geçici olarak %10'a indirilmiş,
+//         2022 vergilendirme döneminden itibaren yeniden %20'dir;
+//         2026 için yürürlükte yeni bir indirim kararı yoktur.
+// Beyan sınırları 2026 takvim yılı GELİRLERİ için:
+//         tevkifatlı GMSİ 400.000 ₺ · tevkifatsız GMSİ 22.000 ₺.
+// Doğrulama: iki bağımsız kaynak aynı rakamları verdi; ayrıca
+//         konut istisnası (58.000 ₺) bizim KIRA_VERGI bloğumuzdaki
+//         değerle de birebir tuttu — üç yönlü uyuşma.
+//
+// NE DEĞİL: Bu araç KONUT kirası beyanı yapmaz (o iş
+//         `kiraGeliriVergisi`de). Burada kiracısı VERGİ MÜKELLEFİ olan
+//         işyeri kirası var: kirayı ödeyen taraf stopajı keser ve
+//         vergi dairesine yatırır.
+const KIRA_STOPAJ = {
+    yil: 2026,
+    oran: 0.20,                  // GVK 94/5-a
+    beyanSiniriTevkifatli: 400000,   // GVK 86/1-c
+    beyanSiniriTevkifatsiz: 22000,   // GVK 86/1-d
+    kdvOran: 0.20,
+    kaynak: "193 sayılı GVK md.94/5-a, md.86/1-c ve 86/1-d",
+    guncelleme: "2026-01-01"
+};
+
+/* İşyeri kira stopajı.
+   g: { tutar, tutarTipi:"brut"|"net", ayAdedi, stopajVar, kdvVar, yil }
+
+   BRÜT-NET YÖNÜ EN SIK YAPILAN HATA: taraflar çoğu zaman "elime şu
+   kadar geçsin" diye NET konuşur. Net 40.000 ₺ demek, brüt
+   40.000 / 0,80 = 50.000 ₺ demektir; stopaj 10.000 ₺'dir.
+   "Brütün %20'si" ile "netin %20'si" birbirinden 2.000 ₺ farklıdır
+   ve ikisi de makul görünür — tam olarak sessiz yanlış sayı.
+   Bu yüzden her iki yön de ayrı ayrı hesaplanıp ekranda gösterilir. */
+function kiraStopaji(g) {
+    const tutar = Number(g.tutar);
+    const ay = Number(g.ayAdedi);
+    const stopajVar = g.stopajVar !== false;
+    const oran = KIRA_STOPAJ.oran;
+
+    if (!Number.isFinite(tutar) || tutar <= 0) return { hata: "tutarYok" };
+    if (!Number.isFinite(ay) || ay <= 0 || ay > 12) return { hata: "ayYok" };
+
+    let aylikBrut, aylikNet, aylikStopaj;
+    if (!stopajVar) {
+        /* Kiracı tevkifat yapmakla YÜKÜMLÜ DEĞİLSE (örneğin basit
+           usule tabiyse) stopaj kesilmez; brüt ile net aynıdır. */
+        aylikBrut = tutar;
+        aylikNet = tutar;
+        aylikStopaj = 0;
+    } else if (g.tutarTipi === "net") {
+        aylikNet = tutar;
+        aylikBrut = tutar / (1 - oran);
+        aylikStopaj = aylikBrut - aylikNet;
+    } else {
+        aylikBrut = tutar;
+        aylikStopaj = tutar * oran;
+        aylikNet = tutar - aylikStopaj;
+    }
+
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    aylikBrut = yuvarla(aylikBrut);
+    aylikNet = yuvarla(aylikNet);
+    aylikStopaj = yuvarla(aylikStopaj);
+
+    const yillikBrut = yuvarla(aylikBrut * ay);
+    const yillikStopaj = yuvarla(aylikStopaj * ay);
+    const yillikNet = yuvarla(aylikNet * ay);
+
+    /* KDV işyeri kirasında AYRI bir konudur ve stopaj matrahına
+       girmez: stopaj KDV hariç bedel üzerinden hesaplanır. */
+    const kdv = g.kdvVar === true ? yuvarla(aylikBrut * KIRA_STOPAJ.kdvOran) : 0;
+
+    /* BEYAN SINIRI BİR EŞİKTİR, MUAFİYET DEĞİL: aşılırsa kira
+       gelirinin TAMAMI beyan edilir, sadece aşan kısım değil.
+       Kesilen stopaj beyannamede mahsup edilir. */
+    const sinir = stopajVar ? KIRA_STOPAJ.beyanSiniriTevkifatli
+                            : KIRA_STOPAJ.beyanSiniriTevkifatsiz;
+    const beyanGerekli = yillikBrut > sinir;
+
+    return {
+        aylikBrut: aylikBrut, aylikNet: aylikNet, aylikStopaj: aylikStopaj,
+        yillikBrut: yillikBrut, yillikNet: yillikNet, yillikStopaj: yillikStopaj,
+        aylikKdv: kdv,
+        aylikKiraciOdemesi: yuvarla(aylikNet + kdv),
+        oran: oran,
+        stopajVar: stopajVar,
+        beyanSiniri: sinir,
+        beyanGerekli: beyanGerekli,
+        sinirinAltindaKalan: yuvarla(Math.max(0, sinir - yillikBrut)),
+        /* Yanlis yonun ne kadar tuttugu -- ekranda uyari icin. */
+        yanlisYonFarki: stopajVar ? yuvarla(Math.abs(
+            (g.tutarTipi === "net" ? tutar * oran : tutar / (1 - oran) - tutar) - aylikStopaj)) : 0,
+        kaynak: KIRA_STOPAJ.kaynak,
+        yil: KIRA_STOPAJ.yil
+    };
+}
