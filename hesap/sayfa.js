@@ -158,6 +158,20 @@ function ayarYaz(a) {
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
     {
+        surum: 68,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yavaş bağlantıda çıkan “sayfa yüklenemedi” uyarısı, sayfa " +
+              "düzelir düzelmez kalkıyor.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Bağlantı yavaşsa sayfa “bu sayfa tam yüklenemedi” uyarısı " +
+            "veriyor. Betikler sonradan gelince uyarı kalkıyordu ama " +
+            "<b>birkaç yüz milisaniye geç kalkıyordu</b>: kısa bir an için " +
+            "“hiçbir sayıya güvenmeyin” yazısı <b>doğru sayının üstünde</b> " +
+            "duruyordu. Artık hesap biter bitmez kalkıyor.",
+        ],
+    },
+    {
         surum: 67,
         tarih: "28 Ağustos 2026",
         ozet: "Kopyalama ya da paylaşma engellendiğinde artık sessizce " +

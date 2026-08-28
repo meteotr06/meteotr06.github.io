@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Doğum İzni Hesaplama 2026 — 24 Hafta (Yeni Düzenleme)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/dogum-izni-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=68" />
+<link rel="stylesheet" href="stil.css?v=69" />
 </head>
 <body>
 
@@ -143,8 +143,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=68"></script>
-<script src="sayfa.js?v=68"></script>
+<script src="hesap.js?v=69"></script>
+<script src="sayfa.js?v=69"></script>
 <script>
 iskeletKur("dogum-izni-hesaplama.html");
 gizlilikBaglantisi();
@@ -328,10 +328,36 @@ reklamAlani();
         };
         document.body.insertBefore(not, document.body.firstChild);
     }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
     var saat = setInterval(function () {
         if (canliMi()) {
             clearInterval(saat);
-            if (not) { not.parentNode.removeChild(not); not = null; }
+            kaldir();
             return;
         }
         if (Date.now() >= bitis) uyariyiKur();
