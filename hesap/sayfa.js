@@ -85,12 +85,45 @@ function ayarOku() {
    diger sekmelere `storage` olayi gonderip bosuna "baska sekmede
    degisti" uyarisi cikarabilir. Gercekten degisen bir sey yoksa
    dokunmuyoruz. */
+/* YUTULAN HATA DA BIR KAYIPTIR.
+   `try/catch` cokmeyi onluyor ama basarisiz yazmayi da SESSIZCE yutuyordu.
+   Olculdu (28 Agustos 2026, test-depolama.html): kota doluyken kullanici
+   butcesini giriyor, uygulama sorunsuz gorunuyor, HICBIR SEY kaydedilmiyor
+   ve hicbir sey soylenmiyor. Kullanici bunu ancak geri dondugunde anlar --
+   o da "ben girmemis miyim?" diye kendinden suphelenir.
+   Cokmeyen hata, cokenden sinsidir.
+
+   Uyari CUKURUN AGZINDA veriliyor: tek tek cagiranlar degil, yazmanin
+   kendisi. Boylece bundan sonra eklenecek her kayit da korunuyor. */
+let depoUyarisiVerildi = false;
+function depoyaYazilamadi() {
+    if (depoUyarisiVerildi) return;
+    depoUyarisiVerildi = true;
+    const ana = document.querySelector("main");
+    if (!ana || document.getElementById("depoUyarisi")) return;
+    const n = document.createElement("div");
+    n.id = "depoUyarisi";
+    n.className = "kutu uyari-kutu";
+    n.setAttribute("role", "alert");
+    n.innerHTML = "<p><b>Bu tarayıcıda kayıt yapılamıyor.</b> Girdikleriniz " +
+        "bu sayfadan ayrıldığınızda kaybolur — hesap sonuçları doğru, " +
+        "yalnızca saklanmıyor.</p>" +
+        '<p class="kucuk">Sebebi genelde gizli/özel pencere ya da tarayıcı ' +
+        "deposunun dolu olmasıdır. Sonucu kaybetmemek için " +
+        "<b>bağlantıyı kopyalayın</b> ya da ekran görüntüsü alın.</p>";
+    ana.insertBefore(n, ana.firstChild);
+}
+
 function ayarYaz(a) {
     try {
         const yeni = JSON.stringify(a);
-        if (localStorage.getItem(KAYIT) === yeni) return;
+        if (localStorage.getItem(KAYIT) === yeni) return true;
         localStorage.setItem(KAYIT, yeni);
-    } catch (e) { }
+        return true;
+    } catch (e) {
+        depoyaYazilamadi();
+        return false;
+    }
 }
 
 
