@@ -158,6 +158,20 @@ function ayarYaz(a) {
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
     {
+        surum: 66,
+        tarih: "28 Ağustos 2026",
+        ozet: "Akşamdan açık bırakılan sayfa, sabah bakıldığında dünkü " +
+              "güne göre hesaplanmış sayıyı gösteriyordu; düzeltildi.",
+        hesapDuzeltmesi: true,
+        maddeler: [
+            "“Bugün”e bağlı hesaplar (gebelik haftası, doğuma kalan gün) " +
+            "sayfa açık kaldığı sürece yeniden hesaplanmıyordu. Sayfayı " +
+            "gece açık bırakıp sabah bakan biri, <b>bir gün eski</b> bir " +
+            "sayı görüyor ve bunu anlamanın hiçbir yolu olmuyordu. " +
+            "Artık sekmeye her dönüşünde gün değiştiyse hesap tazeleniyor.",
+        ],
+    },
+    {
         /* Sayi yayin damgasiyla AYNI OLMAK ZORUNDA DEGIL; yalnizca
            bir oncekinden buyuk olmasi yeter (bkz. yukaridaki not). */
         surum: 65,
@@ -585,13 +599,42 @@ function dinle(idler, isle) {
             }
         }
     };
+    /* Gun damgasi: her hesapta tazeleniyor (asagidaki gun donumu icin). */
+    let sonHesapGunu = new Date().toDateString();
+    const hesapla = () => { sonHesapGunu = new Date().toDateString(); sarmal(); };
+
     idler.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        el.addEventListener("input", sarmal);
-        el.addEventListener("change", sarmal);
+        el.addEventListener("input", hesapla);
+        el.addEventListener("change", hesapla);
     });
-    sarmal();
+    hesapla();
+
+    /* GUN DONUNCE EKRANDAKI SAYI BAYATLIYOR.
+       Bircok arac "bugun"e bagli: gebelik haftasi, doguma kalan gun,
+       calisma suresi. Kullanici sayfayi aksam acip birakirsa, sabah
+       DUNKU "bugune" gore hesaplanmis bir sayiya bakiyor -- ve bunu
+       anlamasinin hicbir yolu yok.
+
+       Olculdu (28.08.2026, saat sahtelenerek): 23:59'da acilan sayfa
+       00:01'de hala "doguma kalan 160 gun" gosteriyordu; dogrusu 159.
+       Dokununca duzeliyordu, ama dokunmak gerekiyordu.
+
+       Cozum: gun degistiyse yeniden hesapla. Iki tetik -- sekmeye geri
+       donuldugunde ve sayfa geri/ileri onbelleginden geldiginde.
+       ZAMANLAYICI KULLANILMIYOR: arka plandaki sekmede zaten kisilir ve
+       pil harcar. Kullanicinin BAKMADIGI ekranin tazeligi onemli degil;
+       BAKTIGI anin tazeligi onemli. */
+    const gunDegistiyseTazele = () => {
+        if (new Date().toDateString() === sonHesapGunu) return;
+        hesapla();
+    };
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) gunDegistiyseTazele();
+    });
+    window.addEventListener("pageshow", gunDegistiyseTazele);
+    window.addEventListener("focus", gunDegistiyseTazele);
 }
 
 // NEDEN type="number" KULLANMIYORUZ (ölçüldü, 26 Ağustos 2026):
