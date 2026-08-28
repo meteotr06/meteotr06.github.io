@@ -296,6 +296,13 @@ function ekrani_kur() {
 
         var sel = document.createElement('select');
         sel.id = a.id;
+        /* Etiketin ICINDE once "?" dugmesi var. HTML kuralina gore bir
+           <label> ICINDEKI ILK adlandirilabilir ogeyi adlandirir -- ve
+           <button> adlandirilabilir. Yani etiket dugmeyi adlandiriyor,
+           alani DEGIL: ekran okuyucu alanda "adsiz" diyor.
+           Olculdu (28.08.2026, tarayicida): labels.length = 0.
+           `for` yazmak bu sirayi ezer. */
+        lab.htmlFor = a.id;
         bos_secenekli(sel);
 
         if (a.duzeltme) {
