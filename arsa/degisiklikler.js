@@ -26,6 +26,26 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 42,
+        tarih: '28 Ağustos 2026',
+        ozet: 'Yarım kalan parseliniz artık kayboluyor değil: sayfa ' +
+              'yenilenirse girdiğiniz alanlar geri geliyor.',
+        /* Katsayı değişmedi; bu bir veri kaybı düzeltmesi. */
+        hesapDuzeltmesi: false,
+        maddeler: [
+            'Formu doldururken sayfa yenilenirse (telefonda bellek ' +
+                'baskısıyla bu kendiliğinden olabiliyor) girdiğiniz her ' +
+                'şey siliniyordu ve uyarı da yoktu. Artık taslak ' +
+                '<b>bu cihazda</b> saklanıyor ve geri yükleniyor.',
+            'Geri yükleyince <b>ne zaman girildiğini</b> de yazıyoruz. ' +
+                'Sessizce dönen eski bir parsel, silinmesinden daha ' +
+                'kötü olurdu: bugünkü arsayı hesapladığınızı ' +
+                'sanabilirdiniz. Tek düğmeyle temizlenebiliyor.',
+            'Taslak da defteriniz gibi <b>yalnızca cihazınızda</b> kalır; ' +
+                'hiçbir yere gönderilmez.',
+        ],
+    },
+    {
         surum: 41,
         tarih: '28 Ağustos 2026',
         ozet: 'İki yerde belirsizliği açıkça yazdık: yola cephesi olmayan ' +

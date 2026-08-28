@@ -23,6 +23,10 @@ var TEMA_ANAHTAR = 'arsa-rehberi-tema';
    saniyede bir siliniyor, serit her acilista geri geliyordu.
    Burada oyle bir toplu kayit yok ama eklenirse diye ayri. */
 var GORULEN_ANAHTAR = 'arsa-rehberi-gorulen';
+/* Yarim kalan formun taslagi. AYRI anahtar: defter ve tema
+   nesnelerine hic dokunmuyor, o yuzden onlari yeniden kuran bir
+   kayit islevi bunu silemez. */
+var TASLAK_ANAHTAR = 'arsa-rehberi-taslak';
 
 function $(id) { return document.getElementById(id); }
 function el(etiket, sinif, metin) {
@@ -1222,6 +1226,8 @@ function baglantilari_kur() {
         i.addEventListener('input', kapsam_guncelle);
         i.addEventListener('change', kapsam_guncelle);
         i.addEventListener('input', girdileri_denetle);
+        i.addEventListener('input', taslak_kaydet);
+        i.addEventListener('change', taslak_kaydet);
         i.addEventListener('blur', girdileri_denetle);
     });
 
@@ -1396,8 +1402,7 @@ function yenilik_goster() {
     for (var i = 0; i < DEGISIKLIKLER.length; i++) {
         if (DEGISIKLIKLER[i].surum > onceki) yeniler.push(DEGISIKLIKLER[i]);
     }
-    gorulen_yaz(damga);
-    if (!yeniler.length) return;
+    if (!yeniler.length) { gorulen_yaz(damga); return; }
 
     var kayit = yeniler[0];
     var not = document.getElementById('yenilikNotu');
@@ -1409,7 +1414,27 @@ function yenilik_goster() {
         govde += ' Daha önce sonuç aldıysanız, sonucunuzu bir kez daha alın.';
     }
     metin.textContent = govde;
-    not.hidden = false;
+
+    /* İKİ BİLDİRİM ÜST ÜSTE BİNMESİN.
+       `taslakNotu` — "yarım kalan parseliniz geri yüklendi" — daha
+       acil: kullanıcının emeği söz konusu ve yanlış parseli hesaplama
+       riski var. O çıkıyorsa yenilik bir sonraki açılışa kalır.
+
+       Bir tik erteliyoruz çünkü `taslak_yukle()` bu işlevden SONRA
+       koşuyor; şimdi baksak kutu daha DOM'da olmaz ve kural hiç
+       işlemezdi. Anahtar adına değil kutuya bakıyoruz: soru
+       "taslak GÖRÜNÜYOR mu", "kayıtlı taslak var mı" değil. */
+    setTimeout(function () {
+        var taslak = document.getElementById('taslakNotu');
+        if (taslak && !taslak.hidden) return;   // işaretlemeden çık
+
+        not.hidden = false;
+        /* İşaret ANCAK gösterdikten sonra yazılıyor. Göstermeden önce
+           yazsaydık, ertelenen açılışta kullanıcı değişiklikleri HİÇ
+           görmeyecekti — bugün üç kez çıkan "sessizce hiç görünmeyen
+           bildirim" sınıfının aynısı. */
+        gorulen_yaz(damga);
+    }, 0);
 
     var kapat = document.getElementById('yenilikKapat');
     if (kapat) {
@@ -1426,6 +1451,84 @@ function gorulen_yaz(s) {
     try { localStorage.setItem(GORULEN_ANAHTAR, String(s)); } catch (e) {}
 }
 
+/* ---- YARIM KALAN FORMU KORU -------------------------------------
+   Olculdu (28 Agustos 2026, gercek kullanim turu, 375x812):
+   9 alan + 4 kutucuk dolduruldu, sayfa YENILENDI, hepsi gitti.
+   Uyari da yoktu. Telefonda form 5 bolum / ~20 alan; uygulama
+   degisimi ya da bellek baskisiyla gelen bir yenileme butun emegi
+   siliyordu. Defter kaydi duruyordu -- yani uygulama saklayabiliyor,
+   calisma formunu saklamiyordu.
+
+   ALAN LISTESI ELLE TUTULMUYOR: butun input/select ogeleri geziliyor.
+   Elle liste tutmak, ikinci bir liste demektir ve iki liste er gec
+   ayrisir (bugun uc ayri yerde bunu gorduk).
+
+   GERI YUKLERKEN TARIH DE YAZILIYOR. Sessizce geri gelen uc gunluk
+   bir form, kullaniciya BUGUNKU parseli hesapladigini dusundurur --
+   bu, silmekten daha kotudur. */
+function taslak_alanlari() {
+    return Array.prototype.slice.call(
+        document.querySelectorAll('#sParsel input[id], #sParsel select[id]'));
+}
+
+function taslak_kaydet() {
+    try {
+        var v = {};
+        taslak_alanlari().forEach(function (e) {
+            if (e.type === 'checkbox') { if (e.checked) v[e.id] = true; }
+            else if (e.value !== '') v[e.id] = e.value;
+        });
+        if (!Object.keys(v).length) { localStorage.removeItem(TASLAK_ANAHTAR); return; }
+        localStorage.setItem(TASLAK_ANAHTAR, JSON.stringify({ t: Date.now(), v: v }));
+    } catch (e) {}
+}
+
+function taslak_sil() {
+    try { localStorage.removeItem(TASLAK_ANAHTAR); } catch (e) {}
+    taslak_alanlari().forEach(function (e) {
+        if (e.type === 'checkbox') e.checked = false; else e.value = '';
+    });
+    var n = document.getElementById('taslakNotu');
+    if (n) n.remove();
+    kapsam_guncelle();
+}
+
+function taslak_yukle() {
+    var kayit;
+    try { kayit = JSON.parse(localStorage.getItem(TASLAK_ANAHTAR) || 'null'); }
+    catch (e) { return; }
+    if (!kayit || !kayit.v) return;
+    var n = 0;
+    Object.keys(kayit.v).forEach(function (id) {
+        var e = document.getElementById(id);
+        if (!e) return;
+        if (e.type === 'checkbox') e.checked = !!kayit.v[id];
+        else e.value = kayit.v[id];
+        n++;
+    });
+    if (!n) return;
+    kapsam_guncelle();
+
+    var tarih = new Date(kayit.t);
+    var gun = tarih.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+    var saat = tarih.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    var gecen = Math.floor((Date.now() - kayit.t) / 86400000);
+    var ne = gecen === 0 ? ('bugün ' + saat) : (gecen === 1 ? ('dün ' + saat) : (gun));
+
+    var kutu = document.createElement('div');
+    kutu.id = 'taslakNotu';
+    kutu.className = 'kutu uyari-kutu';
+    kutu.innerHTML = '<p><b>Yarım kalan parseliniz geri yüklendi</b> — ' +
+        n + ' alan, <b>' + ne + '</b> girilmiş. Bu <b>eski</b> bir parsel ' +
+        'olabilir; yeni bir arsaya bakıyorsanız önce temizleyin.</p>' +
+        '<p><button type="button" class="ikincil" id="taslakSilBtn">' +
+        'Temizle ve sıfırdan başla</button></p>';
+    var hedef = document.getElementById('sParsel');
+    if (hedef) hedef.insertBefore(kutu, hedef.firstChild);
+    var d = document.getElementById('taslakSilBtn');
+    if (d) d.onclick = taslak_sil;
+}
+
 function baslat() {
     try {
         var t = localStorage.getItem(TEMA_ANAHTAR);
@@ -1435,6 +1538,7 @@ function baslat() {
     ekrani_kur();
     baglantilari_kur();
     yenilik_goster();
+    taslak_yukle();          /* f2'nin sirasi korunuyor: yenilikten SONRA */
     kapsam_guncelle();
     defter_ciz();
 
