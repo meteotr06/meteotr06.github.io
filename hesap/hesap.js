@@ -3114,3 +3114,82 @@ function aracSatisNoter(g) {
         kaynak: NOTER.kaynak
     };
 }
+
+
+// ================= TRAFİK CEZASI: İNDİRİM, GECİKME, İTİRAZ =========
+// Kaynak: 2918 sayılı Karayolları Trafik Kanunu md.115 (%25 indirim),
+//         Kabahatler Kanunu md.17/6 (peşin ödeme itiraz hakkını
+//         etkilemez), 6183 sayılı Kanun md.51 (gecikme zammı).
+//
+// TABLO BILEREK YOK. 7574 sayili Kanun (RG 27.02.2026, sayi 33181)
+// 2918'de 36 maddelik bir reform yapti: kademeli ceza sistemi,
+// ehliyete el koyma, artirimli tekrar. Piyasadaki "2026 ceza listesi"
+// sayfalarinin bir kismi Ocak (yalnizca yeniden degerleme), bir kismi
+// Subat sonrasi. Boyle bir tabloyu kopyalamak, bu oturumda
+// kacindigimiz her seyin toplami olurdu.
+// Onun yerine: kullanicinin ZATEN BILDIGI sayiyi (tebligattaki tutar)
+// alip, BILMEDIGI seyi hesapliyoruz -- indirim, sure, gecikme yuku ve
+// itirazla iliskisi.
+//
+// SURE 15 GUN DEGIL, 1 AY. Ilk aramada "15 gun icinde %25" cikti;
+// 31.01.2024 tarihli yonetmelik degisikligi ile sure BIR AYA
+// cikarilmis. Eski bilgiyle yazsaydim, bir ay icinde odeyecek
+// kullaniciya "indirimi kacirdin" derdik.
+const TRAFIK = {
+    indirimOran: 0.25,
+    indirimAy: 1,
+    kaynak: "2918 s. Kanun md.115 · Kabahatler Kanunu md.17/6 · 6183 s. Kanun md.51",
+    guncelleme: "2026-01-01"
+};
+
+/* g: { tutar, tebligTarihi, odemeTarihi } */
+function trafikCezasi(g) {
+    const tutar = Number(g.tutar);
+    if (!Number.isFinite(tutar) || tutar <= 0) return { hata: "tutarYok" };
+
+    const teblig = tarihOku(g.tebligTarihi);
+    const odeme = tarihOku(g.odemeTarihi);
+    if (!teblig || !odeme || isNaN(teblig.getTime()) || isNaN(odeme.getTime()))
+        return { hata: "tarihYok" };
+    if (odeme < teblig) return { hata: "tersTarih" };
+
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    const sonGun = ayEkle(teblig, TRAFIK.indirimAy);
+    const indirimliMi = odeme <= sonGun;
+
+    const indirimTutari = yuvarla(tutar * TRAFIK.indirimOran);
+    const indirimliTutar = yuvarla(tutar - indirimTutari);
+
+    /* GECIKME: odeme suresi (1 ay) dolduktan SONRA isler.
+       Ayni oran ve ayni gun sayimi -- gecikme zammi motorunu
+       yeniden yazmiyoruz, cagiriyoruz. Iki yerde yasayan tek
+       gercek olmasin. */
+    let gecikme = null, gecikmeZam = 0;
+    if (!indirimliMi) {
+        gecikme = gecikmeZammi({
+            anaPara: tutar,
+            vadeTarihi: sonGun,
+            odemeTarihi: odeme,
+            tur: "zam"
+        });
+        if (gecikme && !gecikme.hata) gecikmeZam = gecikme.zam;
+    }
+
+    const odenecek = indirimliMi ? indirimliTutar : yuvarla(tutar + gecikmeZam);
+
+    return {
+        tutar: tutar,
+        sonIndirimGunu: sonGun,
+        indirimliMi: indirimliMi,
+        indirimTutari: indirimTutari,
+        indirimliTutar: indirimliTutar,
+        kaybedilenIndirim: indirimliMi ? 0 : indirimTutari,
+        gecikmeZam: gecikmeZam,
+        gecikmeKapsamDisi: !!(gecikme && gecikme.hata === "kapsamDisi"),
+        gecikmeGun: gecikme && !gecikme.hata ? gecikme.toplamGun : 0,
+        odenecek: odenecek,
+        /* Erken odemek yerine gec odemenin toplam bedeli. */
+        toplamFark: yuvarla(odenecek - indirimliTutar),
+        kaynak: TRAFIK.kaynak
+    };
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Trafik Cezası İndirimi 2026 — Erken Ödesem Ne Kadar?</title>
+<meta name="description" content="Trafik cezası erken ödeme indirimi 2026: 1 ay içinde %25 indirim, geciktiğinizde kaybedilen indirim ve gecikme zammı. Erken ödemek itiraz hakkını kaybettirmez." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/trafik-cezasi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Trafik Cezası İndirimi 2026 — Erken Ödesem Ne Kadar?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/trafik-cezasi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/trafik-cezasi-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Trafik Cezası İndirimi 2026 — Erken Ödesem Ne Kadar?" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/trafik-cezasi-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=81" />
+</head>
+<body>
+
+<main>
+    <h1>Trafik Cezası İndirim Hesaplama</h1>
+    <p class="ozet">Tebliğden itibaren <b>1 ay içinde</b> ödersen <b>%25 indirim</b>. Bir gün geç kalmak, indirimi <b>tamamen</b> kaybettiriyor.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">2918 <b>md.115</b></span><span class="etiket-rozet">İndirim <b>%25</b></span><span class="etiket-rozet">Süre <b>1 ay</b></span><span class="etiket-rozet">2026</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Ceza tutarı (tebligatta yazan, TL)
+                    <input id="tutar" type="text" inputmode="decimal" value="10000" />
+                </label>
+                <label>Tebliğ tarihi
+                    <input id="teblig" type="date" value="2026-08-01" />
+                </label>
+                <label>Ödeme tarihi
+                    <input id="odeme" type="date" value="2026-08-20" />
+                </label>
+            </div>
+            <p class="kucuk"><b>Ceza listesi vermiyoruz — bilerek.</b> 7574 sayılı Kanun
+            (27.02.2026) 2918'de 36 maddelik bir reform yaptı: kademeli ceza sistemi,
+            ehliyete el koyma, artırımlı tekrar. İnternetteki “2026 ceza listesi”
+            sayfalarının bir kısmı Ocak, bir kısmı Şubat sonrası. <b>Tutarı
+            tebligatınızdan yazın</b>; biz onun üzerinden hesaplarız.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>İndirim: %25, ve süresi 1 ay</h2>
+        <p>2918 sayılı Kanun md.115'e göre, tebliğ tarihinden itibaren <b>bir ay içinde</b>
+        ödenen idari para cezalarında <b>dörtte bir indirim</b> uygulanır. Bu süre
+        <b>31 Ocak 2024</b>'ten beri bir aydır; daha önce 15 gündü ve internetteki birçok
+        sayfa hâlâ eski süreyi yazıyor.</p>
+
+        <h2>Bir gün geç kalmanın bedeli</h2>
+        <p>İndirim <b>kısmi değildir</b>: süre dolduğu anda tamamen kalkar. 10.000 ₺'lik bir
+        cezada bir gün gecikmek <b>2.500 ₺ indirimi</b> kaybettirir; üstüne gecikme zammı
+        da işlemeye başlar. Yani “yarın öderim”, birkaç bin liralık bir karardır.</p>
+
+        <h2>Erken ödemek itiraz hakkını kaybettirmez</h2>
+        <p>En yaygın yanlış inanç bu. <b>Kabahatler Kanunu md.17/6</b>'ya göre peşin ödeme,
+        kanun yoluna başvurma hakkını <b>etkilemez</b>. Yani indirimli ödeyip aynı zamanda
+        itiraz edebilirsiniz; itirazınız kabul edilirse ödediğiniz tutar <b>iade edilir</b>.</p>
+        <p>“İtiraz edeceğim, o yüzden ödemeyeyim” demek, itiraz reddedilirse indirimi de
+        kaybetmek demektir. İki hakkı birden kullanmak mümkün.</p>
+
+        <h2>Süre geçince ne oluyor?</h2>
+        <p>İndirim kalkar ve cezanın tamamı istenir; ayrıca <b>gecikme zammı</b> işler
+        (6183 sayılı Kanun md.51, aylık %3,7). Bu araç gecikme zammını da hesaplar —
+        ayrıntısı için <a href="gecikme-zammi-hesaplama.html">Gecikme Zammı</a> aracına
+        bakabilirsiniz.</p>
+
+        <h2>Bu araç neyi kapsamıyor</h2>
+        <p><b>Ceza tutarını belirlemez</b> — hangi ihlalin kaç lira olduğunu söylemiyoruz;
+        tutarı tebligatınızdan alıyoruz. Ehliyete el koyma, trafikten men, ceza puanı ve
+        artırımlı tekrar gibi <b>parasal olmayan</b> yaptırımlar da burada yoktur. Ayrıca
+        yapılandırma ve taksitlendirme hesaplanmaz.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=81"></script>
+<script src="sayfa.js?v=81"></script>
+<script>
+iskeletKur("trafik-cezasi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["tutar", "teblig", "odeme"];
+
+function hesapla() {
+    const tutar = oku("tutar");
+    const teblig = document.getElementById("teblig").value;
+    const odeme = document.getElementById("odeme").value;
+    const s = trafikCezasi({ tutar: tutar, tebligTarihi: teblig, odemeTarihi: odeme });
+
+    if (s.hata) {
+        sonucBekliyor({
+            tutarYok: "Tebligatta yazan ceza tutarını yazın.",
+            tarihYok: "Tebliğ ve ödeme tarihini seçin.",
+            tersTarih: "Ödeme tarihi, tebliğ tarihinden önce olamaz."
+        }[s.hata] || "Girdileri kontrol edin.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.odenecek)}</div>
+        <div class="dev-etiket">${s.indirimliMi ? "indirimli ödenecek tutar" : "ödenecek tutar — indirim kaçtı"}</div>
+        ${satir("Ceza tutarı", para(s.tutar))}
+        ${s.indirimliMi
+            ? satir("Kazanılan indirim (%25)", "−" + para(s.indirimTutari), "buyuk")
+            : satir("Kaybedilen indirim (%25)", para(s.kaybedilenIndirim), "buyuk")}
+        ${!s.indirimliMi && s.gecikmeZam ? satir("Gecikme zammı", para(s.gecikmeZam)) : ""}
+        ${satir("İndirimli son ödeme günü", tarihYaz(s.sonIndirimGunu))}
+        ${s.indirimliMi
+            ? `<p class="varsayim">İndirimli ödüyorsunuz. <b>Erken ödemek itiraz
+               hakkınızı kaybettirmez</b> (Kabahatler Kanunu md.17/6); itirazınız kabul
+               edilirse ödediğiniz tutar iade edilir.</p>`
+            : `<p class="varsayim"><b>İndirimli süre geçmiş.</b> Son gün
+               ${tarihYaz(s.sonIndirimGunu)} idi. Süresinde ödeseydiniz
+               <b>${para(s.indirimliTutar)}</b> ödeyecektiniz; aradaki fark
+               <b>${para(s.toplamFark)}</b>.</p>`}
+        ${s.gecikmeKapsamDisi ? `<p class="varsayim">Gecikme zammı hesaplanmadı:
+            elimizdeki oran 13.11.2025'ten itibaren geçerli, bu ceza daha eski.</p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h2 class="kutu-baslik">Bir gün geç kalırsanız</h2>
+        ${satir("Kaybedilecek indirim", para(s.indirimTutari), "buyuk")}
+        <p class="kucuk">İndirim <b>kısmi değildir</b>: süre dolduğu an tamamen kalkar,
+        üstüne gecikme zammı işlemeye başlar. “Yarın öderim” demek
+        ${para(s.indirimTutari)} demektir.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("İndirimli son ödeme günü: tebliğ + 1 ay (md.115).",
+           tarihYaz(tarihOku(teblig)) + " + 1 ay", tarihYaz(s.sonIndirimGunu));
+    if (s.indirimliMi) {
+        d.ekle("Süresinde ödendi: dörtte bir indirim.",
+               `${sayi(s.tutar, 2)} × 0,25`, "−" + para(s.indirimTutari));
+        d.ekle("Ödenecek tutar.",
+               `${sayi(s.tutar, 2)} − ${sayi(s.indirimTutari, 2)}`, para(s.odenecek));
+    } else {
+        d.ekle("Süre geçmiş: indirim uygulanmaz.", "—", para(s.tutar));
+        if (s.gecikmeZam)
+            d.ekle("Gecikme zammı (6183 md.51, aylık %3,7).",
+                   sayi(s.gecikmeGun, 0) + " gün", para(s.gecikmeZam));
+        d.ekle("Ödenecek tutar.",
+               `${sayi(s.tutar, 2)} + ${sayi(s.gecikmeZam, 2)}`, para(s.odenecek));
+    }
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Trafik Cezası"));
+yapisalVeri("Trafik Cezası İndirim Hesaplama", "Trafik cezası erken ödeme indirimi: 1 ay içinde %25, geciktiğinde kaybedilen indirim ve gecikme zammı.");
+
+sssEkle([
+    { soru: "Trafik cezasında indirim ne kadar?",
+      cevap: "Tebliğ tarihinden itibaren bir ay içinde ödenirse dörtte bir (%25) indirim uygulanır (2918 sayılı Kanun md.115)." },
+    { soru: "İndirim süresi 15 gün mü, 1 ay mı?",
+      cevap: "1 ay. Süre 31 Ocak 2024'ten beri bir aydır; daha önce 15 gündü ve birçok site hâlâ eski süreyi yazıyor." },
+    { soru: "Erken ödersem itiraz hakkımı kaybeder miyim?",
+      cevap: "Hayır. Kabahatler Kanunu md.17/6'ya göre peşin ödeme, kanun yoluna başvurma hakkını etkilemez. İtirazınız kabul edilirse ödediğiniz tutar iade edilir." },
+    { soru: "Bir gün geç ödersem ne olur?",
+      cevap: "İndirim tamamen kalkar — kısmi değildir. 10.000 ₺'lik cezada bu 2.500 ₺ demektir; üstüne gecikme zammı da işler." },
+    { soru: "Hangi ihlal kaç lira?",
+      cevap: "Bu araç ceza listesi vermiyor. 7574 sayılı Kanun 27.02.2026'da 2918'de kapsamlı bir reform yaptı ve internetteki listelerin bir kısmı eski. Tutarı tebligatınızdan alın." }
+]);
+
+ilgiliAraclar("trafik-cezasi-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>

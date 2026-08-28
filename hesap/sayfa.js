@@ -50,6 +50,7 @@ const ARACLAR = [
     { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" },
     { yol: "kiralamak-mi-satin-almak-mi.html", ad: "Kirala mı Al mı", aciklama: "Ev: dürüst karşılaştırma", grup: "Ev ve Yaşam", anahtar: "ev almak kiralamak kira mı taksit mi konut kredisi peşinat fırsat maliyeti yatırım başabaş değer artışı" },
     { yol: "elektrikli-arac-sarj-maliyeti.html", ad: "Şarj Maliyeti", aciklama: "Elektrikli araç vs benzinli", grup: "Araç", anahtar: "elektrikli araç şarj maliyeti kwh 100 km benzinli karşılaştırma ev şarjı istasyon hızlı şarj togg tesla menzil" },
+    { yol: "trafik-cezasi-hesaplama.html", ad: "Trafik Cezası", aciklama: "Erken ödeme indirimi ve geciktirmenin bedeli", grup: "Araç", anahtar: "trafik cezası indirim erken ödeme peşin yüzde 25 itiraz tebligat gecikme zammı idari para cezası 2918 115" },
     { yol: "arac-satis-noter-hesaplama.html", ad: "Araç Satış Noteri", aciklama: "Noter harcı, ücret ve toplam masraf", grup: "Araç", anahtar: "noter araç satış devir harç kasko değeri binde 2 asgari tescil yazı ücreti galerici yetki belgesi ikinci el" },
     { yol: "mtv-hesaplama.html", ad: "MTV", aciklama: "Motorlu taşıtlar vergisi ve iki taksiti", grup: "Araç", anahtar: "mtv motorlu taşıtlar vergisi araç vergisi otomobil vergi ocak temmuz taksit motor hacmi taşıt değeri yaş tarife trafik" },
     { yol: "araba-masrafi-hesaplama.html", ad: "Araba Masrafı", aciklama: "Değer kaybı dahil gerçek maliyet", grup: "Araç", anahtar: "araba masrafı araç gideri sahip olma maliyeti değer kaybı amortisman mtv kasko sigorta bakım lastik km başına otomobil" },
@@ -166,6 +167,23 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 79,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: trafik cezası indirimi — ve bir gün geç kalmanın bedeli.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Tebliğden itibaren <b>1 ay içinde</b> ödenirse <b>%25 indirim</b> " +
+            "var. Bu süre 15 gün değil; 31 Ocak 2024'ten beri bir ay ve birçok " +
+            "site hâlâ eskisini yazıyor.",
+            "İndirim <b>kısmi değildir</b>: süre dolduğu an tamamen kalkar ve " +
+            "üstüne gecikme zammı işler. 10.000 ₺'lik cezada bir gün gecikmek " +
+            "<b>2.512 ₺</b> demek.",
+            "<b>Erken ödemek itiraz hakkınızı kaybettirmez</b> (Kabahatler " +
+            "Kanunu md.17/6). En yaygın yanlış inanç bu; “itiraz edeceğim, " +
+            "ödemeyeyim” demek, itiraz reddedilirse indirimi de kaybetmek.",
+        ],
+    },
     {
         surum: 78,
         tarih: "28 Ağustos 2026",
