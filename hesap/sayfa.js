@@ -158,6 +158,21 @@ function ayarYaz(a) {
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
     {
+        /* Sayi yayin damgasiyla AYNI OLMAK ZORUNDA DEGIL; yalnizca
+           bir oncekinden buyuk olmasi yeter (bkz. yukaridaki not). */
+        surum: 65,
+        tarih: "28 Ağustos 2026",
+        ozet: "Kira artışında, aynı oran sürerse yıllar içinde ne olacağı " +
+              "artık gösteriliyor.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Kira artışı: zam oranları toplanmaz, birbirinin üstüne biner. " +
+            "%25'lik bir artış beş yılda %125 değil <b>%205</b> eder. " +
+            "Yeni tablo bunu yan yana gösteriyor — bir tahmin değil, " +
+            "“bu oran aynı kalsaydı” hesabı.",
+        ],
+    },
+    {
         surum: 61,
         tarih: "28 Ağustos 2026",
         ozet: "Doğum izni ve gebelik hesaplarında tarih, Türkiye dışındaki " +
@@ -269,7 +284,13 @@ function yenilikSeridi() {
     /* Damgaya BAKMIYORUZ. Kullanicinin en son gordugu kayittan yeni bir
        kayit var mi? Damganin kac oldugu bu sorunun cevabini degistirmez. */
     const ayar = ayarOku();
-    const gorulen = Number(ayar.gorulenSurum) || 0;
+    /* `Number(x) || 0` YAZILMAZ. Burada masum olurdu (kayit yoksa 0
+       dogru cevap) ama kalip, kullanici girdisinde hatayi gizleyen
+       kalibin ta kendisi -- "12,5" yazani sessizce 0 yapan sey. Sinama
+       kalibi dosya genelinde ariyor ve haklı: niyeti aciklamak, kalibi
+       masum bir yerde geri sokmaktan iyidir. */
+    const gorulenHam = Number(ayar.gorulenSurum);
+    const gorulen = Number.isFinite(gorulenHam) ? gorulenHam : 0;
     const yeniler = DEGISIKLIKLER.filter(function (d) { return d.surum > gorulen; });
     if (!yeniler.length) return;
 

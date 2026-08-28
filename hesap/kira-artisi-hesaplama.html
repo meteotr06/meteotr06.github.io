@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Kira Artışı Hesaplama — Yasal Üst Sınır (TÜFE Ortalaması)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kira-artisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=64" />
+<link rel="stylesheet" href="stil.css?v=65" />
 </head>
 <body>
 
@@ -96,8 +96,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=64"></script>
-<script src="sayfa.js?v=64"></script>
+<script src="hesap.js?v=65"></script>
+<script src="sayfa.js?v=65"></script>
 <script>
 iskeletKur("kira-artisi-hesaplama.html");
 gizlilikBaglantisi();
@@ -130,6 +130,28 @@ function hesapla() {
                 : `<b>Yasal sınırın içinde.</b> İstenen zam, üst sınırı aşmıyor.`}</p>` : ""}
         <p class="kucuk">Yıllık olarak cebinizden çıkacak fark:
         <b>${para(k.yillikFark)}</b>.</p>
+    </div>
+
+    <div class="kutu">
+        <h2 class="kutu-baslik">Aynı oran sürerse ne olur?</h2>
+        <p class="kucuk">Zam oranları <b>toplanmaz, birbirinin üstüne biner</b>.
+        Bu yüzden beş yıllık artış, oranın beş katı değildir.</p>
+        <div style="overflow-x:auto">
+        <table>
+            <tr><th>Süre</th><th>Kira</th><th>Toplam artış</th><th>Toplanarak sanılan</th></tr>
+            ${k.projeksiyon.map(y => `<tr>
+                <td>${y.yil} yıl sonra</td>
+                <td><b>${para(y.kira)}</b></td>
+                <td>%${sayi(y.toplamArtisYuzde, 1)}</td>
+                <td class="kucuk">%${sayi(y.dogrusalSaniliyorsa, 1)}</td>
+            </tr>`).join("")}
+        </table>
+        </div>
+        <p class="kucuk"><b>Bu bir tahmin değildir.</b> Yasal üst sınır her yıl
+        TÜİK'in 12 aylık TÜFE ortalamasına göre yeniden belirlenir; gelecek
+        yılların oranı bugünkünden farklı olacaktır. Tablo yalnızca
+        “bu oran aynı kalsaydı” sorusunun cevabıdır — bileşik etkinin
+        büyüklüğünü göstermek için.</p>
     </div>`;
 
     const d = dokumKur("Hesap nasıl yapıldı?");

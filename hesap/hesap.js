@@ -537,7 +537,29 @@ function kiraArtisi(mevcutKira, tufeOrtalama, istenenOran) {
         istenenKira: istenenKira,
         asimVar: asimVar,
         asimTutari: asimVar ? istenenKira - yasalKira : 0,
-        yillikFark: (istenenKira - mevcutKira) * 12
+        yillikFark: (istenenKira - mevcutKira) * 12,
+
+        /* BILESIK ETKI — kullanicinin kendi hesaplayamadigi kisim.
+           Yuzdeler dogrusal sanilir: "%25 zam, bes yilda %125" diye
+           dusunulur. Oysa her yil ONCEKI kiranin uzerine binilir:
+           %25 ile bes yil sonu (1,25)^5 = 3,05 kat, yani +%205.
+           Tasinmak mi kalmak mi diye dusunen kiraci icin bu fark karari
+           degistirir ve aylik rakama bakarak gorulemez.
+
+           TAHMIN DEGIL, KOSULLU HESAP: yasal oran her yil TUFE'ye gore
+           yeniden belirlenir. "Ayni oran surerse" diye sunulmali --
+           sayfa da oyle yaziyor. */
+        projeksiyon: [1, 2, 3, 5].map(function (yil) {
+            const kat = Math.pow(1 + yasalOran / 100, yil);
+            return {
+                yil: yil,
+                kira: mevcutKira * kat,
+                kat: kat,
+                toplamArtisYuzde: (kat - 1) * 100,
+                /* Dogrusal sanilan karsilik: farki gorunur kilar */
+                dogrusalSaniliyorsa: yasalOran * yil
+            };
+        })
     };
 }
 
