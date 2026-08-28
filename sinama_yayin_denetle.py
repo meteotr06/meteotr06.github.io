@@ -1,122 +1,182 @@
 # -*- coding: utf-8 -*-
-"""yayin_denetle.py NÖBET TUTUYOR MU — koruma sınaması.
+"""NOBETCIYI SINAR. `yayin_denetle.py` dogru mu bagiriyor, dogru mu susuyor?
 
-NEDEN AYRI DOSYA
-    Bir koruma, kaldırıldığında sınama düşmüyorsa süstür. Bugün bunu
-    yaşadık: bir sınama "geçti" diyordu ama 9 bozuk kutu yayındaydı —
-    sayfa açılır açılmaz tek bakış atıyor, sonradan üretilenleri görmüyordu.
+NEDEN VAR: bu arac 27.08.2026'da art arda DORT yanlis alarm verdi. Yanlis
+alarm zararsiz degildir -- alarmi sagirlastirir. Dorduncusunde arac
+susturulma esigine gelmisti; susturulmus bir nobetci, olmayan nobetciden
+kotudur, cunku bakildigi sanilir.
 
-İKİ TUZAK, ikisi de bugün yaşandı:
-    1. Nöbet sınamasının KENDİSİ yanlış kurulabilir. Bir korumayı sınarken
-       bozmayı sınamadan ÖNCE yaptım; sınama haklı olarak düşmedi ve az
-       kalsın "koruma çalışmıyor" diyecektim. Bozma, sınamanın İÇİNDE olmalı.
-    2. Sınav ESKİYEBİLİR. Nöbetçinin hükmü damgadan içeriğe taşındı ama
-       sınamalar hâlâ damgayı ölçüyordu ve "kaldı" veriyordu — kod değil,
-       sınav eskimişti. Koruma değişince sınavı da değişir.
+Duzeltmenin kendisi de olculmeden kabul edilmez. Bu dosya iki yone birden
+bakar:
+    A) DORT yanlis alarm -- artik SUSMALI
+    B) GERCEK geride kalma -- hala BAGIRMALI
 
-ÇALIŞTIRMA
-    python sinama_yayin_denetle.py
+Yalniz (A)'yi olcmek "her seye tamam de" diyen bir araci da gecirirdi.
+Susturmanin en kolay yolu koru etmektir; (B) o yolu kapatir.
+
+Kosum:  python sinama_yayin_denetle.py
 """
+import io
+import os
+import shutil
 import sys
+import tempfile
 
-sys.stdout.reconfigure(encoding="utf-8")
-import yayin_denetle as N
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import yayin_denetle as YD
 
-sonuc = []
-CR, LF = chr(13), chr(10)
-HESAP_KAYNAK = "D:" + chr(92) + "Projeler" + chr(92) + "09 Hesap Araclari"
-
-
-def kontrol(ad, kosul):
-    sonuc.append((ad, bool(kosul)))
+GECTI = FALSO = 0
 
 
-# ---------- damga okuma (artık hüküm değil, yalnızca ipucu) ----------
-kontrol("damga: ?v=40 okunuyor", N.damga('<script src="a.js?v=40">') == {"40"})
-kontrol("damga: SURUM okunuyor", N.damga('const SURUM = "hesap-v40";') == {"40"})
-kontrol("damga: tek tırnaklı SURUM da okunur (Göz Molası öyle yazıyor)",
-        N.damga("const SURUM = 'goz-molasi-v82';") == {"82"})
-kontrol("damga: ?s=v82 biçimi okunur (birinci kör noktanın kök sebebi)",
-        N.damga('<link href="stil.css?s=v82">') == {"82"})
-kontrol("damga: YORUMDAKİ damgayı saymaz (birinci yanlış alarm)",
-        N.damga("// ornekte ?s=v55 gibi bir etiket gecer") == set())
-
-# ---------- type="number" sayımı ----------
-kontrol("sayım: gerçek girdiyi sayar", N.sayi_kutusu('<input type="number">') == 1)
-kontrol("sayım: HTML yorumunu saymaz",
-        N.sayi_kutusu('<!-- eskiden type="number" idi --><input type="text">') == 0)
-kontrol("sayım: JS yorumunu saymaz",
-        N.sayi_kutusu('// type="number" bozuyordu' + LF + 'var a=1;') == 0)
-kontrol("sayım: tek tırnağı yakalar", N.sayi_kutusu("<input type='number'>") == 1)
-kontrol("sayım: boşluklu yazımı yakalar", N.sayi_kutusu('<input type = "number">') == 1)
-
-# ---------- içerik özeti: satır sonuna duyarlı OLMAMALI ----------
-kontrol("özet: CRLF ile LF aynı sayılır (üçüncü yanlış alarm sınıfı)",
-        N.ozet("a" + CR + LF + "b", "x.css") == N.ozet("a" + LF + "b", "x.css"))
-kontrol("özet: gerçek içerik farkını görür",
-        N.ozet("bir", "x.js") != N.ozet("iki", "x.js"))
-
-# ---------- NÖBET SINAMALARI: kasten boz, yakalıyor mu ----------
-gercek = N.getir
+def kur(sw_metni):
+    """Gecici klasore bir sw.js yazar, klasoru dondurur."""
+    k = tempfile.mkdtemp(prefix="nobetci_")
+    io.open(os.path.join(k, "sw.js"), "w", encoding="utf-8").write(sw_metni)
+    return k
 
 
-def icerigi_boz(adres):
-    """Canlı stil.css'e satır ekle: nöbetçi 'canlıya ulaşmamış' demeli."""
-    k, g = gercek(adres)
-    if adres.startswith(N.CANLI + "/hesap/stil.css") and isinstance(g, str):
-        g = g + LF + "/* sinama: kasten eklenmis satir */" + LF
-    return k, g
+def dene(baslik, sw, html, bekleyen_durum, bekleyen_liste=None):
+    """bekleyen_durum: 'tamam' | 'eksik' | 'olculemedi'"""
+    global GECTI, FALSO
+    k = kur(sw)
+    try:
+        c = YD.cevrimdisi_eksigi(k, None, html)
+    finally:
+        shutil.rmtree(k, ignore_errors=True)
+
+    tamam = c.get("durum") == bekleyen_durum
+    if tamam and bekleyen_liste is not None:
+        tamam = sorted(c.get("liste") or []) == sorted(bekleyen_liste)
+
+    if tamam:
+        GECTI += 1
+        print("  [GECTI] %s" % baslik)
+    else:
+        FALSO += 1
+        print("  [KALDI] %s" % baslik)
+        print("          beklenen: %s %s" % (bekleyen_durum, bekleyen_liste or ""))
+        print("          gelen   : %s" % c)
 
 
-N.getir = icerigi_boz
-satirlar = N.uygulama_denetle("Hesap Araçları", HESAP_KAYNAK, "hesap", "/hesap/", False)[0]
-N.getir = gercek
-kontrol("NÖBET: canlı içerik farklıysa yakalar",
-        any("ULAŞMAMIŞ" in x for x in satirlar))
-
-
-def bozuk_girdi_ekle(adres):
-    """Canlıya bir sayı kutusu enjekte et: nöbetçi görmeli."""
-    k, g = gercek(adres)
-    if "/muhasebe/" in adres and isinstance(g, str):
-        g = g + chr(60) + 'input type="number" id="tuzak"' + chr(62)
-    return k, g
-
-
-N.getir = bozuk_girdi_ekle
-satirlar2 = N.uygulama_denetle("Muhasebe", None, "muhasebe", "/muhasebe/", False)[0]
-N.getir = gercek
-kontrol("NÖBET: canlıya bozuk girdi girince yakalar",
-        any('type="number"' in x for x in satirlar2))
-
-
-def crlf_yap(adres):
-    """Canlıyı CRLF'e çevir. İÇERİK AYNI — nöbetçi SUSMALI.
-
-    Üçüncü yanlış-alarm sınıfı buydu: Git, Windows'ta çalışma ağacına CRLF
-    yazar, sunucuda LF durur. Ham bayt karşılaştırması her metin dosyasını
-    'farklı' gösterip 'hiçbir şey yayınlanmamış' diye rapor verecekti."""
-    k, g = gercek(adres)
-    if adres.startswith(N.CANLI + "/hesap/") and isinstance(g, str):
-        g = g.replace(LF, CR + LF)
-    return k, g
-
-
-N.getir = crlf_yap
-satirlar3 = N.uygulama_denetle("Hesap Araçları", HESAP_KAYNAK, "hesap", "/hesap/", False)[0]
-N.getir = gercek
-kontrol("NÖBET: satır sonu farkı YANLIŞ ALARM üretmez",
-        not any("ULAŞMAMIŞ" in x for x in satirlar3))
-
-# Yerelde karşılığı olmayan uygulamaya "güncel" DEMEMELİ.
-# Ölçülmemişe onay vermek, hiç ölçmemekten kötüdür.
-satirlar4 = N.uygulama_denetle("Deneme", None, None, "/goz-molasi/", False)[0]
-kontrol("NÖBET: karşılaştıramadığına 'güncel' demez",
-        not any("güncel" in x for x in satirlar4))
-
-kaldi = [a for a, k in sonuc if not k]
-for ad, k in sonuc:
-    print(("  " + N.TIK + " " if k else "  " + N.CARPI + " ") + ad)
+print(__doc__.split("Kosum:")[0].strip().split("\n")[0])
 print()
-print("%d/%d geçti" % (len(sonuc) - len(kaldi), len(sonuc)))
-sys.exit(1 if kaldi else 0)
+print("A) DORT YANLIS ALARM -- artik susmali")
+print("-" * 62)
+
+# --- 1 --- Arsa Rehberi: etiket SURUM'dan turetiliyor, adi "ETIKET".
+# Eski arac yalniz "+ DAMGA" adini cozuyordu; bunu cozemedi ve
+# "cevrimdisi listesinde YOK: arayuz.js?v=27, ..." dedi. Dosyada `?v=27`
+# METNI hic yok -- deger calisma aninda uretiliyor.
+dene("Arsa: on onbellek `+ ETIKET` ile uretiliyor",
+     'const SURUM = "arsa-v28";\n'
+     'const ETIKET = "?v=" + SURUM.replace(/^arsa-v/, "");\n'
+     'const CEKIRDEK = ["./", "./index.html", "./stil.css" + ETIKET,\n'
+     '                  "./cekirdek.js" + ETIKET, "./arayuz.js" + ETIKET];\n',
+     '<script src="cekirdek.js?v=28"></script>'
+     '<script src="arayuz.js?v=28"></script>'
+     '<link href="stil.css?v=28">',
+     "olculemedi")
+
+# --- 2 --- Ayni is, degisken adi "DAMGA". Eski arac YALNIZ bunu cozerdi.
+# Simdi ikisi de ayni cevabi almali: ada degil BICIME bakiyoruz.
+dene("09: ayni yapi, degisken adi `+ DAMGA`",
+     'const SURUM = "hesap-v42";\n'
+     'const DAMGA = "?v=42";\n'
+     'const DOSYALAR = ["./", "./sayfa.js" + DAMGA, "./hesap.js" + DAMGA];\n',
+     '<script src="hesap.js?v=42"></script><script src="sayfa.js?v=42"></script>',
+     "olculemedi")
+
+# --- 3 --- Yorumdaki ornek adres gercek kayit sanilmasin, tersi de olmasin.
+# Arac bir kez YORUM icindeki `?v=10` ornegini gercek zannedip
+# "sw.js precache v10" diye bulgu yazmisti.
+dene("Yorumdaki eski ornek adres bulgu sayilmaz",
+     '// Eskiden burada "./cekirdek.js?v=10" yaziyordu, artik yazmiyor.\n'
+     '/* ornek: "./arayuz.js?v=10" */\n'
+     'const DOSYALAR = ["./", "./cekirdek.js?v=19", "./arayuz.js?v=19"];\n',
+     '<script src="cekirdek.js?v=19"></script><script src="arayuz.js?v=19"></script>',
+     "eksik", [])
+
+# --- 4 --- Goz Molasi: ignoreSearch:true. Damgasiz kayit, damgali istegi
+# de karsilar. Bunu gormeyen arac "hepsi eksik" der; f2 oturumu bu yuzden
+# bosuna avlanmisti.
+dene("Goz Molasi: ignoreSearch damga farkini yutar",
+     'const DOSYALAR = ["./", "./stil.css", "./kod.js"];\n'
+     'caches.match(e.request, {ignoreSearch: true});\n',
+     '<link href="stil.css?v=7"><script src="kod.js?v=7"></script>',
+     "tamam")
+
+print()
+print("B) GERCEK GERIDE KALMA -- hala bagirmali")
+print("-" * 62)
+
+# --- 5 --- BUGUN CANLIDA OLAN HATA. 06 Planlayici: sayfa ?v=19 istiyor,
+# on onbellek ?v=17 sakliyordu. Farkli anahtar -> hic eslesmiyor ->
+# cevrimdisi katmani tam is gormesi gereken anda bos donuyor.
+# Bunu yakalamazsa arac ise yaramaz.
+dene("06 Planlayici: sayfa v19 istiyor, onbellek v17 sakliyor",
+     'const DOSYALAR = ["./", "./stil.css?v=17",\n'
+     '                  "./cekirdek.js?v=17", "./arayuz.js?v=17"];\n',
+     '<link href="stil.css?v=17">'
+     '<script src="cekirdek.js?v=19"></script>'
+     '<script src="arayuz.js?v=19"></script>',
+     "eksik", ["arayuz.js?v=19", "cekirdek.js?v=19"])
+
+# --- 6 --- Dosya listeye hic girmemis (damga degil, VARLIK eksik).
+dene("Yeni dosya on onbellege hic eklenmemis",
+     'const DOSYALAR = ["./", "./stil.css?v=3", "./cekirdek.js?v=3"];\n',
+     '<link href="stil.css?v=3">'
+     '<script src="cekirdek.js?v=3"></script>'
+     '<script src="grafik.js?v=3"></script>',
+     "eksik", ["grafik.js?v=3"])
+
+# --- 7 --- KORLESME TUZAGI. Liste hem birlestirme HEM elle yazilmis
+# damga tasiyorsa arac yine "olculemedi" der -- ve elle yazilmis olan
+# geride kalmissa bunu GORMEZ. Bu bilinen bir kor nokta; sinama onu
+# gizlemek yerine yaziya dokuyor. "Olculemedi" bir gecis belgesi degil,
+# tarayicida elle bakma emridir.
+dene("Karisik liste: birlestirme varsa yine olculemedi (bilinen kor nokta)",
+     'const DAMGA = "?v=9";\n'
+     'const DOSYALAR = ["./", "./stil.css?v=2", "./kod.js" + DAMGA];\n',
+     '<link href="stil.css?v=9"><script src="kod.js?v=9"></script>',
+     "olculemedi")
+
+print()
+print("D) YANLIS GUVENCE -- yerel duzeltme canliyi duzeltmez")
+print("-" * 62)
+
+# --- 8 --- EN TEHLIKELI KUSUR. Canli sw.js v17 sakliyor, canli sayfa v19
+# istiyor: YAYIN bozuk. Yereldeki sw.js'i duzeltince eski arac SUSUYORDU
+# -- yerel dosyayi canli sayfayla karsilastirdigi icin. Yani duzeltmeyi
+# yaptigin an uyari kayboluyor, yayin bozuk kaliyordu.
+# Yanlis alarm rahatsiz eder; yanlis GUVENCE aramayi durdurur.
+k_yerel = kur('const DOSYALAR = ["./", "./cekirdek.js?v=19"];\n')   # duzeltilmis
+try:
+    c = YD.cevrimdisi_eksigi(k_yerel, None,
+                             '<script src="cekirdek.js?v=19"></script>',
+                             'const DOSYALAR = ["./", "./cekirdek.js?v=17"];')  # CANLI: eski
+finally:
+    shutil.rmtree(k_yerel, ignore_errors=True)
+if c.get("durum") == "eksik" and c.get("liste") == ["cekirdek.js?v=19"]:
+    GECTI += 1
+    print("  [GECTI] Yerel duzeltilmis ama CANLI eski -> hala bagiriyor")
+else:
+    FALSO += 1
+    print("  [KALDI] Yerel duzeltilmis ama CANLI eski -> SUSTU (yanlis guvence)")
+    print("          gelen: %s" % c)
+
+print()
+print("C) DIS ADRES -- bizim degil, on onbelleklenmez")
+print("-" * 62)
+dene("Baska alan adindaki betik eksik sayilmaz",
+     'const DOSYALAR = ["./", "./kod.js?v=1"];\n',
+     '<script src="kod.js?v=1"></script>'
+     '<script src="https://pagead2.googlesyndication.com/reklam.js"></script>',
+     "eksik", [])
+
+print()
+print("=" * 62)
+print("GECTI: %d    KALDI: %d" % (GECTI, FALSO))
+if FALSO:
+    print("Nobetci hatali. Duzeltmeden yayin denetimine guvenme.")
+sys.exit(1 if FALSO else 0)

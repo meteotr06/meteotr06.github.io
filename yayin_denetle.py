@@ -133,7 +133,7 @@ def sayi_kutusu(metin):
 
 
 
-def cevrimdisi_eksigi(kaynak_klasor, depo_klasor, canli_html):
+def cevrimdisi_eksigi(kaynak_klasor, depo_klasor, canli_html, canli_sw=None):
     """Sayfanin kullandigi CSS/JS, servis calisaninin on-bellek listesinde var mi?
 
     f2 nin fikri. Kacirilmasi kolay, cunku CEVRIMICI HICBIR SEY BOZULMAZ:
@@ -148,32 +148,72 @@ def cevrimdisi_eksigi(kaynak_klasor, depo_klasor, canli_html):
     TIRNAKLAR = chr(34) + chr(39)          # duz tirnak ve tek tirnak
     Q = chr(91) + TIRNAKLAR + chr(93)      # ["']
 
-    sw = None
-    if depo_klasor is not None:
-        sw = dosya_oku(KOK, depo_klasor, "sw.js")
+    # CANLI OLAN OKUNUR, YERELDEKI DEGIL.
+    #
+    # Olculdu (27.08.2026): 06 Planlayici'nin canli sw.js'i ?v=17 sakliyor,
+    # canli sayfa ?v=19 istiyor -- cevrimdisi katmani YAYINDA bozuk. Ben
+    # yereldeki sw.js'i duzeltince bu arac SUSTU: yerel dosyayi canli
+    # sayfayla karsilastiriyordu, ikisi uyusunca "sorun yok" dedi.
+    #
+    # Bu, yanlis alarmdan tehlikelidir. Yanlis alarm rahatsiz eder;
+    # YANLIS GUVENCE ise aramayi durdurur. Ustelik tam ters yonde calisir:
+    # duzeltmeyi yaptigin an uyari kayboluyordu, yani arac en cok
+    # "duzeldi mi?" diye baktigin anda yaniltiyordu.
+    #
+    # Bu arac YAYINI denetler; olcecegi sey canli olandir. Yerel dosya
+    # ancak canliya erisilemediginde yedektir ve o zaman not dusulur.
+    sw, kaynagi = None, "canli"
+    if canli_sw:
+        sw = canli_sw
+    if not sw and depo_klasor is not None:
+        sw, kaynagi = dosya_oku(KOK, depo_klasor, "sw.js"), "depo kopyasi"
     if not sw and kaynak_klasor:
-        sw = dosya_oku(kaynak_klasor, "sw.js")
+        sw, kaynagi = dosya_oku(kaynak_klasor, "sw.js"), "yerel kaynak" 
     if not sw:
-        return []
+        return {"durum": "olculemedi", "sebep": "sw.js bulunamadi"}
 
     # ignoreSearch: TRUE ise damgasiz on-bellek kaydi, damgali istegi de
     # karsilar. Goz Molasi boyle yapiyor. Bunu gormezsek "cevrimdisi
     # listesinde YOK" diye YANLIS ALARM veririz -- f2'yi bosuna avlatirdik.
     # Yanlis alarm, gercek alarmi sagirlastirir.
     if "ignoreSearch" in sw:
-        return []
+        return {"durum": "tamam"}
 
-    # sw.js damgayi SURUM den turetiyorsa listede degisken durur; cozelim.
-    m = re.search("SURUM" + r"\s*=\s*" + Q + "([^" + TIRNAKLAR + "]+)" + Q, sw)
-    surum_damga = ("v=" + re.sub(r"^\D*v", "", m.group(1))) if m else ""
-    sw_coz = sw.replace(chr(34) + " + DAMGA", surum_damga + chr(34))
-    sw_coz = sw_coz.replace(chr(39) + " + DAMGA", surum_damga + chr(39))
+    # HESAPLANAN DEGERI "EKSIK" SANMA.
+    #
+    # Olculdu (27.08.2026): bu satirlar yalnizca "+ DAMGA" adini cozuyordu.
+    # Arsa Rehberi ayni isi "+ ETIKET" diye yaziyor; cozulemedi ve nobetci
+    # "cevrimdisi listesinde YOK" dedi. Dosyada `?v=27` METNI yoktur, o
+    # deger CALISMA ANINDA uretilir. Statik okuma bunu goremez.
+    #
+    # Ada gore cozmek kirilgan bir yamaydi: bir sonraki proje degiskene
+    # baska bir ad verse yine yanlis alarm. O yuzden artik ADA DEGIL
+    # BICIME bakiyoruz: listede herhangi bir birlestirme varsa
+    # "karsilastirilamadi" diyoruz.
+    #
+    # UCUNCU CEVAP. Olculemeyen seye ne "gecti" ne "kaldi" denir. Yanlis
+    # alarm veren nobetci bir sure sonra susturulur; dorduncusunde o esige
+    # gelinmisti.
+    liste = re.search(r"(?:DOSYALAR|CEKIRDEK|VARLIKLAR)\s*=\s*\[(.*?)\]", sw, re.S)
+    govde = liste.group(1) if liste else sw
+    if re.search(Q + r"\s*\+\s*[A-Za-z_$]", govde):
+        return {"durum": "olculemedi",
+                "sebep": "on onbellek adresleri calisma aninda uretiliyor "
+                         "(metin birlestirme); statik okumayla karsilastirilamaz. "
+                         "Tarayicida servis calisaninin onbellegine bakmak sart."}
 
     varlik = r"(?:\./)?([\w.\-]+\.(?:css|js)(?:\?[\w.=]+)?)"
-    onbellekte = set(re.findall(Q + varlik + Q, sw_coz))
+    onbellekte = set(re.findall(Q + varlik + Q, sw_coz_yok(sw)))
     istenen = set(re.findall("(?:src|href)=" + chr(34) + "(?!https?://)" + varlik + chr(34),
                              canli_html))
-    return sorted(istenen - onbellekte)
+    return {"durum": "eksik", "liste": sorted(istenen - onbellekte),
+            "kaynak": kaynagi}
+
+
+def sw_coz_yok(sw):
+    """Yorumlari atar. Yorumdaki bir ornek adres gercek kayit sanilmasin."""
+    sw = re.sub(r"/\*.*?\*/", "", sw, flags=re.S)
+    return "\n".join(s for s in sw.split("\n") if not s.strip().startswith("//"))
 
 
 
@@ -252,6 +292,10 @@ def icerik_karsilastir(kaynak_klasor, depo_klasor, yol, canli_html):
 
 def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
     bulgular = []
+    # ÜÇÜNCÜ CEVAP. Ölçülemeyen şey ne "geçti" ne "kaldı" sayılır; ayrı
+    # listede durur ve sorun sayısına eklenmez. Ölçülemeyeni sorun saymak
+    # yanlış alarm, sorun saymamak da körlük olurdu — üçüncüsü gerek.
+    notlar = []
     adres = CANLI + yol
 
     kod, govde = getir(adres)
@@ -269,11 +313,22 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
         bulgular.append('%d adet type="number" (Türkçe sayı yazımını bozar)' % kalan)
 
     # 3) Çevrimdışı listesi eksik mi?
-    eksik = cevrimdisi_eksigi(kaynak, depo, govde)
-    if eksik:
+    sw_kod, sw_govde = getir(adres.rstrip("/") + "/sw.js")
+    cd = cevrimdisi_eksigi(kaynak, depo, govde,
+                           sw_govde if sw_kod == 200 else None)
+    if sw_kod != 200 and cd.get("durum") == "eksik":
+        # Canli sw.js okunamadi; yerel kopya ile bakildi. Bu, YAYINDAKI
+        # hali degil -- "gecti" saydirmamak icin uyari degil not.
+        notlar.append("canlı sw.js okunamadı (HTTP %s); çevrimdışı listesi "
+                      "%s ile karşılaştırıldı — yayındaki hâli bu olmayabilir"
+                      % (sw_kod, cd.get("kaynak", "yerel dosya")))
+    if cd.get("durum") == "eksik" and cd.get("liste"):
         bulgular.append("çevrimdışı listesinde YOK: %s — çevrimiçi sorunsuz "
                         "çalışır, internet kesikken yarım açılır"
-                        % ", ".join(eksik[:4]))
+                        % ", ".join(cd["liste"][:4]))
+    elif cd.get("durum") == "olculemedi":
+        # SORUN DEGIL, NOT. Bulgu listesine girmez; "kaldi" saydirmaz.
+        notlar.append("çevrimdışı listesi ölçülemedi: " + cd["sebep"])
 
     # 4) ASIL HÜKÜM: kullanıcı eski dosyayı mı alıyor?
     #
@@ -286,15 +341,32 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
     # Bu, damgalama stratejisinden bağımsız ve damgasız projede de çalışır.
     farkli, bakilan = icerik_karsilastir(kaynak, depo, yol, govde)
     if farkli:
-        bulgular.append("CANLIYA ULAŞMAMIŞ: %s — yereldeki hâli farklı "
-                        "(push edildi mi? Pages yayınlaması 1-2 dk sürer)"
+        # ZAMAN TUZAGI. Bu bulgu, push'tan hemen sonra kosulursa YANLIS
+        # cikar: GitHub Pages yaymayi 1-2 dakikada yapar, arada eski
+        # icerik doner. Olculdu (28.08.2026): Goz Molasi icin uc dosya
+        # "ULASMAMIS" dendi, bir dakika sonra ucu de birebir ayniydi.
+        #
+        # Yanlis ✗, yanlis ✓ kadar zaman yakar -- o gece not "sabah o
+        # oturuma sorulmali" diye yazildi ve neredeyse zaten dogru olan
+        # dosyalar yeniden yayinlanacakti.
+        #
+        # Uyari zaten vardi ama parantez icindeydi ve okunmadi. Artik
+        # yapilacak is olarak yaziliyor: EMIR, cekince degil.
+        bulgular.append("CANLIYA ULAŞMAMIŞ: %s — yereldeki hâli farklı. "
+                        "ÖNCE 1-2 DK BEKLEYİP TEKRAR ÖLÇ: Pages yayınlamayı "
+                        "geciktirir, push yeniyse bu uyarı yanlıştır."
                         % ", ".join(farkli[:4]))
+
+    def notlari_ekle(satirlar):
+        for n in notlar:
+            satirlar.append("  %-22s   ~ %s" % ("", n))
+        return satirlar
 
     if bulgular:
         satirlar = ["  %-22s %s %s" % (ad, CARPI, bulgular[0])]
         for b in bulgular[1:]:
             satirlar.append("  %-22s   %s" % ("", b))
-        return satirlar, len(bulgular)
+        return notlari_ekle(satirlar), len(bulgular)
 
     if bakilan == 0:
         # Ölçülemeyene "güncel" denmez — üçüncü cevap şart.
@@ -302,8 +374,8 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
                 "(yerelde eşleşen dosya bulunamadı)" % ad], 0
 
     ek = "  [damga: %s]" % (sirala(damga(govde)) or "yok") if ayrinti else ""
-    return ["  %-22s %s güncel — %d dosya içerikçe doğrulandı%s"
-            % (ad, TIK, bakilan, ek)], 0
+    return notlari_ekle(["  %-22s %s güncel — %d dosya içerikçe doğrulandı%s"
+                         % (ad, TIK, bakilan, ek)]), 0
 
 
 def sirala(kume):
