@@ -83,6 +83,125 @@ function ayarYaz(a) {
     try { localStorage.setItem(KAYIT, JSON.stringify(a)); } catch (e) { }
 }
 
+
+/* ============================================================
+   NELER DEĞİŞTİ — kullanıcıya yaptığımız işi söyle (K-44)
+
+   Bugüne kadar sessizce yayınladık. Yanlış çıkan bir sayıyı
+   düzelttiğimizde, o sayıya bakarak karar vermiş kullanıcı bunu hiç
+   öğrenmedi. Düzeltmeyi yayınlamak yetmiyor; düzeltildiğini SÖYLEMEK
+   gerekiyor.
+
+   `hesapDuzeltmesi: true` olan sürümlerde şerit ayrıca
+   "sonucunuzu yeniden hesaplayın" der — çünkü o kullanıcı yanlış bir
+   rakamla karar vermiş olabilir.
+
+   Tek kaynak: hem şerit hem "neler-degisti.html" bunu okur.
+   ============================================================ */
+const DEGISIKLIKLER = [
+    {
+        /* YAYIN DAMGASIYLA AYNI OLMAK ZORUNDA.
+           Serit `sayfa.js?v=N` damgasindan okudugu sayiyi burada arar;
+           tutmazsa bildirim SESSIZCE hic cikmaz. Merkez damgayi yayin
+           aninda basiyor (K-43), o yuzden bu sayi da yayin damgasi
+           kadar olmali - su an 52. */
+        surum: 52,
+        tarih: "28 Ağustos 2026",
+        ozet: "Dört hesapta eski sonuç ekranda kalıyordu; düzeltildi.",
+        hesapDuzeltmesi: true,
+        maddeler: [
+            "Net maaş, kredi, mevduat ve KDV sayfalarında: tutarı silince " +
+            "alttaki döküm ESKİ hesabı göstermeye devam ediyordu. Artık " +
+            "birlikte temizleniyor.",
+            "Kredi: taksitlerin yarısını ödediğinizde borcunuzun yüzde " +
+            "kaçının durduğu yazıyor (24 ayda %61, 60 ayda %76).",
+            "Net maaş: maaşınızın yıl içinde NE ZAMAN düştüğü dönem dönem " +
+            "gösteriliyor.",
+            "Kıdem tazminatı: “kendi isteğinizle istifa ederseniz ödenmez” " +
+            "uyarısı artık tutarın hemen altında.",
+            "İşsizlik maaşı: 30 günlük başvuru süresi ve geciken her günün " +
+            "karşılığı sonuç kutusunda.",
+            "Doğalgaz: sayaç okuması ters girildiğinde “sayaç turlamış " +
+            "kabul edildi” varsayımı görünür hale getirildi.",
+            "Tapu harcı: harç, yazdığınız satış bedeline değil rayiç " +
+            "bedele göre hesaplanıyorsa açıkça yazıyor.",
+            "Kalori, gebelik ve kira geliri sayfalarında sağlık ve hukuk " +
+            "uyarıları okunur boyda.",
+            "Ortalama ve standart sapma: listeye yazdığınız değerlerden biri " +
+            "okunamıyorsa (yazım hatası, harf) o değer SIFIR sayılıp ortalamaya " +
+            "katılıyordu. “12 abc 15” yazan biri ortalama 9 görüyordu; doğrusu " +
+            "13,5. Artık okunamayan değer hesaba katılmıyor ve hangisi olduğu " +
+            "yazılıyor.",
+            "Sayıyı yazıyla yazma (çek ve senet): kutuya sayı olmayan bir şey " +
+            "yazıldığında ekranda “SIFIR LİRA” çıkıyordu — çeke geçirilecek " +
+            "metin. Boş kutuda da aynısı yazıyordu. Artık sayı üretilmiyor, " +
+            "sebebi yazıyor. Gerçekten 0 yazarsanız “Sıfır lira” doğru cevaptır " +
+            "ve görünmeye devam eder.",
+            "Kalori ihtiyacı: “hızlı kilo verme” hedefi, vücudunuzun hiç hareket " +
+            "etmeden harcadığı enerjinin altına inebiliyordu; bazı durumlarda " +
+            "sıfır ya da eksi çıkıyordu. Artık o hedefe sayı yazılmıyor, " +
+            "sebebi açıklanıyor.",
+            "Kirala mı satın al: yıl kutusuna aralık dışı bir sayı yazıldığında " +
+            "uygulamanın TAVSİYESİ değişiyordu — “Satın almak” yerine " +
+            "“Kiralamak” çıkabiliyordu, hiçbir uyarı olmadan. Artık aralık " +
+            "dışı değer uyarı veriyor.",
+            "Elektrikli araç şarj maliyeti: evde şarj oranına %100’den büyük " +
+            "ya da eksi bir değer yazılabiliyordu ve maliyet ona göre " +
+            "değişiyordu. Artık uyarı çıkıyor.",
+            "Vücut kitle indeksi: boyunu metre olarak yazan biri (1,75) " +
+            "“BKİ 22857” gibi anlamsız bir sonuç görüyordu. Artık girdiğiniz " +
+            "ölçü insan ölçülerine uymuyorsa söyleniyor.",
+            "Doğum izni: doğum öncesi çalışma haftasına aralık dışı bir değer " +
+            "yazıldığında sessizce yasal sınıra çekiliyordu — tarihler " +
+            "değişiyor ama bunu bilmiyordunuz. Artık hangi değerle " +
+            "hesaplandığı yazıyor.",
+            "Tarih hesaplama: çok büyük bir gün sayısı yazıldığında ekran " +
+            "donuyor ve ÖNCEKİ hesabın cevabı duruyordu; yeni yazdığınızın " +
+            "sonucunu değil, eskisini okuyordunuz. Artık sebebi yazıyor.",
+            "Karanlık kip artık telefonunuzun ayarına uyuyor.",
+        ],
+    },
+];
+
+/** Yüklü `sayfa.js?v=N` damgasından sürümü okur.
+    Ayrı bir sürüm sabiti tutmak ikinci bir elle yazılan sayı olurdu
+    ve ikisi er geç ayrışırdı. */
+function surumNo() {
+    const s = document.querySelector('script[src*="sayfa.js"]');
+    const m = s && (s.getAttribute("src") || "").match(/[?&]v=(\d+)/);
+    return m ? parseInt(m[1], 10) : null;
+}
+
+function yenilikSeridi() {
+    const surum = surumNo();
+    if (!surum) return;                       // damga yoksa sessiz kal
+    const kayit = DEGISIKLIKLER.find(function (d) { return d.surum === surum; });
+    if (!kayit) return;                       // bu sürüm için not yoksa gösterme
+    const ayar = ayarOku();
+    if (ayar.gorulenSurum === surum) return;  // bir kez gösterilir
+
+    const c = document.createElement("div");
+    c.className = "yenilik-serit";
+    c.setAttribute("role", "status");
+    c.innerHTML =
+        '<div class="ys-govde">' +
+        '<b>Bu araçlarda değişiklik yapıldı.</b> ' + kayit.ozet +
+        (kayit.hesapDuzeltmesi
+            ? ' Daha önce hesap yaptıysanız <b>sonucunuzu yeniden alın</b>.'
+            : "") +
+        ' <a href="neler-degisti.html">Neler değişti?</a>' +
+        "</div>" +
+        '<button type="button" class="ys-kapat" aria-label="Kapat">✕</button>';
+    document.body.insertBefore(c, document.body.firstChild);
+
+    c.querySelector(".ys-kapat").onclick = function () {
+        const a = ayarOku();
+        a.gorulenSurum = surum;
+        ayarYaz(a);
+        c.remove();
+    };
+}
+
 // ---------- Üst bar ve alt bilgi ----------
 
 function iskeletKur(aktifYol) {
@@ -178,6 +297,7 @@ function iskeletKur(aktifYol) {
     };
     cevrimdisiUyari(aktifYol);
     gecmiseEkle(aktifYol);
+    try { yenilikSeridi(); } catch (e) { }
     yapiskanSonuc();
 }
 
@@ -225,7 +345,34 @@ function girdileriDenetle(idler) {
         if (!im) return;                       // sayısal alan değil
         const bozuk = typeof sayiGecersizMi === "function" &&
                       sayiGecersizMi(el.value, el.dataset ? el.dataset.tur : undefined);
-        el.classList.toggle("girdi-bozuk", !!bozuk);
+
+        /* OLU `min`/`max`I CANLIYA CEVIR.
+           Turkce sayi yazimi icin `type="number"`den kactik ve kutulari
+           `type="text"` yaptik. Ustlerindeki `min`/`max` ORADA KALDI ve
+           tarayici onlari `text` turunde UYGULAMAZ -- kodu okuyan
+           "sinir var" saniyordu. Gorunen bir koruma, olmayan bir
+           korumadan tehlikelidir.
+
+           Olculdu (28 Agustos 2026, CANLIDA):
+             elektrikli-arac  evOran (0-100) -> "%10000" kabul, 51,48 TL
+                                                "-%50"   kabul, 227,70 TL
+             kira-geliri      ay (1-12)      -> "-49" -> 0,00 TL, uyari yok
+             kiralamak-mi     yil (1-30)     -> aralik disi deger
+                                                TAVSIYEYI degistiriyordu
+                                                (Satin almak <-> Kiralamak)
+           Bildirim zaten HTML'de duruyor; burada okunup uygulaniyor.
+           Boylece sinir TEK KAYNAKTAN gelir ve iki yerde ayrisamaz. */
+        let aralikDisi = null;
+        if (!bozuk && el.value.trim() !== "" && typeof sayiOku === "function") {
+            const enAz = el.getAttribute("min"), enCok = el.getAttribute("max");
+            if (enAz !== null || enCok !== null) {
+                const d = sayiOku(el.value, el.dataset ? el.dataset.tur : undefined);
+                if (enAz !== null && d < Number(enAz)) aralikDisi = "en az " + enAz;
+                else if (enCok !== null && d > Number(enCok)) aralikDisi = "en fazla " + enCok;
+            }
+        }
+
+        el.classList.toggle("girdi-bozuk", !!(bozuk || aralikDisi));
         const kap = el.parentNode;
         if (!kap) return;
         // Uyari ALANA bagli aranir, kapsayiciya degil.
@@ -235,7 +382,7 @@ function girdileriDenetle(idler) {
         // girdi kendi sarmalindaydi, o yuzden gorunmuyordu -- ama sayfa
         // duzeni degistiginde sessizce kaybolurdu.
         let not = kap.querySelector('.girdi-uyari[data-icin="' + el.id + '"]');
-        if (bozuk) {
+        if (bozuk || aralikDisi) {
             if (!not) {
                 not = document.createElement("div");
                 not.className = "girdi-uyari";
@@ -243,7 +390,11 @@ function girdileriDenetle(idler) {
                 not.setAttribute("data-icin", el.id);
                 kap.insertBefore(not, el.nextSibling);
             }
-            not.textContent = "Bu alan sayı olarak okunamadı — hesap 0 kabul ediyor.";
+            not.textContent = bozuk
+                ? "Bu alan sayı olarak okunamadı — hesap 0 kabul ediyor."
+                : "Bu alan " + aralikDisi + " olmalı. Aşağıdaki sonuç " +
+                  "girdiğiniz değerle hesaplandı; aralık dışı olduğu için " +
+                  "anlamlı olmayabilir.";
         } else if (not) {
             not.remove();
         }

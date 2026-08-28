@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Neler Değişti — Hesap Araçları</title>
+<meta name="description" content="Hesap Araçları'nda yapılan değişiklikler: hangi hesap düzeltildi, ne zaman. Yanlış çıkan bir hesap düzeltildiyse burada yazar." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<link rel="canonical" href="https://meteotr06.github.io/hesap/neler-degisti.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Neler Değişti — Hesap Araçları" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/neler-degisti.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/genel.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/genel.png" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<link rel="stylesheet" href="stil.css?v=52" />
+</head>
+<body>
+
+<main>
+    <h1>Neler değişti</h1>
+
+    <p class="ipucu">Bu araçlarda yapılan değişiklikler burada yazar. Bir hesap
+    yanlış çıkıyorduysa ve düzelttiysek, bunu da açıkça yazıyoruz — çünkü o
+    hesaba bakarak karar vermiş olabilirsiniz.</p>
+
+    <div id="liste"></div>
+
+    <section class="kutu">
+        <h2 class="kutu-baslik">Verileriniz ve izinler</h2>
+        <p>Girdiğiniz sayılar <b>yalnızca sizin tarayıcınızda</b> kalır. Bize
+        ya da bir sunucuya gönderilmez. Tarayıcınızda tuttuğumuz iki şey var:</p>
+        <ul>
+            <li><b>hesapAraclariAyar</b> — tema seçiminiz ve bu sayfadaki
+                bildirimi görüp görmediğiniz.</li>
+            <li><b>hesapGecmis</b> — son yaptığınız hesaplar, tekrar açtığınızda
+                kaldığınız yerden devam edebilesiniz diye.</li>
+        </ul>
+        <p>İkisini de tarayıcınızın site verilerini temizleyerek silebilirsiniz.
+        Hesabınızı silmek gibi bir işlem yok, çünkü <b>hesabınız yok</b>: kayıt
+        istemiyoruz, e-posta istemiyoruz, giriş yok.</p>
+        <p>Sayfa açılırken dışarıya giden tek şey <b>reklamlar</b>:
+        <code>googlesyndication.com</code>, <code>doubleclick.net</code>,
+        <code>adtrafficquality.google</code>. Bunları Google yükler ve kendi
+        çerezlerini kullanabilir; biz çerez koymuyoruz. Ziyaret sayacı,
+        analitik ya da izleme betiği kullanmıyoruz.</p>
+        <p class="kucuk">Ayrıntılı metin: <a href="gizlilik.html">Gizlilik
+        Politikası</a>.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=52"></script>
+<script src="sayfa.js?v=52"></script>
+<script>
+iskeletKur("neler-degisti.html");
+
+/* Liste, `sayfa.js` içindeki DEGISIKLIKLER dizisinden kuruluyor.
+   Tek kaynak: açılıştaki şerit de aynı diziyi okuyor. İki yerde ayrı
+   metin tutmak, ikisinin ayrışması demektir. */
+(function () {
+    const kap = document.getElementById("liste");
+    if (typeof DEGISIKLIKLER === "undefined" || !DEGISIKLIKLER.length) {
+        kap.innerHTML = '<p class="kucuk">Henüz kayıtlı değişiklik yok.</p>';
+        return;
+    }
+    kap.innerHTML = DEGISIKLIKLER.map(function (d) {
+        return '<section class="kutu">' +
+            '<h2 class="kutu-baslik">' + d.tarih + "</h2>" +
+            (d.hesapDuzeltmesi
+                ? '<p class="onemli"><b>Hesap düzeltmesi var.</b> Bu tarihten ' +
+                  "önce bu araçlardan sonuç aldıysanız, sonucunuzu bir kez daha " +
+                  "alın.</p>"
+                : "") +
+            "<ul>" + d.maddeler.map(function (m) {
+                return "<li>" + m + "</li>";
+            }).join("") + "</ul>" +
+            '<p class="kucuk">Sürüm ' + d.surum + "</p>" +
+            "</section>";
+    }).join("");
+})();
+
+gizlilikBaglantisi();
+</script>
+</body>
+</html>

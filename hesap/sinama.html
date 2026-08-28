@@ -508,6 +508,42 @@ window.addEventListener("load", async function () {
   ol("gerçek sıfır geçersiz DEĞİL", sayiGecersizMi("0") === false);
   ol("kısmen sayı da geçersiz", sayiGecersizMi("12abc") === true);
 
+  /* ══ P · ÖLÜ `min`/`max` — görünen ama çalışmayan koruma ══════════
+     Türkçe sayı yazımı için `type="number"`den kaçtık ve kutuları
+     `type="text"` yaptık. Üstlerindeki `min`/`max` ORADA KALDI —
+     tarayıcı bunları `text` türünde UYGULAMAZ. Kodu okuyan "sınır var"
+     sanıyordu. **Görünen bir koruma, olmayan bir korumadan tehlikelidir.**
+
+     Ölçüldü (28 Ağustos 2026, CANLIDA), 5 alanda:
+       elektrikli-arac  evOran (0-100) → "%10000" kabul → 51,48 ₺
+                                          "-%50"   kabul → 227,70 ₺
+       kiralamak-mi     yil (1-30)     → aralık dışı yıl TAVSİYEYİ
+                                          değiştiriyordu (Satın ↔ Kirala)
+       kira-geliri      ay (1-12)      → "-49" → 0,00 ₺, uyarı yok
+     Çözüm: bildirim zaten HTML'de duruyordu; `girdileriDenetle` artık
+     onu OKUYUP uyguluyor. Sınır TEK KAYNAKTAN gelir, ayrışamaz. */
+  bas("P · Ölü min/max canlıya çevrildi");
+  try {
+    const c7 = await fetch("sayfa.js?t=" + T);
+    const m7 = await c7.text();
+    ol("girdileriDenetle min/max okuyor", /getAttribute\("min"\)/.test(m7));
+    ol("aralık dışı için ayrı mesaj var", m7.indexOf("olmalı. Aşağıdaki sonuç") >= 0);
+  } catch (e) { ol("sayfa.js okunamadı", false, String(e)); }
+  /* Bildirimin kendisi duruyor mu — silinirse koruma da gider. */
+  for (const t of [["elektrikli-arac-sarj-maliyeti.html", "evOran"],
+                   ["kiralamak-mi-satin-almak-mi.html", "yil"],
+                   ["kira-geliri-vergisi-hesaplama.html", "ay"],
+                   ["dogum-izni-hesaplama.html", "calisma"],
+                   ["araba-masrafi-hesaplama.html", "yil"]]) {
+    try {
+      const c8 = await fetch(t[0] + "?t=" + T);
+      const m8 = await c8.text();
+      const et = (m8.match(new RegExp('<input[^>]*id="' + t[1] + '"[^>]*>')) || [""])[0];
+      ol(t[0] + " → " + t[1] + " min/max bildirimi duruyor",
+         et.indexOf(" min=") >= 0 && et.indexOf(" max=") >= 0, et.slice(0, 60));
+    } catch (e) { ol(t[0] + " okunamadı", false, String(e)); }
+  }
+
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
     if (s.bolum) return "<h2>" + s.bolum + "</h2>";

@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="İşsizlik Maaşı Hesaplama 2026 — Ne Kadar, Kaç Ay?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/issizlik-maasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=51" />
+<link rel="stylesheet" href="stil.css?v=52" />
 </head>
 <body>
 
@@ -89,8 +89,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=51"></script>
-<script src="sayfa.js?v=51"></script>
+<script src="hesap.js?v=52"></script>
+<script src="sayfa.js?v=52"></script>
 <script>
 iskeletKur("issizlik-maasi-hesaplama.html");
 gizlilikBaglantisi();
@@ -123,6 +123,20 @@ function hesapla() {
         ${satir("Toplam alacağınız", para(i.hakEdiyorMu ? i.toplamNet : 0), "buyuk")}
         ${i.tavanUygulandi ? `<p class="varsayim" style="color:var(--uyari)"><b>Tavan uygulandı.</b> Hesaplanan ${para(i.hamAylik)} yasal üst sınırı aştığı için ödenek ${para(i.tavan)} ile sınırlandı.</p>` : ""}
         ${!i.hakEdiyorMu ? `<p class="onemli" style="color:var(--azalis)"><b>600 günün altında.</b> İşsizlik ödeneği için son 3 yılda en az 600 gün prim ödemiş olmak gerekir.</p>` : ""}
+        ${/* SURE, SAYIYA BITISIK OLMALI.
+             Olculdu (28.08.2026): 30 gunluk basvuru suresi y=7202'de,
+             sonuc kutusu y=3761'de bitiyor - 3.400 px asagida, SSS
+             icinde. Isini yeni kaybetmis biri "19.848 TL/ay" goruyor
+             ama suresi oldugunu bilmiyor.
+             Ve kural soyut degil: gec basvuru hakki YOK ETMIYOR,
+             odeme suresinden DUSUYOR. Yani her gecen gun somut bir
+             para kaybi - kullanicinin kendi hesaplayamayacagi sey tam
+             olarak bu. Gunluk karsiligi yaziyoruz. */""}
+        ${i.hakEdiyorMu ? `<p class="onemli"><b>30 gününüz var.</b>
+            İşten ayrıldıktan sonra <b>30 gün içinde</b> İŞKUR'a başvurun
+            (e-Devlet'ten de olur). Geç kalırsanız hakkınız yanmaz ama
+            <b>geciken gün kadar süre ödeme sürenizden düşülür</b> —
+            günde yaklaşık ${para(i.aylikNet / 30)}.</p>` : ""}
     </div>`;
 
     const d = dokumKur("Hesap nasıl yapıldı?");

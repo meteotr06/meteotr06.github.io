@@ -178,6 +178,33 @@ h4 { font-size: 14px; margin: 0 0 6px; font-weight: 600; }
 .do-tutar { font-variant-numeric: tabular-nums; }
 .do-fark { color: var(--azalis); font-size: 13px; }
 
+/* YENİLİK ŞERİDİ — güncellemeden sonra ilk açılışta bir kez (K-44).
+   Hesabın ÖNÜNE geçmiyor: sayfanın en üstünde, akışta, örtmüyor.
+   Kapatılınca o sürüm için bir daha çıkmıyor. */
+.yenilik-serit {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: color-mix(in oklch, var(--kart) 85%, var(--vurgu));
+  border-bottom: 1px solid var(--cizgi);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ys-govde { flex: 1 1 auto; }
+.yenilik-serit a { color: var(--vurgu); }
+.ys-kapat {
+  flex: 0 0 auto;
+  background: none;
+  border: 0;
+  color: var(--yazi2);
+  font-size: 15px;
+  cursor: pointer;
+  /* WCAG 2.5.8: bagimsiz dugme, satir ici degil - 44x44 sart. */
+  min-width: 44px;
+  min-height: 44px;
+}
+
 .onemli {
   font-size: 14px;
   color: var(--yazi);
