@@ -28,6 +28,7 @@ const ARACLAR = [
     { yol: "bagkur-primi-hesaplama.html", ad: "Bağ-Kur Primi", aciklama: "4/b aylık prim ve 5 puanlık indirim", grup: "Maaş ve Çalışma", anahtar: "bağkur bag-kur 4b esnaf prim sgk beyan kazanç indirim 5 puan serbest meslek şirket ortağı emeklilik" },
     { yol: "askerlik-borclanmasi-hesaplama.html", ad: "Askerlik Borçlanması", aciklama: "Askerlik süresini prim günü saydırma bedeli", grup: "Maaş ve Çalışma", anahtar: "askerlik borçlanma sgk prim günü emeklilik er erbaş yedek subay 5510 41 gün satın alma bedel" },
     { yol: "rapor-parasi-hesaplama.html", ad: "Rapor Parası", aciklama: "SGK geçici iş göremezlik ödeneği", grup: "Maaş ve Çalışma", anahtar: "rapor parası iş göremezlik ödeneği sgk istirahat hastalık iş kazası meslek hastalığı yatarak ayakta tedavi prim gün sağlık raporu" },
+    { yol: "emeklilik-sartlari-hesaplama.html", ad: "Emeklilik Şartları", aciklama: "Hangi şart tamam, hangisi ne kadar eksik", grup: "Maaş ve Çalışma", anahtar: "emeklilik eyt sigorta başlangıcı prim gün sigortalılık süresi yaş şartı 4a ssk 5000 7000 7200 kademeli sgk" },
     { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma", anahtar: "işsizlik maaşı ödeneği işkur kaç ay ne kadar prim gün" },
     { yol: "birim-cevirme.html", ad: "Birim Çevirme", aciklama: "Uzunluk, ağırlık, sıcaklık, alan", grup: "Genel", anahtar: "birim çevirme dönüştürme inç fit mil libre pound ons dönüm hektar fahrenhayt kelvin galon knot metre kilo" },
     { yol: "sayi-yaziyla-yazma.html", ad: "Sayı Yazıyla", aciklama: "Çek ve senet için tutar yazımı", grup: "Genel", anahtar: "sayı yazıyla rakam yazı çek senet tutar yazımı bin lira kuruş nasıl yazılır" },
@@ -167,6 +168,24 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 80,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: emeklilik şartları — ve neden tarih vermediğimiz.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Sigorta başlangıcınıza göre hangi rejimde olduğunuzu, " +
+            "sigortalılık sürenizi ve prim gün şartını gösterir: hangisi " +
+            "<b>tamam</b>, hangisi <b>ne kadar eksik</b>.",
+            "<b>Emeklilik tarihi vermiyoruz — veremeyiz.</b> Borçlanmalar, " +
+            "hizmet birleştirmesi ve kademeli yaş tabloları olmadan üretilen " +
+            "bir tarih kesin görünür ama yanlıştır; bu da işten ayrılma " +
+            "kararını etkiler.",
+            "Belirsiz olan yerde <b>tek sayı uydurmuyoruz</b>: EYT'de gereken " +
+            "gün 5000–5975 arasında değişiyor, aralığı söyleyip SGK'ya " +
+            "yönlendiriyoruz. Üç bilgiden biri eksikse <b>hiç hesaplamıyoruz</b>.",
+        ],
+    },
     {
         surum: 79,
         tarih: "28 Ağustos 2026",

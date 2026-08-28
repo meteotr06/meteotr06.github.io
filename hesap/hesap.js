@@ -3193,3 +3193,176 @@ function trafikCezasi(g) {
         kaynak: TRAFIK.kaynak
     };
 }
+
+
+// ================= EMEKLİLİK ŞARTLARI (4/a) =================
+// Kaynak: 506 sayılı Kanun geçici md.81 · 5510 sayılı Kanun md.28 ve
+//         geçici md.6 · 7438 sayılı Kanun (EYT, 03.03.2023).
+//
+// BU ARAC TARIH VERMEZ. Bilerek. "Ne zaman emekli olurum" sorusunun
+// cevabi; hizmet birlestirmesi, borclanmalar, ciraklik suresi, farkli
+// statulerde gecen sureler ve kademeli yas tablolari olmadan
+// bilinemez. Kesin gorunen bir tarih vermek, YKS'de eledigimiz
+// "kesin gorunen yaklasiklik" sinifinin en agir hali olurdu -- orada
+// tercih, burada ISTEN AYRILMA karari soz konusu.
+//
+// VERDIGI SEY: hangi rejimdesin, hangi sart TAMAM, hangisi EKSIK ve
+// NE KADAR eksik. Bunlarin hepsi kesin hesaplanabiliyor.
+// Belirsiz olan yerde TEK SAYI DEGIL ARALIK veriliyor.
+//
+// UC REJIM (4/a):
+//   A) Baslangic <= 08.09.1999 -> EYT. YAS SARTI YOK (7438 s. Kanun).
+//      Kadin 20 yil / erkek 25 yil sigortalilik + 5000-5975 gun
+//      (gun sayisi giris tarihine gore KADEMELI).
+//   B) 09.09.1999 - 30.04.2008 -> 7000 gun + yas (kadin 58 / erkek 60
+//      'tan baslayan kademe), VEYA 25 yil + 4500 gun + yas.
+//      Kismi: 15 yil + 3600 gun (kadin 50 / erkek 55).
+//   C) 01.05.2008 ve sonrasi -> 7200 gun + yas; yas 2036'dan itibaren
+//      kademeli olarak 65'e cikiyor.
+//
+// B ve C'de yas kademesi giris tarihine gore degisiyor ve o tabloyu
+// kopyalamiyoruz; bunun yerine ALT SINIR veriliyor ("en az 58"),
+// cunku alt sinir DOGRU bir ifadedir -- kademe yalnizca yukari gider.
+const EMEKLILIK = {
+    eytSinir: "1999-09-08",       // bu tarih DAHIL EYT
+    ikinciSinir: "2008-04-30",    // bu tarih DAHIL ikinci rejim
+    eytGunAlt: 5000,
+    eytGunUst: 5975,
+    eytYilKadin: 20,
+    eytYilErkek: 25,
+    bGun: 7000,
+    bAlternatifYil: 25,
+    bAlternatifGun: 4500,
+    kismiYil: 15,
+    kismiGun: 3600,
+    cGun: 7200,
+    yasAltKadin: 58,
+    yasAltErkek: 60,
+    kismiYasKadin: 50,
+    kismiYasErkek: 55,
+    kaynak: "506 s. Kanun geçici md.81 · 5510 s. Kanun md.28 ve geçici md.6 · 7438 s. Kanun (EYT)",
+    guncelleme: "2026-01-01"
+};
+
+/* g: { cinsiyet:"kadin"|"erkek", baslangic, primGunu, bugun }
+   GIRDI EKSIKSE SAYI YOK -- hangisi eksikse o soyleniyor. */
+function emeklilikSartlari(g) {
+    const eksikler = [];
+    if (g.cinsiyet !== "kadin" && g.cinsiyet !== "erkek") eksikler.push("cinsiyet");
+
+    const bas = tarihOku(g.baslangic);
+    if (!bas || isNaN(bas.getTime())) eksikler.push("baslangic");
+
+    const prim = Number(g.primGunu);
+    if (!Number.isFinite(prim) || prim < 0) eksikler.push("primGunu");
+
+    if (eksikler.length) return { hata: "eksikGirdi", eksikler: eksikler };
+
+    const bugun = g.bugun ? tarihOku(g.bugun) : new Date();
+    if (bas > bugun) return { hata: "gelecekTarih" };
+
+    const kadin = g.cinsiyet === "kadin";
+
+    /* SIGORTALILIK SURESI: baslangictan bugune gecen sure. Prim gun
+       sayisiyla KARISTIRILMAMALI -- ikisi ayri sart ve kullanicilar
+       en cok burada yaniliyor. */
+    /* `tarihFarki` yil/ay/gun'u DUZ DEGIL `yilAyGun` altinda dondurur;
+       ust duzeydeki `gun` TOPLAM gun sayisidir. Imzasina bakmadan
+       `f.yil` yazmistim -- undefined olacak, sigortalilik suresi her
+       zaman "eksik" cikacak ve kimse cokmeyecekti. */
+    const f = tarihFarki(tarihYazIso(bas), tarihYazIso(bugun));
+    const sure = f.yilAyGun;
+    const sigortalilikYil = sure.yil;
+
+    /* REJIM TESPITI -- tam sinirlar dahil. */
+    const eytSon = tarihOku(EMEKLILIK.eytSinir);
+    const ikinciSon = tarihOku(EMEKLILIK.ikinciSinir);
+    let rejim, rejimAd;
+    if (bas <= eytSon) { rejim = "A"; rejimAd = "8 Eylül 1999 ve öncesi (EYT)"; }
+    else if (bas <= ikinciSon) { rejim = "B"; rejimAd = "9 Eylül 1999 – 30 Nisan 2008"; }
+    else { rejim = "C"; rejimAd = "1 Mayıs 2008 ve sonrası"; }
+
+    const sartlar = [];
+    const durum = (ad, tamam, aciklama, eksikMiktar) =>
+        ({ ad: ad, durum: tamam, aciklama: aciklama, eksik: eksikMiktar });
+
+    let gerekenYil = null, primAlt = null, primUst = null, yasAlt = null;
+
+    if (rejim === "A") {
+        gerekenYil = kadin ? EMEKLILIK.eytYilKadin : EMEKLILIK.eytYilErkek;
+        primAlt = EMEKLILIK.eytGunAlt;
+        primUst = EMEKLILIK.eytGunUst;
+        sartlar.push(durum("Yaş", "aranmiyor",
+            "EYT düzenlemesiyle (7438 s. Kanun) bu grupta yaş şartı aranmıyor.", 0));
+    } else {
+        gerekenYil = rejim === "B" ? null : null;
+        primAlt = rejim === "B" ? EMEKLILIK.bGun : EMEKLILIK.cGun;
+        primUst = primAlt;
+        yasAlt = kadin ? EMEKLILIK.yasAltKadin : EMEKLILIK.yasAltErkek;
+        sartlar.push(durum("Yaş", "belirsiz",
+            "Yaş şartı sigorta başlangıcınıza göre kademeli belirlenir; " +
+            "en az " + yasAlt + ". Kademe yalnızca yukarı gider.", null));
+    }
+
+    /* SIGORTALILIK SURESI SARTI -- yalniz A rejiminde kesin. */
+    if (gerekenYil !== null) {
+        sartlar.push(durum("Sigortalılık süresi",
+            sigortalilikYil >= gerekenYil ? "tamam" : "eksik",
+            gerekenYil + " yıl gerekiyor; sizde " + sigortalilikYil + " yıl.",
+            Math.max(0, gerekenYil - sigortalilikYil)));
+    }
+
+    /* PRIM GUN SARTI. A rejiminde gereken gun KADEMELI: tek sayi
+       vermiyoruz. Ustunde/altindaysa kesin konusabiliriz; arada
+       kalirsa "belirsiz" deyip araligi soyluyoruz. */
+    let primDurum, primAciklama, primEksik = 0;
+    if (prim >= primUst) {
+        primDurum = "tamam";
+        primAciklama = primAlt === primUst
+            ? primUst + " gün gerekiyor; sizde " + prim + " gün."
+            : "Bu gruptaki en yüksek şart " + primUst + " gün; sizde " + prim +
+              " gün — dilim ne olursa olsun karşılanıyor.";
+    } else if (prim < primAlt) {
+        primDurum = "eksik";
+        primEksik = primAlt - prim;
+        primAciklama = primAlt === primUst
+            ? primAlt + " gün gerekiyor; " + primEksik + " gün eksik."
+            : "Bu gruptaki en düşük şart " + primAlt + " gün; " + primEksik +
+              " gün eksik — dilim ne olursa olsun yetmiyor.";
+    } else {
+        primDurum = "belirsiz";
+        primAciklama = "Gereken gün sayısı sigorta başlangıcınıza göre " +
+            primAlt + " ile " + primUst + " arasında değişiyor; sizde " + prim +
+            " gün. Hangi dilimde olduğunuzu SGK'dan teyit edin.";
+    }
+    sartlar.push(durum("Prim gün sayısı", primDurum, primAciklama, primEksik));
+
+    const hepsiTamam = sartlar.every(x => x.durum === "tamam" || x.durum === "aranmiyor");
+    const belirsizVar = sartlar.some(x => x.durum === "belirsiz");
+
+    return {
+        rejim: rejim, rejimAd: rejimAd,
+        cinsiyet: g.cinsiyet,
+        baslangic: bas,
+        sigortalilikYil: sigortalilikYil,
+        sigortalilikAy: sure.ay, sigortalilikGun: sure.gun,
+        primGunu: prim,
+        gerekenYil: gerekenYil,
+        primAlt: primAlt, primUst: primUst,
+        yasAlt: yasAlt,
+        sartlar: sartlar,
+        hepsiTamam: hepsiTamam,
+        belirsizVar: belirsizVar,
+        /* Kismi emeklilik yalnizca B rejiminde anlatiliyor. */
+        kismiVar: rejim === "B",
+        kismiYil: EMEKLILIK.kismiYil, kismiGun: EMEKLILIK.kismiGun,
+        kismiYas: kadin ? EMEKLILIK.kismiYasKadin : EMEKLILIK.kismiYasErkek,
+        kaynak: EMEKLILIK.kaynak
+    };
+}
+
+/* tarihFarki ISO metin bekliyor; Date'i ona cevirir. */
+function tarihYazIso(t) {
+    const iki = (n) => (n < 10 ? "0" : "") + n;
+    return t.getFullYear() + "-" + iki(t.getMonth() + 1) + "-" + iki(t.getDate());
+}

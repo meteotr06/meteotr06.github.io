@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Emeklilik Şartları — Hangi Şart Tamam, Hangisi Eksik?</title>
+<meta name="description" content="Emeklilik şartları: sigorta başlangıcınıza göre hangi rejimdesiniz, sigortalılık süresi ve prim gün şartlarından hangisi tamam, hangisi ne kadar eksik." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/emeklilik-sartlari-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Emeklilik Şartları — Hangi Şart Tamam, Hangisi Eksik?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/emeklilik-sartlari-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/emeklilik-sartlari-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Emeklilik Şartları — Hangi Şart Tamam, Hangisi Eksik?" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/emeklilik-sartlari-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=82" />
+</head>
+<body>
+
+<main>
+    <h1>Emeklilik Şartları</h1>
+    <p class="ozet">Bu araç <b>emeklilik tarihi vermez</b> — veremez. Söylediği şey: hangi rejimdesiniz, hangi şart <b>tamam</b>, hangisi <b>ne kadar eksik</b>.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">5510 · 506 · <b>7438 (EYT)</b></span><span class="etiket-rozet">Yalnız <b>4/a</b></span><span class="etiket-rozet">Tarih <b>vermez</b></span><span class="etiket-rozet">2026</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Cinsiyet
+                    <select id="cinsiyet">
+                        <option value="">— seçin —</option>
+                        <option value="kadin">Kadın</option>
+                        <option value="erkek">Erkek</option>
+                    </select>
+                </label>
+                <label>Sigorta başlangıç tarihi
+                    <input id="baslangic" type="date" />
+                </label>
+                <label>Toplam prim gün sayısı
+                    <input id="prim" type="text" inputmode="numeric" placeholder="örn. 5400" />
+                </label>
+            </div>
+            <p class="kucuk"><b>Üç bilgi de gerekli.</b> Biri eksikse hesap yapmıyoruz —
+            eksik bilgiyle üretilmiş bir emeklilik sonucu, işten ayrılma kararını
+            etkileyebilir. Prim gün sayısını <b>e-Devlet → SGK Tescil ve Hizmet Dökümü</b>
+            ekranından alabilirsiniz.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Neden tarih vermiyoruz?</h2>
+        <p>“Ne zaman emekli olurum” sorusunun cevabı yalnızca üç girdiye bağlı değil:
+        hizmet birleştirmesi, askerlik ve doğum borçlanmaları, çıraklık süresi, farklı
+        statülerde (4/a-4/b-4/c) geçen süreler ve <b>kademeli yaş tabloları</b> devreye
+        girer. Bunlar olmadan üretilen bir tarih <b>kesin görünür ama yanlıştır</b>.</p>
+        <p>Bu sitede aynı sebeple YKS puan aracı da yapmadık: kesin görünen bir
+        yaklaşıklık, açıkça yaklaşık olan bir tahminden tehlikelidir. Orada tercih,
+        burada <b>işten ayrılma kararı</b> söz konusu.</p>
+
+        <h2>Üç rejim, üç ayrı şart kümesi</h2>
+        <ul>
+            <li><b>8 Eylül 1999 ve öncesi (EYT):</b> 7438 sayılı Kanunla
+            <b>yaş şartı kaldırıldı</b>. Kadında 20, erkekte 25 yıl sigortalılık süresi
+            ve <b>5000–5975 gün</b> prim (gün sayısı giriş tarihine göre kademeli).</li>
+            <li><b>9 Eylül 1999 – 30 Nisan 2008:</b> 7000 gün + yaş; ya da 25 yıl
+            sigortalılık + 4500 gün + yaş. Ayrıca <b>kısmi emeklilik</b>: 15 yıl ve
+            3600 gün (kadın 50, erkek 55).</li>
+            <li><b>1 Mayıs 2008 ve sonrası:</b> 7200 gün + yaş. Yaş 2036'dan itibaren
+            kademeli olarak 65'e çıkıyor.</li>
+        </ul>
+
+        <h2>Belirsizi aralık olarak söylüyoruz</h2>
+        <p>EYT grubunda gereken prim günü giriş tarihine göre <b>5000 ile 5975</b>
+        arasında değişir. Elinizdeki gün sayısı bu aralığın <b>üstündeyse</b> dilim ne
+        olursa olsun şart karşılanır; <b>altındaysa</b> yine dilim ne olursa olsun
+        yetmez. Arada kalıyorsanız araç <b>tek bir sayı uydurmaz</b>: aralığı söyler ve
+        sizi SGK'ya yönlendirir.</p>
+        <p>Aynı şekilde 1999 sonrası gruplarda yaş şartı için <b>alt sınır</b>
+        veriyoruz (“en az 58 / en az 60”). Alt sınır doğru bir ifadedir — kademe
+        yalnızca yukarı gider.</p>
+
+        <h2>Sigortalılık süresi ile prim günü aynı şey değil</h2>
+        <p>En sık karışan iki kavram. <b>Sigortalılık süresi</b>, ilk sigorta
+        girişinizden bugüne geçen <b>takvim süresidir</b> — çalışmadığınız yıllar da
+        sayılır. <b>Prim gün sayısı</b> ise adınıza fiilen <b>prim ödenmiş</b> gün
+        sayısıdır. 30 yıllık sigortalılığı olup 4000 günü olan biri, süre şartını
+        sağlar ama gün şartını sağlamaz.</p>
+
+        <h2>Bu araç neyi kapsamıyor</h2>
+        <p>Yalnızca <b>4/a (SSK)</b> kapsamındadır. Bağ-Kur (4/b), memur (4/c),
+        yıpranma payı, malulen emeklilik, engelli emekliliği ve yurt dışı hizmet
+        birleştirmesi burada yoktur. Emekli <b>aylığının tutarı</b> da hesaplanmaz.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=82"></script>
+<script src="sayfa.js?v=82"></script>
+<script>
+iskeletKur("emeklilik-sartlari-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["cinsiyet", "baslangic", "prim"];
+
+/* ÇEKİNCE SONUCUN YANINDA DURUR, sayfanın dibinde değil: kararın
+   verildiği yerde görünmeyen bir uyarı, verilmemiş sayılır. */
+const CEKINCE = `<p class="varsayim"><b>Bu bir resmî belge değildir.</b>
+    Burada yalnızca girdiğiniz üç bilgiye göre şart durumu gösteriliyor;
+    borçlanma, hizmet birleştirmesi ve kademeli yaş tabloları hesaba
+    katılmıyor. <b>Kararınızı vermeden önce SGK'ya doğrulatın</b>
+    (e-Devlet → SGK Emeklilik Sorgulama ya da ALO 170).</p>`;
+
+function hesapla() {
+    const cinsiyet = document.getElementById("cinsiyet").value;
+    const baslangic = document.getElementById("baslangic").value;
+    const prim = oku("prim");
+
+    const s = emeklilikSartlari({ cinsiyet: cinsiyet, baslangic: baslangic,
+                                  primGunu: prim });
+
+    if (s.hata === "eksikGirdi") {
+        const adlar = { cinsiyet: "cinsiyet", baslangic: "sigorta başlangıç tarihi",
+                        primGunu: "prim gün sayısı" };
+        document.getElementById("ozet").innerHTML = `<div class="kutu uyari-kutu" role="alert">
+            <p><b>Hesap yapmıyoruz — bilgi eksik.</b> Şunlar gerekiyor:
+            <b>${s.eksikler.map(x => adlar[x]).join(", ")}</b>.</p>
+            <p class="kucuk">Eksik bilgiyle üretilmiş bir emeklilik sonucu, insanın
+            işten ayrılma kararını etkileyebilir. Bu yüzden tahmin etmiyoruz.</p></div>`;
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+    if (s.hata) {
+        sonucBekliyor(s.hata === "gelecekTarih"
+            ? "Sigorta başlangıcı gelecekte olamaz."
+            : "Girdileri kontrol edin.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    /* SINIF ADI UYDURMA. Ilk yazista `artis`/`azalis`/`uyari-yazi`
+       yazmistim; stil.css'te bunlar YOK -- renk siniflari `yukari` ve
+       `asagi`. Uydurulan sinif sessizce bicimsiz metin verir: yanlis
+       sayi degil ama yanlis GORUNUM, ve kimse cokmez. */
+    const rozet = (d) => d === "tamam" ? '<b class="yukari">tamam</b>'
+        : d === "aranmiyor" ? '<b class="yukari">aranmıyor</b>'
+        : d === "belirsiz" ? '<b>belirsiz</b>'
+        : '<b class="asagi">eksik</b>';
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${s.sartlar.filter(x => x.durum === "tamam" || x.durum === "aranmiyor").length}/${s.sartlar.length}</div>
+        <div class="dev-etiket">şart karşılanıyor${s.belirsizVar ? " (biri belirsiz)" : ""}</div>
+        ${satir("Rejiminiz", s.rejimAd)}
+        ${satir("Sigortalılık süreniz", sayi(s.sigortalilikYil, 0) + " yıl " +
+                sayi(s.sigortalilikAy, 0) + " ay")}
+        ${satir("Prim gün sayınız", sayi(s.primGunu, 0) + " gün")}
+        ${CEKINCE}
+    </div>
+
+    <div class="kutu">
+        <h2 class="kutu-baslik">Şartların durumu</h2>
+        ${s.sartlar.map(x => `
+            ${satir(x.ad, rozet(x.durum))}
+            <p class="kucuk">${x.aciklama}</p>`).join("")}
+        ${s.kismiVar ? `<p class="kucuk"><b>Kısmi emeklilik:</b> bu grupta
+            ${sayi(s.kismiYil, 0)} yıl sigortalılık ve ${sayi(s.kismiGun, 0)} gün primle
+            ${sayi(s.kismiYas, 0)} yaşında kısmi aylık bağlanabiliyor — tam aylıktan
+            düşüktür.</p>` : ""}
+    </div>`;
+
+    const d = dokumKur("Nasıl belirlendi?");
+    d.ekle("Rejim, sigorta başlangıç tarihine göre belirlenir.",
+           tarihYaz(s.baslangic), s.rejimAd);
+    d.ekle("Sigortalılık süresi: başlangıçtan bugüne geçen takvim süresi.",
+           tarihYaz(s.baslangic) + " → bugün",
+           sayi(s.sigortalilikYil, 0) + " yıl " + sayi(s.sigortalilikAy, 0) + " ay");
+    if (s.gerekenYil !== null)
+        d.ekle("Bu rejimde gereken sigortalılık süresi.",
+               sayi(s.gerekenYil, 0) + " yıl",
+               s.sigortalilikYil >= s.gerekenYil ? "karşılanıyor" : "eksik");
+    d.ekle(s.primAlt === s.primUst
+             ? "Bu rejimde gereken prim günü."
+             : "Bu rejimde gereken prim günü kademeli (aralık).",
+           s.primAlt === s.primUst ? sayi(s.primAlt, 0) + " gün"
+                                   : sayi(s.primAlt, 0) + " – " + sayi(s.primUst, 0) + " gün",
+           sayi(s.primGunu, 0) + " gün");
+    if (s.yasAlt)
+        d.ekle("Yaş şartı kademeli; alt sınır veriliyor.",
+               "en az " + sayi(s.yasAlt, 0), "kademe yukarı gider");
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Emeklilik Şartları"));
+yapisalVeri("Emeklilik Şartları", "Emeklilik şartları: rejim tespiti, sigortalılık süresi ve prim günü şartlarının durumu. Tarih vermez.");
+
+sssEkle([
+    { soru: "Emeklilik tarihimi söylüyor mu?",
+      cevap: "Hayır, bilerek. Emeklilik tarihi; borçlanmalar, hizmet birleştirmesi, çıraklık süresi ve kademeli yaş tabloları olmadan bilinemez. Kesin görünen ama yanlış bir tarih, işten ayrılma kararınızı etkileyebilir." },
+    { soru: "EYT'de yaş şartı var mı?",
+      cevap: "Hayır. 8 Eylül 1999 ve öncesinde sigorta girişi olanlarda yaş şartı 7438 sayılı Kanunla (3 Mart 2023) kaldırıldı. Sigortalılık süresi ve prim günü şartları devam ediyor." },
+    { soru: "EYT'de kaç gün prim gerekiyor?",
+      cevap: "Giriş tarihine göre 5000 ile 5975 gün arasında değişir. Gününüz bu aralığın üstündeyse dilim ne olursa olsun yeter, altındaysa yetmez; arada kalıyorsanız dilimi SGK'dan teyit edin." },
+    { soru: "Sigortalılık süresi ile prim günü aynı şey mi?",
+      cevap: "Hayır. Sigortalılık süresi ilk girişten bugüne geçen takvim süresidir; prim günü ise adınıza fiilen prim ödenmiş gün sayısıdır. 30 yıllık sigortalılığı olup 4000 günü olan biri süre şartını sağlar, gün şartını sağlamaz." },
+    { soru: "Bağ-Kur ve memur için de geçerli mi?",
+      cevap: "Hayır. Bu araç yalnızca 4/a (SSK) kapsamındadır. 4/b ve 4/c'nin şartları farklıdır ve burada yoktur." },
+    { soru: "Emekli aylığım ne kadar olur?",
+      cevap: "Bu araç aylık tutarı hesaplamaz. Aylık; prime esas kazançlarınıza, güncelleme katsayılarına ve aylık bağlama oranına bağlıdır." }
+]);
+
+ilgiliAraclar("emeklilik-sartlari-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>
