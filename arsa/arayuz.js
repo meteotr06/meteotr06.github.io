@@ -1480,8 +1480,34 @@ function taslak_kaydet() {
         });
         if (!Object.keys(v).length) { localStorage.removeItem(TASLAK_ANAHTAR); return; }
         localStorage.setItem(TASLAK_ANAHTAR, JSON.stringify({ t: Date.now(), v: v }));
-    } catch (e) {}
+        taslakHatasi = 0;
+    } catch (e) {
+        /* SESSİZ KALMASIN.
+
+           Bu işlevin tek amacı "yarım kalan formun kaybolmasın".
+           Sessizce başarısız olursa tam da önlemek için yazıldığı
+           kaybı gizlemiş olur: kullanıcı işinin güvende olduğunu
+           sanır, sayfa yenilenince her şey gider.
+
+           Defter kaydı zaten söylüyor ("Kayıt yapılamadı..."); burada
+           söylememek tutarsızdı.
+
+           HER TUŞTA UYARMIYORUZ: bu işlev `input` olayına bağlı,
+           yani saniyede birkaç kez çağrılabiliyor. Üst üste üç
+           başarısızlıkta bir kez uyarıyoruz. */
+        taslakHatasi++;
+        if (taslakHatasi === 3 && !taslakUyarisiVerildi) {
+            taslakUyarisiVerildi = true;
+            uyar('Girdikleriniz <b>kaydedilemiyor</b> — cihazın depolama alanı '
+               + 'dolu olabilir ya da tarayıcı site verilerini engelliyor. '
+               + 'Hesaplama çalışmaya devam eder, ama sayfayı yenilerseniz '
+               + 'form boşalır. Deftere kaydetmeyi de deneyemezsiniz.');
+        }
+    }
 }
+
+var taslakHatasi = 0;
+var taslakUyarisiVerildi = false;
 
 function taslak_sil() {
     try { localStorage.removeItem(TASLAK_ANAHTAR); } catch (e) {}
@@ -1512,7 +1538,21 @@ function taslak_yukle() {
     var tarih = new Date(kayit.t);
     var gun = tarih.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
     var saat = tarih.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-    var gecen = Math.floor((Date.now() - kayit.t) / 86400000);
+    /* TAKVİM GÜNÜ, GEÇEN 24 SAAT DEĞİL.
+
+       Eski hâli `(şimdi - t) / 86400000` ile geçen 24 saati sayıyordu.
+       Ölçüldü, iki durumda YANLIŞ cevap veriyordu:
+         Pzt 23:50 yazıldı, Salı 00:10 açıldı   -> "bugün"  (oysa DÜN)
+         Pzt 23:50 yazıldı, Çarşamba 00:10      -> "dün"    (oysa 2 gün önce)
+
+       Bu mesajın amacı "elindeki taslak ESKİ olabilir" diye uyarmak.
+       Yanlış yönü de tam ters: taslağı olduğundan TAZE gösteriyordu. */
+    var gunBasi = function (zaman) {
+        var d = new Date(zaman);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime();
+    };
+    var gecen = Math.round((gunBasi(Date.now()) - gunBasi(kayit.t)) / 86400000);
     var ne = gecen === 0 ? ('bugün ' + saat) : (gecen === 1 ? ('dün ' + saat) : (gun));
 
     var kutu = document.createElement('div');
