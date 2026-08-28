@@ -36,7 +36,7 @@
 <meta property="og:image:alt" content="Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/butce-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=54" />
+<link rel="stylesheet" href="stil.css?v=55" />
 </head>
 <body>
 
@@ -119,8 +119,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=54"></script>
-<script src="sayfa.js?v=54"></script>
+<script src="hesap.js?v=55"></script>
+<script src="sayfa.js?v=55"></script>
 <script>
 iskeletKur("butce-hesaplama.html");
 gizlilikBaglantisi();
@@ -142,12 +142,58 @@ document.getElementById("giderAlani").innerHTML = Object.keys(gruplar).map(g => 
         </div>
     </details>`).join("");
 
-// --- Kayıtlı değerleri geri yükle ---
+/* --- Kayitli degerleri geri yukle ---
+   GERI YUKLEMEK IYI, SESSIZCE YUKLEMEK DEGIL.
+   Olculdu (28 Agustos 2026, gercek kullanim turu): sayfa sifirdan
+   acildiginda 26 alan onceki oturumdan DOLU geliyordu, hicbir
+   bildirim yoktu ve temizleme yolu da yoktu. Kullanici bir ay sonra
+   dondugunde, eski butcesini GUNCEL sanip uzerine iki sayi yazar;
+   toplam eski verilerle cikar. "Bayat sonuc" hatasinin oturumlar
+   arasi hali -- ve parca sinamalari bunu goremez, cunku her sinama
+   temiz bir sayfada baslar.
+   26 alani elle silmek de bir cozum degil. */
 const kayit = ayarOku();
+let geriYuklendi = 0;
 if (kayit.butce) {
     Object.keys(kayit.butce).forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.value = kayit.butce[id];
+        if (el) { el.value = kayit.butce[id]; geriYuklendi++; }
+    });
+}
+
+/* TEK KAYNAK. Once bu secici `kaydet()`tekinden farkliydi ve
+   `#krediFaiz` temizlenmeden kaliyordu: 26 alan silinip 1 tanesi
+   duruyordu. Iki listenin ayrismasi, bugun damgada da yasadigimiz
+   sinif -- ayni sey iki yerde yazilirsa er gec ayrisir. */
+const BUTCE_ALANLARI =
+    "[data-gider], #maas, #ekGelir, #faiz, #enflasyon, #kalanBorc, #krediFaiz";
+
+function butceyiTemizle() {
+    const a = ayarOku();
+    delete a.butce;              /* isaret degil, kaydin KENDISI siliniyor */
+    ayarYaz(a);
+    document.querySelectorAll(BUTCE_ALANLARI)
+        .forEach(el => { el.value = ""; });
+    const n = document.getElementById("geriYuklemeNotu");
+    if (n) n.remove();
+    if (typeof hesapla === "function") hesapla();
+}
+
+if (geriYuklendi) {
+    window.addEventListener("DOMContentLoaded", function () {
+        const kap = document.getElementById("ozet");
+        if (!kap || document.getElementById("geriYuklemeNotu")) return;
+        const n = document.createElement("div");
+        n.id = "geriYuklemeNotu";
+        n.className = "kutu uyari-kutu";
+        n.innerHTML = '<p><b>Daha önce girdiğiniz bütçe geri yüklendi</b> (' +
+            geriYuklendi + ' alan). Bu sayılar bu cihazda saklanmıştı; ' +
+            'güncel olmayabilir.</p>' +
+            '<p><button type="button" class="ikincil" id="butceTemizleBtn">' +
+            'Hepsini temizle ve sıfırdan başla</button></p>';
+        kap.parentNode.insertBefore(n, kap);
+        const d = document.getElementById("butceTemizleBtn");
+        if (d) d.onclick = butceyiTemizle;
     });
 }
 
@@ -162,7 +208,7 @@ function girdileriTopla() {
 function kaydet() {
     const a = ayarOku();
     a.butce = {};
-    document.querySelectorAll("[data-gider], #maas, #ekGelir, #faiz, #enflasyon, #kalanBorc, #krediFaiz")
+    document.querySelectorAll(BUTCE_ALANLARI)
         .forEach(el => { if (el.value !== "") a.butce[el.id] = el.value; });
     ayarYaz(a);
 }

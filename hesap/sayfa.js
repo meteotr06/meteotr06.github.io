@@ -520,6 +520,24 @@ function baglantidanOku(alanlar) {
     return bulundu;
 }
 
+/* ---------- 3) Sonucu kopyala / paylaş / yazdır ----------
+   PAYLASILAN BAGLANTI GIRDILERI TASIYOR — ve bu SOYLENMIYORDU.
+   Olculdu (28 Agustos 2026, gercek kullanim turu):
+     net-maas   -> ?brut=92.500
+     gebelik    -> ?sat=2026-03-15     (son adet tarihi)
+     kredi      -> ?tutar=...&faiz=... (borc bilgisi)
+     vki        -> ?boy=...&kilo=...
+   Adres cubuguna yazmak KASITLI ve yararli: sayfa yenilenince deger
+   kayboluyorlardi, boyle korunuyor. Sorun ozellikte degil, SUSMADA:
+   dugme "Baglantiyi paylas" diyor, kullanici ARACI paylastigini
+   sanabilir. Gebelik tarihini ya da maasini bir gruba yollamak,
+   niyet edilmemis bir aciklamadir.
+   `sonucMetni` de sona `location.href` ekliyor; yani "Sonucu kopyala"
+   diyen de baglantiyi kopyaliyor. Ikisi de kapsandi.
+   Ozellik kaldirilmadi -- soylendi. Kullanicinin bilerek paylasmasi
+   ile bilmeden paylasmasi arasindaki fark budur.
+   Bu, parca sinamalarinin YAKALAYAMADIGI bir sinif: dugmeye basmak
+   ve panoya BAKMAK gerekiyordu (K-47). */
 // ---------- 3) Sonucu kopyala / paylaş / yazdır ----------
 function eylemCubugu(sonucGetir) {
     const c = document.createElement("div");
@@ -529,7 +547,10 @@ function eylemCubugu(sonucGetir) {
     c.innerHTML = `
         <button class="ikincil" type="button" id="kopyalaBtn">Sonucu kopyala</button>
         <button class="ikincil" type="button" id="paylasBtn">Bağlantıyı paylaş</button>
-        <button class="ikincil" type="button" id="yazdirBtn">Yazdır</button>`;
+        <button class="ikincil" type="button" id="yazdirBtn">Yazdır</button>
+        <p class="kucuk eylem-notu">Bağlantı ve kopyalanan metin,
+        <b>girdiğiniz değerleri içerir</b> — paylaştığınız kişi onları
+        görebilir.</p>`;
     return c;
 }
 
@@ -538,7 +559,7 @@ function eylemleriBagla(sonucGetir) {
         try { await navigator.clipboard.writeText(metin); }
         catch (e) { window.prompt("Kopyalayın:", metin); return; }
         const eski = dugme.textContent;
-        dugme.textContent = "Kopyalandı";
+        dugme.textContent = "Kopyalandı — girdiler dahil";
         setTimeout(() => dugme.textContent = eski, 1600);
     };
 

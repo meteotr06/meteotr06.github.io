@@ -728,6 +728,14 @@ h1 { font-size: 24px; margin: 4px 0 8px; font-weight: 700; letter-spacing: -.5px
 
 /* ---------- Eylem çubuğu ---------- */
 .eylem-cubugu { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }
+
+/* Paylasilan baglantinin girdileri tasidigini soyleyen not.
+   Ipucu (title) DEGIL: telefonda hover yok, kullanici hic gormezdi. */
+.eylem-notu {
+    flex-basis: 100%;
+    margin: 6px 0 0;
+    line-height: 1.4;
+}
 .eylem-cubugu button { border-color: var(--cizgi); font-size: 13px; min-height: 38px; }
 
 /* ---------- Sık sorulan sorular ---------- */
