@@ -2960,3 +2960,70 @@ function askerlikBorclanmasi(g) {
         kaynak: ASKERLIK.kaynak
     };
 }
+
+
+// ================= BAĞ-KUR (4/b) PRİMİ =================
+// Kaynak: 5510 sayılı Kanun md.80-81 (prime esas kazanç ve oranlar).
+// 2026 oranı: **%35,75** = uzun vadeli %21 + genel sağlık %12,5 +
+//             kısa vadeli %2,25.
+// Primlerini süresinde ödeyen ve borcu olmayanlara **5 puan indirim**:
+//             oran %30,75'e iner (md.81/son fıkra).
+//
+// ORAN NASIL DOGRULANDI -- IDDIAYA DEGIL ARITMETIGE BAKILDI:
+// Ilk aramada "%34,75" ciktı ve o oranla yazsaydim her tutar yanlis
+// olurdu. Bunun yerine YAYIMLANAN prim tutarlari, bizim bagimsiz
+// dogrulanmis taban/tavanimizla geri hesaplandi:
+//     33.030,00 × 0,3575 = 11.808,23   (yayimlanan: 11.808,23)
+//    297.270,00 × 0,3575 = 106.274,03  (yayimlanan: 106.274,03)
+//     33.030,00 × 0,3075 = 10.156,73   (indirimli, yayimlanan ayni)
+//    297.270,00 × 0,3075 = 91.410,53   (indirimli, yayimlanan ayni)
+// Dort tutarin dordu de birebir tuttu. Bir oran, kendi urettigi
+// sayilarla dogrulanabiliyorsa iddiadan daha guvenlidir.
+const BAGKUR = {
+    oran: 0.3575,
+    indirimliOran: 0.3075,
+    indirimPuan: 5,
+    kaynak: "5510 sayılı Kanun md.80-81",
+    guncelleme: "2026-01-01"
+};
+
+/* g: { beyanKazanc, indirim }
+   `beyanKazanc` verilmezse TABAN kullanılır.
+   Taban altı / tavan üstü değer kanunen beyan edilemez: sessizce
+   hesaplanmaz, sınıra çekilir ve bu ekranda söylenir. */
+function bagkurPrimi(g) {
+    const taban = PARAMETRE.sgkTaban;
+    const tavan = PARAMETRE.sgkTavan;
+
+    let kazanc = Number(g.beyanKazanc);
+    if (!Number.isFinite(kazanc) || kazanc <= 0) kazanc = taban;
+
+    let sinirlandi = null;
+    if (kazanc < taban) { kazanc = taban; sinirlandi = "taban"; }
+    else if (kazanc > tavan) { kazanc = tavan; sinirlandi = "tavan"; }
+
+    const indirimli = g.indirim === true;
+    const oran = indirimli ? BAGKUR.indirimliOran : BAGKUR.oran;
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+
+    const aylik = yuvarla(kazanc * oran);
+    const indirimsizAylik = yuvarla(kazanc * BAGKUR.oran);
+    const indirimliAylik = yuvarla(kazanc * BAGKUR.indirimliOran);
+
+    return {
+        beyanKazanc: yuvarla(kazanc),
+        taban: taban, tavan: tavan,
+        sinirlandi: sinirlandi,
+        indirimli: indirimli,
+        oran: oran,
+        aylik: aylik,
+        yillik: yuvarla(aylik * 12),
+        /* INDIRIMI KAYBETMENIN BEDELI: gec odemenin gorunmeyen fiyati.
+           Kullanicinin kendi hesaplayamayacagi sayi tam olarak budur. */
+        aylikFark: yuvarla(indirimsizAylik - indirimliAylik),
+        yillikFark: yuvarla((indirimsizAylik - indirimliAylik) * 12),
+        enAzAylik: yuvarla(taban * oran),
+        enCokAylik: yuvarla(tavan * oran),
+        kaynak: BAGKUR.kaynak
+    };
+}

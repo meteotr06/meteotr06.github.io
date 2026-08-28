@@ -34,8 +34,8 @@
      kirilmis bir reklamdir. -->
 <meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
-<title>Birim Çevirme — Uzunluk, Ağırlık, Sıcaklık, Alan, Hacim</title>
-<meta name="description" content="Birim çevirme aracı: metre-inç, kilogram-libre, santigrat-fahrenhayt, dönüm-metrekare, litre-galon ve daha fazlası. Anında çeviri." />
+<title>Bağ-Kur Primi Hesaplama 2026 — Aylık Ne Kadar?</title>
+<meta name="description" content="Bağ-Kur primi hesaplama 2026: beyan ettiğiniz kazanca göre aylık prim, 5 puanlık indirim ve indirimi kaybetmenin yıllık bedeli." />
 <meta name="theme-color" content="#ffffff" />
 <meta name="google-adsense-account" content="ca-pub-4471538043632173" />
 <!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
@@ -47,7 +47,7 @@
      gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
      ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
      ERTELE degiskenini false yap; betik yine basta yuklenir. -->
-<link rel="canonical" href="https://meteotr06.github.io/hesap/birim-cevirme.html" />
+<link rel="canonical" href="https://meteotr06.github.io/hesap/bagkur-primi-hesaplama.html" />
 <link rel="icon" href="simge.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <link rel="manifest" href="manifest.json" />
@@ -56,47 +56,37 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Hesap Araçları" />
 <meta property="og:locale" content="tr_TR" />
-<meta property="og:title" content="Birim Çevirme — Uzunluk, Ağırlık, Sıcaklık, Alan, Hacim" />
-<meta property="og:url" content="https://meteotr06.github.io/hesap/birim-cevirme.html" />
-<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/birim-cevirme.png" />
+<meta property="og:title" content="Bağ-Kur Primi Hesaplama 2026 — Aylık Ne Kadar?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/bagkur-primi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/bagkur-primi-hesaplama.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Birim Çevirme — Uzunluk, Ağırlık, Sıcaklık, Alan, Hacim" />
+<meta property="og:image:alt" content="Bağ-Kur Primi Hesaplama 2026 — Aylık Ne Kadar?" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/birim-cevirme.png" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/bagkur-primi-hesaplama.png" />
 <link rel="stylesheet" href="stil.css?v=78" />
 </head>
 <body>
 
 <main>
-    <h1>Birim Çevirme</h1>
-    <p class="ozet">Uzunluk, ağırlık, sıcaklık, alan, hacim ve hız birimleri arasında anında çeviri.</p>
+    <h1>Bağ-Kur Primi Hesaplama</h1>
+    <p class="ozet">Primi <b>siz belirlersiniz</b>: beyan ettiğiniz kazancın <b>%35,75'i</b>. Zamanında ödeyene <b>5 puan indirim</b> var ve bu yılda <b>on binlerce lira</b> demek.</p>
 
-    <div class="kaynak-serit"><span class="etiket-rozet">6 grup, 30+ birim</span><span class="etiket-rozet">Tüm karşılıklar tek tabloda</span></div>
+    <div class="kaynak-serit"><span class="etiket-rozet">5510 <b>md.80-81</b></span><span class="etiket-rozet">Oran <b>%35,75</b></span><span class="etiket-rozet">İndirimli <b>%30,75</b></span><span class="etiket-rozet">2026</span></div>
     <div class="arac-duzen">
         <div class="kutu">
             <div class="form-izgara">
-                <label>Birim grubu
-                    <select id="grup">
-                        <option value="uzunluk" selected>Uzunluk</option>
-                        <option value="agirlik">Ağırlık</option>
-                        <option value="sicaklik">Sıcaklık</option>
-                        <option value="alan">Alan</option>
-                        <option value="hacim">Hacim</option>
-                        <option value="hiz">Hız</option>
-                    </select>
+                <label>Beyan ettiğiniz aylık kazanç (TL)
+                    <input id="kazanc" type="text" inputmode="decimal" value="33030" />
                 </label>
-                <label>Değer
-                    <input id="deger" type="text" inputmode="decimal" value="100" />
-                </label>
-                <label>Kaynak birim
-                    <select id="kaynak"></select>
-                </label>
-                <label>Hedef birim
-                    <select id="hedef"></select>
+                <label class="onay">
+                    <input id="indirim" type="checkbox" checked />
+                    <span><b>5 puanlık indirim</b> — primlerimi süresinde ödüyorum, geçmiş borcum yok</span>
                 </label>
             </div>
-            <p class="kucuk">Sonuç anında güncellenir. Alt tabloda değerin <b>bütün birimlerdeki</b> karşılığı görünür.</p>
+            <p class="kucuk">Beyan edeceğiniz kazanç, prime esas kazancın <b>alt sınırı
+            (33.030,00 ₺)</b> ile <b>üst sınırı (297.270,00 ₺)</b> arasında olmak zorundadır.
+            Yüksek beyan bugün daha çok prim, ileride daha yüksek emekli aylığı demektir.</p>
         </div>
         <div id="ozet"></div>
     </div>
@@ -104,122 +94,109 @@
     <div id="dokum"></div>
 
     <section class="anlatim">
-        <h2>Sık kullanılan karşılıklar</h2>
-        <ul>
-            <li>1 inç = 2,54 cm · 1 fit = 30,48 cm · 1 mil = 1,609 km</li>
-            <li>1 libre (pound) = 453,6 gram · 1 ons = 28,35 gram</li>
-            <li>1 dönüm = 1.000 m² · 1 hektar = 10.000 m² (10 dönüm)</li>
-            <li>0 °C = 32 °F · 100 °C = 212 °F</li>
-        </ul>
+        <h2>Bağ-Kur primi nasıl hesaplanır?</h2>
+        <p>4/b sigortalısının primi, <b>kendi beyan ettiği</b> prime esas kazanç üzerinden
+        hesaplanır. 2026 oranı <b>%35,75</b>'tir ve üç parçadan oluşur: uzun vadeli
+        sigorta kolları <b>%21</b>, genel sağlık sigortası <b>%12,5</b>, kısa vadeli
+        sigorta kolları <b>%2,25</b>.</p>
+        <p>Beyan alt sınırın altına inemez, üst sınırın üstüne çıkamaz. En düşük beyanla
+        aylık prim <b>11.808,23 ₺</b>, en yüksek beyanla <b>106.274,03 ₺</b>'dir.</p>
 
-        <h2>Dönüm mü, hektar mı?</h2>
-        <p>Türkiye'de arazi genelde <b>dönüm</b> ile konuşulur: 1 dönüm 1.000 metrekaredir.
-        Resmî tapu kayıtlarında ise metrekare kullanılır. 1 hektar 10 dönüme eşittir.</p>
+        <h2>5 puanlık indirim — ve kaybetmenin bedeli</h2>
+        <p>Primlerini <b>süresinde ödeyen</b> ve SGK'ya geçmiş dönem prim ya da idari para
+        cezası borcu <b>bulunmayan</b> 4/b sigortalısı, oranı <b>%30,75</b> olarak öder.
+        Beş puanlık bu fark küçük görünür; değildir.</p>
+        <p>En düşük beyanda aylık fark <b>1.651,50 ₺</b>, <b>yıllık 19.818,00 ₺</b>.
+        Yani bir dönem primini geç ödemek, yalnızca gecikme zammı değil,
+        <b>indirimi de kaybettirebilir</b>. Araç bu farkı ayrıca gösterir — çünkü
+        “zamanında öde” tavsiyesinin parasal karşılığı budur.</p>
 
-        <h2>Sıcaklık neden farklı hesaplanıyor?</h2>
-        <p>Uzunluk ve ağırlıkta sıfır noktası ortaktır, bu yüzden basit çarpma yeter.
-        Sıcaklıkta ise her ölçeğin sıfırı farklı yerdedir; bu yüzden çarpmanın yanında
-        <b>toplama/çıkarma</b> da gerekir.</p>
+        <h2>Yüksek beyan mantıklı mı?</h2>
+        <p>Beyan yalnızca bugünkü primi belirlemez; emekli aylığınızın hesabına giren
+        <b>prime esas kazancınızı</b> da belirler. Düşük beyan bugün ucuz, yüksek beyan
+        ileride daha yüksek aylık demektir. Hangisinin doğru olduğu kalan çalışma sürenize
+        ve gelirinize bağlıdır — <b>bu araç o kararı vermez</b>, iki ucun aylık bedelini
+        gösterir.</p>
+
+        <h2>Bu araç neyi kapsamıyor</h2>
+        <p>Tarım Bağ-Kur, isteğe bağlı sigortalılık, teşvikler ve yapılandırma
+        hesapları burada yoktur. Ayrıca gecikme zammı bu araçta hesaplanmaz;
+        onun için <a href="gecikme-zammi-hesaplama.html">Gecikme Zammı</a> aracına bakın.</p>
     </section>
 </main>
 
 <script src="hesap.js?v=78"></script>
 <script src="sayfa.js?v=78"></script>
 <script>
-iskeletKur("birim-cevirme.html");
+iskeletKur("bagkur-primi-hesaplama.html");
 gizlilikBaglantisi();
 
-const ALANLAR = ["grup", "deger", "kaynak", "hedef"];
-
-let oncekiGrup = "";
-
-function birimListesiKur() {
-    const grup = document.getElementById("grup").value;
-    if (grup === oncekiGrup) return false;
-    oncekiGrup = grup;
-    const g = BIRIM_GRUPLARI[grup];
-    const secenekler = g.birimler.map(b => `<option value="${b.kod}">${b.ad}</option>`).join("");
-    document.getElementById("kaynak").innerHTML = secenekler;
-    document.getElementById("hedef").innerHTML = secenekler;
-    // Varsayılan olarak ilk iki farklı birimi seç
-    document.getElementById("kaynak").selectedIndex = 0;
-    document.getElementById("hedef").selectedIndex = Math.min(1, g.birimler.length - 1);
-    return true;
-}
+const ALANLAR = ["kazanc", "indirim"];
 
 function hesapla() {
-    const degisti = birimListesiKur();
-    const grup = document.getElementById("grup").value;
-    const kaynak = document.getElementById("kaynak").value;
-    const hedef = document.getElementById("hedef").value;
-    const deger = oku("deger");
-    const g = BIRIM_GRUPLARI[grup];
-    if (!kaynak || !hedef) return;
-
-    const sonuc = birimCevir(grup, kaynak, hedef, deger);
-    const kAd = g.birimler.find(b => b.kod === kaynak).ad;
-    const hAd = g.birimler.find(b => b.kod === hedef).ad;
-
-    // Anlamli basamak kadar goster, sondaki gereksiz sifirlari at (0,100000 degil 0,1)
-    const bicim = (x) => {
-        const m = Math.abs(x);
-        const basamak = m === 0 ? 2 : m >= 1000 ? 2 : m >= 1 ? 4 : m >= 0.001 ? 6 : 9;
-        let t = sayi(x, basamak);
-        if (t.indexOf(",") >= 0) t = t.replace(/0+$/, "").replace(/,$/, "");
-        return t;
-    };
+    const kazanc = oku("kazanc");
+    const indirim = isaretli("indirim");
+    const s = bagkurPrimi({ beyanKazanc: kazanc, indirim: indirim });
 
     document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
-        <div class="dev-deger">${bicim(sonuc)}</div>
-        <div class="dev-etiket">${hAd}</div>
-        ${satir(sayi(deger, 2) + " " + kAd, bicim(sonuc) + " " + hAd, "buyuk")}
+        <div class="dev-deger">${para(s.aylik)}</div>
+        <div class="dev-etiket">aylık Bağ-Kur primi${s.indirimli ? " (5 puan indirimli)" : ""}</div>
+        ${satir("Yıllık toplam", para(s.yillik), "buyuk")}
+        ${satir("Beyan edilen kazanç", para(s.beyanKazanc))}
+        ${satir("Uygulanan oran", yuzdeOn(s.oran * 100, 2))}
+        ${s.sinirlandi ? `<p class="varsayim"><b>Beyanınız sınıra çekildi.</b>
+            Prime esas kazanç ${para(s.taban)} ile ${para(s.tavan)} arasında olmak
+            zorundadır; hesap <b>${para(s.beyanKazanc)}</b> üzerinden yapıldı.</p>` : ""}
     </div>
 
-    <div class="kutu">
-        <h2 class="kutu-baslik">Bütün birimlerde karşılığı</h2>
-        <div class="tablo-sar"><table><thead><tr><th>Birim</th><th>Değer</th></tr></thead><tbody>
-        ${g.birimler.map(b => `<tr class="${b.kod === hedef ? "vurgu-satir" : ""}">
-            <td>${b.ad}</td><td><b>${bicim(birimCevir(grup, kaynak, b.kod, deger))}</b></td></tr>`).join("")}
-        </tbody></table></div>
+    <div class="kutu ${s.indirimli ? "" : "uyari-kutu"}">
+        <h2 class="kutu-baslik">5 puanlık indirimin bedeli</h2>
+        ${satir("Aylık fark", para(s.aylikFark), "buyuk")}
+        ${satir("Yıllık fark", para(s.yillikFark), "buyuk")}
+        <p class="${s.indirimli ? "kucuk" : ""}">${s.indirimli
+            ? `İndirimden yararlanıyorsunuz. Bir dönem primini <b>geç ödemek</b> bu
+               indirimi kaybettirebilir; o zaman yılda <b>${para(s.yillikFark)}</b> daha
+               fazla ödersiniz — üstüne gecikme zammı ayrıca işler.`
+            : `<b>İndirimden yararlanmıyorsunuz.</b> Primleri süresinde ödeyip geçmiş
+               borcunuzu kapatırsanız yılda <b>${para(s.yillikFark)}</b> daha az
+               ödersiniz.`}</p>
     </div>`;
 
-    const d = dokumKur("Çeviri nasıl yapıldı?");
-    if (grup === "sicaklik") {
-        d.ekle("Sıcaklık birimleri arasında oran değil formül kullanılır.",
-               kaynak === "C" && hedef === "F" ? "°C × 9/5 + 32"
-               : kaynak === "F" && hedef === "C" ? "(°F − 32) × 5/9"
-               : "Kelvin = °C + 273,15", bicim(sonuc));
-    } else {
-        const k = g.birimler.find(b => b.kod === kaynak), h = g.birimler.find(b => b.kod === hedef);
-        d.ekle(`Değer önce temel birime (${g.temel}) çevrilir.`,
-               `${sayi(deger, 2)} × ${k.kat}`, bicim(deger * k.kat) + " " + g.temel);
-        d.ekle("Sonra hedef birimin katsayısına bölünür.",
-               `${bicim(deger * k.kat)} ÷ ${h.kat}`, bicim(sonuc) + " " + h.ad);
-    }
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Beyan edilen kazanç (alt ve üst sınır arasında).",
+           para(s.taban) + " – " + para(s.tavan), para(s.beyanKazanc));
+    d.ekle(s.indirimli
+             ? "İndirimli oran: %35,75 − 5 puan (md.81)."
+             : "Prim oranı: uzun vadeli %21 + GSS %12,5 + kısa vadeli %2,25.",
+           `${sayi(s.beyanKazanc, 2)} × ${yuzdeOn(s.oran * 100, 2)}`, para(s.aylik));
+    d.ekle("Yıllık toplam.", `${sayi(s.aylik, 2)} × 12`, para(s.yillik));
+    d.ekle("İndirimin yıllık karşılığı.",
+           `${sayi(s.beyanKazanc, 0)} × %5 × 12`, para(s.yillikFark));
     document.getElementById("dokum").innerHTML = d.html();
     baglantiyaYaz(ALANLAR);
 }
 
-// Once grubu al ki secenekler dogru grupla dolsun, sonra secili birimleri geri yukle
-baglantidanOku(["grup"]);
-birimListesiKur();
 baglantidanOku(ALANLAR);
 document.getElementById("eylemler").appendChild(eylemCubugu());
 dinle(ALANLAR, hesapla);
 
-eylemleriBagla(() => sonucMetni("Birim Çevirme"));
-yapisalVeri("Birim Çevirme", "Birim çevirme aracı: metre-inç, kilogram-libre, santigrat-fahrenhayt, dönüm-metrekare, litre-galon ve daha fazlası. Anında çeviri.");
+eylemleriBagla(() => sonucMetni("Bağ-Kur Primi"));
+yapisalVeri("Bağ-Kur Primi Hesaplama", "Bağ-Kur primi hesaplama 2026: beyan kazancına göre aylık prim, 5 puanlık indirim ve indirimi kaybetmenin yıllık bedeli.");
 
 sssEkle([
-    { soru: "1 dönüm kaç metrekare?",
-      cevap: "1 dönüm 1.000 metrekaredir. 1 hektar ise 10.000 metrekare, yani 10 dönümdür. Eski ölçülerde 'evlek' de kullanılır; 1 dönüm 4 evlektir." },
-    { soru: "Fahrenhayt'ı santigrada nasıl çeviririm?",
-      cevap: "32 çıkarıp 5/9 ile çarparsınız. Örneğin 100 °F: (100 − 32) × 5/9 = 37,8 °C. Kabaca akılda tutmak için: 30 °C ≈ 86 °F, 20 °C ≈ 68 °F." },
-    { soru: "Kaç kilo kaç libre eder?",
-      cevap: "1 kilogram yaklaşık 2,205 libredir. Tersi: 1 libre 453,6 gramdır. Yurt dışı alışverişlerinde ve fitness programlarında sık karşılaşılır." }
+    { soru: "2026 Bağ-Kur primi ne kadar?",
+      cevap: "En düşük beyanla aylık 11.808,23 ₺, en yüksek beyanla 106.274,03 ₺. 5 puanlık indirimle bu tutarlar 10.156,73 ₺ ve 91.410,53 ₺ olur." },
+    { soru: "Prim oranı yüzde kaç?",
+      cevap: "%35,75: uzun vadeli sigorta kolları %21, genel sağlık sigortası %12,5, kısa vadeli sigorta kolları %2,25. Süresinde ödeyenlerde %30,75." },
+    { soru: "5 puanlık indirimi nasıl kaybederim?",
+      cevap: "Primleri süresinde ödemezseniz ya da SGK'ya geçmiş dönem prim veya idari para cezası borcunuz olursa. En düşük beyanda bu, yılda 19.818,00 ₺ fazladan ödeme demektir." },
+    { soru: "Kazancı ben mi belirliyorum?",
+      cevap: "Evet. Prime esas kazancın alt sınırı (33.030,00 ₺) ile üst sınırı (297.270,00 ₺) arasında beyan edersiniz. Beyan, emekli aylığı hesabına giren kazancınızı da belirler." },
+    { soru: "Yüksek beyan etmek işime yarar mı?",
+      cevap: "Bugün daha çok prim, ileride daha yüksek aylık demektir. Karar kalan çalışma sürenize ve gelirinize bağlıdır; bu araç iki ucun bedelini gösterir." }
 ]);
 
-ilgiliAraclar("birim-cevirme.html");
+ilgiliAraclar("bagkur-primi-hesaplama.html");
 reklamAlani();
 </script>
 <script>
