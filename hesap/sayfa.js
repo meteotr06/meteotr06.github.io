@@ -50,6 +50,7 @@ const ARACLAR = [
     { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" },
     { yol: "kiralamak-mi-satin-almak-mi.html", ad: "Kirala mı Al mı", aciklama: "Ev: dürüst karşılaştırma", grup: "Ev ve Yaşam", anahtar: "ev almak kiralamak kira mı taksit mi konut kredisi peşinat fırsat maliyeti yatırım başabaş değer artışı" },
     { yol: "elektrikli-arac-sarj-maliyeti.html", ad: "Şarj Maliyeti", aciklama: "Elektrikli araç vs benzinli", grup: "Araç", anahtar: "elektrikli araç şarj maliyeti kwh 100 km benzinli karşılaştırma ev şarjı istasyon hızlı şarj togg tesla menzil" },
+    { yol: "arac-satis-noter-hesaplama.html", ad: "Araç Satış Noteri", aciklama: "Noter harcı, ücret ve toplam masraf", grup: "Araç", anahtar: "noter araç satış devir harç kasko değeri binde 2 asgari tescil yazı ücreti galerici yetki belgesi ikinci el" },
     { yol: "mtv-hesaplama.html", ad: "MTV", aciklama: "Motorlu taşıtlar vergisi ve iki taksiti", grup: "Araç", anahtar: "mtv motorlu taşıtlar vergisi araç vergisi otomobil vergi ocak temmuz taksit motor hacmi taşıt değeri yaş tarife trafik" },
     { yol: "araba-masrafi-hesaplama.html", ad: "Araba Masrafı", aciklama: "Değer kaybı dahil gerçek maliyet", grup: "Araç", anahtar: "araba masrafı araç gideri sahip olma maliyeti değer kaybı amortisman mtv kasko sigorta bakım lastik km başına otomobil" },
     { yol: "lpg-donusum-amortisman-hesaplama.html", ad: "LPG Amortismanı", aciklama: "Kaç ayda kendini çıkarır", grup: "Araç", anahtar: "lpg dönüşüm amortisman tasarruf benzin karşılaştırma otogaz tüp montaj kaç ayda amorti başabaş" }
@@ -165,6 +166,22 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 78,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: araç satışında noter masrafı.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Noterde araç satarken ödenecek dört kalemi tek tek gösterir: " +
+            "harç, noter ücreti, yazı ve tescil.",
+            "En sık yanılgıyı da düzeltir: <b>satış bedelini düşük yazmak " +
+            "harcı azaltmaz.</b> Harç, satış bedeli ile <b>kasko değerinden " +
+            "büyüğü</b> üzerinden alınır — tapu harcındaki rayiç kuralının " +
+            "aynısı.",
+            "Matrah 500.000 ₺'nin altındaysa <b>asgari 1.000 ₺</b> devreye " +
+            "girer; o eşiğin altında aracın değeri harcı değiştirmez.",
+        ],
+    },
     {
         surum: 77,
         tarih: "28 Ağustos 2026",

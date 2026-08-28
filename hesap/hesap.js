@@ -3027,3 +3027,90 @@ function bagkurPrimi(g) {
         kaynak: BAGKUR.kaynak
     };
 }
+
+
+// ================= ARAÇ SATIŞ NOTER MASRAFI =================
+// Kaynak: 492 sayılı Harçlar Kanunu (2) sayılı tarife (nispi harç),
+//         Noterlik Kanunu md.112 (noter ücreti = harcın %30'u),
+//         2026 Yılı Noterlik Ücret Tarifesi (Adalet Bakanlığı).
+// 2026 değerleri: nispi harç **binde 2**, asgari harç **1.000 ₺**,
+//         yazı ücreti sayfa başına **80,68 ₺**, tescil ücreti
+//         işlem başına **25,21 ₺**. Geçerlilik: 01.01.2026.
+//
+// KAYNAKLAR MATRAHTA CELISTI, COZULDU: bir kaynak "satis bedeli
+// uzerinden" diyordu, otekiler "satis bedeli ile KASKO DEGERINDEN
+// YUKSEK OLANI". Ikincisi dogru ve fark onemli -- dusuk beyan harci
+// azaltmiyor. Bu, tapu harci aracimizdaki "beyan vs rayic" kuralinin
+// ayni mantigi; orada da matrah buyuk olandi.
+//
+// KAPSAM DISI: ikinci el arac ticareti yetki belgesi olan tacirler
+// nispi harctan MUAF. Arac bunu bir secenek olarak soruyor, cunku
+// muaf olani tam ucretle hesaplamak sessizce yanlis olurdu.
+const NOTER = {
+    yil: 2026,
+    harcOran: 0.002,          // binde 2
+    asgariHarc: 1000,
+    noterUcretOran: 0.30,     // harcın %30'u
+    yaziUcretiSayfa: 80.68,
+    tescilUcreti: 25.21,
+    kaynak: "492 s. Harçlar Kanunu (2) sayılı tarife · Noterlik Kanunu md.112 · 2026 Noterlik Ücret Tarifesi",
+    guncelleme: "2026-01-01"
+};
+
+/* g: { satisBedeli, kaskoDegeri, sayfa, ticariMuaf } */
+function aracSatisNoter(g) {
+    /* `|| 0` KULLANILMAZ -- projenin kendi degismezi bunu yasakliyor
+       ve ilk yazista bu kalibi kullanmistim, sinama yakaladi.
+       Sebep: "abc" yazan kullanicinin bedeli sessizce 0 olur ve harc
+       asgariye duser; ekranda makul bir sayi cikar, yanlistir.
+       Bos alan ile GECERSIZ girdi ayri seylerdir: bos = verilmedi,
+       gecersiz = reddedilir. */
+    const sayiAl = (deger) => {
+        if (deger === undefined || deger === null || deger === "") return 0;
+        const n = Number(deger);
+        return Number.isFinite(n) && n > 0 ? n : NaN;
+    };
+    const satis = sayiAl(g.satisBedeli);
+    const kasko = sayiAl(g.kaskoDegeri);
+    if (Number.isNaN(satis) || Number.isNaN(kasko)) return { hata: "gecersizBedel" };
+    if (satis <= 0 && kasko <= 0) return { hata: "bedelYok" };
+
+    let sayfa = Number(g.sayfa);
+    if (!Number.isFinite(sayfa) || sayfa < 1) sayfa = 1;
+    if (sayfa > 50) return { hata: "sayfaFazla" };
+
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    const matrah = Math.max(satis, kasko);
+    const dusukBeyan = kasko > satis && satis > 0;
+
+    const muaf = g.ticariMuaf === true;
+    const hamHarc = yuvarla(matrah * NOTER.harcOran);
+    let harc = muaf ? 0 : Math.max(hamHarc, NOTER.asgariHarc);
+    harc = yuvarla(harc);
+    const asgariBagladi = !muaf && hamHarc < NOTER.asgariHarc;
+
+    const noterUcreti = yuvarla(harc * NOTER.noterUcretOran);
+    const yaziUcreti = yuvarla(NOTER.yaziUcretiSayfa * sayfa);
+    const tescil = NOTER.tescilUcreti;
+    const toplam = yuvarla(harc + noterUcreti + yaziUcreti + tescil);
+
+    return {
+        satisBedeli: satis, kaskoDegeri: kasko,
+        matrah: matrah,
+        matrahKaynagi: matrah === kasko && kasko > satis ? "kasko" : "satis",
+        dusukBeyan: dusukBeyan,
+        muaf: muaf,
+        hamHarc: hamHarc,
+        harc: harc,
+        asgariBagladi: asgariBagladi,
+        asgariHarc: NOTER.asgariHarc,
+        noterUcreti: noterUcreti,
+        yaziUcreti: yaziUcreti,
+        sayfa: sayfa,
+        tescilUcreti: tescil,
+        toplam: toplam,
+        oran: NOTER.harcOran,
+        yil: NOTER.yil,
+        kaynak: NOTER.kaynak
+    };
+}

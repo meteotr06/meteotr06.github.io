@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Araç Satış Noter Masrafı 2026 — Harç ve Ücretler</title>
+<meta name="description" content="Araç satışında noter masrafı 2026: binde 2 harç, asgari 1.000 ₺, noter ücreti, yazı ve tescil. Kasko değeri matrahı nasıl değiştirir." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/arac-satis-noter-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Araç Satış Noter Masrafı 2026 — Harç ve Ücretler" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/arac-satis-noter-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/arac-satis-noter-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Araç Satış Noter Masrafı 2026 — Harç ve Ücretler" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/arac-satis-noter-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=79" />
+</head>
+<body>
+
+<main>
+    <h1>Araç Satış Noter Masrafı</h1>
+    <p class="ozet">Harç, satış bedeli ile <b>kasko değerinden büyük olanın</b> binde 2'si — en az <b>1.000 ₺</b>. Düşük göstermek harcı azaltmaz.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">492 sayılı Kanun</span><span class="etiket-rozet">Harç <b>binde 2</b></span><span class="etiket-rozet">Asgari <b>1.000 ₺</b></span><span class="etiket-rozet">2026</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Satış bedeli (TL)
+                    <input id="satis" type="text" inputmode="decimal" value="750000" />
+                </label>
+                <label>Aracın kasko değeri (TL)
+                    <input id="kasko" type="text" inputmode="decimal" value="900000" />
+                </label>
+                <label>Kaç sayfa
+                    <input id="sayfa" type="text" inputmode="numeric" min="1" max="50" value="2" />
+                </label>
+                <label class="onay">
+                    <input id="muaf" type="checkbox" />
+                    <span>İkinci el araç ticareti <b>yetki belgem var</b> (nispi harçtan muaf)</span>
+                </label>
+            </div>
+            <p class="kucuk"><b>Kasko değeri</b>, sigorta şirketlerinin yayımladığı kasko
+            değer listesinden gelir; noter buna bakar. Satış bedelini düşük yazmak harcı
+            <b>azaltmaz</b> — harç ikisinden büyüğü üzerinden alınır.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Noterde araç satışında ne ödenir?</h2>
+        <p>Dört kalem var:</p>
+        <ul>
+            <li><b>Nispi harç:</b> matrahın binde 2'si, <b>en az 1.000 ₺</b>.</li>
+            <li><b>Noter ücreti:</b> harcın <b>%30</b>'u (Noterlik Kanunu md.112).</li>
+            <li><b>Yazı ücreti:</b> sayfa başına <b>80,68 ₺</b>.</li>
+            <li><b>Tescil ücreti:</b> işlem başına <b>25,21 ₺</b>.</li>
+        </ul>
+        <p>Noter ücreti harca bağlı olduğu için, harç arttıkça <b>iki kalem birden</b>
+        artar — toplam yük binde 2 değil, pratikte <b>binde 2,6</b> gibi davranır.</p>
+
+        <h2>Matrah: satış bedeli mi, kasko değeri mi?</h2>
+        <p><b>Hangisi büyükse o.</b> Bu kural, satış bedelini düşük göstererek harç
+        azaltmayı engellemek için var. Aracınızın kasko değeri 900.000 ₺ iken satışı
+        300.000 ₺ yazmak harcı 600 ₺'ye indirmez; harç yine <b>1.800 ₺</b> çıkar.</p>
+        <p>Tapu harcındaki <b>rayiç bedel</b> kuralının aynısıdır — orada da matrah,
+        beyan ile rayiçten büyük olandır.</p>
+
+        <h2>Asgari harç ne zaman bağlar?</h2>
+        <p>Matrah <b>500.000 ₺</b>'nin altındaysa binde 2 hesabı 1.000 ₺'nin altında kalır
+        ve asgari tutar devreye girer. Yani 200.000 ₺'lik bir araçta da, 450.000 ₺'lik bir
+        araçta da harç <b>1.000 ₺</b>'dir. Bu eşiğin altında aracın değeri harcı
+        değiştirmez.</p>
+
+        <h2>Kim muaf?</h2>
+        <p><b>İkinci el motorlu kara taşıtı ticareti yetki belgesi</b> olan tacirlerin
+        yaptığı devirlerde nispi harç alınmaz. Bu durumda harç ve ona bağlı noter ücreti
+        sıfırlanır; yazı ve tescil ücretleri yine ödenir.</p>
+
+        <h2>Bu araç neyi kapsamıyor</h2>
+        <p>Plaka, ruhsat basım bedeli, zorunlu trafik sigortası ve varsa
+        <a href="mtv-hesaplama.html">MTV</a> borcu burada hesaplanmaz. Ayrıca noterlik
+        ücret tarifesindeki diğer işlemler (vekaletname, ihtarname vb.) kapsam dışıdır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=79"></script>
+<script src="sayfa.js?v=79"></script>
+<script>
+iskeletKur("arac-satis-noter-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["satis", "kasko", "sayfa", "muaf"];
+
+function hesapla() {
+    const satis = oku("satis"), kasko = oku("kasko"), sayfa = oku("sayfa");
+    const muaf = isaretli("muaf");
+    const s = aracSatisNoter({ satisBedeli: satis, kaskoDegeri: kasko,
+                               sayfa: sayfa, ticariMuaf: muaf });
+    if (s.hata) {
+        sonucBekliyor({
+            sayfaFazla: "Sayfa sayısı en çok 50 olabilir.",
+            gecersizBedel: "Bedeli sayı olarak yazın — boş bırakabilirsiniz ama harf olmaz.",
+            bedelYok: "Satış bedelini ya da kasko değerini yazın."
+        }[s.hata] || "Girdileri kontrol edin.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.toplam)}</div>
+        <div class="dev-etiket">noterde ödenecek toplam</div>
+        ${satir("Harç (binde 2)", para(s.harc), "buyuk")}
+        ${satir("Noter ücreti (harcın %30'u)", para(s.noterUcreti))}
+        ${satir("Yazı ücreti (" + sayi(s.sayfa, 0) + " sayfa)", para(s.yaziUcreti))}
+        ${satir("Tescil ücreti", para(s.tescilUcreti))}
+        ${satir("Harca esas matrah", para(s.matrah))}
+        ${s.dusukBeyan ? `<p class="varsayim"><b>Düşük beyan harcı azaltmadı.</b>
+            Satış bedelini ${para(s.satisBedeli)} yazdınız ama kasko değeri
+            ${para(s.kaskoDegeri)}; harç <b>büyük olan</b> üzerinden alınır.
+            Beyanınız esas alınsaydı harç ${para(Math.max(s.satisBedeli * s.oran, s.asgariHarc))}
+            olurdu.</p>` : ""}
+        ${s.asgariBagladi ? `<p class="varsayim">Binde 2 hesabı
+            <b>${para(s.hamHarc)}</b> ediyor; asgari tutar <b>${para(s.asgariHarc)}</b>
+            olduğu için harç asgariye çıktı. Matrah 500.000 ₺'nin altında kaldığı sürece
+            aracın değeri harcı değiştirmez.</p>` : ""}
+        ${s.muaf ? `<p class="varsayim"><b>Yetki belgesi muafiyeti uygulandı.</b>
+            Nispi harç ve ona bağlı noter ücreti alınmadı; yazı ve tescil ücretleri
+            yine ödeniyor.</p>` : ""}
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Matrah: satış bedeli ile kasko değerinden büyüğü.",
+           `en büyük(${sayi(s.satisBedeli, 0)} ; ${sayi(s.kaskoDegeri, 0)})`, para(s.matrah));
+    if (s.muaf)
+        d.ekle("Yetki belgesi muafiyeti: nispi harç alınmaz.", "muaf", para(0));
+    else {
+        d.ekle("Nispi harç: matrahın binde 2'si.",
+               `${sayi(s.matrah, 0)} × 0,002`, para(s.hamHarc));
+        if (s.asgariBagladi)
+            d.ekle("Asgari harç sınırı uygulandı.", para(s.asgariHarc), para(s.harc));
+    }
+    d.ekle("Noter ücreti: harcın %30'u (Noterlik Kanunu md.112).",
+           `${sayi(s.harc, 2)} × 0,30`, para(s.noterUcreti));
+    d.ekle("Yazı ücreti: sayfa başına 80,68 ₺.",
+           `80,68 × ${sayi(s.sayfa, 0)}`, para(s.yaziUcreti));
+    d.ekle("Tescil ücreti eklenir.", para(s.tescilUcreti), para(s.toplam));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Araç Satış Noter Masrafı " + NOTER.yil));
+yapisalVeri("Araç Satış Noter Masrafı", "Araç satışında noter masrafı 2026: binde 2 harç, asgari 1.000 ₺, noter ücreti, yazı ve tescil ücretleri.");
+
+sssEkle([
+    { soru: "Noterde araç satışı 2026'da kaç para?",
+      cevap: "Harç, satış bedeli ile kasko değerinden büyüğünün binde 2'si ve en az 1.000 ₺. Üstüne harcın %30'u noter ücreti, sayfa başına 80,68 ₺ yazı ücreti ve 25,21 ₺ tescil ücreti eklenir." },
+    { soru: "Satış bedelini düşük yazsam harç azalır mı?",
+      cevap: "Hayır. Harç, satış bedeli ile kasko değerinden büyüğü üzerinden alınır. Kasko değeri 900.000 ₺ olan bir aracı 300.000 ₺ göstermek harcı 600 ₺ yapmaz; harç yine 1.800 ₺ çıkar." },
+    { soru: "Asgari harç ne zaman devreye girer?",
+      cevap: "Matrah 500.000 ₺'nin altındaysa. O eşiğin altında binde 2 hesabı 1.000 ₺'yi bulmaz ve harç 1.000 ₺ olarak alınır; aracın değeri harcı değiştirmez." },
+    { soru: "Noter ücreti neden ayrıca alınıyor?",
+      cevap: "Noterlik Kanunu md.112'ye göre noterler, aldıkları harcın %30'u oranında ücret alır. Harç arttıkça bu da arttığı için toplam yük binde 2 değil, pratikte daha yüksektir." },
+    { soru: "Galericiler de aynı harcı ödüyor mu?",
+      cevap: "Hayır. İkinci el motorlu kara taşıtı ticareti yetki belgesi olanların yaptığı devirlerde nispi harç alınmaz; yazı ve tescil ücretleri ödenir." }
+]);
+
+ilgiliAraclar("arac-satis-noter-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>
