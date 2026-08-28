@@ -41,6 +41,7 @@ const ARACLAR = [
     { yol: "iskonto-hesaplama.html", ad: "İskonto", aciklama: "Ardışık indirimde gerçek oran", grup: "Ticaret", anahtar: "iskonto indirim ardışık kademeli liste fiyatı net fiyat bayi toptan kampanya ihale teklif" },
     { yol: "dogalgaz-faturasi-hesaplama.html", ad: "Doğalgaz Faturası", aciklama: "m³'ten kWh'a, sayaçtan faturaya", grup: "Ev ve Yaşam", anahtar: "doğalgaz fatura m3 metreküp kwh sayaç ısıl değer kombi ısınma abonelik igdaş başkentgaz" },
     { yol: "dogum-izni-hesaplama.html", ad: "Doğum İzni", aciklama: "24 hafta — yeni düzenleme", grup: "Maaş ve Çalışma", anahtar: "doğum izni analık izni süt izni babalık izni 24 hafta 16 hafta hamile gebe çoğul ücretsiz izin sgk analık ödeneği 7578" },
+    { yol: "damga-vergisi-hesaplama.html", ad: "Damga Vergisi", aciklama: "Kira ve sözleşmede vergi, istisna şartı", grup: "Ev ve Yaşam", anahtar: "damga vergisi kira sözleşmesi kontrat mukavele işyeri konut kefil istisna binde sözleşme bedeli ücret azami 488" },
     { yol: "kira-stopaji-hesaplama.html", ad: "Kira Stopajı", aciklama: "İşyeri kirasında brüt-net ve beyan sınırı", grup: "Ev ve Yaşam", anahtar: "kira stopaj tevkifat işyeri dükkan ofis brüt net kiracı kiraya veren gvk 94 beyan sınırı mahsup vergi" },
     { yol: "kira-geliri-vergisi-hesaplama.html", ad: "Kira Geliri Vergisi", aciklama: "İstisna, götürü/gerçek gider", grup: "Ev ve Yaşam", anahtar: "kira geliri vergisi gmsi beyanname istisna götürü gider gerçek gider ev sahibi mart temmuz taksit hazır beyan stopaj" },
     { yol: "gebelik-haftasi-hesaplama.html", ad: "Gebelik Haftası", aciklama: "Tahmini doğum tarihi", grup: "Sağlık", anahtar: "gebelik haftası hamilelik kaçıncı hafta tahmini doğum tarihi naegele son adet trimester üç ay bebek" },
@@ -161,6 +162,21 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 74,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: damga vergisi — kirada matrah ve konut istisnasının şartı.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Kirada damga vergisi <b>aylık kira üzerinden değil</b>, sözleşme " +
+            "süresince ödenecek <b>toplam</b> kira üzerinden alınır. Beş yıllık " +
+            "sözleşme, bir yıllığın <b>beş katı</b> vergi doğurur.",
+            "Konut kirasında istisna <b>üç şarta birden</b> bağlı: konut, " +
+            "gerçek kişiler ve <b>kefilsiz</b>. Kefil eklenirse istisna düşer — " +
+            "aynı sözleşme 0 ₺ yerine birkaç yüz lira olur. Araç istisnadan " +
+            "yararlanıyorsanız <b>istisnanın parasal değerini</b> de yazıyor.",
+        ],
+    },
     {
         surum: 73,
         tarih: "28 Ağustos 2026",

@@ -2711,3 +2711,88 @@ function verasetVergisi(g) {
         yil: VERASET.yil
     };
 }
+
+
+// ================= DAMGA VERGİSİ =================
+// Kaynak: 488 sayılı Damga Vergisi Kanunu, (1) ve (2) sayılı tablolar.
+//         2026 azami tutar: 71 Seri No'lu Damga Vergisi Kanunu Genel
+//         Tebliği, Resmî Gazete 31.12.2025, sayı 33124 (5. mükerrer)
+//         — MTV (58) ve veraset (57) tebliğleriyle AYNI gazete sayısı.
+// Doğrulama: oranlar ve azami tutar iki bağımsız kaynakta birebir aynı.
+//         Ayrıca ücret oranı (binde 7,59) bizim PARAMETRE.damgaOran
+//         değerimizle tuttu — üçüncü doğrulama kendi dosyamızdan.
+//
+// KARARI BELİRLEYEN DAL: (2) sayılı tablo IV/31 — ticari işletmeye
+// dahil olmayan bir konutun GERÇEK KİŞİLER arasında kiralanmasına
+// ilişkin sözleşme damga vergisinden İSTİSNADIR; ancak bu istisna
+// yalnızca kâğıtta kiraya veren ve kiracının imzası varsa geçerlidir.
+// KEFİL varsa (ya da depozito/şerh eklenmişse) istisna düşer ve vergi
+// doğar. İki kaynak bu noktada çelişti; kanunun tablosuna bakılarak
+// çözüldü. Aynı sözleşme "kefilsiz 0 ₺, kefilli 453 ₺" olabiliyor.
+const DAMGA = {
+    yil: 2026,
+    oranKira: 0.00189,        // (1) sayılı tablo I/A-2 — kira mukavelenameleri
+    oranSozlesme: 0.00948,    // belli parayı ihtiva eden sözleşmeler
+    oranUcret: 0.00759,       // ücret ödemeleri
+    azami: 29115961.10,       // her bir kâğıt için üst sınır
+    kaynak: "488 sayılı Kanun — Genel Tebliğ Seri No: 71 (RG 31.12.2025)",
+    guncelleme: "2026-01-01"
+};
+
+/* Damga vergisi.
+   g: { tur:"konutKira"|"isyeriKira"|"sozlesme"|"ucret",
+        tutar, ay, kefilVar, tuzelKisi }
+
+   KİRADA MATRAH AYLIK KİRA DEĞİL: sözleşme süresi boyunca oluşacak
+   TOPLAM kira bedelidir. Beş yıllık bir sözleşme, bir yıllığın beş
+   katı vergi doğurur. Kullanıcı aylık kirayı yazıp aylık vergi
+   bekliyorsa yanılır; bu yüzden matrah ekranda ayrıca gösterilir. */
+function damgaVergisi(g) {
+    const tutar = Number(g.tutar);
+    if (!Number.isFinite(tutar) || tutar <= 0) return { hata: "tutarYok" };
+
+    const kiraMi = g.tur === "konutKira" || g.tur === "isyeriKira";
+    let ay = 1;
+    if (kiraMi) {
+        ay = Number(g.ay);
+        if (!Number.isFinite(ay) || ay <= 0 || ay > 600) return { hata: "ayYok" };
+    }
+
+    const matrah = kiraMi ? tutar * ay : tutar;
+
+    /* İSTİSNA: konut + gerçek kişiler + kefilsiz. Üçü birden gerekir. */
+    const istisna = g.tur === "konutKira" && g.kefilVar !== true && g.tuzelKisi !== true;
+
+    let oran = 0;
+    if (!istisna) {
+        if (kiraMi) oran = DAMGA.oranKira;
+        else if (g.tur === "ucret") oran = DAMGA.oranUcret;
+        else oran = DAMGA.oranSozlesme;
+    }
+
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    const hamVergi = yuvarla(matrah * oran);
+    const azamiAsildi = hamVergi > DAMGA.azami;
+    const vergi = azamiAsildi ? DAMGA.azami : hamVergi;
+
+    /* İstisna DÜŞSEYDİ ne olurdu — kefil eklemenin bedeli. */
+    const istisnasizVergi = g.tur === "konutKira"
+        ? yuvarla(Math.min(matrah * DAMGA.oranKira, DAMGA.azami)) : vergi;
+
+    return {
+        matrah: matrah,
+        aylikTutar: kiraMi ? tutar : null,
+        ay: kiraMi ? ay : null,
+        oran: oran,
+        istisna: istisna,
+        vergi: vergi,
+        hamVergi: hamVergi,
+        azamiAsildi: azamiAsildi,
+        azami: DAMGA.azami,
+        istisnasizVergi: istisnasizVergi,
+        istisnaninDegeri: istisna ? istisnasizVergi : 0,
+        tur: g.tur,
+        kaynak: DAMGA.kaynak,
+        yil: DAMGA.yil
+    };
+}
