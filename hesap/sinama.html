@@ -578,6 +578,31 @@ window.addEventListener("load", async function () {
     } catch (e) { ol(t[0] + " okunamadı", false, String(e)); }
   }
 
+  /* ══ S · Kalan iki kaynak (K-45 kapanışı) ════════════════════════
+     `issizlik`te 600 gün koşulu kaynaksızdı VE metni eskiydi:
+     “son 120 gün KESİNTİSİZ çalışmış” yazıyordu. Bu, 18.01.2019
+     öncesinin kuralı; bugün “hizmet akdine tabi olmak” yetiyor.
+     Yani sayfa yasadan DAHA KATI konuşuyor ve hak sahibi birini
+     “ben alamam” diye düşündürebilirdi. Yanlış sayı değil, yanlış
+     KOŞUL — sonucu aynı: kullanıcı yanlış karar verir.
+     `kalori`deki 7.700 kcal/kg ise kaynaksızdı: Wishnofsky (1958).
+     Özgün hesap çekinceliydi, çekince aktarıla aktarıla düştü. */
+  bas("S · Kalan iki kaynak");
+  for (const t of [["issizlik-maasi-hesaplama.html", "4447 sayılı İşsizlik"],
+                   ["issizlik-maasi-hesaplama.html", "hizmet akdine tabi olmak"],
+                   ["kalori-ihtiyaci-hesaplama.html", "Wishnofsky"]]) {
+    try {
+      const cb = await fetch(t[0] + "?t=" + T);
+      ol(t[0] + " → " + t[1], (await cb.text()).indexOf(t[1]) >= 0);
+    } catch (e) { ol(t[0] + " okunamadı", false, String(e)); }
+  }
+  /* ESKİ, DAHA KATI METİN GERİ GELMESİN */
+  try {
+    const cc = await fetch("issizlik-maasi-hesaplama.html?t=" + T);
+    ol("eski “120 gün kesintisiz” ifadesi geri gelmemiş",
+       (await cc.text()).indexOf("son 120 gün kesintisiz") < 0);
+  } catch (e) { ol("okunamadı", false, String(e)); }
+
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
     if (s.bolum) return "<h2>" + s.bolum + "</h2>";
