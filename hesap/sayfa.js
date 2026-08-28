@@ -141,13 +141,59 @@ function ayarYaz(a) {
 
    Tek kaynak: hem şerit hem "neler-degisti.html" bunu okur.
    ============================================================ */
+/* SURUM SAYISI YAYIN DAMGASIYLA AYNI OLMAK ZORUNDA DEGIL.
+   Onceki halde serit, `sayfa.js?v=N` damgasini burada TAM ESITLIKLE
+   ariyordu. Damgayi merkez yayin aninda basiyor (K-43), bu sayiyi ise
+   elle yaziyoruz -- iki sayi kacinilmaz olarak ayrisiyor.
+
+   Olculdu (CANLIDA): damga 61, tek kayit 52 -> eslesme yok -> bildirim
+   SESSIZCE hic cikmadi. Ayni hata bu dosyada bugun IKINCI kez oldu:
+   sabah kayit 51 / damga 52 diye bulunmus ve SAYILAR HIZALANARAK
+   cozulmustu. Sayilari hizalamak cozum degil, tuzagi bir sonraki
+   yayina ertelemek. Bedeli somut: bugun eklenen aktarim, kurulum
+   daveti, iki sekme uyarisi ve kayit uyarisi -- hicbiri duyurulmadi.
+
+   Artik esitlik degil "kullanicinin gordugunden BUYUK" araniyor.
+   Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
+   yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
     {
-        /* YAYIN DAMGASIYLA AYNI OLMAK ZORUNDA.
-           Serit `sayfa.js?v=N` damgasindan okudugu sayiyi burada arar;
-           tutmazsa bildirim SESSIZCE hic cikmaz. Merkez damgayi yayin
-           aninda basiyor (K-43), o yuzden bu sayi da yayin damgasi
-           kadar olmali - su an 52. */
+        surum: 61,
+        tarih: "28 Ağustos 2026",
+        ozet: "Doğum izni ve gebelik hesaplarında tarih, Türkiye dışındaki " +
+              "bazı kullanıcılarda bir gün geri çıkıyordu; düzeltildi.",
+        /* KAYIT KIMIN YAPTIGINI DEGIL, KULLANICININ NE YAPMASI
+           GEREKTIGINI soyler. Bu duzeltmeyi baska bir oturum yapti;
+           onemli olan kullanicinin YANLIS BIR TARIHLE is planlamis
+           olabilmesi. Olculdu: `new Date("2026-01-15")` UTC gece yarisi
+           olarak cozuluyordu, `tarihOku` ise yerel gece yarisi --
+           aradaki fark tam UTC farki kadar (burada -3 saat). Turkiye'de
+           gun degismiyor; UTC'nin BATISINDA bir gun geri kayiyor. */
+        hesapDuzeltmesi: true,
+        maddeler: [
+            "Doğum izni ve gebelik: girdiğiniz tarih, Türkiye dışındaki " +
+            "bazı saat dilimlerinde bir gün geri okunuyordu. Düzeltildi — " +
+            "daha önce bu iki hesabı yaptıysanız sonucunuzu yeniden alın.",
+            "Başka cihaza taşıma: bütçenizi ve tercihlerinizi kare kodla " +
+            "ya da dosyayla başka bir cihaza aktarabilirsiniz. Ne " +
+            "değişeceği önce gösteriliyor, onaylamadan hiçbir şey yazılmıyor. " +
+            "Aktarım bizim sunucumuzdan geçmiyor.",
+            "İki sekme: aynı aracı iki sekmede açıp ikisinde de yazdığınızda, " +
+            "eski sekme yenisinin girdiklerini siliyordu. Sildiğiniz bütçe de " +
+            "geri gelebiliyordu. Artık çakışma söyleniyor ve kararı siz " +
+            "veriyorsunuz.",
+            "Kaydedilemeyen veri: tarayıcı deposu doluysa ya da gizli " +
+            "pencerede çalışıyorsanız girdikleriniz kaydedilmiyordu ve bu " +
+            "size söylenmiyordu. Artık açıkça uyarıyor.",
+            "Güvenlik: özel hazırlanmış bir bağlantının sayfada kod " +
+            "çalıştırmasına izin veren bir açık kapatıldı.",
+            "Sayfa eksik yüklendiğinde artık uyarı çıkıyor — sessizce " +
+            "çalışmıyor görünmek yerine durumu söylüyor.",
+            "Telefonda klavye açıkken sonucun kaybolması giderildi; cevap " +
+            "klavyenin üstündeki şeritte duruyor.",
+        ],
+    },
+    {
         surum: 52,
         tarih: "28 Ağustos 2026",
         ozet: "Dört hesapta eski sonuç ekranda kalıyordu; düzeltildi.",
@@ -207,8 +253,12 @@ const DEGISIKLIKLER = [
 ];
 
 /** Yüklü `sayfa.js?v=N` damgasından sürümü okur.
-    Ayrı bir sürüm sabiti tutmak ikinci bir elle yazılan sayı olurdu
-    ve ikisi er geç ayrışırdı. */
+
+    ARTIK BILDIRIM BUNA BAKMIYOR. Serit eskiden bu sayiyi
+    `DEGISIKLIKLER` kayitlariyla TAM ESITLIKLE karsilastiriyordu ve
+    ikisi ayrisinca bildirim sessizce olmustu (damga 61, kayit 52).
+    Islev, tanilama ve olcum icin duruyor; kapi olarak KULLANILMAMALI.
+    Iki elle yazilan sayinin esitligine dayanan kapi yazilmaz (K-46). */
 function surumNo() {
     const s = document.querySelector('script[src*="sayfa.js"]');
     const m = s && (s.getAttribute("src") || "").match(/[?&]v=(\d+)/);
@@ -216,12 +266,19 @@ function surumNo() {
 }
 
 function yenilikSeridi() {
-    const surum = surumNo();
-    if (!surum) return;                       // damga yoksa sessiz kal
-    const kayit = DEGISIKLIKLER.find(function (d) { return d.surum === surum; });
-    if (!kayit) return;                       // bu sürüm için not yoksa gösterme
+    /* Damgaya BAKMIYORUZ. Kullanicinin en son gordugu kayittan yeni bir
+       kayit var mi? Damganin kac oldugu bu sorunun cevabini degistirmez. */
     const ayar = ayarOku();
-    if (ayar.gorulenSurum === surum) return;  // bir kez gösterilir
+    const gorulen = Number(ayar.gorulenSurum) || 0;
+    const yeniler = DEGISIKLIKLER.filter(function (d) { return d.surum > gorulen; });
+    if (!yeniler.length) return;
+
+    /* En yenisi gosterilir; ama arada birden cok yayin kacirilmis
+       olabilir, o yuzden "hesap duzeltmesi" uyarisi HEPSINE bakar --
+       kullanici arada duzeltilmis bir hesaba bakmis olabilir. */
+    const kayit = yeniler.reduce(function (a, b) { return b.surum > a.surum ? b : a; });
+    const duzeltmeVar = yeniler.some(function (d) { return d.hesapDuzeltmesi; });
+    const surum = kayit.surum;
 
     const c = document.createElement("div");
     c.className = "yenilik-serit";
@@ -229,7 +286,7 @@ function yenilikSeridi() {
     c.innerHTML =
         '<div class="ys-govde">' +
         '<b>Bu araçlarda değişiklik yapıldı.</b> ' + kayit.ozet +
-        (kayit.hesapDuzeltmesi
+        (duzeltmeVar
             ? ' Daha önce hesap yaptıysanız <b>sonucunuzu yeniden alın</b>.'
             : "") +
         ' <a href="neler-degisti.html">Neler değişti?</a>' +
