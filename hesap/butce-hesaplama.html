@@ -36,7 +36,7 @@
 <meta property="og:image:alt" content="Aylık Bütçe Hesaplama — Gelir, Gider ve Kalan Para" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/butce-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=57" />
+<link rel="stylesheet" href="stil.css?v=58" />
 </head>
 <body>
 
@@ -119,8 +119,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=57"></script>
-<script src="sayfa.js?v=57"></script>
+<script src="hesap.js?v=58"></script>
+<script src="sayfa.js?v=58"></script>
 <script>
 iskeletKur("butce-hesaplama.html");
 gizlilikBaglantisi();
@@ -172,6 +172,10 @@ function butceyiTemizle() {
     const a = ayarOku();
     delete a.butce;              /* isaret degil, kaydin KENDISI siliniyor */
     ayarYaz(a);
+    /* Temizlemek KASITLI bir istektir. Bundan sonra baska bir sekme
+       butce yazarsa sessizce yuklemeyiz -- kullanicinin sildigi seyi
+       geri getirmek olurdu. Cakisma olarak sorulur. */
+    bizDokunduk = true;
     document.querySelectorAll(BUTCE_ALANLARI)
         .forEach(el => { el.value = ""; });
     const n = document.getElementById("geriYuklemeNotu");
@@ -205,7 +209,97 @@ function girdileriTopla() {
     return giderler;
 }
 
+/* ============================================================
+   IKI SEKME AYNI ANDA ACIKSA
+   ============================================================
+   `kaydet()` formun TAMAMINI yaziyor. Iki sekme acikken bu, gec
+   dokunanin erken yazani ezmesi demek -- ve ezilen sey kullanicinin
+   DAHA YENI girdigi bilgi oluyor.
+
+   Olculdu (28 Agustos 2026, test-eszamanli.html):
+     B sekmesinde maas=90.000, ekGelir=12.000 girildi ve kaydedildi.
+     Sonra A sekmesinde (hala eski hali gosteriyor) TEK bir alana
+     dokunuldu -> kayit 50.000 / 0'a geri dondu.
+     Hata mesaji yok, cokme yok. Sadece kaybolan veri.
+     Ikinci olcum daha kotusuydu: B'de "hepsini temizle" denmisti;
+     A'ya dokununca SILINEN butce 6 alanla geri geldi. Kullanici
+     verisini silmeyi istemisti; geri gelmesi bir gizlilik sorunu.
+
+   Cozum: bu sekme diger sekmenin yazdigini DUYUYOR.
+   · Bu sekmede henuz bir sey yazilmadiysa form sessizce tazelenir --
+     sorulacak bir sey yok, kullanicinin emegi burada degil.
+   · Bu sekmede yazi varsa CAKISMA vardir: karar kullanicinindir,
+     ikisinden birini biz secemeyiz. Karar verilene kadar bu sekme
+     YAZMAZ; yoksa suskun kalip yine ezerdik. */
+let bizDokunduk = false;
+let cakismaVar = false;
+
+function formaYukle(butce) {
+    document.querySelectorAll(BUTCE_ALANLARI).forEach(el => { el.value = ""; });
+    Object.keys(butce || {}).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = butce[id];
+    });
+    if (typeof hesapla === "function") hesapla();
+}
+
+function cakismayiGoster(gelen) {
+    if (document.getElementById("baskaSekmeNotu")) return;
+    const kap = document.getElementById("ozet");
+    if (!kap) return;
+    const silindi = !gelen.butce || !Object.keys(gelen.butce).length;
+    const n = document.createElement("div");
+    n.id = "baskaSekmeNotu";
+    n.className = "kutu uyari-kutu";
+    n.setAttribute("role", "alert");
+    n.innerHTML = "<p><b>Bu bütçe başka bir sekmede " +
+        (silindi ? "temizlendi" : "değiştirildi") + ".</b> " +
+        "Buradaki ekran artık güncel değil. Hangisini " +
+        "tutacağınıza siz karar verin — " +
+        "karar verene kadar bu sekme kayıt yapmıyor.</p>" +
+        '<p><button type="button" id="digeriniAlBtn">' +
+        (silindi ? "Temizlenmiş hâli al" : "Diğer sekmedekini al") +
+        '</button> <button type="button" class="ikincil" id="buradakiniTutBtn">' +
+        "Buradakini tut ve kaydet</button></p>";
+    kap.parentNode.insertBefore(n, kap);
+    document.getElementById("digeriniAlBtn").onclick = function () {
+        formaYukle(gelen.butce);
+        cakismaVar = false; bizDokunduk = false;
+        n.remove();
+    };
+    document.getElementById("buradakiniTutBtn").onclick = function () {
+        cakismaVar = false;
+        n.remove();
+        kaydet();
+    };
+}
+
+/* DOKUNMA, KAYDETME DEGILDIR.
+   Ilk halde `bizDokunduk` bayragi `kaydet()` icinde kalkiyordu. Ama
+   `dinle()` acilista bir kez hesapladigi icin `kaydet()` her sekmede
+   YUKTE calisiyor: hicbir sekme "dokunulmamis" sayilmiyordu ve sessiz
+   tazeleme dali OLU KODDU. Kendi sinamam yakaladi (dal 1 kaldi).
+   Bayrak artik kullanicinin GERCEK etkilesiminden kalkiyor. */
+document.querySelectorAll(BUTCE_ALANLARI).forEach(function (el) {
+    el.addEventListener("input", function () { bizDokunduk = true; });
+    el.addEventListener("change", function () { bizDokunduk = true; });
+});
+
+window.addEventListener("storage", function (e) {
+    /* Bu olay YALNIZ diger sekmelerde atesleme yapar; kendi yazdigimizin
+       yankisi gelmez. */
+    if (e.key !== "hesapAraclariAyar") return;
+    let gelen = {};
+    try { gelen = JSON.parse(e.newValue) || {}; } catch (x) { }
+    if (!bizDokunduk) { formaYukle(gelen.butce); return; }
+    cakismaVar = true;
+    cakismayiGoster(gelen);
+});
+
 function kaydet() {
+    /* Cakisma cozulmeden yazmak, kullanicinin diger sekmedeki emegini
+       sessizce silmek olurdu. */
+    if (cakismaVar) return;
     const a = ayarOku();
     a.butce = {};
     document.querySelectorAll(BUTCE_ALANLARI)
@@ -391,6 +485,62 @@ sssEkle([
 ilgiliAraclar("butce-hesaplama.html");
 
 reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            if (not) { not.parentNode.removeChild(not); not = null; }
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
 </script>
 </body>
 </html>

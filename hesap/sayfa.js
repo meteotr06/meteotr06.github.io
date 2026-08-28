@@ -79,8 +79,18 @@ const KAYIT = "hesapAraclariAyar";
 function ayarOku() {
     try { return JSON.parse(localStorage.getItem(KAYIT)) || {}; } catch (e) { return {}; }
 }
+/* DEGISMEDIYSE YAZMA.
+   `dinle()` acilista bir kez hesapliyor, o da `kaydet()`i cagiriyor:
+   yani sayfayi ACMAK bile bir yazma uretiyordu. Ayni degeri geri yazmak
+   diger sekmelere `storage` olayi gonderip bosuna "baska sekmede
+   degisti" uyarisi cikarabilir. Gercekten degisen bir sey yoksa
+   dokunmuyoruz. */
 function ayarYaz(a) {
-    try { localStorage.setItem(KAYIT, JSON.stringify(a)); } catch (e) { }
+    try {
+        const yeni = JSON.stringify(a);
+        if (localStorage.getItem(KAYIT) === yeni) return;
+        localStorage.setItem(KAYIT, yeni);
+    } catch (e) { }
 }
 
 
@@ -205,6 +215,7 @@ function yenilikSeridi() {
 // ---------- Üst bar ve alt bilgi ----------
 
 function iskeletKur(aktifYol) {
+    window.hesapIskeleti = true;
     const ayar = ayarOku();
     /* KULLANICI SEÇMEDİYSE İŞLETİM SİSTEMİNE UY.
        Ölçüldü (28.08.2026): telefon karanlık kipteyken sayfa bembeyaz
@@ -420,6 +431,10 @@ function dinle(idler, isle) {
         girdileriDenetle(idler);
         try {
             isle();
+            /* CANLILIK ISARETI. Sayfanin sonundaki satir ici denetim buna
+               bakiyor. YALNIZ basarili hesaptan sonra kalkar: `hesap.js`
+               indirilemezse `isle()` firlatir ve isaret KALKMAZ. */
+            window.hesapCalisti = true;
         } catch (h) {
             /* Sessizce yutma: kullaniciya bir sey soyle, eski cevabi da
                ekranda birakma. Hangi girdinin kirdigini bilmiyoruz ama
@@ -852,7 +867,11 @@ function gizlilikBaglantisi() {
     if (!alt || alt.querySelector(".gizlilik-bag")) return;
     const p = document.createElement("p");
     p.className = "kucuk gizlilik-bag";
+    /* Aktarim sayfasi buradan ulasilir. Arac listesine KOYULMADI: bir
+       hesap araci degil, tasima yolu. Listede olsaydi "42 arac" sayisi
+       da yalan olurdu. */
     p.innerHTML = `<a href="gizlilik.html">Gizlilik politikası</a> ·
+        <a href="aktarim.html">Başka cihaza taşı</a> ·
         <a href="index.html">Bütün araçlar</a> ·
         Bu sitede Google AdSense reklamları gösterilir.`;
     alt.appendChild(p);

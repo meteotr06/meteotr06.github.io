@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Cihazdan Cihaza Aktarım — Hesap Araçları</title>
+<meta name="description" content="Bütçenizi ve tercihlerinizi başka bir cihaza taşıyın. Kare kodu okutun ya da dosya kaydedin. Veriler sunucuya gitmez, cihazda kalır." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="robots" content="noindex" />
+<link rel="canonical" href="https://meteotr06.github.io/hesap/aktarim.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<link rel="stylesheet" href="stil.css?v=58" />
+<style>
+ .kare-kod-kutu{text-align:center;padding:14px 0}
+ .kare-kod-kutu svg{max-width:100%;height:auto;border-radius:6px}
+ .fark-tablo{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+ .fark-tablo th,.fark-tablo td{padding:6px 8px;border-bottom:1px solid var(--cizgi,#e5e7eb);text-align:left}
+ .fark-tablo td.eski{color:#6b7280;text-decoration:line-through}
+ .rozet{font-size:12px;padding:1px 7px;border-radius:99px;white-space:nowrap}
+ .r-ekle{background:#dcfce7;color:#14532d}
+ .r-degis{background:#fef3c7;color:#78350f}
+ .r-sil{background:#fee2e2;color:#7f1d1d}
+ .aktarim-sarma{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<main>
+    <h1>Cihazdan cihaza aktarım</h1>
+
+    <p class="ipucu">Girdikleriniz yalnız kullandığınız cihazda saklanıyor —
+    bizim sunucumuza hiç gitmiyor. Bu sayfa, kaydınızı <b>başka bir cihaza
+    kendiniz taşımanız</b> içindir. Aktarım da sunucudan geçmez: kare kod
+    ekranınızda çizilir, dosya cihazınızda kalır.</p>
+
+    <div id="alma"></div>
+
+    <section class="kutu">
+        <h2 class="kutu-baslik">Bu cihazdan gönder</h2>
+        <div id="gonderme"></div>
+    </section>
+
+    <section class="kutu">
+        <h2 class="kutu-baslik">Bu cihaza al</h2>
+        <p class="kucuk">Karşı cihazda kare kodu telefonunuzun kamerasıyla
+        okutun — adres bu sayfayı açar. Kamera kullanmıyorsanız oradaki
+        dosyayı buraya yükleyin ya da bağlantıyı yapıştırın.</p>
+        <p>
+            <input type="file" id="dosyaSec" accept=".json,application/json" />
+        </p>
+        <p>
+            <label class="etiket" for="yapistir">Bağlantıyı yapıştırın</label>
+            <input type="text" id="yapistir" inputmode="url" autocomplete="off"
+                   placeholder="https://…/aktarim.html#a=…" />
+        </p>
+        <p><button type="button" class="ikincil" id="okuBtn">Oku</button></p>
+        <div id="okumaSonucu"></div>
+    </section>
+
+    <section class="kutu">
+        <h2 class="kutu-baslik">Bilmeniz gerekenler</h2>
+        <ul class="kucuk">
+            <li><b>Bağlantı verinizi taşır.</b> Kare kodun ve kopyalanan
+            adresin içinde bütçe rakamlarınız vardır. Tanımadığınız kimseyle
+            paylaşmayın; bu adres tarayıcı geçmişinize de yazılır.</li>
+            <li><b>Onaysız hiçbir şey değişmez.</b> Gelen veri önce
+            karşılaştırma olarak gösterilir; siz onaylamadan bu cihazdaki
+            kayıt olduğu gibi kalır.</li>
+            <li><b>Doğrulama sayısı imza değildir.</b> Yalnız taşınırken
+            bozulmayı yakalar; verinin kimden geldiğini kanıtlamaz. Onay
+            ekranında ne geldiğine bakın.</li>
+        </ul>
+    </section>
+</main>
+
+<script src="hesap.js?v=58"></script>
+<script src="sayfa.js?v=58"></script>
+<script src="kare-kod.js?v=58"></script>
+<script src="aktarim.js?v=58"></script>
+<script>
+iskeletKur("aktarim.html");
+
+function el(x) { return document.getElementById(x); }
+function temelAdres() { return location.href.split("#")[0].split("?")[0]; }
+
+/* ---------- GÖNDEREN ---------- */
+function gondermeyiCiz() {
+    const kap = el("gonderme");
+    const v = aktarimVerisi();
+    const dokum = aktarimDokumu(v);
+
+    if (!dokum.length) {
+        kap.innerHTML = '<p>Bu cihazda aktarılacak bir kayıt yok. Bütçe ' +
+            'aracını doldurduğunuzda ya da görünümü değiştirdiğinizde burada ' +
+            'görünür.</p>';
+        return;
+    }
+
+    const kod = aktarimKodu(v, Date.now());
+    const adres = temelAdres() + "#a=" + kod;
+    const kk = qrKodla(adres);
+
+    let html = '<p><b>Gidecekler</b> — başka hiçbir şey aktarılmaz:</p><ul>';
+    dokum.forEach(function (d) {
+        html += "<li>" + kacir(d.ad) + ": <b>" + kacir(d.deger) + "</b></li>";
+    });
+    html += '</ul><p class="kucuk">Bu cihaza özgü olanlar bilerek ' +
+        'gönderilmiyor: uygulamanın bu cihaza kurulu olup olmadığı ve ' +
+        'değişiklik duyurusunu görüp görmediğiniz.</p>';
+
+    if (kk) {
+        html += '<div class="kare-kod-kutu">' + qrSvg(kk, 260) + '</div>' +
+            '<p class="kucuk">Diğer cihazın kamerasıyla okutun. ' +
+            'Kod ' + kk.boyut + '×' + kk.boyut + ' modül.</p>';
+    } else {
+        /* SIĞMADI. Kırpılmış kod üretmek yerine söylüyoruz: yarım aktarılan
+           bir bütçe, ekranda hatasız görünüp yanlış rakam gösterirdi. */
+        html += '<p class="onemli"><b>Kaydınız kare koda sığmıyor.</b> ' +
+            'Kırpılmış bir kod üretmiyoruz — eksik aktarılan bütçe, ' +
+            'karşı cihazda hatasız görünüp yanlış toplam verirdi. ' +
+            'Aşağıdaki <b>dosya</b> yolunu kullanın.</p>';
+    }
+    html += '<p><button type="button" id="dosyaBtn">Dosyaya kaydet</button> ' +
+        '<button type="button" class="ikincil" id="kopyaBtn">Bağlantıyı kopyala</button></p>' +
+        '<p class="kucuk" id="gondermeNot"></p>';
+    kap.innerHTML = html;
+
+    el("dosyaBtn").onclick = function () {
+        const metin = aktarimPaketle(v, Date.now());
+        const b = new Blob([metin], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = "hesap-araclari-aktarim.json";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+        el("gondermeNot").textContent = "Dosya kaydedildi — içinde bütçe rakamlarınız var.";
+    };
+    el("kopyaBtn").onclick = function () {
+        const yaz = navigator.clipboard && navigator.clipboard.writeText
+            ? navigator.clipboard.writeText(adres) : Promise.reject();
+        yaz.then(function () {
+            el("gondermeNot").textContent = "Kopyalandı — bağlantı bütçe rakamlarınızı içerir.";
+        }).catch(function () {
+            el("gondermeNot").textContent = "Kopyalanamadı. Adres: " + adres;
+        });
+    };
+}
+
+/* ---------- ALAN ---------- */
+function farkiGoster(gelen, zaman, kap) {
+    const fark = aktarimFarki(gelen);
+    if (!fark.length) {
+        kap.innerHTML = '<p class="kutu">Gelen kayıt bu cihazdakiyle <b>aynı</b>. ' +
+            'Değiştirilecek bir şey yok.</p>';
+        return;
+    }
+    let eskiMi = "";
+    if (zaman) {
+        const gun = Math.floor((Date.now() - zaman) / 86400000);
+        if (gun >= 1) eskiMi = '<p class="onemli"><b>Bu kayıt ' + gun +
+            ' gün önce oluşturulmuş.</b> O tarihten sonra bu cihazda ' +
+            'yaptığınız değişiklikler aşağıdaki gibi geri alınacak.</p>';
+    }
+    let html = eskiMi + '<p><b>Onaylarsanız şunlar değişecek:</b></p>' +
+        '<div class="aktarim-sarma"><table class="fark-tablo">' +
+        '<tr><th>Alan</th><th>Şu an</th><th>Olacak</th><th></th></tr>';
+    fark.forEach(function (f) {
+        const rozet = f.tur === "eklenecek" ? '<span class="rozet r-ekle">eklenecek</span>'
+            : f.tur === "silinecek" ? '<span class="rozet r-sil">silinecek</span>'
+            : '<span class="rozet r-degis">değişecek</span>';
+        html += "<tr><td>" + kacir(f.ad) + '</td><td class="eski">' + kacir(f.eski) +
+            "</td><td><b>" + kacir(f.yeni) + "</b></td><td>" + rozet + "</td></tr>";
+    });
+    html += "</table></div>" +
+        '<p><button type="button" id="onayBtn">Onaylıyorum, bu cihaza yaz</button> ' +
+        '<button type="button" class="ikincil" id="vazgecBtn">Vazgeç</button></p>';
+    kap.innerHTML = html;
+
+    el("onayBtn").onclick = function () {
+        const s = aktarimUygula(gelen);
+        if (s.hata) { kap.innerHTML = '<p class="kutu uyari-kutu">' + kacir(s.mesaj) + "</p>"; return; }
+        /* Adresteki yük siliniyor: sayfa yenilenince aynı onay ekranı
+           tekrar açılmasın ve veri adres çubuğunda kalmasın. */
+        try { history.replaceState(null, "", temelAdres()); } catch (e) { }
+        kap.innerHTML = '<p class="kutu"><b>Aktarıldı.</b> Bütçe aracını açtığınızda ' +
+            'kayıtlarınızı göreceksiniz.</p>';
+        gondermeyiCiz();
+    };
+    el("vazgecBtn").onclick = function () {
+        try { history.replaceState(null, "", temelAdres()); } catch (e) { }
+        kap.innerHTML = '<p class="kutu">Vazgeçildi — bu cihazda hiçbir şey değişmedi.</p>';
+    };
+}
+
+function koduIsle(kod, kap) {
+    const s = aktarimCoz(kod);
+    if (s.hata) {
+        kap.innerHTML = '<p class="kutu uyari-kutu"><b>Alınmadı.</b> ' + kacir(s.mesaj) +
+            '<br><span class="kucuk">Bu cihazdaki kayıtlara dokunulmadı.</span></p>';
+        return;
+    }
+    if (!Object.keys(s.veri).length) {
+        kap.innerHTML = '<p class="kutu uyari-kutu">Gelen kayıtta aktarılabilir ' +
+            'bir şey yok.</p>';
+        return;
+    }
+    farkiGoster(s.veri, s.zaman, kap);
+}
+
+/* Adresten geldiyse SAYFANIN BAŞINDA sor — kullanıcı aşağı inmek zorunda
+   kalmasın; ama sorulmadan hiçbir şey yazılmaz. */
+(function () {
+    const m = location.hash.match(/[#&]a=([^&]+)/);
+    if (m) koduIsle(m[1], el("alma"));
+})();
+
+el("okuBtn").onclick = function () {
+    const ham = el("yapistir").value.trim();
+    const m = ham.match(/[#&]a=([^&]+)/);
+    koduIsle(m ? m[1] : ham, el("okumaSonucu"));
+};
+el("dosyaSec").onchange = function (e) {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const o = new FileReader();
+    o.onload = function () {
+        /* Dosya paketin KENDİSİNİ tutuyor (base64 değil); aynı denetimden
+           geçsin diye kodlanıp çözülüyor — iki ayrı doğrulama yolu olsaydı
+           er geç ayrışırdı. */
+        try { koduIsle(b64Yaz(String(o.result)), el("okumaSonucu")); }
+        catch (err) {
+            el("okumaSonucu").innerHTML = '<p class="kutu uyari-kutu">Dosya okunamadı.</p>';
+        }
+    };
+    o.readAsText(f);
+};
+
+gondermeyiCiz();
+gizlilikBaglantisi();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapIskeleti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            if (not) { not.parentNode.removeChild(not); not = null; }
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>
