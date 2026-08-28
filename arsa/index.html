@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Arsa Rehberi" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="application-name" content="Arsa Rehberi" />
-<link rel="stylesheet" href="stil.css?v=44" />
+<link rel="stylesheet" href="stil.css?v=45" />
 </head>
 <body>
 
@@ -291,10 +291,10 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=44"></script>
-<script src="cekirdek.js?v=44"></script>
-<script src="mevzuat.js?v=44"></script>
-<script src="arayuz.js?v=44"></script>
+<script src="degisiklikler.js?v=45"></script>
+<script src="cekirdek.js?v=45"></script>
+<script src="mevzuat.js?v=45"></script>
+<script src="arayuz.js?v=45"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */
@@ -304,5 +304,73 @@ if ("serviceWorker" in navigator) {
     });
 }
 </script>
+<!-- UYGULAMA GERÇEKTEN BAŞLADI MI?
+
+     05 ve 09'da ölçüldü, ikisinde de VARDI: önbellekte tek bir dosya
+     eksik olunca sayfa AÇILMIŞ GİBİ görünüyor — başlık, sekmeler,
+     düğmeler yerinde — ama hesap motoru yok ve sonuç hiç çıkmıyor.
+     Hata mesajı da yok. Kullanıcı "hesaplamıyor" der, sebebini
+     bilemez. Arsa'da bu denetim yoktu.
+
+     SATIR İÇİ ve en sonda: hangi dosya gelmezse gelmesin kendisi
+     çalışır.
+
+     SABİT SÜRE BEKLEMİYOR. 05'te sabit 2 saniye kullanmıştım ve
+     yavaş ağda YANLIŞ ALARM veriyordu — kullanıcı sağlam uygulamanın
+     üstünde "eksik yüklendi" ekranı görüyordu, yani koruma
+     koruduğu hatayı taklit ediyordu. Burada süre değil DURUM
+     ölçülüyor: yükleme bitmeden asla uyarmıyor. -->
+<div id="baslamadiUyari" hidden>
+  <div>
+    <b>Uygulama eksik yüklendi — hesaplama çalışmıyor.</b>
+    <p>Bazı dosyalar gelmedi. Aşağıdaki düğme önbelleği temizleyip
+       yeniden dener. İnternete bağlı olman gerekebilir.</p>
+    <p lang="en"><b>The app loaded incompletely — calculation will not
+       work.</b> Some files did not arrive. The button below clears the
+       cache and tries again; you may need to be online.</p>
+    <button type="button" id="baslamadiYenile">Temizle ve yenile · Clear and reload</button>
+  </div>
+</div>
+<script>
+(function () {
+  var basi = Date.now(), bitisAni = 0;
+  function saglamMi() { return !!(window.Cekirdek && window.Mevzuat); }
+  function bak() {
+    if (saglamMi()) return;
+    if (document.readyState !== 'complete') {
+      bitisAni = 0;
+      if (Date.now() - basi < 60000) setTimeout(bak, 250);
+      return;
+    }
+    if (!bitisAni) bitisAni = Date.now();
+    if (Date.now() - bitisAni < 1500) { setTimeout(bak, 250); return; }
+
+    var u = document.getElementById('baslamadiUyari');
+    if (!u) return;
+    u.hidden = false;
+    var d = document.getElementById('baslamadiYenile');
+    if (!d) return;
+    d.addEventListener('click', function () {
+      d.disabled = true;
+      d.textContent = 'Temizleniyor…';
+      var isler = [];
+      if (window.caches) {
+        isler.push(caches.keys().then(function (a) {
+          return Promise.all(a.map(function (x) { return caches.delete(x); }));
+        }));
+      }
+      if (navigator.serviceWorker) {
+        isler.push(navigator.serviceWorker.getRegistrations().then(function (r) {
+          return Promise.all(r.map(function (x) { return x.unregister(); }));
+        }));
+      }
+      Promise.all(isler)["catch"](function () {})
+        .then(function () { location.reload(true); });
+    });
+  }
+  setTimeout(bak, 400);
+}());
+</script>
+
 </body>
 </html>
