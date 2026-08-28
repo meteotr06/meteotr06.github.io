@@ -2,6 +2,37 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
 <title>Elektrikli Araç Şarj Maliyeti — 100 km Kaç Lira?</title>
 <meta name="description" content="Elektrikli araç şarj maliyeti hesaplama: ev şarjı ve hızlı şarj ayrı ayrı, benzinliyle karşılaştırmalı. 100 km başına gerçek maliyet ve aylık tasarruf." />
@@ -33,7 +64,7 @@
 <meta property="og:image:alt" content="Elektrikli Araç Şarj Maliyeti — 100 km Kaç Lira?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/elektrikli-arac-sarj-maliyeti.png" />
-<link rel="stylesheet" href="stil.css?v=65" />
+<link rel="stylesheet" href="stil.css?v=66" />
 </head>
 <body>
 
@@ -112,8 +143,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=65"></script>
-<script src="sayfa.js?v=65"></script>
+<script src="hesap.js?v=66"></script>
+<script src="sayfa.js?v=66"></script>
 <script>
 iskeletKur("elektrikli-arac-sarj-maliyeti.html");
 gizlilikBaglantisi();
