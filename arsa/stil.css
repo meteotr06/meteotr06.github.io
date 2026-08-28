@@ -245,6 +245,42 @@ input.gecersiz, select.gecersiz {
 .vasif-gerekce { font-size: 14px; margin: 0; }
 
 /* ---------- Rapor kartları ---------- */
+/* NE DEĞİŞTİ ŞERİDİ (K-44) */
+.yenilik-notu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--cizgi);
+    border-left: 4px solid var(--vurgu);
+    border-radius: 12px;
+    background: var(--kart);
+}
+.yenilik-govde { flex: 1 1 240px; min-width: 0; }
+.yenilik-govde p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
+.yenilik-dugmeler { display: flex; gap: 8px; flex-wrap: wrap; }
+/* Dokunma hedefi: telefonda 44 px altina inmesin. */
+.yenilik-dugmeler > * {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+/* Hesap düzeltmesi uyarısı — "neler değişti" sayfasında */
+.uyari-satir {
+    margin: 8px 0 0;
+    padding: 8px 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-left: 3px solid var(--vurgu);
+    border-radius: 0 8px 8px 0;
+    background: var(--zemin);
+}
+
 .kart-blok {
     background: var(--kart); border: 1px solid var(--cizgi);
     border-radius: var(--yuvarlak); padding: 16px; margin-bottom: 12px;

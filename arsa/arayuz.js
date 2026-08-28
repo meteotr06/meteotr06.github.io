@@ -17,6 +17,12 @@ var M = window.Mevzuat;
 
 var DEPO_ANAHTAR = 'arsa-rehberi-defter';
 var TEMA_ANAHTAR = 'arsa-rehberi-tema';
+/* AYRI ANAHTAR - bilerek defterin ya da temanin yaninda degil.
+   05 Goz Molasi'nda bu isaret ayar nesnesine konmustu; oradaki
+   kaydet() nesneyi alan alan yeniden kurdugu icin isaret 15
+   saniyede bir siliniyor, serit her acilista geri geliyordu.
+   Burada oyle bir toplu kayit yok ama eklenirse diye ayri. */
+var GORULEN_ANAHTAR = 'arsa-rehberi-gorulen';
 
 function $(id) { return document.getElementById(id); }
 function el(etiket, sinif, metin) {
@@ -208,7 +214,27 @@ var YARDIM = {
                '<p><b>Dikkat:</b> <b>Kadastro yolu</b> ile <b>imar yolu</b> ' +
                'aynı şey değildir. Araçla gidebiliyor olmanız, o yolun imar ' +
                'planında yol olduğu anlamına gelmez. İmar yoluna cephesi ' +
-               'olmayan parselde kural olarak <b>inşaat ruhsatı alınamaz</b>.</p>'
+               'olmayan parselde kural olarak <b>inşaat ruhsatı alınamaz</b>.</p>' +
+               /* KAPANAN KAPIYI YAZIYORSAN ACIK KALANI DA YAZ.
+                  Buraya kadar dogruydu ama EKSIKTI: yonetmelik iki cikis
+                  yolu tanimliyor ve ikisinin de kosullari var. Cozumu
+                  yazmadan yalniz yasagi yazmak, kullaniciyi olmadigi
+                  kadar caresiz birakir -- ayni zararin oteki yonu. */
+               '<p><b>Peki ne yapılabilir?</b> Planlı Alanlar İmar ' +
+               'Yönetmeliği iki yol tanımlıyor:</p>' +
+               '<p><b>1) Tevhit (birleştirme).</b> Yola cephesi olan ' +
+               'komşu bir parselle birleştirilir. Diğer hükümler ' +
+               'uygulanamıyorsa bu <b>zorunludur</b> — yani komşuyla ' +
+               'anlaşmak tek yol olabilir.</p>' +
+               '<p><b>2) Geçit hakkı.</b> Ruhsat verilebilmesi için üç ' +
+               'koşulun <b>birlikte</b> sağlanması gerekir: parsel ' +
+               'yönetmelikten <b>önce</b> oluşmuş olmalı, bitişiğinde ' +
+               'boş parsel <b>bulunmamalı</b>, ve komşu parsellerden ' +
+               '<b>sınırsız</b> geçit hakkı alınıp <b>tapuya şerh</b> ' +
+               'edilmiş olmalı. Sözlü izin ya da fiilen kullanılan yol ' +
+               'yetmez.</p>' +
+               '<p class="kucuk">Bu bir hukuki görüş değildir; kesin ' +
+               'durumu belediyenin imar müdürlüğü söyler.</p>'
     }
 };
 
@@ -1341,6 +1367,65 @@ var SEKME_ADRESI = {
     parsel: 'sParsel', rapor: 'sRapor', imar: 'sImar', defter: 'sDefter'
 };
 
+/* NE DEĞİŞTİ ŞERİDİ (K-44).
+   Bu uygulama insanların para kararını etkiliyor; sessizce yayınlamak,
+   kullanıcının yanlış bir rakamla karar vermiş olabileceğini ondan
+   saklamak demek. `gizlilik.html` zaten söz veriyor.
+
+   SÜRÜM YÜKLÜ DAMGADAN OKUNUYOR. Ayrı bir sürüm sabiti tutmak ikinci
+   bir elle yazılan sayı olurdu; 27-28 Ağustos'ta tam bu yüzden üç ayrı
+   projede bildirim sessizce hiç çıkmadı (K-46). */
+function yenilik_goster() {
+    if (typeof DEGISIKLIKLER === 'undefined' || !DEGISIKLIKLER.length) return;
+
+    var b = document.querySelector('script[src*="arayuz.js"]');
+    var m = b && (b.getAttribute('src') || '').match(/[?&]v=(\d+)/);
+    var damga = m ? parseInt(m[1], 10) : 0;
+    if (!damga) return;
+
+    var onceki = gorulen_oku();
+    /* İlk ziyaret: yeni kullanıcı hiçbirini görmemiş, "şunları
+       düzelttik" demek anlamsız. Sadece işaretle, sus. */
+    if (!onceki) { gorulen_yaz(damga); return; }
+
+    /* Damgaya EŞİT kayıt aramıyoruz. Damga her yayında artıyor (bir
+       yazım düzeltmesi bile), kayıt yalnızca anlatılacak bir şey
+       olunca yazılıyor. Eşitlik arayan kod, ikisi ayrışır ayrışmaz
+       sessizce hiç çıkmaz. */
+    var yeniler = [];
+    for (var i = 0; i < DEGISIKLIKLER.length; i++) {
+        if (DEGISIKLIKLER[i].surum > onceki) yeniler.push(DEGISIKLIKLER[i]);
+    }
+    gorulen_yaz(damga);
+    if (!yeniler.length) return;
+
+    var kayit = yeniler[0];
+    var not = document.getElementById('yenilikNotu');
+    var metin = document.getElementById('yenilikMetin');
+    if (!not || !metin) return;
+
+    var govde = kayit.ozet;
+    if (kayit.hesapDuzeltmesi) {
+        govde += ' Daha önce sonuç aldıysanız, sonucunuzu bir kez daha alın.';
+    }
+    metin.textContent = govde;
+    not.hidden = false;
+
+    var kapat = document.getElementById('yenilikKapat');
+    if (kapat) {
+        kapat.addEventListener('click', function () { not.hidden = true; });
+    }
+}
+
+function gorulen_oku() {
+    try { return parseInt(localStorage.getItem(GORULEN_ANAHTAR), 10) || 0; }
+    catch (e) { return 0; }
+}
+
+function gorulen_yaz(s) {
+    try { localStorage.setItem(GORULEN_ANAHTAR, String(s)); } catch (e) {}
+}
+
 function baslat() {
     try {
         var t = localStorage.getItem(TEMA_ANAHTAR);
@@ -1349,6 +1434,7 @@ function baslat() {
 
     ekrani_kur();
     baglantilari_kur();
+    yenilik_goster();
     kapsam_guncelle();
     defter_ciz();
 

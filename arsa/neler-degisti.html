@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Neler Değişti — Arsa Rehberi</title>
+<meta name="description" content="Arsa Rehberi'nde ne değişti: hangi hesap düzeltildi, hangi bilgi eklendi, ne zaman. Bir hesap yanlış çıkıyorduysa burada yazar." />
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="stil.css?v=41" />
+</head>
+<body>
+
+<header class="ust">
+    <div class="ust-sol">
+        <h1>Arsa <span>Rehberi</span></h1>
+    </div>
+    <div class="ust-sag">
+        <a class="ikincil" href="./" style="text-decoration:none;display:inline-flex;align-items:center">Geri</a>
+    </div>
+</header>
+
+<main>
+    <h2 style="margin:0 0 4px">Neler değişti</h2>
+    <p class="giris">Bu uygulamada yapılan değişiklikler burada yazar.
+    <b>Bir hesap yanlış çıkıyorduysa ve düzelttiysek, bunu açıkça
+    yazıyoruz</b> — çünkü o hesaba bakarak bir arsa hakkında karar vermiş
+    olabilirsiniz.</p>
+
+    <div id="liste"></div>
+
+    <div class="kart-blok">
+        <h2>Verileriniz ve izinler</h2>
+        <p>Girdiğiniz arsa bilgileri ve deftere kaydettikleriniz
+        <b>yalnızca bu cihazda</b> kalır. Bize ya da bir sunucuya
+        gönderilmez. Cihazınızda tuttuğumuz üç şey var:</p>
+        <ul>
+            <li><b>arsa-rehberi-defter</b> — deftere eklediğiniz parseller.</li>
+            <li><b>arsa-rehberi-tema</b> — açık/koyu tema seçiminiz.</li>
+            <li><b>arsa-rehberi-gorulen</b> — bu sayfadaki bildirimi hangi
+                sürüme kadar gördüğünüz. Yalnızca bir sayı.</li>
+        </ul>
+        <p>Üçünü de tarayıcınızın ya da uygulamanın site verilerini
+        temizleyerek silebilirsiniz. Hesabınızı silmek gibi bir işlem yok,
+        çünkü <b>hesabınız yok</b>: kayıt istemiyoruz, e-posta istemiyoruz,
+        giriş yok.</p>
+        <p>Uygulama açılırken <b>dışarıya hiçbir istek gitmiyor</b>: reklam
+        yok, ziyaret sayacı yok, analitik yok, izleme betiği yok. İnternet
+        bağlantısı olmadan da çalışır.</p>
+        <p class="kucuk">Ayrıntılı metin:
+        <a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik
+        Politikası</a>.</p>
+    </div>
+</main>
+
+<footer class="dip">
+    <p><b>Arsa Rehberi</b> — arsa almadan önce kontrol etmeniz gerekenler.</p>
+    <p class="kucuk"><a href="./" style="color:var(--vurgu)">Uygulamaya dön</a></p>
+</footer>
+
+<script src="degisiklikler.js?v=41"></script>
+<script>
+/* Liste `degisiklikler.js`ten kuruluyor. TEK KAYNAK: açılıştaki şerit de
+   aynı diziyi okuyor. Aynı metni iki yerde elle tutmak, ikisinin
+   ayrışması demektir. */
+(function () {
+    var kap = document.getElementById('liste');
+    if (typeof DEGISIKLIKLER === 'undefined' || !DEGISIKLIKLER.length) {
+        kap.innerHTML = '<p class="kucuk">Henüz kayıtlı değişiklik yok.</p>';
+        return;
+    }
+    var parcalar = [];
+    for (var i = 0; i < DEGISIKLIKLER.length; i++) {
+        var d = DEGISIKLIKLER[i];
+        var maddeler = '';
+        for (var j = 0; j < d.maddeler.length; j++) {
+            maddeler += '<li>' + d.maddeler[j] + '</li>';
+        }
+        parcalar.push(
+            '<div class="kart-blok">' +
+            '<h2>' + d.tarih + '</h2>' +
+            (d.hesapDuzeltmesi
+                ? '<p class="uyari-satir"><b>Hesap düzeltmesi var.</b> Bu ' +
+                  'tarihten önce bu uygulamadan sonuç aldıysanız, ' +
+                  '<b>sonucunuzu bir kez daha alın.</b></p>'
+                : '<p class="kucuk">Bu güncellemede <b>hesap sonucu ' +
+                  'değişmedi</b>; daha önce aldığınız sonuçlar geçerli.</p>') +
+            '<ul>' + maddeler + '</ul>' +
+            '<p class="kucuk">Sürüm ' + d.surum + '</p>' +
+            '</div>');
+    }
+    kap.innerHTML = parcalar.join('');
+}());
+</script>
+
+</body>
+</html>

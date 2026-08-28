@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Arsa Rehberi" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="application-name" content="Arsa Rehberi" />
-<link rel="stylesheet" href="stil.css?v=40" />
+<link rel="stylesheet" href="stil.css?v=41" />
 </head>
 <body>
 
@@ -38,6 +38,20 @@
 </nav>
 
 <main>
+
+<!-- NE DEĞİŞTİ ŞERİDİ (K-44) — güncellendikten SONRA bir kez çıkar.
+     `gizlilik.html` "esaslı bir değişiklikte uygulama içinde ayrıca
+     bilgilendirme yapılır" diyor; bu, o sözün karşılığı. -->
+<div id="yenilikNotu" class="yenilik-notu" hidden role="status">
+    <div class="yenilik-govde">
+        <b>Uygulama güncellendi</b>
+        <p id="yenilikMetin"></p>
+    </div>
+    <div class="yenilik-dugmeler">
+        <a class="ikincil" id="yenilikAyrinti" href="neler-degisti.html">Neler değişti?</a>
+        <button type="button" class="ikincil" id="yenilikKapat" aria-label="Bildirimi kapat">Tamam</button>
+    </div>
+</div>
 
 <!-- ========================= PARSEL ========================= -->
 <section id="sParsel" class="sayfa aktif">
@@ -277,9 +291,10 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="cekirdek.js?v=40"></script>
-<script src="mevzuat.js?v=40"></script>
-<script src="arayuz.js?v=40"></script>
+<script src="degisiklikler.js?v=41"></script>
+<script src="cekirdek.js?v=41"></script>
+<script src="mevzuat.js?v=41"></script>
+<script src="arayuz.js?v=41"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

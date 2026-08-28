@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v40";
+const SURUM = "arsa-v41";
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"
@@ -26,13 +26,15 @@ const CEKIRDEK = [
     "./",
     "./index.html",
     "./stil.css" + ETIKET,
+    "./degisiklikler.js" + ETIKET,
     "./cekirdek.js" + ETIKET,
     "./mevzuat.js" + ETIKET,
     "./arayuz.js" + ETIKET,
     "./simge.svg",
     "./ikon-192.png",
     "./manifest.json",
-    "./gizlilik.html"
+    "./gizlilik.html",
+    "./neler-degisti.html"
 ];
 
 self.addEventListener("install", (olay) => {

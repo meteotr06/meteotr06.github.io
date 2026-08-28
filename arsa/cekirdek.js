@@ -117,7 +117,7 @@ var DUZELTME = {
     ad: 'İmar fonksiyonu',
     soru: 'İmar planında ne olarak görünüyor?',
     guven: GUVEN.BASLANGIC,
-    kaynak: 'Başlangıç tahmini.',
+    kaynak: 'BAŞLANGIÇ TAHMİNİ — ve uygulamanın kendi kaynağıyla TERS DÜŞTÜĞÜ tek yer. Buradaki çarpanlar sanayiyi konutun ALTINA koyuyor (0,85 < 1,00). Aynı uygulamanın nominal yönteminde kullanılan K7 puanlama tablosu ise sanayiyi konutun ÜSTÜNE koyuyor (90 > 80). İkisi aynı ölçek değildir (biri oran, öteki ağırlıklı puan) ama SIRALAMA karşılaştırılabilir ve ters. Hangisinin doğru olduğu bölgeye göre değişir: sanayi arsası kentin yakınında konuttan değerli, uzağında değersiz olabilir. Uydurup birini seçmiyoruz. Motor iki yöntemi de koşuyor ve aralarındaki ayrışmayı banda ekliyor; sanayi seçiliyken bu ayrışma ölçüldü: %18,6. Yani belirsizlik gizlenmiyor, kullanıcıya gösteriliyor.',
     tip: 'secenek',
     secenek: {
       ticari: { ad: 'Ticaret / ticaret + konut',  carpan: 1.35 },
