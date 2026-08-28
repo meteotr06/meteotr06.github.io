@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Veraset ve İntikal Vergisi Hesaplama 2026 — Miras ve Bağış" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/veraset-vergisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=82" />
+<link rel="stylesheet" href="stil.css?v=83" />
 </head>
 <body>
 
@@ -136,8 +136,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=82"></script>
-<script src="sayfa.js?v=82"></script>
+<script src="hesap.js?v=83"></script>
+<script src="sayfa.js?v=83"></script>
 <script>
 iskeletKur("veraset-vergisi-hesaplama.html");
 gizlilikBaglantisi();
@@ -157,7 +157,9 @@ function hesapla() {
 
     const s = verasetVergisi({ hisse: hisse, tur: tur, yakinlik: yakinlik });
     if (s.hata) {
-        sonucBekliyor("Size düşen tutarı yazın.");
+        sonucBekliyor(s.hata === "gecersizDal"
+            ? "Seçeneklerden birini seçin."
+            : "Size düşen tutarı yazın.");
         document.getElementById("dokum").innerHTML = "";
         return;
     }

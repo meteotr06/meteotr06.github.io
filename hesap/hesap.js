@@ -2399,6 +2399,22 @@ function mtv(g) {
 }
 
 
+/* ---------- DAL SECIMI: bos ise varsayilan, COP ise reddet ----------
+   OLCULDU (28.08.2026): `?tip=ZIRVA` gibi bir adresle gelindiginde
+   tarayici `select.value`yu bosa cekiyor, sayfa da bos degeri gorup
+   VARSAYILAN dala dusup sayi uretiyordu. Uc aracta birden: kira
+   stopajinda net yerine brut, verasette bagis yerine miras, rapor
+   parasinda is kazasi yerine hastalik. Adres tarafi `baglantidanOku`
+   icinde kapatildi; burasi ikinci kapi -- motor dogrudan cagrilirsa
+   da cop deger sessizce bir dala dusmesin.
+
+   BOS ile COP AYRI SEYDIR: bos "verilmedi" demektir ve belgelenmis
+   varsayilana duser; cop bir iddiadir ve REDDEDILIR. */
+function dalSec(deger, gecerliler, varsayilan) {
+    if (deger === undefined || deger === null || deger === "") return varsayilan;
+    return gecerliler.indexOf(deger) >= 0 ? deger : null;   /* null = reddet */
+}
+
 // ================= İŞYERİ KİRA STOPAJI =================
 // Kaynak: 193 sayılı Gelir Vergisi Kanunu md.94/5-a (tevkifat),
 //         md.86/1-c ve 86/1-d (beyan sınırları).
@@ -2441,6 +2457,9 @@ function kiraStopaji(g) {
     const oran = KIRA_STOPAJ.oran;
 
     if (!Number.isFinite(tutar) || tutar <= 0) return { hata: "tutarYok" };
+
+    const tip = dalSec(g.tutarTipi, ["net", "brut"], "brut");
+    if (tip === null) return { hata: "gecersizDal", alan: "tutarTipi" };
     if (!Number.isFinite(ay) || ay <= 0 || ay > 12) return { hata: "ayYok" };
 
     let aylikBrut, aylikNet, aylikStopaj;
@@ -2450,7 +2469,7 @@ function kiraStopaji(g) {
         aylikBrut = tutar;
         aylikNet = tutar;
         aylikStopaj = 0;
-    } else if (g.tutarTipi === "net") {
+    } else if (tip === "net") {
         aylikNet = tutar;
         aylikBrut = tutar / (1 - oran);
         aylikStopaj = aylikBrut - aylikNet;
@@ -2539,8 +2558,12 @@ function raporParasi(g) {
     const toplam = Number(g.toplamKazanc);
     const primGun = Number(g.primGunu);
     const raporGun = Number(g.raporGunu);
-    const isKazasi = g.durum === "iskazasi";
-    const yatarak = g.tedavi === "yatarak";
+    const durumDal = dalSec(g.durum, ["hastalik", "iskazasi"], "hastalik");
+    if (durumDal === null) return { hata: "gecersizDal", alan: "durum" };
+    const tedaviDal = dalSec(g.tedavi, ["ayakta", "yatarak"], "ayakta");
+    if (tedaviDal === null) return { hata: "gecersizDal", alan: "tedavi" };
+    const isKazasi = durumDal === "iskazasi";
+    const yatarak = tedaviDal === "yatarak";
 
     if (!Number.isFinite(toplam) || toplam <= 0) return { hata: "kazancYok" };
     if (!Number.isFinite(primGun) || primGun <= 0 || primGun > 360) return { hata: "primGunYok" };
@@ -2643,13 +2666,18 @@ const VERASET = {
    "bana da 2,9 milyon istisna var" sanır ve vergiyi sıfır hesaplar. */
 function verasetVergisi(g) {
     const hisse = Number(g.hisse);
-    const ivazsiz = g.tur === "ivazsiz";
     if (!Number.isFinite(hisse) || hisse < 0) return { hata: "hisseYok" };
+
+    const tur = dalSec(g.tur, ["veraset", "ivazsiz"], "veraset");
+    if (tur === null) return { hata: "gecersizDal", alan: "tur" };
+    const yakinlik = dalSec(g.yakinlik, ["furug", "esTek", "diger"], "furug");
+    if (yakinlik === null) return { hata: "gecersizDal", alan: "yakinlik" };
+    const ivazsiz = tur === "ivazsiz";
 
     let istisna;
     if (ivazsiz) istisna = VERASET.istisnaIvazsiz;
-    else if (g.yakinlik === "esTek") istisna = VERASET.istisnaEsTek;
-    else if (g.yakinlik === "furug") istisna = VERASET.istisnaFurugVeEs;
+    else if (yakinlik === "esTek") istisna = VERASET.istisnaEsTek;
+    else if (yakinlik === "furug") istisna = VERASET.istisnaFurugVeEs;
     else istisna = 0;
 
     const uygulananIstisna = Math.min(hisse, istisna);
@@ -2685,8 +2713,8 @@ function verasetVergisi(g) {
 
     function matrahDiger(h, suAnIvazsiz) {
         const i = suAnIvazsiz
-            ? (g.yakinlik === "esTek" ? VERASET.istisnaEsTek
-               : g.yakinlik === "furug" ? VERASET.istisnaFurugVeEs : 0)
+            ? (yakinlik === "esTek" ? VERASET.istisnaEsTek
+               : yakinlik === "furug" ? VERASET.istisnaFurugVeEs : 0)
             : VERASET.istisnaIvazsiz;
         return Math.max(0, h - Math.min(h, i));
     }
@@ -2751,7 +2779,9 @@ function damgaVergisi(g) {
     const tutar = Number(g.tutar);
     if (!Number.isFinite(tutar) || tutar <= 0) return { hata: "tutarYok" };
 
-    const kiraMi = g.tur === "konutKira" || g.tur === "isyeriKira";
+    const dTur = dalSec(g.tur, ["konutKira", "isyeriKira", "sozlesme", "ucret"], "sozlesme");
+    if (dTur === null) return { hata: "gecersizDal", alan: "tur" };
+    const kiraMi = dTur === "konutKira" || dTur === "isyeriKira";
     let ay = 1;
     if (kiraMi) {
         ay = Number(g.ay);
@@ -2761,12 +2791,12 @@ function damgaVergisi(g) {
     const matrah = kiraMi ? tutar * ay : tutar;
 
     /* İSTİSNA: konut + gerçek kişiler + kefilsiz. Üçü birden gerekir. */
-    const istisna = g.tur === "konutKira" && g.kefilVar !== true && g.tuzelKisi !== true;
+    const istisna = dTur === "konutKira" && g.kefilVar !== true && g.tuzelKisi !== true;
 
     let oran = 0;
     if (!istisna) {
         if (kiraMi) oran = DAMGA.oranKira;
-        else if (g.tur === "ucret") oran = DAMGA.oranUcret;
+        else if (dTur === "ucret") oran = DAMGA.oranUcret;
         else oran = DAMGA.oranSozlesme;
     }
 
@@ -2776,7 +2806,7 @@ function damgaVergisi(g) {
     const vergi = azamiAsildi ? DAMGA.azami : hamVergi;
 
     /* İstisna DÜŞSEYDİ ne olurdu — kefil eklemenin bedeli. */
-    const istisnasizVergi = g.tur === "konutKira"
+    const istisnasizVergi = dTur === "konutKira"
         ? yuvarla(Math.min(matrah * DAMGA.oranKira, DAMGA.azami)) : vergi;
 
     return {
@@ -2791,7 +2821,7 @@ function damgaVergisi(g) {
         azami: DAMGA.azami,
         istisnasizVergi: istisnasizVergi,
         istisnaninDegeri: istisna ? istisnasizVergi : 0,
-        tur: g.tur,
+        tur: dTur,
         kaynak: DAMGA.kaynak,
         yil: DAMGA.yil
     };

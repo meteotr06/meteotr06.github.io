@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Rapor Parası Hesaplama 2026 — Geçici İş Göremezlik Ödeneği" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/rapor-parasi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=82" />
+<link rel="stylesheet" href="stil.css?v=83" />
 </head>
 <body>
 
@@ -149,8 +149,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=82"></script>
-<script src="sayfa.js?v=82"></script>
+<script src="hesap.js?v=83"></script>
+<script src="sayfa.js?v=83"></script>
 <script>
 iskeletKur("rapor-parasi-hesaplama.html");
 gizlilikBaglantisi();
@@ -179,6 +179,7 @@ function hesapla() {
     }
     if (s.hata) {
         sonucBekliyor({
+            gecersizDal: "Seçeneklerden birini seçin.",
             kazancYok: "Son 12 ayda bildirilen toplam brüt kazancı yazın.",
             primGunYok: "Prim gün sayısı 1 ile 360 arasında olmalı.",
             raporGunYok: "Rapor kaç gün, onu yazın."

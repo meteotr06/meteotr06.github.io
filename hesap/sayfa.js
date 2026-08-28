@@ -1253,8 +1253,26 @@ function baglantidanOku(alanlar) {
         if (!p.has(id)) return;
         const el = document.getElementById(id);
         if (!el) return;
-        if (el.type === "checkbox") el.checked = p.get(id) === "1";
-        else el.value = p.get(id);
+        const gelen = p.get(id);
+        if (el.type === "checkbox") { el.checked = gelen === "1"; bulundu = true; return; }
+
+        /* SECIM KUTUSUNA GECERSIZ DEGER YAZILMAZ.
+           OLCULDU (28.08.2026): `?tip=ZIRVA` gibi bir adresle gelince
+           tarayici `select.value` degerini BOSA cekiyordu; sayfa da
+           bos degeri gorup VARSAYILAN dala dusup sayi uretiyordu --
+           ustelik acilir liste EKRANDA BOS gorunuyordu. Uc aracta
+           birden: kira stopajinda net yerine brut, verasette bagis
+           yerine miras, rapor parasinda is kazasi yerine hastalik.
+           Kullanicinin secmedigi bir varsayimla hesaplanmis bir sayi,
+           tam olarak sessiz yanlis sayidir -- ve bu araclar
+           BAGLANTI PAYLASIYOR, yani bozuk adres uzaga gidiyor.
+           Tek tek araclarda degil, KAYNAGINDA duzeltildi. */
+        if (el.tagName === "SELECT") {
+            const gecerli = Array.prototype.some.call(el.options,
+                function (o) { return o.value === gelen; });
+            if (!gecerli) return;          /* adresteki deger yok sayilir */
+        }
+        el.value = gelen;
         bulundu = true;
     });
     return bulundu;
