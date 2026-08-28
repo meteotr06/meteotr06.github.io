@@ -25,6 +25,7 @@ const ARACLAR = [
     { yol: "ne-kadar-kredi-cekebilirim.html", ad: "Kredi Limiti", aciklama: "Gelire göre çekilebilir tutar", grup: "Kredi ve Borç", anahtar: "kredi limiti ne kadar çekebilirim gelir taksit oranı uygunluk" },
     { yol: "fazla-mesai-hesaplama.html", ad: "Fazla Mesai", aciklama: "Saat ücreti ve 1,5 kat", grup: "Maaş ve Çalışma", anahtar: "fazla mesai saat ücreti 1,5 kat ek çalışma hafta tatili bayram" },
     { yol: "yillik-izin-hesaplama.html", ad: "Yıllık İzin", aciklama: "Kaç gün, ne kadar ücret", grup: "Maaş ve Çalışma", anahtar: "yıllık izin kaç gün ücretli izin kıdem yıl izin ücreti" },
+    { yol: "rapor-parasi-hesaplama.html", ad: "Rapor Parası", aciklama: "SGK geçici iş göremezlik ödeneği", grup: "Maaş ve Çalışma", anahtar: "rapor parası iş göremezlik ödeneği sgk istirahat hastalık iş kazası meslek hastalığı yatarak ayakta tedavi prim gün sağlık raporu" },
     { yol: "issizlik-maasi-hesaplama.html", ad: "İşsizlik Maaşı", aciklama: "Tutar ve süre", grup: "Maaş ve Çalışma", anahtar: "işsizlik maaşı ödeneği işkur kaç ay ne kadar prim gün" },
     { yol: "birim-cevirme.html", ad: "Birim Çevirme", aciklama: "Uzunluk, ağırlık, sıcaklık, alan", grup: "Genel", anahtar: "birim çevirme dönüştürme inç fit mil libre pound ons dönüm hektar fahrenhayt kelvin galon knot metre kilo" },
     { yol: "sayi-yaziyla-yazma.html", ad: "Sayı Yazıyla", aciklama: "Çek ve senet için tutar yazımı", grup: "Genel", anahtar: "sayı yazıyla rakam yazı çek senet tutar yazımı bin lira kuruş nasıl yazılır" },
@@ -159,6 +160,23 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 72,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: rapor parası (SGK geçici iş göremezlik ödeneği).",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Rapor aldığınızda SGK'nın ödeyeceği tutarı hesaplar: yatarak " +
+            "tedavide günlük kazancın <b>yarısı</b>, ayakta <b>üçte ikisi</b>.",
+            "<b>Hastalıkta ilk iki gün ödenmez</b> — 2 günlük raporda SGK'dan " +
+            "hiç para gelmez. İş kazası ve meslek hastalığında ilk günden ödenir. " +
+            "Araç hangi durumda olduğunuzu sorup buna göre hesaplıyor.",
+            "Hesap <b>son 12 ay</b> üzerinden yapılır. Bu kural 2021'de değişti; " +
+            "3 aya göre hesaplayan yerler farklı sayı verir.",
+            "90 gün prim şartı tutmuyorsa size <b>“0 ₺” göstermiyoruz</b>, " +
+            "hakkın doğmadığını söylüyoruz — ikisi aynı şey değil.",
+        ],
+    },
     {
         surum: 71,
         tarih: "28 Ağustos 2026",

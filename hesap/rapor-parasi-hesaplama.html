@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Rapor Parası Hesaplama 2026 — Geçici İş Göremezlik Ödeneği</title>
+<meta name="description" content="Rapor parası hesaplama 2026: geçici iş göremezlik ödeneği, yatarak/ayakta oranı, ilk iki gün kuralı ve 90 gün prim şartı." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/rapor-parasi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Rapor Parası Hesaplama 2026 — Geçici İş Göremezlik Ödeneği" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/rapor-parasi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/rapor-parasi-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Rapor Parası Hesaplama 2026 — Geçici İş Göremezlik Ödeneği" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/rapor-parasi-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=73" />
+</head>
+<body>
+
+<main>
+    <h1>Rapor Parası Hesaplama</h1>
+    <p class="ozet">SGK'nın ödediği <b>geçici iş göremezlik ödeneği</b>: yatarak tedavide günlük kazancın <b>yarısı</b>, ayakta <b>üçte ikisi</b>.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">5510 <b>md.17-18</b></span><span class="etiket-rozet">Ayakta <b>2/3</b></span><span class="etiket-rozet">Yatarak <b>1/2</b></span><span class="etiket-rozet">2026</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Son 12 ayda bildirilen toplam brüt kazanç (TL)
+                    <input id="kazanc" type="text" inputmode="decimal" value="720000" />
+                </label>
+                <label>Aynı dönemdeki prim gün sayısı
+                    <input id="primGun" type="text" inputmode="numeric" min="1" max="360" value="360" />
+                </label>
+                <label>Rapor kaç gün
+                    <input id="raporGun" type="text" inputmode="numeric" min="1" value="10" />
+                </label>
+                <label>Sebep
+                    <select id="durum">
+                        <option value="hastalik">Hastalık</option>
+                        <option value="iskazasi">İş kazası / meslek hastalığı</option>
+                    </select>
+                </label>
+                <label>Tedavi
+                    <select id="tedavi">
+                        <option value="ayakta">Ayakta tedavi</option>
+                        <option value="yatarak">Yatarak tedavi (hastanede)</option>
+                    </select>
+                </label>
+            </div>
+            <p class="kucuk"><b>12 ay</b>, 3 ay değil: bu kural 2021'de değişti
+            (7316 sayılı Kanun). Hastalık ve analıkta da artık son <b>oniki aydaki</b>
+            kazanç esas alınıyor. Eski kurala göre hesaplayan yerler farklı sayı
+            verir. Her ay aynı kazandıysanız: aylık brüt × 12 ve 360 gün yazın.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Rapor parası nasıl hesaplanır?</h2>
+        <p>Önce <b>günlük kazanç</b> bulunur: iş göremezliğin başladığı tarihten önceki
+        <b>oniki aydaki</b> prime esas kazançlar toplamı, aynı dönemin <b>prim ödeme gün
+        sayısına</b> bölünür (5510 md.17). Sonra bu tutarın <b>yatarak tedavide yarısı</b>,
+        <b>ayakta tedavide üçte ikisi</b> günlük ödenek olur (md.18).</p>
+
+        <h2>İlk iki gün neden ödenmiyor?</h2>
+        <p>Hastalık halinde ödenek <b>iş göremezliğin üçüncü gününden</b> başlar; ilk iki gün
+        SGK tarafından ödenmez. <b>İş kazası ve meslek hastalığında</b> böyle bir bekleme
+        yoktur, <b>ilk günden</b> ödenir. Bu yüzden 2 günlük bir hastalık raporunda SGK'dan
+        hiç para gelmez.</p>
+        <p>İlk iki günü işverenin ödemesi <b>kanuni bir zorunluluk değildir</b>; iş
+        sözleşmesinde ya da toplu sözleşmede varsa işveren öder.</p>
+
+        <h2>90 gün prim şartı</h2>
+        <p>Hastalık ödeneği için, iş göremezliğin başladığı tarihten önceki <b>bir yıl
+        içinde en az 90 gün</b> kısa vadeli sigorta primi bildirilmiş olmalıdır. Şart
+        tutmuyorsa ödenek <b>hiç doğmaz</b> — bu araç o durumda size “0 ₺” göstermez,
+        <b>hakkınız olmadığını</b> söyler. <b>İş kazası ve meslek hastalığında</b> prim gün
+        şartı aranmaz.</p>
+
+        <h2>İki ayrı tavan</h2>
+        <p>Günlük kazanç iki yerden sınırlanabilir:</p>
+        <ul>
+            <li><b>Yasal tavan:</b> günlük prime esas kazancın üst sınırını aşamaz.</li>
+            <li><b>Düşük prim tavanı:</b> son bir yılda <b>180 günden az</b> prim
+            bildirilmişse, ödeneğe esas günlük kazanç günlük alt sınırın <b>iki katını</b>
+            geçemez. Kazancınız yüksek olsa bile ödenek bu sınıra iner.</li>
+        </ul>
+        <p>Hangi tavanın bağladığını ekranda ayrıca yazıyoruz — çünkü “neden bu kadar az
+        çıktı?” sorusunun cevabı çoğu zaman burasıdır.</p>
+
+        <h2>Bu araç neyi kapsamıyor?</h2>
+        <p><b>Analık (doğum) ödeneği</b> burada hesaplanmaz: süreleri ve şartları ayrıdır.
+        Doğum izni süreleri için <a href="dogum-izni-hesaplama.html">Doğum İzni</a> aracına
+        bakın. Ayrıca rapor parası <b>SGK tarafından</b> ödenir; işverenin ödediği ücret
+        değildir ve ikisi karıştırılmamalıdır.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=73"></script>
+<script src="sayfa.js?v=73"></script>
+<script>
+iskeletKur("rapor-parasi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["kazanc", "primGun", "raporGun", "durum", "tedavi"];
+
+function hesapla() {
+    const kazanc = oku("kazanc"), primGun = oku("primGun"), raporGun = oku("raporGun");
+    const durum = document.getElementById("durum").value;
+    const tedavi = document.getElementById("tedavi").value;
+
+    const s = raporParasi({ toplamKazanc: kazanc, primGunu: primGun,
+                            raporGunu: raporGun, durum: durum, tedavi: tedavi });
+
+    if (s.hata === "primSartiYok") {
+        document.getElementById("ozet").innerHTML = `<div class="kutu uyari-kutu" role="alert">
+            <p><b>Bu durumda rapor parası doğmuyor.</b> Hastalık ödeneği için son bir yılda
+            en az <b>${sayi(s.gereken, 0)} gün</b> kısa vadeli sigorta primi gerekir;
+            girdiğiniz prim gün sayısı <b>${sayi(s.primGunu, 0)}</b>.</p>
+            <p class="kucuk">Size “0 ₺” göstermiyoruz, çünkü sıfır lira almak ile
+            <b>hakkın hiç doğmaması</b> aynı şey değil. İş kazası ya da meslek hastalığında
+            prim gün şartı aranmaz — sebebi değiştirip deneyebilirsiniz.</p></div>`;
+        document.getElementById("dokum").innerHTML = "";
+        baglantiyaYaz(ALANLAR);
+        return;
+    }
+    if (s.hata) {
+        sonucBekliyor({
+            kazancYok: "Son 12 ayda bildirilen toplam brüt kazancı yazın.",
+            primGunYok: "Prim gün sayısı 1 ile 360 arasında olmalı.",
+            raporGunYok: "Rapor kaç gün, onu yazın."
+        }[s.hata] || "Girdileri kontrol edin.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.toplamOdenek)}</div>
+        <div class="dev-etiket">SGK'dan alacağınız toplam rapor parası</div>
+        ${satir("Günlük ödenek", para(s.gunlukOdenek), "buyuk")}
+        ${satir("Ödenen gün", sayi(s.odenenGun, 0) + " / " + sayi(s.raporGunu, 0) + " gün")}
+        ${satir("Ödeneğe esas günlük kazanç", para(s.gunlukKazanc))}
+        ${satir("Oran", s.tedavi === "yatarak" ? "yatarak — yarısı" : "ayakta — üçte ikisi")}
+        ${s.odemeYok ? `<p class="varsayim"><b>Bu raporda SGK ödemesi yok.</b>
+            Hastalıkta ödenek üçüncü günden başlar; ${sayi(s.raporGunu, 0)} günlük rapor
+            bekleme süresini aşmıyor.</p>` : ""}
+        ${s.odenmeyenGun > 0 && !s.odemeYok ? `<p class="varsayim">İlk
+            <b>${sayi(s.odenmeyenGun, 0)} gün</b> SGK tarafından ödenmez. İşvereniniz
+            ödemek zorunda değildir; sözleşmede varsa öder.</p>` : ""}
+    </div>
+
+    ${(s.tavanUygulandi || s.dusukPrimTavani) ? `<div class="kutu uyari-kutu">
+        <h2 class="kutu-baslik">Günlük kazancınız sınırlandı</h2>
+        ${satir("Hesaplanan günlük kazanç", para(s.hamGunlukKazanc))}
+        ${satir("Uygulanan sınır", para(s.dusukPrimTavani ? s.dusukPrimSiniri : s.gunlukTavan), "buyuk")}
+        <p>${s.dusukPrimTavani
+            ? `Son bir yılda <b>180 günden az</b> prim bildirildiği için ödeneğe esas günlük
+               kazanç, günlük alt sınırın <b>iki katını</b> geçemiyor. “Neden bu kadar az
+               çıktı?” sorusunun cevabı budur.`
+            : `Günlük kazanç, prime esas kazancın <b>yasal üst sınırını</b> aşamaz.`}</p>
+    </div>` : ""}`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Günlük kazanç: son 12 ayın kazancı ÷ prim gün sayısı (md.17).",
+           `${sayi(kazanc, 0)} ÷ ${sayi(primGun, 0)}`, para(s.hamGunlukKazanc));
+    if (s.tavanUygulandi)
+        d.ekle("Yasal tavan uygulandı.", para(s.gunlukTavan), para(s.gunlukKazanc));
+    if (s.dusukPrimTavani)
+        d.ekle("180 günden az prim: alt sınırın iki katı tavanı uygulandı.",
+               para(s.dusukPrimSiniri), para(s.gunlukKazanc));
+    d.ekle(s.tedavi === "yatarak" ? "Yatarak tedavi: günlük kazancın yarısı (md.18)."
+                                  : "Ayakta tedavi: günlük kazancın üçte ikisi (md.18).",
+           `${sayi(s.gunlukKazanc, 2)} × ${s.tedavi === "yatarak" ? "0,5" : "2/3"}`,
+           para(s.gunlukOdenek));
+    d.ekle(s.durum === "iskazasi"
+             ? "İş kazası/meslek hastalığı: ilk günden ödenir."
+             : "Hastalık: ilk iki gün ödenmez, üçüncü günden başlar.",
+           `${sayi(s.raporGunu, 0)} − ${sayi(s.beklemeGunu, 0)}`, sayi(s.odenenGun, 0) + " gün");
+    d.ekle("Toplam ödenek.", `${sayi(s.gunlukOdenek, 2)} × ${sayi(s.odenenGun, 0)}`,
+           para(s.toplamOdenek));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Rapor Parası " + RAPOR_ODENEK.yil));
+yapisalVeri("Rapor Parası Hesaplama", "Rapor parası hesaplama 2026: geçici iş göremezlik ödeneği, yatarak ve ayakta oranı, ilk iki gün kuralı ve prim şartı.");
+
+sssEkle([
+    { soru: "Rapor parası ne kadar?",
+      cevap: "Günlük kazancınızın yatarak tedavide yarısı, ayakta tedavide üçte ikisidir (5510 md.18). Günlük kazanç, son 12 ayda bildirilen kazancın prim gün sayısına bölünmesiyle bulunur." },
+    { soru: "Neden ilk iki gün ödenmiyor?",
+      cevap: "Hastalık halinde ödenek iş göremezliğin üçüncü gününden başlar. İş kazası ve meslek hastalığında bekleme yoktur, ilk günden ödenir." },
+    { soru: "2 günlük rapor aldım, para alır mıyım?",
+      cevap: "Hastalık raporuysa hayır; SGK ödemesi üçüncü günden başlar. İş kazası raporuysa iki gün de ödenir." },
+    { soru: "Hesap 3 aya göre mi 12 aya göre mi yapılıyor?",
+      cevap: "12 aya göre. Bu kural 2021'de değişti (7316 sayılı Kanun); hastalık ve analıkta da artık son oniki aydaki kazanç esas alınıyor. Eski kurala göre hesaplayan siteler farklı sonuç verir." },
+    { soru: "Kazancım yüksek ama ödenek düşük çıktı, neden?",
+      cevap: "İki tavan olabilir: günlük kazanç yasal üst sınırı aşamaz; ayrıca son bir yılda 180 günden az prim bildirilmişse ödeneğe esas kazanç günlük alt sınırın iki katıyla sınırlıdır." },
+    { soru: "90 gün primim yoksa ne olur?",
+      cevap: "Hastalık ödeneği doğmaz. İş kazası ve meslek hastalığında prim gün şartı aranmaz." },
+    { soru: "Doğum raporum için de kullanabilir miyim?",
+      cevap: "Hayır. Analık ödeneğinin süreleri ve şartları ayrıdır ve bu araçta yoktur. Doğum izni süreleri için Doğum İzni aracına bakın." }
+]);
+
+ilgiliAraclar("rapor-parasi-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>

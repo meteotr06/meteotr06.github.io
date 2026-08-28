@@ -2497,3 +2497,107 @@ function kiraStopaji(g) {
         yil: KIRA_STOPAJ.yil
     };
 }
+
+
+// ================= RAPOR PARASI (GEÇİCİ İŞ GÖREMEZLİK ÖDENEĞİ) =========
+// Kaynak: 5510 sayılı Kanun md.17 (günlük kazanç) ve md.18 (ödenek).
+// Kanun metninden okunan dallar:
+//   · Günlük kazanç = iş göremezliğin başladığı tarihten önceki
+//     ONİKİ AYDAKİ prime esas kazançlar toplamı ÷ prim ödeme gün sayısı.
+//     DİKKAT: Bu 2021'de değişti (7316 sayılı Kanun, 15.04.2021).
+//     Önce hastalık ve analıkta ÜÇ AY esas alınıyordu. Birçok hesaplayıcı
+//     hâlâ eski kuralı kullanıyor ve farklı sayı veriyor. Biz kanunun
+//     bugünkü hâlini kullanıyoruz ve bunu sayfada yazıyoruz.
+//   · Ödenek: yatarak tedavide günlük kazancın YARISI, ayakta tedavide
+//     ÜÇTE İKİSİ (md.18).
+//   · Hastalıkta ödenek İŞ GÖREMEZLİĞİN 3. GÜNÜNDEN başlar; ilk iki gün
+//     ödenmez. İş kazası ve meslek hastalığında İLK GÜNDEN ödenir.
+//   · Hastalıkta son bir yıl içinde en az 90 gün kısa vadeli sigorta
+//     primi şartı vardır. İş kazası/meslek hastalığında prim gün şartı yok.
+//   · Son bir yılda 180 GÜNDEN AZ prim bildirilmişse, ödeneğe esas günlük
+//     kazanç günlük prime esas kazanç ALT SINIRININ İKİ KATINI geçemez.
+//
+// KAPSAM DIŞI: analık (doğum) ödeneği. Süreleri ve şartları ayrıdır;
+// burada hesaplanmaz. Doğum izni süreleri için ayrı aracımız var.
+const RAPOR_ODENEK = {
+    yil: 2026,
+    yatarakOran: 0.5,
+    ayaktaOran: 2 / 3,
+    hastalikBeklemeGunu: 2,       // ilk iki gün ödenmez
+    hastalikPrimSarti: 90,        // son bir yıl, kısa vadeli sigorta primi
+    dusukPrimEsigi: 180,          // altındaysa günlük kazanca tavan
+    dusukPrimKatsayi: 2,          // alt sınırın iki katı
+    kaynak: "5510 sayılı Kanun md.17 ve md.18",
+    guncelleme: "2026-01-01"
+};
+
+/* Rapor parası.
+   g: { toplamKazanc, primGunu, raporGunu, durum:"hastalik"|"iskazasi",
+        tedavi:"ayakta"|"yatarak" }
+   Şart tutmuyorsa SAYI DÖNMEZ. */
+function raporParasi(g) {
+    const toplam = Number(g.toplamKazanc);
+    const primGun = Number(g.primGunu);
+    const raporGun = Number(g.raporGunu);
+    const isKazasi = g.durum === "iskazasi";
+    const yatarak = g.tedavi === "yatarak";
+
+    if (!Number.isFinite(toplam) || toplam <= 0) return { hata: "kazancYok" };
+    if (!Number.isFinite(primGun) || primGun <= 0 || primGun > 360) return { hata: "primGunYok" };
+    if (!Number.isFinite(raporGun) || raporGun <= 0) return { hata: "raporGunYok" };
+
+    /* HASTALIKTA 90 GÜN ŞARTI. Tutmuyorsa ödenek YOK -- sıfır lira
+       göstermek yerine sebebini söylüyoruz, çünkü "0 ₺" ile
+       "hakkınız yok" aynı şey değildir. */
+    if (!isKazasi && primGun < RAPOR_ODENEK.hastalikPrimSarti) {
+        return { hata: "primSartiYok", primGunu: primGun,
+                 gereken: RAPOR_ODENEK.hastalikPrimSarti };
+    }
+
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    const gunlukTaban = PARAMETRE.sgkTaban / 30;
+    const gunlukTavan = PARAMETRE.sgkTavan / 30;
+
+    let gunlukKazanc = toplam / primGun;
+    const hamGunluk = gunlukKazanc;
+
+    /* Önce yasal tavan, sonra düşük prim tavanı. İkisi de aynı yöne
+       çalışır; hangisi bağladıysa ekranda söylenir. */
+    let tavanUygulandi = false, dusukPrimTavani = false;
+    if (gunlukKazanc > gunlukTavan) { gunlukKazanc = gunlukTavan; tavanUygulandi = true; }
+    if (primGun < RAPOR_ODENEK.dusukPrimEsigi) {
+        const sinir = gunlukTaban * RAPOR_ODENEK.dusukPrimKatsayi;
+        if (gunlukKazanc > sinir) { gunlukKazanc = sinir; dusukPrimTavani = true; }
+    }
+    gunlukKazanc = yuvarla(gunlukKazanc);
+
+    const oran = yatarak ? RAPOR_ODENEK.yatarakOran : RAPOR_ODENEK.ayaktaOran;
+    const gunlukOdenek = yuvarla(gunlukKazanc * oran);
+
+    /* BEKLEME SÜRESİ: hastalıkta ilk iki gün ödenmez. Rapor 2 gün ya
+       da daha kısaysa SGK hiç ödeme yapmaz. */
+    const bekleme = isKazasi ? 0 : RAPOR_ODENEK.hastalikBeklemeGunu;
+    const odenenGun = Math.max(0, raporGun - bekleme);
+    const toplamOdenek = yuvarla(gunlukOdenek * odenenGun);
+
+    return {
+        gunlukKazanc: gunlukKazanc,
+        hamGunlukKazanc: yuvarla(hamGunluk),
+        tavanUygulandi: tavanUygulandi,
+        dusukPrimTavani: dusukPrimTavani,
+        gunlukTavan: yuvarla(gunlukTavan),
+        dusukPrimSiniri: yuvarla(gunlukTaban * RAPOR_ODENEK.dusukPrimKatsayi),
+        oran: oran,
+        tedavi: yatarak ? "yatarak" : "ayakta",
+        gunlukOdenek: gunlukOdenek,
+        raporGunu: raporGun,
+        beklemeGunu: bekleme,
+        odenenGun: odenenGun,
+        odenmeyenGun: raporGun - odenenGun,
+        toplamOdenek: toplamOdenek,
+        odemeYok: odenenGun === 0,
+        durum: isKazasi ? "iskazasi" : "hastalik",
+        kaynak: RAPOR_ODENEK.kaynak,
+        yil: RAPOR_ODENEK.yil
+    };
+}
