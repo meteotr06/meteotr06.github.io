@@ -1028,13 +1028,39 @@ function gecmiseEkle(yol) {
 // 31 sayfa eksik girdide SESSİZCE boş kutu gösteriyordu: kullanıcı 0 yazıyor,
 // ekranda hiçbir şey olmuyor, neden olmadığını da bilmiyordu.
 // Artık ne yapması gerektiğini söylüyoruz.
+/* Metni HTML'e gomulebilir hale getirir. AYIKLAMAK degil KACIRMAK:
+   ayiklamak kullanicinin yazdigini degistirir, "<5" yazan kisi neden
+   uyarildigini anlayamaz. */
+function kacir(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+}
+
+/* MESAJ HTML DEGIL METINDIR.
+   Olculdu (28 Agustos 2026): iki sayfa kullanicinin YAZDIGINI bu mesaja
+   koyuyordu -- `sayi-yaziyla-yazma` 20 karakter, `alan-cevre-hacim` 12
+   karakter kirparak. Girdiler adres cubugunda tasindigi icin bu metin
+   SALDIRGANIN hazirladigi bir baglantidan gelebilir; `innerHTML` ile
+   basilinca saldirganin etiketi bizim adresimizde calisirdi: kayitli
+   butce okunabilir, sahte sonuc gosterilebilirdi.
+   Olculen kanit: `x<b data-sizinti=1>y` yuku `sayi-yaziyla-yazma`
+   sayfasinda GERCEK bir dugum olusturdu (test-guvenlik.html).
+   Kirpma koruma DEGILDI -- yalnizca uzun yukleri eledi, kisalari gecirdi;
+   `alan-cevre-hacim` bu yuzden "temiz" gorunuyordu.
+   Cagiranlarin hicbiri isaretleme gondermiyor; mesaj METIN olarak
+   yaziliyor, boylece bundan sonraki cagiranlar da kendiliginden korunur. */
 function sonucBekliyor(mesaj) {
     const o = document.getElementById("ozet");
-    if (o) o.innerHTML = `<div class="kutu bekleyen">
+    if (o) {
+        o.innerHTML = `<div class="kutu bekleyen">
         <div class="bekleyen-simge" aria-hidden="true">⌨</div>
         <p class="bekleyen-baslik">Sonuç burada görünecek</p>
-        <p class="kucuk">${mesaj || "Yukarıdaki alanları doldurun — hesap siz yazarken anında yapılır."}</p>
+        <p class="kucuk"></p>
     </div>`;
+        o.querySelector(".bekleyen .kucuk").textContent = mesaj ||
+            "Yukarıdaki alanları doldurun — hesap siz yazarken anında yapılır.";
+    }
     // BAYAT SONUC HATASI (27 Agustos 2026): burasi yalnizca #ozet ve #dokum'u
     // temizliyordu. net-maas sayfasinda 12 aylik tablo (#tablo) ONCEKI hesabi
     // gostermeye devam ediyordu: kutu bosaltilinca ustte "Brut maasinizi yazin"
