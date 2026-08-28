@@ -2796,3 +2796,101 @@ function damgaVergisi(g) {
         yil: DAMGA.yil
     };
 }
+
+
+// ================= GECİKME ZAMMI VE GECİKME FAİZİ =================
+// Kaynak: 6183 sayılı Kanun md.51 (gecikme zammı), VUK md.112
+//         (gecikme faizi). Oran: 10556 sayılı Cumhurbaşkanı Kararı,
+//         Resmî Gazete 13.11.2025 sayı 33076 — her ay için %3,7.
+//
+// KAYNAKLAR CELISTI: bir yerde %3,7, baska yerde %4,5 yaziyordu.
+// Birincil kaynaktan (GIB duyurusu + Resmi Gazete) cozuldu: 13.11.2025
+// tarihinden itibaren %3,7. Ikincil sitelerin bir kismi eski orani
+// tasiyor -- "cogu site boyle yapiyor" bir kaynak degildir.
+//
+// ASIL AYRIM -- AYNI ORAN, FARKLI GUN SAYIMI:
+//   · Gecikme ZAMMI (6183/51): aylik hesaplanir, AY KESIRLERI icin
+//     GUNLUK hesaplanir (gunluk oran = aylik / 30).
+//   · Gecikme FAIZI (VUK 112): aylik hesaplanir, AY KESIRLERI
+//     DIKKATE ALINMAZ -- 29 gunluk bir kesir sifir sayilir.
+// Ayni borc, ayni gun sayisi, farkli sonuc. Kullanicinin karistirdigi
+// nokta tam olarak burasi.
+//
+// KAPSAM SINIRI: tek oran kullanilir, o yuzden vade tarihi
+// 13.11.2025'ten ONCE olan borclar HESAPLANMAZ. Once farkli oranlar
+// yururlukteydi ve donem donem farkli oran uygulanmasi gerekir;
+// tek oranla hesaplamak sessizce yanlis sonuc verirdi.
+const GECIKME = {
+    oranAylik: 0.037,
+    yururluk: "2025-11-13",
+    kaynak: "6183 s. Kanun md.51 · VUK md.112 · CB Kararı 10556 (RG 13.11.2025)",
+    guncelleme: "2025-11-13"
+};
+
+/* Iki tarih arasindaki TAM AY sayisi ve artan gun.
+   Takvim ayi kullanilir: 15 Ocak -> 15 Subat bir tam aydir, subatin
+   28 gun cekmesi bunu degistirmez.
+
+   KENDI KOPYAMI YAZMADIM: `ayEkle` bu dosyada zaten var ve ayin
+   31'i gibi tasan tarihleri ay sonuna cekiyor. Ayni isi ikinci kez
+   yazmak ikinci bir hata yeri acar; biri duzeltilir oteki unutulur.
+   (Ilk yazista olmayan bir yardimci isleve cagri koymustum; kod
+   tabanindaki adi `tarihOku`. Calistirmadan once baktigim icin
+   kirilmadi -- bu oturumda altinci kez.) */
+function gecikmeSuresi(vade, odeme) {
+    let ay = 0;
+    while (ayEkle(vade, ay + 1) <= odeme) ay++;
+    const sonAyBasi = ayEkle(vade, ay);
+    const gun = Math.round((odeme - sonAyBasi) / 86400000);
+    return { tamAy: ay, artanGun: gun };
+}
+
+/* g: { anaPara, vadeTarihi, odemeTarihi, tur:"zam"|"faiz" } */
+function gecikmeZammi(g) {
+    const ana = Number(g.anaPara);
+    if (!Number.isFinite(ana) || ana <= 0) return { hata: "tutarYok" };
+
+    const vade = g.vadeTarihi instanceof Date ? g.vadeTarihi : tarihOku(g.vadeTarihi);
+    const odeme = g.odemeTarihi instanceof Date ? g.odemeTarihi : tarihOku(g.odemeTarihi);
+    if (!vade || !odeme || isNaN(vade.getTime()) || isNaN(odeme.getTime()))
+        return { hata: "tarihYok" };
+    if (odeme < vade) return { hata: "tersTarih" };
+
+    const sinir = tarihOku(GECIKME.yururluk);
+    if (vade < sinir) return { hata: "kapsamDisi", yururluk: GECIKME.yururluk };
+
+    const s = gecikmeSuresi(vade, odeme);
+    const toplamGun = Math.round((odeme - vade) / 86400000);
+    const aylik = GECIKME.oranAylik;
+    const gunluk = aylik / 30;
+    const faizMi = g.tur === "faiz";
+
+    /* Gecikme faizinde ay kesri YOK SAYILIR. */
+    const sayilanGun = faizMi ? 0 : s.artanGun;
+    const oranToplam = aylik * s.tamAy + gunluk * sayilanGun;
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    const zam = yuvarla(ana * oranToplam);
+
+    /* Oteki yontem ne verirdi -- farki gostermek icin. */
+    const otekiGun = faizMi ? s.artanGun : 0;
+    const otekiOran = aylik * s.tamAy + gunluk * otekiGun;
+    const oteki = yuvarla(ana * otekiOran);
+
+    return {
+        anaPara: ana,
+        tamAy: s.tamAy,
+        artanGun: s.artanGun,
+        sayilanArtanGun: sayilanGun,
+        toplamGun: toplamGun,
+        aylikOran: aylik,
+        gunlukOran: gunluk,
+        uygulananOran: oranToplam,
+        zam: zam,
+        toplamBorc: yuvarla(ana + zam),
+        tur: faizMi ? "faiz" : "zam",
+        otekiYontem: oteki,
+        otekiFark: yuvarla(Math.abs(oteki - zam)),
+        kesirYokSayildi: faizMi && s.artanGun > 0,
+        kaynak: GECIKME.kaynak
+    };
+}

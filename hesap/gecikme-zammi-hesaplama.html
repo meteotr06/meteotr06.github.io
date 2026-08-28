@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Gecikme Zammı Hesaplama 2026 — Zam mı Faiz mi?</title>
+<meta name="description" content="Gecikme zammı hesaplama 2026: aylık %3,7 oranla vergi borcunuzun gecikme zammı ve gecikme faizi. Ay kesirlerinin ikisinde farklı sayıldığını gösterir." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/gecikme-zammi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Gecikme Zammı Hesaplama 2026 — Zam mı Faiz mi?" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/gecikme-zammi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/gecikme-zammi-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Gecikme Zammı Hesaplama 2026 — Zam mı Faiz mi?" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/gecikme-zammi-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=76" />
+</head>
+<body>
+
+<main>
+    <h1>Gecikme Zammı Hesaplama</h1>
+    <p class="ozet">Aylık <b>%3,7</b>. Ama gecikme <b>zammında</b> ay kesirleri günlük sayılır, gecikme <b>faizinde</b> hiç sayılmaz — aynı borç, farklı sonuç.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">6183 <b>md.51</b></span><span class="etiket-rozet">VUK <b>md.112</b></span><span class="etiket-rozet">Aylık <b>%3,7</b></span><span class="etiket-rozet">13.11.2025'ten</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Borç aslı (TL)
+                    <input id="ana" type="text" inputmode="decimal" value="100000" />
+                </label>
+                <label>Vade tarihi (son ödeme günü)
+                    <input id="vade" type="date" value="2025-12-15" />
+                </label>
+                <label>Ödeme tarihi
+                    <input id="odeme" type="date" value="2026-03-20" />
+                </label>
+                <label>Hangi hesap
+                    <select id="tur">
+                        <option value="zam">Gecikme zammı — vadesinde ödenmeyen borç</option>
+                        <option value="faiz">Gecikme faizi — sonradan tarh edilen vergi</option>
+                    </select>
+                </label>
+            </div>
+            <p class="kucuk">Oran <b>13.11.2025</b>'ten itibaren aylık %3,7'dir
+            (10556 sayılı Cumhurbaşkanı Kararı). Daha eski vadeli borçlarda dönem dönem
+            farklı oranlar uygulanır; bu araç o borçlar için <b>sayı vermez</b>.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>Zam mı faiz mi — ikisi aynı şey değil</h2>
+        <p>İkisi de aynı orana (aylık %3,7) bağlıdır ama <b>gün sayımı farklıdır</b>:</p>
+        <ul>
+            <li><b>Gecikme zammı</b> (6183 sayılı Kanun md.51): vadesinde ödenmeyen amme
+            alacağına uygulanır. Aylık hesaplanır, <b>ay kesirleri günlük</b> hesaplanır
+            (günlük oran = aylık ÷ 30).</li>
+            <li><b>Gecikme faizi</b> (VUK md.112): ikmalen, re'sen veya idarece tarh edilen
+            vergilerde uygulanır. Aylık hesaplanır ama <b>ay kesirleri dikkate alınmaz</b>.</li>
+        </ul>
+        <p>Fark küçük görünür, değildir: <b>29 günlük</b> bir gecikmede gecikme faizi
+        <b>sıfırdır</b>, gecikme zammı ise 100.000 ₺'lik borçta <b>3.576,67 ₺</b>'dir.
+        Aynı gün sayısı, iki farklı sonuç.</p>
+
+        <h2>Bir gün geç ödemek ne kadar tutar?</h2>
+        <p>Gecikme zammında her gün sayılır: 100.000 ₺'lik borçta günlük yük
+        <b>123,33 ₺</b>'dir (aylık %3,7'nin otuzda biri). Gecikme faizinde ise ayın
+        dolmasını beklemek bir şey değiştirmez — <b>ay dolmadıkça</b> faiz işlemez.</p>
+
+        <h2>Neden eski borçlarda sayı vermiyoruz</h2>
+        <p>Gecikme zammı oranı Cumhurbaşkanı kararıyla değişir ve <b>her dönem kendi
+        oranıyla</b> hesaplanır. Elimizde 13.11.2025'ten itibaren geçerli tek oran var;
+        daha eski vadeli bir borcu bu oranla hesaplamak <b>sessizce yanlış</b> bir sonuç
+        verirdi. O yüzden hesaplamıyor, sebebini söylüyoruz.</p>
+
+        <h2>Bu araç neyi kapsamıyor</h2>
+        <p><b>SGK prim borçları</b> için gecikme zammına ek olarak ayrıca gecikme cezası
+        uygulanır; burada yalnızca 6183 kapsamındaki gecikme zammı hesaplanır.
+        Ayrıca yapılandırma, tecil faizi ve vergi ziyaı cezası bu araçta yoktur.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=76"></script>
+<script src="sayfa.js?v=76"></script>
+<script>
+iskeletKur("gecikme-zammi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["ana", "vade", "odeme", "tur"];
+
+function hesapla() {
+    const ana = oku("ana");
+    const vade = document.getElementById("vade").value;
+    const odeme = document.getElementById("odeme").value;
+    const tur = document.getElementById("tur").value;
+
+    const s = gecikmeZammi({ anaPara: ana, vadeTarihi: vade, odemeTarihi: odeme, tur: tur });
+
+    if (s.hata === "kapsamDisi") {
+        document.getElementById("ozet").innerHTML = `<div class="kutu uyari-kutu" role="alert">
+            <p><b>Bu borç için sayı veremiyoruz.</b> Elimizdeki oran
+            <b>13.11.2025</b>'ten itibaren geçerli olan aylık %3,7; daha eski vadeli
+            borçlarda <b>her dönem kendi oranıyla</b> hesaplanır.</p>
+            <p class="kucuk">Tek oranla hesaplamak sessizce yanlış bir sonuç verirdi.
+            Eski dönem oranları için vergi dairenize ya da
+            <a href="https://www.gib.gov.tr/yardim-ve-kaynaklar/yararli-bilgiler/gecikme-zammi-orani"
+            rel="nofollow noopener" target="_blank">GİB'in gecikme zammı oranları
+            sayfasına</a> bakın.</p></div>`;
+        document.getElementById("dokum").innerHTML = "";
+        baglantiyaYaz(ALANLAR);
+        return;
+    }
+    if (s.hata) {
+        sonucBekliyor({
+            tutarYok: "Borç aslını yazın.",
+            tarihYok: "Vade ve ödeme tarihini seçin.",
+            tersTarih: "Ödeme tarihi, vade tarihinden önce olamaz."
+        }[s.hata] || "Girdileri kontrol edin.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    const zamMi = s.tur === "zam";
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.zam)}</div>
+        <div class="dev-etiket">${zamMi ? "gecikme zammı" : "gecikme faizi"}</div>
+        ${satir("Borç aslı", para(s.anaPara))}
+        ${satir("Ödenecek toplam", para(s.toplamBorc), "buyuk")}
+        ${satir("Gecikme süresi", sayi(s.tamAy, 0) + " tam ay + " + sayi(s.artanGun, 0) + " gün")}
+        ${satir("Uygulanan toplam oran", yuzdeOn(s.uygulananOran * 100, 3))}
+        ${s.kesirYokSayildi ? `<p class="varsayim"><b>${sayi(s.artanGun, 0)} günlük ay kesri
+            dikkate alınmadı.</b> Gecikme faizinde ay kesirleri sayılmaz (VUK md.112).
+            Aynı süre gecikme zammı olsaydı <b>${para(s.otekiYontem)}</b> çıkardı —
+            <b>${para(s.otekiFark)}</b> fark.</p>` : ""}
+        ${(zamMi && s.artanGun > 0) ? `<p class="varsayim">${sayi(s.artanGun, 0)} günlük
+            ay kesri <b>günlük</b> hesaplandı. Aynı süre gecikme faizi olsaydı
+            <b>${para(s.otekiYontem)}</b> çıkardı — <b>${para(s.otekiFark)}</b> fark.</p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h2 class="kutu-baslik">Bir gün daha gecikirse</h2>
+        ${satir("Günlük yük (gecikme zammında)", para(s.anaPara * s.gunlukOran), "buyuk")}
+        <p class="kucuk">${zamMi
+            ? "Gecikme zammında her gün sayılır; bir gün beklemek yukarıdaki kadar ekler."
+            : "Gecikme faizinde ay dolmadıkça değişmez; ay dolduğu gün bir aylık yük birden biner."}</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle("Vade ile ödeme arasındaki süre.",
+           tarihYaz(tarihOku(vade)) + " → " + tarihYaz(tarihOku(odeme)),
+           sayi(s.tamAy, 0) + " ay " + sayi(s.artanGun, 0) + " gün");
+    d.ekle("Tam aylar için aylık oran (%3,7).",
+           `${sayi(s.tamAy, 0)} × %3,7`, yuzdeOn(s.aylikOran * s.tamAy * 100, 2));
+    if (zamMi)
+        d.ekle("Ay kesri için günlük oran (aylık ÷ 30).",
+               `${sayi(s.artanGun, 0)} × ${yuzdeOn(s.gunlukOran * 100, 4)}`,
+               yuzdeOn(s.gunlukOran * s.artanGun * 100, 3));
+    else
+        d.ekle("Ay kesri dikkate alınmaz (VUK md.112).",
+               `${sayi(s.artanGun, 0)} gün sayılmadı`, "%0");
+    d.ekle("Toplam oran borç aslına uygulanır.",
+           `${sayi(s.anaPara, 0)} × ${yuzdeOn(s.uygulananOran * 100, 3)}`, para(s.zam));
+    d.ekle("Ödenecek toplam.",
+           `${sayi(s.anaPara, 0)} + ${sayi(s.zam, 2)}`, para(s.toplamBorc));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Gecikme Zammı"));
+yapisalVeri("Gecikme Zammı Hesaplama", "Gecikme zammı ve gecikme faizi hesaplama 2026: aylık %3,7, ay kesirlerinin farklı sayılması.");
+
+sssEkle([
+    { soru: "Gecikme zammı oranı 2026'da yüzde kaç?",
+      cevap: "Aylık %3,7'dir. 13.11.2025 tarihli 10556 sayılı Cumhurbaşkanı Kararıyla belirlendi ve 2026'da uygulanmaya devam ediyor." },
+    { soru: "Gecikme zammı ile gecikme faizi arasındaki fark ne?",
+      cevap: "Oran aynı, gün sayımı farklı. Gecikme zammında ay kesirleri günlük hesaplanır; gecikme faizinde ay kesirleri hiç dikkate alınmaz. 29 günlük gecikmede faiz sıfır, zam ise işler." },
+    { soru: "Bir gün geç ödersem ne olur?",
+      cevap: "Gecikme zammında her gün sayılır: 100.000 ₺'lik borçta günlük yük yaklaşık 123,33 ₺'dir. Gecikme faizinde ise ay dolmadıkça bir şey değişmez." },
+    { soru: "Eski tarihli borcum için neden hesaplamıyor?",
+      cevap: "Gecikme zammı oranı zaman içinde değişti ve her dönem kendi oranıyla hesaplanır. Elimizde 13.11.2025'ten itibaren geçerli tek oran var; eski borcu bu oranla hesaplamak yanlış sonuç verirdi." },
+    { soru: "SGK prim borcumda da aynı mı?",
+      cevap: "Gecikme zammı SGK alacaklarına da uygulanır, ancak SGK prim borçlarında ayrıca gecikme cezası vardır ve bu araçta hesaplanmaz." }
+]);
+
+ilgiliAraclar("gecikme-zammi-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>

@@ -41,6 +41,7 @@ const ARACLAR = [
     { yol: "iskonto-hesaplama.html", ad: "İskonto", aciklama: "Ardışık indirimde gerçek oran", grup: "Ticaret", anahtar: "iskonto indirim ardışık kademeli liste fiyatı net fiyat bayi toptan kampanya ihale teklif" },
     { yol: "dogalgaz-faturasi-hesaplama.html", ad: "Doğalgaz Faturası", aciklama: "m³'ten kWh'a, sayaçtan faturaya", grup: "Ev ve Yaşam", anahtar: "doğalgaz fatura m3 metreküp kwh sayaç ısıl değer kombi ısınma abonelik igdaş başkentgaz" },
     { yol: "dogum-izni-hesaplama.html", ad: "Doğum İzni", aciklama: "24 hafta — yeni düzenleme", grup: "Maaş ve Çalışma", anahtar: "doğum izni analık izni süt izni babalık izni 24 hafta 16 hafta hamile gebe çoğul ücretsiz izin sgk analık ödeneği 7578" },
+    { yol: "gecikme-zammi-hesaplama.html", ad: "Gecikme Zammı", aciklama: "Geç ödenen vergi borcunun yükü", grup: "Genel", anahtar: "gecikme zammı faizi vergi borcu geç ödeme vade 6183 vuk 112 ay kesri günlük aylık oran borç" },
     { yol: "damga-vergisi-hesaplama.html", ad: "Damga Vergisi", aciklama: "Kira ve sözleşmede vergi, istisna şartı", grup: "Ev ve Yaşam", anahtar: "damga vergisi kira sözleşmesi kontrat mukavele işyeri konut kefil istisna binde sözleşme bedeli ücret azami 488" },
     { yol: "kira-stopaji-hesaplama.html", ad: "Kira Stopajı", aciklama: "İşyeri kirasında brüt-net ve beyan sınırı", grup: "Ev ve Yaşam", anahtar: "kira stopaj tevkifat işyeri dükkan ofis brüt net kiracı kiraya veren gvk 94 beyan sınırı mahsup vergi" },
     { yol: "kira-geliri-vergisi-hesaplama.html", ad: "Kira Geliri Vergisi", aciklama: "İstisna, götürü/gerçek gider", grup: "Ev ve Yaşam", anahtar: "kira geliri vergisi gmsi beyanname istisna götürü gider gerçek gider ev sahibi mart temmuz taksit hazır beyan stopaj" },
@@ -162,6 +163,25 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 75,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: gecikme zammı — ve gecikme faiziyle farkı.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Vergi borcunuzu geç ödeyince ne kadar yükleneceğini gösterir " +
+            "(aylık <b>%3,7</b>). Ama asıl anlattığı şey şu: <b>gecikme zammı</b> " +
+            "ile <b>gecikme faizi</b> aynı orana bağlı olsa da <b>gün sayımı " +
+            "farklı</b>.",
+            "Gecikme zammında ay kesirleri <b>günlük</b> sayılır; gecikme " +
+            "faizinde <b>hiç sayılmaz</b>. 29 günlük gecikmede faiz <b>sıfır</b>, " +
+            "zam ise 100.000 ₺'lik borçta <b>3.576,67 ₺</b>. Araç ikisini yan " +
+            "yana koyup farkı yazıyor.",
+            "Vadesi <b>13.11.2025 öncesi</b> olan borçlarda sayı vermiyoruz: " +
+            "o dönemler farklı oranlarla hesaplanır ve tek oranla hesaplamak " +
+            "sessizce yanlış olurdu.",
+        ],
+    },
     {
         surum: 74,
         tarih: "28 Ağustos 2026",
@@ -462,13 +482,19 @@ function yenilikSeridi() {
         ' <a href="neler-degisti.html">Neler değişti?</a>' +
         "</div>" +
         '<button type="button" class="ys-kapat" aria-label="Kapat">✕</button>';
-    document.body.insertBefore(c, document.body.firstChild);
+    /* YUVAYA GİR: daha acil bir şerit duruyorsa bu ertelenir ve
+       `gorulenSurum` YAZILMAZ — bir sonraki açılışta yine çıkar. */
+    const yerlesti = seritYuvasiIste(duzeltmeVar ? "duzeltme" : "yenilik", function () {
+        document.body.insertBefore(c, document.body.firstChild);
+        return c;
+    });
+    if (!yerlesti) return;
 
     c.querySelector(".ys-kapat").onclick = function () {
         const a = ayarOku();
         a.gorulenSurum = surum;
         ayarYaz(a);
-        c.remove();
+        seritYuvasiBirak(duzeltmeVar ? "duzeltme" : "yenilik");
     };
 }
 
@@ -512,6 +538,54 @@ function gorunumUygula(ayar) {
     if (ayar.sade === true) kok.dataset.sade = "1"; else delete kok.dataset.sade;
     return { renk: renk, boy: boy, sade: ayar.sade === true };
 }
+
+/* ---------- ŞERİT YUVASI — aynı anda EN FAZLA BİR şerit ----------
+   Kullanıcı bildirdi: "bu hesap uygulaması bi kafayı yedi."
+   ÖLÇÜLDÜ (390 px telefon, yeni kullanıcı + çevrimdışı):
+     çevrimdışı şerit  40 px  (gövdenin başında)
+     yenilik şerit    102 px  (gövdenin başında)
+     → hesap kutusu 519 px'te başlıyor; kullanıcı geldiği şeyi
+       görmek için yarım ekran kaydırıyor.
+
+   Şeritlerin her biri TEK BAŞINA doğruydu. Kimse "kaçı aynı anda
+   çıkabilir" diye sormamıştı — bu bizim eklediğimiz bir kusur.
+
+   ERTELEME KAYBETME DEĞİLDİR: ertelenen şerit hiç gösterilmediği
+   için "görüldü" durumu da YAZILMAZ; bir sonraki açılışta çıkar.
+   (Yenilik şeridinde `gorulenSurum` yalnızca kapatma düğmesinde
+   yazılıyor; gösterilmezse dokunulmuyor.)
+
+   Canlılık uyarısı bu yönetime girmez: o satır içi çalışır ve ancak
+   `sayfa.js` hiç yüklenmediğinde görünür — o durumda zaten başka
+   şerit yoktur, çakışma imkânsızdır. */
+const SERIT_ONCELIK = {
+    duzeltme: 3,     // "önceki sonucunuz yanlış olabilir" — en acili
+    cevrimdisi: 2,   // şu anki durum, kullanıcı bir şey yapabilir
+    yenilik: 1       // bilgilendirme, ertelenebilir
+};
+let seritYuva = null;
+
+function seritYuvasiIste(tur, olustur) {
+    const yeni = SERIT_ONCELIK[tur] || 0;
+    if (seritYuva) {
+        if (yeni <= (SERIT_ONCELIK[seritYuva.tur] || 0)) return null;   // ertelendi
+        seritYuvasiBirak();
+    }
+    const el = olustur();
+    if (!el) return null;
+    seritYuva = { tur: tur, el: el };
+    return el;
+}
+
+function seritYuvasiBirak(tur) {
+    if (!seritYuva) return;
+    if (tur && seritYuva.tur !== tur) return;
+    if (seritYuva.el && seritYuva.el.parentNode) seritYuva.el.parentNode.removeChild(seritYuva.el);
+    seritYuva = null;
+}
+
+/* Sınama için: o an hangi şerit yuvada. */
+function seritDurumu() { return seritYuva ? seritYuva.tur : null; }
 
 // ---------- Üst bar ve alt bilgi ----------
 
@@ -1578,15 +1652,23 @@ function cevrimdisiUyari(aktifYol) {
     const goster = (metin, kalici) => {
         let s = document.getElementById("cevrimdisiSerit");
         if (!s) {
-            s = document.createElement("div");
-            s.id = "cevrimdisiSerit";
-            s.className = "cevrimdisi-serit";
-            s.setAttribute("role", "status");
-            document.body.insertBefore(s, document.body.firstChild);
+            /* Yuva dolu ve oradaki daha acilse (hesap düzeltmesi
+               uyarısı) bu şerit çıkmaz. Çevrimdışı olmak bir DURUM;
+               "önceki sonucunuz yanlış olabilir" ise bir UYARI. */
+            const yerlesti = seritYuvasiIste("cevrimdisi", function () {
+                const y = document.createElement("div");
+                y.id = "cevrimdisiSerit";
+                y.className = "cevrimdisi-serit";
+                y.setAttribute("role", "status");
+                document.body.insertBefore(y, document.body.firstChild);
+                return y;
+            });
+            if (!yerlesti) return;
+            s = yerlesti;
         }
         s.innerHTML = metin;
         s.hidden = false;
-        if (!kalici) setTimeout(() => { s.hidden = true; }, 6000);
+        if (!kalici) setTimeout(() => { seritYuvasiBirak("cevrimdisi"); }, 6000);
     };
 
     if (!navigator.onLine && yanlisSayfa) {
