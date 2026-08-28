@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Tarih ve Yaş Hesaplama — İki Tarih Arası Kaç Gün?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/tarih-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=42" />
+<link rel="stylesheet" href="stil.css?v=43" />
 </head>
 <body>
 
@@ -83,8 +83,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=42"></script>
-<script src="sayfa.js?v=42"></script>
+<script src="hesap.js?v=43"></script>
+<script src="sayfa.js?v=43"></script>
 <script>
 iskeletKur("tarih-hesaplama.html");
 gizlilikBaglantisi();
@@ -101,8 +101,13 @@ function hesapla() {
 
     const f = tarihFarki(bas, bit);
     const y = f.yilAyGun;
+    /* `tarihEkle` aralik disinda null doner (bkz. hesap.js aciklamasi).
+       O zaman IKI TARIH FARKI yine gecerlidir -- onu silmek, sorulmayan
+       bir soruya ceza kesmek olurdu. Yalnizca "gun ekle" kutusu sebebini
+       yazar. */
     const gelecek = tarihEkle(bit, ek);
-    const gelecekGun = GUNLER[new Date(gelecek + "T00:00:00Z").getUTCDay()];
+    const gelecekGun = gelecek
+        ? GUNLER[new Date(gelecek + "T00:00:00Z").getUTCDay()] : null;
     const basGun = GUNLER[new Date(bas + "T00:00:00Z").getUTCDay()];
 
     document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
@@ -115,11 +120,15 @@ function hesapla() {
         ${satir("Başlangıç günü", basGun)}
     </div>
 
-    <div class="kutu">
+    ${gelecek ? `<div class="kutu">
         <h2 class="kutu-baslik">${ek >= 0 ? ek + " gün sonrası" : Math.abs(ek) + " gün öncesi"}</h2>
         ${satir("Tarih", gelecek.split("-").reverse().join(".") )}
         ${satir("Hangi gün", gelecekGun, "buyuk")}
-    </div>`;
+    </div>` : `<div class="kutu">
+        <h2 class="kutu-baslik">Gün ekleme yapılamadı</h2>
+        <p class="kucuk">Eklenecek gün sayısı çok büyük — takvimin
+        taşıyabileceği aralığın dışında. Yukarıdaki tarih farkı geçerlidir.</p>
+    </div>`}`;
 
     const d = dokumKur("Hesap nasıl yapıldı?");
     d.ekle("İki tarih arasındaki gün sayısı bulunur.", `${bas} → ${bit}`, sayi(f.gun, 0) + " gün");

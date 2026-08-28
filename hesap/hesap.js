@@ -857,10 +857,31 @@ function isGunuSay(bas, bit) {
     return sayac;
 }
 
+// SINIRSIZ GUN KABUL ETME. Olculdu (28 Agustos 2026, CANLIDA):
+//     tarihEkle("2026-08-26",   8000000)  ->  "+023929-11"   BOZUK DIZGI
+//     tarihEkle("2026-08-26", 999999999)  ->  RangeError firlatiyor
+// Firlatilan hata sayfanin hesabini YARIDA KESIYOR; ekranda ONCEKI sonuc
+// kaliyor. Kullanici 999999999 yaziyor, ekran hala "100 gun sonrasi"
+// diyor. Cokme yok, uyari yok -- sadece yanlis. Bayat sonuc hatasinin
+// istisna yolundan sizmis hali.
+//
+// JavaScript tarihleri 1970'ten +/-100.000.000 gun tasiyabilir; ISO
+// dizgisi de 4 haneyi asinca "+023929-11" gibi bicim degistirir ve
+// `split("-")` ile ayristiran her yer bozulur. O yuzden sinir, dizginin
+// bozulmadigi araliktir.
+const TARIH_EN_COK_GUN = 2900000;   // yaklasik 7900 yil; yil 9999'un altinda
+
 function tarihEkle(baslangic, gunSayisi) {
+    const n = Number(gunSayisi);
+    if (!isFinite(n) || Math.abs(n) > TARIH_EN_COK_GUN) return null;
     const d = new Date(baslangic + "T00:00:00Z");
-    d.setUTCDate(d.getUTCDate() + gunSayisi);
-    return d.toISOString().slice(0, 10);
+    if (isNaN(d.getTime())) return null;
+    d.setUTCDate(d.getUTCDate() + Math.round(n));
+    const t = d.getTime();
+    if (isNaN(t)) return null;
+    const s = d.toISOString();
+    /* Dizgi 4 haneli yil bicimini korumali; "+023929-11-..." kabul edilmez. */
+    return /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : null;
 }
 
 // ---------- 18) TAKSİT / VADE FARKI ----------

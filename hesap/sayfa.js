@@ -227,7 +227,35 @@ function girdileriDenetle(idler) {
 
 // Girdi kutularını dinle: her değişiklikte hesapla
 function dinle(idler, isle) {
-    const sarmal = () => { girdileriDenetle(idler); isle(); };
+    // ISTISNA BAYAT SONUC BIRAKMAMALI.
+    //
+    // Olculdu (28 Agustos 2026, CANLIDA): tarih-hesaplama sayfasinda
+    // "999999999" yazilinca `tarihEkle` RangeError firlatti, `hesapla()`
+    // yarida kesildi ve ekranda ONCEKI hesabin cevabi kaldi:
+    //     girdi 100        -> "100 gun sonrasi · 04.12.2026"
+    //     girdi 999999999  -> ekran DEGISMEDI, hala 04.12.2026
+    // Kullanici artik girmedigi bir sayinin cevabini okuyor. Cokme yok,
+    // uyari yok. `sonucBekliyor` bu sinifi kapatiyordu ama istisna yolu
+    // ona hic ugramiyordu.
+    //
+    // Burasi 42 aracin ORTAK gecidi; korumayi tek tek araclara birakmak
+    // 42 kez hatirlamayi gerektirirdi. Bir kez burada durduruluyor.
+    const sarmal = () => {
+        girdileriDenetle(idler);
+        try {
+            isle();
+        } catch (h) {
+            /* Sessizce yutma: kullaniciya bir sey soyle, eski cevabi da
+               ekranda birakma. Hangi girdinin kirdigini bilmiyoruz ama
+               "eski cevap dogru" demekten iyidir. */
+            if (typeof console !== "undefined" && console.error) console.error(h);
+            if (typeof sonucBekliyor === "function") {
+                sonucBekliyor("Girdiğiniz değerlerle hesap yapılamadı. " +
+                              "Sayılar çok büyük ya da beklenmedik olabilir — " +
+                              "kontrol edip tekrar deneyin.");
+            }
+        }
+    };
     idler.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;

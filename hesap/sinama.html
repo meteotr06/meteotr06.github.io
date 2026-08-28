@@ -25,7 +25,7 @@ diye silme — sebebi yanında yazılı.</p>
 
 <script>
 /* Önbellek eski kodu vermesin. 27.08.2026'da üç kez yaşandı: sayfa
-   `?v=40` servis ederken diskte `?v=42` duruyordu; servis çalışanı
+   `?v=40` servis ederken diskte `?v=43` duruyordu; servis çalışanı
    `cache:"no-store"` isteğini bile eskisiyle karşıladı.
    "Sınama geçti" ile "düzeltilmiş kod sınandı" AYRI iddialardır. */
 var T = Date.now();
@@ -272,6 +272,47 @@ window.addEventListener("load", async function () {
          sablon ? (sablon + " adet") : "");
     } catch (e) { ol(dosya + " okunamadı", false, String(e)); }
   }
+
+  /* ══ I · UÇ DEĞER: takvimin taşıyabileceği aralık ═════════════════
+     Ölçüldü (28 Ağustos 2026, CANLIDA):
+         tarihEkle("2026-08-26",   8000000) -> "+023929-11"  BOZUK DİZGİ
+         tarihEkle("2026-08-26", 999999999) -> RangeError fırlatıyor
+     Fırlatılan hata `hesapla()`yı yarıda kesiyordu ve ekranda ÖNCEKİ
+     cevap kalıyordu: kullanıcı 999999999 yazarken ekran hâlâ "100 gün
+     sonrası · 04.12.2026" diyordu. Çökme yok, uyarı yok — sadece yanlış.
+     `split("-")` ile ayrıştıran her yer de "+023929-11"de bozulurdu. */
+  bas("I · Uç değer — tarih aralığı taşması");
+  ol("normal aralık çalışıyor", tarihEkle("2026-08-26", 100) === "2026-12-04",
+     String(tarihEkle("2026-08-26", 100)));
+  ol("uzak ama geçerli tarih üretiliyor",
+     /^\d{4}-\d{2}-\d{2}$/.test(tarihEkle("2026-08-26", 100000) || ""),
+     String(tarihEkle("2026-08-26", 100000)));
+  [8000000, 999999999, -999999999, 1e15, Infinity, NaN].forEach(function (n) {
+    var v;
+    try { v = tarihEkle("2026-08-26", n); } catch (e) { v = "FIRLATTI: " + e.message; }
+    ol("aralık dışı " + n + " → null (fırlatmıyor, bozuk dizgi vermiyor)",
+       v === null, String(v));
+  });
+  ol("bozuk başlangıç tarihi → null", tarihEkle("abc", 10) === null,
+     String(tarihEkle("abc", 10)));
+
+  /* ══ J · İSTİSNA BAYAT SONUÇ BIRAKMAMALI ══════════════════════════
+     `sonucBekliyor` bayat sonucu temizliyordu ama İSTİSNA YOLU ona hiç
+     uğramıyordu. 42 aracın ortak geçidi `dinle()`; koruma orada.
+     Burada kaynak okunarak aranır — davranış sınaması sayfa gerektirir,
+     bu dosya çekirdeği ölçer. */
+  bas("J · İstisna yolu bayat sonuç bırakıyor mu");
+  try {
+    const c2 = await fetch("sayfa.js?t=" + T);
+    const m2 = await c2.text();
+    const bas0 = m2.indexOf("function dinle("); const dinleGovde = bas0 < 0 ? "" : m2.slice(bas0, bas0 + 1600);
+    ol("dinle() isle()'yi try/catch içinde çağırıyor",
+       /try\s*\{[\s\S]{0,120}isle\(\)/.test(dinleGovde));
+    ol("catch bloğu sonucBekliyor çağırıyor (eski cevap ekranda kalmasın)",
+       /catch[\s\S]{0,400}sonucBekliyor/.test(dinleGovde));
+    ol("hata sessizce yutulmuyor (console.error var)",
+       /catch[\s\S]{0,300}console\.error/.test(dinleGovde));
+  } catch (e) { ol("sayfa.js okunamadı", false, String(e)); }
 
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
