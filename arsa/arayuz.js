@@ -1390,8 +1390,32 @@ function yenilik_goster() {
     if (!damga) return;
 
     var onceki = gorulen_oku();
-    /* İlk ziyaret: yeni kullanıcı hiçbirini görmemiş, "şunları
-       düzelttik" demek anlamsız. Sadece işaretle, sus. */
+
+    /* İŞARETİ YOK AMA YENİ DEĞİL.
+
+       Ölçüldü: defteri ve teması olan bir kullanıcı — yani uygulamayı
+       zaten kullanan biri — işaret anahtarı bulunmadığı için "ilk
+       ziyaret" sayılıyordu ve "neler değişti" şeridini HİÇ görmüyordu.
+       Yani bildirim, en çok gerektiği anda (geçişte) tam hedef
+       kitlesini ıskalıyordu.
+
+       Aynı hata 05 Göz Molası'nda bulunup düzeltilmişti; buraya
+       kendiliğinden geçmemişti (K-28). Bir sınıfın bir projede
+       kapatılması, diğerlerinde kapandığı anlamına gelmiyor.
+
+       Kaydı olan ama işareti olmayan kişi ESKİ kullanıcıdır. */
+    if (!onceki) {
+        var izVar = false;
+        try {
+            izVar = !!(localStorage.getItem(DEPO_ANAHTAR)
+                    || localStorage.getItem(TEMA_ANAHTAR)
+                    || localStorage.getItem(TASLAK_ANAHTAR));
+        } catch (e) { izVar = false; }
+        if (izVar) onceki = 1;          // eski kullanıcı: her kaydı görsün
+    }
+
+    /* Gerçekten ilk ziyaret: hiçbirini görmemiş, "şunları düzelttik"
+       demek anlamsız. Sadece işaretle, sus. */
     if (!onceki) { gorulen_yaz(damga); return; }
 
     /* Damgaya EŞİT kayıt aramıyoruz. Damga her yayında artıyor (bir
