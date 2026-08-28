@@ -901,6 +901,45 @@ window.addEventListener("appinstalled", () => {
     try { localStorage.setItem("hesapKurulu", "1"); } catch (e) { }
 });
 
+/* KULLANICI BU SAYFADA BIR SEY YAPTI MI?
+   Iki isaret denendi, ikisi de yanlis cikti:
+   1. `hesapCalisti` -- "isle() firlatmadi mi" demek. Girdisiz sayfada da
+      dogru; yarim yukleme denetimi icin dogru isaret ama bu soru icin degil.
+   2. "Ekranda sonuc var mi" -- bu da yetmedi. Olculdu (28.08.2026): arac
+      sayfalari ON DEGERLE aciliyor ve daha ilk anda sonuc gosteriyor.
+        net-maas   girdi 75000       -> 58.080,27 TL
+        kredi      girdi 100000      -> 6.523,81 TL
+        tarih      girdi 1990-05-15  -> 13.252 gun
+      Yani "sonuc var" sayfanin acildigi anda da dogru.
+   Geriye iki durust yol kaliyor:
+   a) kullanicinin KENDI dokunusu (yazdi, sectikleri degisti);
+   b) baglantinin KENDI degerlerini tasimasi -- paylasilan bir hesabi
+      acan kisi de sonucu gormustur, sayfanin on degerini degil.
+   (b) olmasa, uygulamayi hep paylasilan baglantidan kullanan birine
+   davet hic gosterilmezdi. */
+let kullaniciDokundu = false;
+
+/* Adres kendi girdi degerlerini tasiyor mu? `?taze=`, `?t=` gibi
+   olcum/onbellek parametreleri sayilmaz: yalniz sayfada GERCEKTEN
+   var olan bir girdi adiyla eslesen parametre. */
+function baglantiDegerTasiyorMu() {
+    try {
+        const p = new URLSearchParams(location.search);
+        let varMi = false;
+        p.forEach(function (_, ad) {
+            const el = document.getElementById(ad);
+            if (el && /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) varMi = true;
+        });
+        return varMi;
+    } catch (e) { return false; }
+}
+
+/* Kullanici "simdi degil" dediyse bir daha sorulmaz. */
+const KURULUM_KAPATILDI = "hesapKurulumKapatildi";
+function kurulumKapatildiMi() {
+    try { return localStorage.getItem(KURULUM_KAPATILDI) === "1"; } catch (e) { return false; }
+}
+
 function uygulamaKurulu() {
     if (window.matchMedia("(display-mode: standalone)").matches) return true;
     if (window.navigator.standalone) return true;   // iOS
@@ -909,9 +948,38 @@ function uygulamaKurulu() {
 
 // Alt bilgiye "Uygulama olarak kur" düğmesi ekler.
 // Kurulamayan tarayıcıda (iOS Safari) düğme yerine nasıl yapılacağını anlatır.
+/* ISRARSIZ OLMAK OLCULEBILIR BIR SEYDIR (K-51).
+   Serit uc kosulda HIC cikmaz: uygulama zaten kuruluysa, kullanici bir
+   kez kapattiysa, ya da bu sayfada henuz bir is bitmediyse.
+
+   ZAMANLAMA: bir arac sayfasinda serit, kullanici SONUCU GORMEDEN
+   gosterilmiyor. "Kurmak ister misin?" sorusu, faydayi gormeden
+   sorulunca reklamdir; gordukten sonra sorulunca tekliftir.
+
+   ISARET SECIMI icin yukaridaki `kullaniciDokundu` notuna bakin: iki
+   makul gorunen isaret olculdukten sonra elendi. */
 function kurulumDugmesi() {
     const alt = document.querySelector("footer");
-    if (!alt || alt.querySelector(".kurulum-serit") || uygulamaKurulu()) return;
+    if (!alt || alt.querySelector(".kurulum-serit")) return;
+    if (uygulamaKurulu() || kurulumKapatildiMi()) return;
+
+    /* Arac sayfasiysa sonucu bekle. Rehber/dizin sayfalarinda bekleyecek
+       bir "is" yok, dogrudan gosteriliyor. */
+    if (document.getElementById("ozet") && !kullaniciDokundu && !baglantiDegerTasiyorMu()) {
+        /* Ilk gercek dokunusta bir kez daha denenir. `once: true` ile
+           dinleyiciler kendiliginden kalkiyor; sayfada iz birakmiyor. */
+        const isaretle = function () {
+            if (kullaniciDokundu) return;
+            kullaniciDokundu = true;
+            setTimeout(kurulumDugmesi, 600);   /* sonuc yazilsin, sonra teklif */
+        };
+        document.querySelectorAll("main input, main select, main textarea")
+            .forEach(function (el) {
+                el.addEventListener("input", isaretle, { once: true });
+                el.addEventListener("change", isaretle, { once: true });
+            });
+        return;
+    }
 
     const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const s = document.createElement("div");
@@ -920,7 +988,9 @@ function kurulumDugmesi() {
         <span class="kurulum-yazi"><b>Telefonunuza kurun.</b>
         Simgeden tek dokunuşla açılır, internet olmadan da çalışır.</span>
         <button type="button" id="kurBtn" class="ikincil" hidden>Uygulama olarak kur</button>
-        <button type="button" id="kurNasil" class="ikincil">Nasıl kurulur?</button>`;
+        <button type="button" id="kurNasil" class="ikincil">Nasıl kurulur?</button>
+        <button type="button" id="kurKapat" class="ikincil"
+                aria-label="Kurulum önerisini kapat">Şimdi değil</button>`;
     alt.insertBefore(s, alt.firstChild);
 
     document.getElementById("kurBtn").addEventListener("click", async () => {
@@ -932,6 +1002,13 @@ function kurulumDugmesi() {
         }
         kurulumOlayi = null;
         document.getElementById("kurBtn").hidden = true;
+    });
+
+    /* KAPATAN BIR DAHA GORMEZ. Onceki halde kapatma yolu HIC YOKTU:
+       ilgilenmeyen kullaniciya her sayfada ayni sey gosteriliyordu. */
+    document.getElementById("kurKapat").addEventListener("click", () => {
+        try { localStorage.setItem(KURULUM_KAPATILDI, "1"); } catch (e) { }
+        s.remove();
     });
 
     document.getElementById("kurNasil").addEventListener("click", () => {
