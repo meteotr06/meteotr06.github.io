@@ -34,6 +34,7 @@ const ARACLAR = [
     { yol: "alan-cevre-hacim-hesaplama.html", ad: "Alan, Çevre, Hacim", aciklama: "Kare, daire, üçgen, silindir…", grup: "Genel", anahtar: "alan çevre hacim geometri kare dikdörtgen üçgen daire yamuk küp silindir küre koni metrekare metreküp yüzey heron pi yarıçap" },
     { yol: "ortalama-standart-sapma-hesaplama.html", ad: "Ortalama ve Sapma", aciklama: "Medyan, mod, standart sapma", grup: "Okul", anahtar: "ortalama medyan mod standart sapma varyans istatistik çeyrek aykırı değer aritmetik dizi excel" },
     { yol: "saat-sure-hesaplama.html", ad: "Saat ve Süre", aciklama: "Mesai süresi, süre toplama", grup: "Genel", anahtar: "saat süre mesai vardiya çalışma dakika ondalık gece vardiyası mola bordro puantaj zaman fark" },
+    { yol: "veraset-vergisi-hesaplama.html", ad: "Veraset Vergisi", aciklama: "Miras ve bağışta vergi, istisna ve taksit", grup: "Ev ve Yaşam", anahtar: "veraset intikal vergisi miras bağış hibe ivazsız istisna füruğ eş kardeş tereke hisse taksit 7338" },
     { yol: "tapu-harci-hesaplama.html", ad: "Tapu Harcı", aciklama: "Alıcı ve satıcı ne kadar öder", grup: "Ev ve Yaşam", anahtar: "tapu harcı ev alım satım gayrimenkul konut arsa devir rayiç döner sermaye binde 20 masraf" },
     { yol: "emlak-vergisi-hesaplama.html", ad: "Emlak Vergisi", aciklama: "Konut, iş yeri, arsa; taksitler", grup: "Ev ve Yaşam", anahtar: "emlak vergisi bina arsa arazi işyeri belediye taksit muafiyet emekli değerli konut vergisi büyükşehir" },
     { yol: "kar-marji-hesaplama.html", ad: "Kâr Marjı", aciklama: "Satış fiyatı, marj ve markup", grup: "Ticaret", anahtar: "kâr marjı markup satış fiyatı maliyet esnaf ticaret e-ticaret komisyon kârlılık fiyatlandırma zarar" },
@@ -160,6 +161,23 @@ function ayarYaz(a) {
    Damga her yayinda artabilir; kayit yalniz anlatilacak bir sey olunca
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
+    {
+        surum: 73,
+        tarih: "28 Ağustos 2026",
+        ozet: "Yeni araç: veraset ve intikal vergisi — miras ve bağış yan yana.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Aynı para <b>mirasla</b> gelirse %1'den, <b>bağışla</b> gelirse " +
+            "%10'dan başlar; istisnalar da çok farklı. Araç ikisini " +
+            "<b>yan yana</b> gösteriyor — “sağlığımda devretsem mi?” " +
+            "sorusunun sayısal karşılığı.",
+            "İstisna <b>herkese değil</b>: yalnızca çocuk/torun ve eş için. " +
+            "Kardeş, anne-baba ve diğer mirasçılarda vergi <b>ilk liradan</b> " +
+            "başlar — araç bunu ayrıca uyarıyor.",
+            "Vergi üç yılda, Mayıs ve Kasım aylarında <b>altı eşit taksitte</b> " +
+            "ödenir; taksit tutarı da gösteriliyor.",
+        ],
+    },
     {
         surum: 72,
         tarih: "28 Ağustos 2026",

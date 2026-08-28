@@ -2601,3 +2601,113 @@ function raporParasi(g) {
         yil: RAPOR_ODENEK.yil
     };
 }
+
+
+// ================= VERASET VE İNTİKAL VERGİSİ =================
+// Kaynak: 7338 sayılı Kanun md.4 (istisnalar), md.16 (tarife),
+//         md.19 (ödeme). 2026 tutarları: Veraset ve İntikal Vergisi
+//         Kanunu Genel Tebliği (Seri No: 57), Resmî Gazete 31.12.2025,
+//         sayı 33124 (5. mükerrer). Yeniden değerleme %25,49.
+// Doğrulama: tarife ve üç istisna tutarı iki bağımsız kaynakta birebir
+//         aynı çıktı.
+//
+// İKİ AYRI TARİFE: aynı matrah, mirasla geldiğinde %1'den, bağışla
+// geldiğinde %10'dan başlar. Ondan fazlası da var: en üst dilimde %10
+// ile %30. Yani "ne kadar" sorusunun cevabı, paranın NASIL geldiğine
+// göre üç kat değişebiliyor. Kullanıcının kendi hesaplayamayacağı
+// sayı tam olarak budur.
+const VERASET = {
+    yil: 2026,
+    // [dilim tutarı, veraset oranı, ivazsız oranı]
+    dilimler: [
+        [3000000, 0.01, 0.10],
+        [7000000, 0.03, 0.15],
+        [15000000, 0.05, 0.20],
+        [30000000, 0.07, 0.25],
+        [Infinity, 0.10, 0.30]
+    ],
+    istisnaFurugVeEs: 2907136,   // füruğ varken; eş ve her füruğ için ayrı ayrı
+    istisnaEsTek: 5817845,       // füruğ yokken eşe isabet eden hisse
+    istisnaIvazsiz: 66935,       // ivazsız (bağış) intikaller
+    taksitSayisi: 6,             // 3 yıl, Mayıs ve Kasım (md.19)
+    kaynak: "7338 sayılı Kanun md.4, 16, 19 — Genel Tebliğ Seri No: 57 (RG 31.12.2025)",
+    guncelleme: "2026-01-01"
+};
+
+/* Veraset ve intikal vergisi.
+   g: { hisse, tur:"veraset"|"ivazsiz", yakinlik:"furug"|"esTek"|"diger" }
+
+   İSTİSNA HERKESE DEĞİL: 7338 md.4'teki istisna füruğ (çocuk, torun)
+   ve eş içindir. Kardeş, anne-baba, yeğen gibi mirasçılara istisna
+   YOKTUR ve vergi ilk liradan başlar. Bunu bilmeyen bir kullanıcı
+   "bana da 2,9 milyon istisna var" sanır ve vergiyi sıfır hesaplar. */
+function verasetVergisi(g) {
+    const hisse = Number(g.hisse);
+    const ivazsiz = g.tur === "ivazsiz";
+    if (!Number.isFinite(hisse) || hisse < 0) return { hata: "hisseYok" };
+
+    let istisna;
+    if (ivazsiz) istisna = VERASET.istisnaIvazsiz;
+    else if (g.yakinlik === "esTek") istisna = VERASET.istisnaEsTek;
+    else if (g.yakinlik === "furug") istisna = VERASET.istisnaFurugVeEs;
+    else istisna = 0;
+
+    const uygulananIstisna = Math.min(hisse, istisna);
+    const matrah = Math.max(0, hisse - uygulananIstisna);
+
+    const yuvarla = (x) => Math.round(x * 100) / 100;
+    let kalan = matrah, vergi = 0, alt = 0;
+    const dokum = [];
+    for (const [tutar, vOran, iOran] of VERASET.dilimler) {
+        if (kalan <= 0) break;
+        const oran = ivazsiz ? iOran : vOran;
+        const dilimTutar = Math.min(kalan, tutar);
+        const dilimVergi = dilimTutar * oran;
+        dokum.push({ alt: alt, tutar: dilimTutar, oran: oran, vergi: yuvarla(dilimVergi) });
+        vergi += dilimVergi;
+        kalan -= dilimTutar;
+        alt += dilimTutar;
+    }
+    vergi = yuvarla(vergi);
+
+    /* Aynı hisse ÖTEKİ yolla gelseydi ne olurdu — farkı göstermek,
+       oranı söylemekten anlaşılır. */
+    let digerVergi = 0, dKalan = matrahDiger(hisse, ivazsiz), dAlt = 0;
+    for (const [tutar, vOran, iOran] of VERASET.dilimler) {
+        if (dKalan <= 0) break;
+        const oran = ivazsiz ? vOran : iOran;
+        const dilimTutar = Math.min(dKalan, tutar);
+        digerVergi += dilimTutar * oran;
+        dKalan -= dilimTutar;
+        dAlt += dilimTutar;
+    }
+    digerVergi = yuvarla(digerVergi);
+
+    function matrahDiger(h, suAnIvazsiz) {
+        const i = suAnIvazsiz
+            ? (g.yakinlik === "esTek" ? VERASET.istisnaEsTek
+               : g.yakinlik === "furug" ? VERASET.istisnaFurugVeEs : 0)
+            : VERASET.istisnaIvazsiz;
+        return Math.max(0, h - Math.min(h, i));
+    }
+
+    const taksit = yuvarla(vergi / VERASET.taksitSayisi);
+    return {
+        hisse: hisse,
+        istisna: uygulananIstisna,
+        istisnaHakki: istisna,
+        istisnaYok: istisna === 0,
+        matrah: matrah,
+        vergi: vergi,
+        dokum: dokum,
+        ortalamaOran: hisse > 0 ? vergi / hisse : 0,
+        netKalan: yuvarla(hisse - vergi),
+        taksit: taksit,
+        taksitSayisi: VERASET.taksitSayisi,
+        tur: ivazsiz ? "ivazsiz" : "veraset",
+        digerYolVergi: digerVergi,
+        digerYolFark: yuvarla(Math.abs(digerVergi - vergi)),
+        kaynak: VERASET.kaynak,
+        yil: VERASET.yil
+    };
+}

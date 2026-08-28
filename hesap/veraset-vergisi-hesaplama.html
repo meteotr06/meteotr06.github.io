@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<!-- GUVENLIK BASLIGI (CSP) — 28.08.2026
+     `base-uri 'self'`   : enjekte edilmis bir <base> ile butun goreli
+                           adreslerin saldirgan sunucusuna cevrilmesini keser.
+     `object-src 'none'` : eklenti/gomulu nesne yolunu tumden kapatir.
+     `form-action 'self'`: bir formun disariya gonderilmesini engeller.
+     `connect-src` DENENDI VE KALDIRILDI. Uc reklam alan adiyla
+     yazmistim; sayfayi acar acmaz konsol soyledi:
+         "Connecting to 'https://ep1.adtrafficquality.google/...' violates
+          the following Content Security Policy directive: connect-src..."
+     Bu Google'in gecersiz trafik dogrulama ucu ve listemde yoktu. Kume
+     tahmin ettigimden genis ve DEGISKEN; bir sonraki uc yine sessizce
+     kirilirdi. Ustelik `script-src` olmadigi icin `connect-src`in
+     koruma degeri sinirli: enjekte bir betik zaten uzak betik cagirabilir.
+     Riski gercek, faydasi sinirli -> kaldirildi.
+     (Olcmeden yazsaydim "guvenligi artirdim" der ve reklamlari sessizce
+     bozmus olurdum.)
+
+     `default-src` BILEREK YOK. Koysaydim, listelemedigim her reklam alan
+     adi SESSIZCE kirilirdi -- AdSense calisirken bircok Google alan
+     adindan yuk cekiyor ve bu kume degisiyor. Reklam bu uygulamanin gelir
+     kaynagi; olcemedigim bir kumeyi tahminle kisitlamak, kullaniciyi
+     korumak degil geliri kirmak olurdu.
+     `script-src` de ayni sebeple yok (ustelik satir ici betik var).
+     `frame-ancestors` <meta> ile calismaz, sunucu basligi ister.
+
+     ONAY GELINCE MUTLAKA OLC: `reklamYukleyiciyiErtele` icindeki ERTELE
+     false yapilip reklamlar dolmaya basladiginda, tarayici konsolunda
+     "Content Security Policy" ihlali cikip cikmadigina BAK. Cikiyorsa
+     ihlal eden alan adini `connect-src`e ekle. Sessiz kalan bir reklam,
+     kirilmis bir reklamdir. -->
+<meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self'" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+<title>Veraset ve İntikal Vergisi Hesaplama 2026 — Miras ve Bağış</title>
+<meta name="description" content="Veraset ve intikal vergisi hesaplama 2026: miras hissesi ya da bağış için istisna, matrah, artan oranlı vergi ve altı taksit." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="google-adsense-account" content="ca-pub-4471538043632173" />
+<!-- REKLAM YUKLEYICI BURADAN KALDIRILDI, sayfa.js icinde ERTELENIYOR.
+     Sebep (olculdu, 27 Agustos 2026): bu betik 184 KB indiriyor -- bizim
+     butun uygulamamiz 57 KB. Ustelik AdSense onayi gelmedigi icin su an
+     hicbir reklam DOLMUYOR, yani telefonda mobil veriyle giren herkes
+     karsiligi olmayan 184 KB indiriyor ve sayfa o kadar gec aciliyor.
+     Sahiplik dogrulamasi asagidaki google-adsense-account meta etiketinden
+     gelir; o YERINDE DURUYOR, onay sureci etkilenmez.
+     ONAY GELINCE: sayfa.js -> reklamYukleyiciyiErtele() icindeki
+     ERTELE degiskenini false yap; betik yine basta yuklenir. -->
+<link rel="canonical" href="https://meteotr06.github.io/hesap/veraset-vergisi-hesaplama.html" />
+<link rel="icon" href="simge.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hesap Araçları" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Hesap Araçları" />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content="Veraset ve İntikal Vergisi Hesaplama 2026 — Miras ve Bağış" />
+<meta property="og:url" content="https://meteotr06.github.io/hesap/veraset-vergisi-hesaplama.html" />
+<meta property="og:image" content="https://meteotr06.github.io/hesap/onizleme/veraset-vergisi-hesaplama.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Veraset ve İntikal Vergisi Hesaplama 2026 — Miras ve Bağış" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/veraset-vergisi-hesaplama.png" />
+<link rel="stylesheet" href="stil.css?v=74" />
+</head>
+<body>
+
+<main>
+    <h1>Veraset ve İntikal Vergisi Hesaplama</h1>
+    <p class="ozet">Aynı para <b>mirasla</b> gelirse %1'den, <b>bağışla</b> gelirse %10'dan başlar. İstisna da farklı — fark birkaç kat olabilir.</p>
+
+    <div class="kaynak-serit"><span class="etiket-rozet">7338 <b>md.4-16-19</b></span><span class="etiket-rozet">Tebliğ <b>Seri No: 57</b></span><span class="etiket-rozet">6 taksit</span><span class="etiket-rozet">2026</span></div>
+    <div class="arac-duzen">
+        <div class="kutu">
+            <div class="form-izgara">
+                <label>Size düşen tutar (TL)
+                    <input id="hisse" type="text" inputmode="decimal" value="5000000" />
+                </label>
+                <label>Nasıl geldi
+                    <select id="tur">
+                        <option value="veraset">Miras (ölüm sebebiyle)</option>
+                        <option value="ivazsiz">Bağış / ivazsız intikal</option>
+                    </select>
+                </label>
+                <label>Yakınlık (mirasta)
+                    <select id="yakinlik">
+                        <option value="furug">Çocuk/torun ya da eş (çocuk varken)</option>
+                        <option value="esTek">Eş — çocuk/torun yokken</option>
+                        <option value="diger">Kardeş, anne-baba, yeğen, diğer</option>
+                    </select>
+                </label>
+            </div>
+            <p class="kucuk"><b>Size düşen tutar</b>, mirasın tamamı değil <b>kendi
+            hissenize</b> düşen kısımdır — istisna da vergi de kişi başına uygulanır.
+            Değer olarak vergi değeri (emlak vergi değeri, borsa değeri gibi) esas alınır;
+            piyasa fiyatı ile aynı olmayabilir.</p>
+        </div>
+        <div id="ozet"></div>
+    </div>
+    <div id="eylemler"></div>
+    <div id="dokum"></div>
+
+    <section class="anlatim">
+        <h2>İki ayrı tarife: miras mı, bağış mı?</h2>
+        <p>Aynı tutar, geliş biçimine göre çok farklı vergilenir. Miras yoluyla intikalde
+        oranlar <b>%1'den %10'a</b> kadar; bağış (ivazsız intikal) yoluyla <b>%10'dan
+        %30'a</b>. Üstelik istisnalar da farklı: mirasta çocuk/eş için milyonlarca liralık
+        istisna varken, bağışta istisna <b>66.935 ₺</b>'dir.</p>
+        <p>Bu yüzden “sağlığımda devretsem mi, miras kalsa mı?” sorusunun cevabı sadece
+        duygusal değil, <b>sayısal</b>dır. Araç, aynı tutarın öteki yolla ne kadar
+        vergileneceğini de gösterir.</p>
+
+        <h2>İstisna herkese değil</h2>
+        <p>7338 sayılı Kanun md.4'teki istisna <b>füruğ</b> (çocuk, torun) ve <b>eş</b>
+        içindir. <b>Kardeş, anne-baba, yeğen</b> gibi mirasçılara istisna <b>yoktur</b>:
+        vergi ilk liradan başlar. “Bana da 2,9 milyon istisna vardır” varsayımı, vergiyi
+        olduğundan çok düşük hesaplatır.</p>
+        <p>Çocuk/torun varsa eşin ve her çocuğun hissesine ayrı ayrı <b>2.907.136 ₺</b>
+        istisna uygulanır. Çocuk/torun <b>yoksa</b> eşe düşen hisse için istisna
+        <b>5.817.845 ₺</b>'dir.</p>
+
+        <h2>Vergi nasıl ödenir?</h2>
+        <p>Tahakkuk eden vergi <b>üç yılda, her yıl Mayıs ve Kasım aylarında</b> olmak üzere
+        <b>altı eşit taksitte</b> ödenir (md.19). Yani bir defada ödenmesi gerekmez —
+        araç taksit tutarını da gösterir. Şans oyunlarından doğan kazançlarda ise vergi
+        peşin ödenir.</p>
+
+        <h2>Bu araç neyi kapsamıyor</h2>
+        <p>Beyanname süreleri, mal bildirimi, indirilecek borç ve masraflar ile
+        matrahın nasıl tespit edileceği (özellikle gayrimenkul ve şirket hissesi
+        değerlemesi) burada hesaplanmaz. Bunlar <b>vergi dairesi ve mali müşavir</b>
+        işidir; bu araç, elinizdeki tutara göre <b>vergi yükünü</b> gösterir.</p>
+    </section>
+</main>
+
+<script src="hesap.js?v=74"></script>
+<script src="sayfa.js?v=74"></script>
+<script>
+iskeletKur("veraset-vergisi-hesaplama.html");
+gizlilikBaglantisi();
+
+const ALANLAR = ["hisse", "tur", "yakinlik"];
+
+function hesapla() {
+    const hisse = oku("hisse");
+    const tur = document.getElementById("tur").value;
+    const yakinlik = document.getElementById("yakinlik").value;
+
+    /* Yakınlık yalnızca MİRASTA anlamlı; bağışta istisna herkese aynı.
+       Alanı gizlemek yerine pasif yapıyoruz: kaybolan bir alan
+       "acaba yanlış mı seçtim" dedirtir. */
+    const yakinlikAlani = document.getElementById("yakinlik");
+    yakinlikAlani.disabled = (tur === "ivazsiz");
+
+    const s = verasetVergisi({ hisse: hisse, tur: tur, yakinlik: yakinlik });
+    if (s.hata) {
+        sonucBekliyor("Size düşen tutarı yazın.");
+        document.getElementById("dokum").innerHTML = "";
+        return;
+    }
+
+    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+        <div class="dev-deger">${para(s.vergi)}</div>
+        <div class="dev-etiket">${s.tur === "veraset" ? "veraset" : "intikal"} vergisi</div>
+        ${satir("İstisna", para(s.istisna))}
+        ${satir("Vergiye esas matrah", para(s.matrah))}
+        ${satir("Taksit (6 eşit taksit)", para(s.taksit), "buyuk")}
+        ${satir("Elinizde kalan", para(s.netKalan), "buyuk")}
+        ${satir("Ortalama oran", yuzdeOn(s.ortalamaOran * 100, 2))}
+        ${s.istisnaYok ? `<p class="varsayim"><b>Bu yakınlık derecesinde istisna yok.</b>
+            İstisna yalnızca çocuk/torun ve eş içindir; kardeş, anne-baba ve diğer
+            mirasçılarda vergi <b>ilk liradan</b> başlar.</p>` : ""}
+        ${s.vergi === 0 ? `<p class="varsayim">Hisseniz istisnanın altında kaldığı için
+            vergi çıkmıyor. İstisna hakkınız <b>${para(s.istisnaHakki)}</b>.</p>` : ""}
+    </div>
+
+    <div class="kutu">
+        <h2 class="kutu-baslik">Aynı tutar öteki yolla gelseydi</h2>
+        ${satir(s.tur === "veraset" ? "Bağış olsaydı vergi" : "Miras olsaydı vergi",
+                para(s.digerYolVergi), "buyuk")}
+        <p class="kucuk">${s.digerYolVergi > s.vergi
+            ? `Aynı tutar ${s.tur === "veraset" ? "bağışla" : "mirasla"} gelseydi
+               <b>${para(s.digerYolFark)}</b> daha fazla vergi çıkardı.`
+            : (s.digerYolVergi < s.vergi
+               ? `Aynı tutar ${s.tur === "veraset" ? "bağışla" : "mirasla"} gelseydi
+                  <b>${para(s.digerYolFark)}</b> daha az vergi çıkardı.`
+               : "İki yolda da aynı vergi çıkıyor.")}
+        Bu bir tavsiye değil, bir karşılaştırma: hangi yolun mümkün olduğu hukuki bir
+        konudur.</p>
+    </div>`;
+
+    const d = dokumKur("Hesap nasıl yapıldı?");
+    d.ekle(s.istisnaYok ? "Bu yakınlık derecesinde istisna yok (md.4)."
+                        : "İstisna düşülür (md.4).",
+           `${sayi(s.hisse, 0)} − ${sayi(s.istisna, 0)}`, para(s.matrah));
+    s.dokum.forEach(function (x, i) {
+        d.ekle("Dilim " + (i + 1) + ": %" + sayi(x.oran * 100, 0) + " (md.16).",
+               `${sayi(x.tutar, 0)} × ${sayi(x.oran * 100, 0)}%`, para(x.vergi));
+    });
+    d.ekle("Toplam vergi.", "dilimler toplamı", para(s.vergi));
+    d.ekle("Üç yılda, Mayıs ve Kasım aylarında altı eşit taksit (md.19).",
+           `${sayi(s.vergi, 0)} ÷ 6`, para(s.taksit));
+    document.getElementById("dokum").innerHTML = d.html();
+    baglantiyaYaz(ALANLAR);
+}
+
+baglantidanOku(ALANLAR);
+document.getElementById("eylemler").appendChild(eylemCubugu());
+dinle(ALANLAR, hesapla);
+
+eylemleriBagla(() => sonucMetni("Veraset ve İntikal Vergisi " + VERASET.yil));
+yapisalVeri("Veraset ve İntikal Vergisi Hesaplama", "Veraset ve intikal vergisi hesaplama 2026: istisna, matrah, artan oranlı tarife ve altı taksit.");
+
+sssEkle([
+    { soru: "Veraset vergisi yüzde kaç?",
+      cevap: "Tek bir oran yok; artan oranlı bir tarife var. Miras yoluyla intikallerde %1'den %10'a, bağış (ivazsız intikal) yoluyla %10'dan %30'a kadar çıkar." },
+    { soru: "Miras mı bağış mı daha az vergi ödetir?",
+      cevap: "Genellikle miras. Hem oranlar düşüktür hem de çocuk/eş için milyonlarca liralık istisna vardır; bağışta istisna 66.935 ₺'dir. Araç iki yolu yan yana gösterir." },
+    { soru: "Kardeşime kalan miras için istisna var mı?",
+      cevap: "Hayır. İstisna yalnızca füruğ (çocuk, torun) ve eş içindir. Kardeş, anne-baba ve diğer mirasçılarda vergi ilk liradan başlar." },
+    { soru: "İstisna tutarları 2026'da ne kadar?",
+      cevap: "Çocuk/torun varken eş ve her çocuk için 2.907.136 ₺; çocuk/torun yokken eşe düşen hisse için 5.817.845 ₺; bağışlarda 66.935 ₺." },
+    { soru: "Vergi nasıl ödenir?",
+      cevap: "Üç yılda, her yıl Mayıs ve Kasım aylarında olmak üzere altı eşit taksitte. Şans oyunlarından doğan kazançlarda peşin ödenir." },
+    { soru: "Hangi değer esas alınır?",
+      cevap: "Piyasa fiyatı değil, kanunun öngördüğü vergi değeri (örneğin gayrimenkulde emlak vergi değeri). Bu araç size düşen tutarı verilen şekliyle kullanır." }
+]);
+
+ilgiliAraclar("veraset-vergisi-hesaplama.html");
+reklamAlani();
+</script>
+<script>
+/* ================= CANLILIK DENETIMI (satir ici olmali) =================
+   Olculdu (28 Agustos 2026, test-yarim-yukleme.html): `hesap.js`
+   indirilemedigi zaman bu sayfa TAMAMEN NORMAL gorunuyordu -- menu,
+   baslik, girdi kutulari yerinde, sonuc kutusu bos, HICBIR uyari yok.
+   Kullanici yaziyor, bir sey olmuyor, kendi girdisini sucluyor.
+   Cokme degil, SESSIZ OLUM.
+
+   Bu denetim SATIR ICI olmak zorunda: dis dosyalarin hicbiri
+   yuklenmediginde calisacak tek sey budur. Hicbir yardimci islev,
+   hicbir sozluk kullanmaz.
+
+   Birkac saniye BEKLER: yavas baglantida betikler gec gelebilir, erken
+   uyarmak yanlis alarm olurdu. Isaret sonradan kalkarsa uyari kendini
+   kaldirir. */
+(function () {
+    var ISARET = "hesapCalisti", bitis = Date.now() + 6000, not = null;
+    function canliMi() { return !!window[ISARET]; }
+    function uyariyiKur() {
+        if (not || !document.body) return;
+        not = document.createElement("div");
+        not.id = "yarimYuklemeNotu";
+        not.setAttribute("role", "alert");
+        not.style.cssText = "margin:12px;padding:12px 14px;border-radius:8px;" +
+            "background:#fee2e2;color:#7f1d1d;font:15px/1.5 system-ui,sans-serif";
+        not.innerHTML = "<b>Bu sayfa tam yüklenemedi.</b> Hesap yapılamıyor — " +
+            "ekranda gördüğünüz hiçbir sayıya güvenmeyin. " +
+            "İnternet bağlantınızı kontrol edip yeniden deneyin." +
+            '<br><button type="button" style="margin-top:8px;padding:6px 12px;' +
+            'border-radius:6px;border:1px solid #7f1d1d;background:#fff;' +
+            'color:#7f1d1d;font:inherit;cursor:pointer">' +
+            "Temizle ve yeniden dene</button>";
+        not.getElementsByTagName("button")[0].onclick = function () {
+            var yenile = function () { location.reload(); };
+            try {
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (a) {
+                        return Promise.all(a.map(function (k) { return caches["delete"](k); }));
+                    }).then(yenile, yenile);
+                    return;
+                }
+            } catch (e) { }
+            yenile();
+        };
+        document.body.insertBefore(not, document.body.firstChild);
+    }
+    function kaldir() {
+        if (not && not.parentNode) not.parentNode.removeChild(not);
+        not = null;
+    }
+
+    /* ISARET KONULDUGU ANDA tepki verilir; yoklamanin sirasi beklenmez.
+       Olculdu (28 Agustos 2026, test-yavas-ag.html): 9 sn geciken ama
+       SAGLAM bir baglantida uyari 6.2 sn'de cikiyor, betikler 9.0 sn'de
+       geliyor ve kirmizi uyari DOGRU SAYININ USTUNDE bir sure daha
+       duruyordu -- "ekranda gordugunuz hicbir sayiya guvenmeyin" derken
+       ekranda dogru sayi. Kullanici o anda bakiyorsa hangisine
+       inanacagini bilemez.
+       Yoklama KALDIRILMADI: bu tanim herhangi bir sebeple basarisiz
+       olursa (eski tarayici, donmus ozellik) nobetci yine calisir. */
+    try {
+        var deger = window[ISARET];
+        Object.defineProperty(window, ISARET, {
+            configurable: true,
+            get: function () { return deger; },
+            set: function (y) {
+                deger = y;
+                if (y) { clearInterval(saat); kaldir(); }
+            }
+        });
+    } catch (e) { }
+
+    var saat = setInterval(function () {
+        if (canliMi()) {
+            clearInterval(saat);
+            kaldir();
+            return;
+        }
+        if (Date.now() >= bitis) uyariyiKur();
+    }, 400);
+})();
+</script>
+</body>
+</html>
