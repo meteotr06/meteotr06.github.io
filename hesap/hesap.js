@@ -1796,6 +1796,26 @@ const DOGUM_IZNI = {
     guncelleme: "2026"
 };
 
+/* TARİH GİRDİSİNİ YEREL OKU.
+
+   `<input type="date">` "2026-08-28" verir ve JS bunu UTC gece yarısı
+   sayar. Ama sonucu `getDate` / `setHours` gibi YEREL yöntemlerle
+   yazıyoruz. Türkiye UTC+3 olduğu için burada fark çıkmıyor; UTC'nin
+   BATISINDA bütün tarihler bir gün geri kayıyor.
+
+   Ölçüldü (benzetim, aynı girdi): UTC+3 → 28, UTC-4 → 27, UTC-7 → 27.
+
+   Diğer tarih hesapları girdiyi `T00:00:00Z` ile açıkça UTC yapıp
+   `getUTC*` ile okuyor — kendi içinde tutarlı, onlara dokunulmadı.
+   Sorun yalnızca KARIŞIK olan yerlerdeydi. */
+function tarihOku(deger) {
+    if (deger instanceof Date) return new Date(deger.getTime());
+    if (typeof deger !== "string") return new Date(NaN);
+    const m = deger.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);   // yerel gece yarısı
+    return new Date(deger);
+}
+
 function gunEkle(tarih, gun) {
     const t = new Date(tarih.getTime());
     t.setDate(t.getDate() + gun);
@@ -1819,7 +1839,7 @@ function tarihYaz(t) {
 }
 
 function dogumIzni(dogumTarihi, cogulMu, calisilacakHafta) {
-    const d = new Date(dogumTarihi);
+    const d = tarihOku(dogumTarihi);
     if (isNaN(d.getTime())) return null;
 
     const oncesiHak = cogulMu ? DOGUM_IZNI.oncesiCogul : DOGUM_IZNI.oncesiTekil;
@@ -1940,9 +1960,9 @@ function kiraGeliriVergisi(yillikKira, yontem, gercekGider, istisnaVarMi) {
 const GEBELIK = { toplamGun: 280, toplamHafta: 40 };
 
 function gebelikHesap(sonAdetTarihi, bugunTarihi) {
-    const sat = new Date(sonAdetTarihi);
+    const sat = tarihOku(sonAdetTarihi);
     if (isNaN(sat.getTime())) return null;
-    const bugun = bugunTarihi ? new Date(bugunTarihi) : new Date();
+    const bugun = bugunTarihi ? tarihOku(bugunTarihi) : new Date();
     bugun.setHours(0, 0, 0, 0); sat.setHours(0, 0, 0, 0);
 
     const dogum = gunEkle(sat, GEBELIK.toplamGun);
