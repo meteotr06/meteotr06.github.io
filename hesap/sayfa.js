@@ -1053,6 +1053,13 @@ function sonucBekliyor(mesaj) {
 // Kullanıcı formu doldururken cevabı GÖREMİYOR; her değişiklikte
 // aşağı kaydırıp geri dönmesi gerekiyor. Hesap makinesinde en temel şey bu.
 // ÇÖZÜM: sonuç ekrandan çıkınca altta ince bir çubukta göstermek.
+/* Gorsel alanin olculeri. `visualViewport` yoksa duzen alanina duser. */
+function gorselAlan() {
+    const v = window.visualViewport;
+    if (!v) return { ust: 0, yukseklik: window.innerHeight, kayma: 0 };
+    return { ust: v.offsetTop, yukseklik: v.height, kayma: v.offsetTop };
+}
+
 function yapiskanSonuc() {
     if (!window.matchMedia("(max-width: 719px)").matches) return;
     const ozet = document.getElementById("ozet");
@@ -1083,7 +1090,18 @@ function yapiskanSonuc() {
         if (!d) return true;
         const k = d.getBoundingClientRect();
         const cubukPayi = 60;                    // çubuğun kaplayacağı alan
-        return k.top >= 0 && k.bottom <= innerHeight - cubukPayi;
+        /* GORSEL ALAN, DUZEN ALANI DEGIL.
+           Burada once `innerHeight` vardi. Telefonda klavye acilinca
+           `innerHeight` DEGISMEZ -- duzen alani ayni kalir, yalnizca
+           GORSEL alan kisilir. Sonuc: klavye ekranin yarisini kapatirken
+           kod sayiyi "gorunuyor" sayiyor ve cubugu gizli tutuyordu.
+           Yani cubuk tam da en cok gerektigi anda ortaya cikmiyordu.
+           Olculdu (28 Agustos 2026, 375x420 = klavye acik yuksekligi):
+           sonucun ustu y=393, ekran 420 -- sayi 27 px kala dipte,
+           kullanici yazarken cevabini goremiyordu. */
+        const gorunen = gorselAlan();
+        return k.top >= gorunen.ust &&
+               k.bottom <= gorunen.ust + gorunen.yukseklik - cubukPayi;
     }
 
     function tazele() {
@@ -1095,8 +1113,11 @@ function yapiskanSonuc() {
         c.hidden = sayiOkunuyorMu();
     }
 
-    // requestAnimationFrame kullanmiyoruz: sayfa cizim yapmadiginda (arka plan
-    // sekmesi, gizli pencere) hic calismiyor ve cubuk bayat kaliyor.
+    // requestAnimationFrame kullanmiyoruz: sayfa cizim yapmadiginda hic
+    // calismiyor. Ama bu tam koruma DEGIL -- olculdu (28.08.2026): cizim
+    // durmus sekmede `scroll` olayi da atesleme yapmiyor, cubuk yine bayat
+    // kaliyor. Kullanici o sekmeye bakmadigi icin zarari yok; sekme one
+    // gelince ilk kaydirmada duzeliyor.
     let sonCalisma = 0;
     const kaydirinca = () => {
         const t = Date.now();
@@ -1106,6 +1127,26 @@ function yapiskanSonuc() {
     };
     addEventListener("scroll", kaydirinca, { passive: true });
     addEventListener("resize", kaydirinca);
+
+    /* KLAVYE `resize` URETMEZ. Duzen alani degismedigi icin pencerenin
+       `resize` olayi cogu telefonda hic atesleme yapmaz; degisen sey
+       `visualViewport`tur. Onu dinlemezsek cubuk klavye acildiginda
+       ne guncellenir ne yer degistirir.
+       `position: fixed; bottom: 0` de duzen alanina gore hesaplanir --
+       yani klavyenin ARKASINDA kalir. Gorsel alan ne kadar yukari
+       kaydiysa cubugu o kadar yukari cekiyoruz. */
+    function cubuguYerlestir() {
+        const g = gorselAlan();
+        const alt = (window.innerHeight - (g.ust + g.yukseklik));
+        c.style.transform = alt > 0 ? "translateY(-" + Math.round(alt) + "px)" : "";
+    }
+    if (window.visualViewport) {
+        const vv = window.visualViewport;
+        const guncelle = () => { cubuguYerlestir(); kaydirinca(); };
+        vv.addEventListener("resize", guncelle);
+        vv.addEventListener("scroll", guncelle);
+        cubuguYerlestir();
+    }
 
     // Kullanıcı yazdıkça sonuç değişir; çubuk da değişsin
     try {
