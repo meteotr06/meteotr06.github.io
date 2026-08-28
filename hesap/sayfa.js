@@ -158,6 +158,22 @@ function ayarYaz(a) {
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
     {
+        surum: 67,
+        tarih: "28 Ağustos 2026",
+        ozet: "Kopyalama ya da paylaşma engellendiğinde artık sessizce " +
+              "başarısız olmuyor; ne olduğu ekranda yazıyor.",
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Bazı tarayıcılarda panoya yazma izni yok. Eskiden bu durumda " +
+            "düğmeye basılıyor, <b>hiçbir şey olmuyordu</b> — kullanıcı " +
+            "kopyaladığını sanıp boş yapıştırıyordu. Artık metin sayfanın " +
+            "içinde, seçilebilir bir alanda açılıyor.",
+            "“Bağlantıyı paylaş” başarısız olursa panoya kopyalamaya " +
+            "geri düşüyor. Paylaşım penceresini siz kapatırsanız hiçbir " +
+            "şey yapılmıyor — vazgeçmek ile başarısızlık ayrı şeyler.",
+        ],
+    },
+    {
         surum: 66,
         tarih: "28 Ağustos 2026",
         ozet: "Akşamdan açık bırakılan sayfa, sabah bakıldığında dünkü " +
@@ -751,12 +767,50 @@ function eylemCubugu(sonucGetir) {
 }
 
 function eylemleriBagla(sonucGetir) {
+    /* GERI DUSME PANOSU -- DIYALOG DEGIL, SAYFA ICI.
+       Onceki hal pano izni reddedilince `window.prompt` aciyordu.
+       Olculdu (28 Agustos 2026): tarayici pes pese diyaloglardan sonra
+       prompt'u ENGELLIYOR; o zaman prompt aninda null donuyor ve
+       EKRANDA HICBIR IZ KALMIYOR -- kullanici dugmeye basmis, pano bos,
+       sayfa aynen duruyor. Sessizce yutulan basarisizlik: kullanici
+       kopyaladigini sanip bos yapistiriyor.
+       Cozum diyalogu guclendirmek degil, diyalogu birakmak. Sayfanin
+       icinde her kosulda gorunen bir alan aciliyor. */
+    const elleKopyala = (metin) => {
+        const varsa = document.getElementById("elleKopyaKutusu");
+        if (varsa) varsa.remove();
+        const k = document.createElement("div");
+        k.id = "elleKopyaKutusu";
+        /* Sayfanin kendi bildirim deyimi (bkz. depoUyarisi). */
+        k.className = "kutu uyari-kutu";
+        k.setAttribute("role", "alert");
+        const b = document.createElement("p");
+        b.textContent = "Panoya erişilemedi — tarayıcı izin vermedi. " +
+                        "Metni buradan seçip kopyalayabilirsiniz:";
+        const a = document.createElement("textarea");
+        a.readOnly = true;
+        a.rows = 6;
+        a.value = metin;
+        a.setAttribute("aria-label", "Kopyalanacak metin");
+        const kapat = document.createElement("button");
+        kapat.type = "button";
+        kapat.className = "ikincil";
+        kapat.textContent = "Kapat";
+        kapat.onclick = () => k.remove();
+        k.appendChild(b); k.appendChild(a); k.appendChild(kapat);
+        const cubuk = document.querySelector(".eylem-cubugu");
+        const yer = (cubuk && cubuk.parentNode) || document.querySelector("main") || document.body;
+        yer.appendChild(k);
+        try { a.focus(); a.select(); } catch (e) { }
+    };
+
     const kopyala = async (metin, dugme) => {
         try { await navigator.clipboard.writeText(metin); }
-        catch (e) { window.prompt("Kopyalayın:", metin); return; }
+        catch (e) { elleKopyala(metin); return false; }
         const eski = dugme.textContent;
         dugme.textContent = "Kopyalandı — girdiler dahil";
         setTimeout(() => dugme.textContent = eski, 1600);
+        return true;
     };
 
     const kb = document.getElementById("kopyalaBtn");
@@ -767,7 +821,16 @@ function eylemleriBagla(sonucGetir) {
         const adres = location.href;
         if (navigator.share) {
             try { await navigator.share({ title: document.title, url: adres }); return; }
-            catch (e) { return; }
+            catch (e) {
+                /* VAZGECME ile BASARISIZLIK ayni sey degil.
+                   Kullanici paylasim penceresini kapattiysa (AbortError)
+                   susmak DOGRU -- istemedigi bir sey yapmamaliyiz.
+                   Baska bir sebeple (izin yok, desteklenmiyor) basarisiz
+                   olduysa susmak YANLIS: olculdu, ekranda hicbir iz
+                   kalmiyor ve kullanici paylastigini saniyor. O durumda
+                   panoya kopyalamaya geri dusuyoruz. */
+                if (e && e.name === "AbortError") return;
+            }
         }
         kopyala(adres, pb);
     };
