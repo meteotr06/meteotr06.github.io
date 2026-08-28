@@ -36,7 +36,7 @@
 <meta property="og:image:alt" content="Mevduat Faizi Hesaplama 2026 — Vade Sonu Net Getiri" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/mevduat-faizi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=52" />
+<link rel="stylesheet" href="stil.css?v=53" />
 </head>
 <body>
 
@@ -109,8 +109,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=52"></script>
-<script src="sayfa.js?v=52"></script>
+<script src="hesap.js?v=53"></script>
+<script src="sayfa.js?v=53"></script>
 <script>
 iskeletKur("mevduat-faizi-hesaplama.html");
 gizlilikBaglantisi();
@@ -128,12 +128,34 @@ function hesapla() {
 
     const anapara = oku("anapara"), faiz = oku("faiz");
     const vade = Math.round(oku("vade")) || 1, stopaj = oku("stopaj");
+    /* STOPAJ VADEYE GORE DEGISIR — kullaniciya soyle.
+       Alanin varsayilani duz %15 idi; en yaygin durum olan 6 aya kadar
+       vadede gercek oran %17,5. Yani net getiri OLDUGUNDAN YUKSEK
+       gorunuyordu. Alan kullanicinin elinde kalsin (kendi hesabinin
+       oranini bilebilir) ama girdigi oran vadesine dusen kademeden
+       farkliysa uyari cikar. */
+    const kademe = typeof mevduatStopajOrani === "function"
+        ? mevduatStopajOrani(vade) : null;
+    let stopajNotu = "";
+    if (kademe !== null && Math.abs(stopaj - kademe) > 0.01) {
+        stopajNotu = `<div class="kutu uyari-kutu"><p><b>Stopaj oranını
+            kontrol edin.</b> ${vade} günlük vadede geçerli oran
+            <b>%${sayi(kademe, 2).replace(",00", "")}</b>; siz
+            <b>%${sayi(stopaj, 2).replace(",00", "")}</b> yazdınız.
+            Aşağıdaki sonuç sizin yazdığınız oranla hesaplandı.</p>
+            <p class="kucuk">Vadeye göre: 183 güne kadar %17,5 · 366 güne
+            kadar %15 · daha uzun %10. Dayanak: 09.07.2025 tarihli
+            Cumhurbaşkanı Kararı; süre 11444 sayılı Karar ile 31.12.2026'ya
+            uzatıldı (R.G. 20.06.2026/33286). Karardan önce açılmış ve
+            vadesi süren hesaplarda açılış tarihindeki oran geçerlidir.</p>
+            </div>`;
+    }
     const donem = Math.max(1, Math.round(oku("donem")));
     if (!anapara || anapara <= 0) { sonucBekliyor("Anaparayı ve vadeyi girin. Vade en az 1 gün olmalı."); return; }
 
     const m = mevduatHesapla(anapara, faiz, vade, stopaj, bilesik, donem);
 
-    document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+    document.getElementById("ozet").innerHTML = stopajNotu + `<div class="kutu one-cikan">
         <div class="dev-deger">${para(m.vadeSonu)}</div>
         <div class="dev-etiket">${m.toplamGun} gün sonra elinize geçecek toplam</div>
         ${satir("Anapara", para(anapara))}

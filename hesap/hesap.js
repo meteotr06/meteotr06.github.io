@@ -42,8 +42,24 @@ const PARAMETRE = {
     kkdf: 0.15,               // %15
     bsmv: 0.05,               // %5
 
-    // Mevduat stopajı (vadeye göre değişir, varsayılan)
-    mevduatStopaj: 0.15,
+    // MEVDUAT STOPAJI VADEYE GORE DEGISIR — tek oran degildir.
+    // Eskiden burada duz 0,15 vardi ve yorumda "vadeye gore degisir"
+    // yaziyordu; yani kural BILINIYOR ama UYGULANMIYORDU. En yaygin
+    // durum olan 6 aya kadar vadede gercek oran %17,5 -- yani net
+    // getiri OLDUGUNDAN YUKSEK gosteriliyordu.
+    // Kaynak: 09.07.2025 tarihli Cumhurbaskani Karari ile belirlenen
+    // oranlar; 20.06.2026 tarih ve 33286 sayili R.G.'de yayimlanan
+    // 11444 sayili Cumhurbaskani Karari ile 31.12.2026'ya uzatildi.
+    // SINIF 1 (resmi olcut).
+    // SINIRI: karar tarihinden ONCE acilmis ve vadesi devam eden
+    // hesaplarda acilis tarihindeki oran gecerlidir; bu hesap YENI
+    // acilan/yenilenen hesabi varsayar.
+    mevduatStopajKademe: [
+        { enCokGun: 183, oran: 0.175 },   // 6 aya kadar (183 gun dahil)
+        { enCokGun: 366, oran: 0.15 },    // 1 yila kadar (366 gun dahil)
+        { enCokGun: Infinity, oran: 0.10 } // 1 yildan uzun
+    ],
+    mevduatStopaj: 0.15,          // eski cagri bicimi icin; kademe tercih edilir
 
     // KDV oranları
     kdvOranlari: [1, 10, 20],
@@ -209,6 +225,14 @@ function krediHesapla(tutar, aylikFaiz, taksitSayisi, vergiVar) {
 
 // ---------- 2) MEVDUAT FAİZİ ----------
 // Türkiye'de faiz gelirinden stopaj kesilir; kullanıcı vade sonunda net alır.
+
+/* Vadeye dusen stopaj oranini dondurur (yuzde olarak). */
+function mevduatStopajOrani(vadeGun) {
+    const g = Number(vadeGun);
+    if (!isFinite(g) || g <= 0) return null;
+    const k = PARAMETRE.mevduatStopajKademe.find(function (x) { return g <= x.enCokGun; });
+    return k ? k.oran * 100 : null;
+}
 
 function mevduatHesapla(anapara, yillikFaiz, vadeGun, stopajYuzde, bilesikMi, donemSayisi) {
     // Anapara ya da vade 0 iken oranlar NaN üretiyordu
@@ -917,6 +941,13 @@ function vadeFarki(pesinFiyat, taksitTutari, taksitSayisi) {
 // BMI bir TARAMA göstergesidir, teşhis değildir. Kas kütlesini,
 // yaşı ve vücut tipini ayırt etmez — sayfada bunu açıkça yazıyoruz.
 
+/* KAYNAK — Dünya Sağlık Örgütü (WHO) yetişkin BKİ sınıflandırması.
+   Kesme noktaları 18,5 / 25 / 30 / 35 / 40 birebir WHO'nun tanımıdır:
+   WHO Technical Report Series 894, "Obesity: preventing and managing
+   the global epidemic" (2000); WHO güncel bilgi notlarinda ayni.
+   SINIF 1 (resmi olcut) — bu sayilar bizim yorumumuz DEGIL.
+   SINIRI: yetiskinler icindir. Cocuk, gebe, sporcu ve yasli
+   gruplarinda ayni esikler kullanilmaz. */
 const BMI_ARALIKLARI = [
     { ust: 18.5, ad: "Zayıf", renk: "uyari" },
     { ust: 25, ad: "Normal", renk: "artis" },
@@ -942,6 +973,19 @@ function vucutKitleIndeksi(kiloKg, boyCm) {
 // Mifflin-St Jeor denklemi — beslenme alanında en yaygın kabul gören formül.
 // Sonuç bir TAHMİNDİR; kişiye göre %10-15 sapabilir.
 
+/* KAYNAK — iki ayri sinif, karistirilmamali:
+
+   1) BAZAL METABOLIZMA formulu (asagidaki `kaloriIhtiyaci` icinde):
+      10 x kg + 6,25 x cm - 5 x yas + (E: +5 / K: -161)
+      Mifflin MD, St Jeor ST ve ark., "A new predictive equation for
+      resting energy expenditure in healthy individuals",
+      Am J Clin Nutr 1990;51(2):241-247.  SINIF 1 — yayimlanmis denklem.
+
+   2) Asagidaki HAREKET CARPANLARI (1,2 - 1,9): beslenme
+      uygulamasinda yaygin kullanilan bir DUZEN; tek bir yetkili
+      kaynagi yoktur, kisiden kisiye degisir.
+      SINIF 3 — YAKLASIKTIR. Ayni kisi icin secilen basamak
+      sonucu %20-30 oynatabilir; bu, hesabin en belirsiz parcasidir. */
 const AKTIVITE = [
     { kod: 1.2, ad: "Hareketsiz (masa başı, spor yok)" },
     { kod: 1.375, ad: "Az hareketli (haftada 1-3 gün hafif spor)" },
@@ -1042,6 +1086,16 @@ function maasZammi(eskiBrut, zamOrani, enflasyon) {
 // ---------- 24) ALTIN ÇEVİRİMİ ----------
 // Piyasadaki altın türleri 22 ayardır (saflık 0,916). Gram altın 24 ayar sayılır.
 
+/* KAYNAK — T.C. Darphane ve Damga Matbaasi basim olculeri.
+   Ziynet altinlari 22 ayar = 916 milyem (0,916 saflik):
+     ceyrek 1,75 g · yarim 3,50 g · tam 7,00 g
+     Cumhuriyet (Ata) 7,216 g
+   Taki ayarlari: 22 ayar 0,916 · 18 ayar 0,750 · 14 ayar 0,585.
+   SINIF 1 (resmi olcut) — basim standardi.
+   SINIRI: eski ve yeni basimlar ile farkli darphaneler arasinda
+   kucuk agirlik farklari olabilir; elinizdeki parcanin tartisi
+   esastir. Ayrica burada ISCILIK ve alis-satis makasi YOKTUR;
+   kuyumcu fiyati bu hesaptan farkli cikar. */
 const ALTIN_TURLERI = [
     { kod: "gram", ad: "Gram altın (24 ayar)", gram: 1, ayar: 1.0 },
     { kod: "ceyrek", ad: "Çeyrek altın", gram: 1.75, ayar: 0.916 },
@@ -1075,6 +1129,19 @@ function altinDegeri(tur, adet, gramFiyat) {
 // Her birim, grubun "temel birimi" cinsinden bir katsayıyla tanımlanır.
 // Çeviri: önce temele çevir, sonra hedefe böl. Sıcaklık istisnadır (formül gerekir).
 
+/* KAYNAK — uluslararasi tanimlar (SI ve NIST). Bu katsayilar tahmin
+   degil TANIMDIR; birebir sabittir:
+     1 inc = 2,54 cm      (tam)      1 ft = 30,48 cm     (tam)
+     1 yd  = 0,9144 m     (tam)      1 mil = 1609,344 m  (tam)
+     1 deniz mili = 1852 m (tam)     1 lb = 0,45359237 kg (tam)
+     1 oz  = 28,349523125 g          1 galon (ABD) = 3,785411784 L
+     1 hektar = 10.000 m²            1 donum = 1.000 m² (Turkiye)
+     1 ft² = 0,09290304 m²           1 knot = 1,852 km/sa
+   SINIF 1 (resmi olcut). Sicaklik dogrusal katsayiyla cevrilmez,
+   ayri islenir (0 °C = 32 °F = 273,15 K).
+   OLCULDU: bu katsayilarin hepsi `sinama.html` L bolumunde DIS
+   REFERANSA karsi sinaniyor. Kendi icinde tutarli bir sinama
+   (gidis-donus) yanlis katsayiyi YAKALAYAMAZ -- denendi, kacirdi. */
 const BIRIM_GRUPLARI = {
     uzunluk: { ad: "Uzunluk", temel: "metre", birimler: [
         { kod: "mm", ad: "Milimetre", kat: 0.001 }, { kod: "cm", ad: "Santimetre", kat: 0.01 },
@@ -1864,6 +1931,12 @@ function kiraGeliriVergisi(yillikKira, yontem, gercekGider, istisnaVarMi) {
 // Naegele kuralı: tahmini doğum = son adet tarihi + 280 gün (40 hafta).
 // Tıbbi teşhis değildir; hekimin ultrason ölçümü esastır.
 
+/* KAYNAK — Naegele kurali: tahmini dogum tarihi, son adet kanamasinin
+   ILK gununden itibaren 280 gun (40 hafta). Kadin dogum uygulamasinin
+   standart kabulu; 28 gunluk duzenli dongu varsayar.
+   SINIF 1 (yerlesik olcut) ama SINIRI genis: dongusu duzensiz ya da
+   28 gunden farkli olanlarda tarih kayar. Kesin tarih ULTRASONLA
+   belirlenir; buradaki sayi bir TAHMINDIR. */
 const GEBELIK = { toplamGun: 280, toplamHafta: 40 };
 
 function gebelikHesap(sonAdetTarihi, bugunTarihi) {

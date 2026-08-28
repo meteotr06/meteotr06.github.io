@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Elektrik Tüketimi Hesaplama — Cihaz Ayda Kaç Lira Yakıyor?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/elektrik-tuketimi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=52" />
+<link rel="stylesheet" href="stil.css?v=53" />
 </head>
 <body>
 
@@ -68,7 +68,7 @@
     <section class="anlatim">
         <h2>kWh nedir?</h2>
         <p>Kilovatsaat, <b>1000 watt gücündeki bir cihazın 1 saatte harcadığı enerjidir</b>.
-        Faturanız bu birim üzerinden kesilir. 2000 watt'lık bir ısıtıcı 1 saatte 2 kWh,
+        Faturanız bu birim üzerinden kesilir. <b>Hazır cihaz listesindeki watt değerleri yaklaşıktır</b> — gerçek güç markaya ve modele göre değişir; kesin sonuç için cihazınızın etiketindeki değeri yazın. 2000 watt'lık bir ısıtıcı 1 saatte 2 kWh,
         100 watt'lık bir televizyon 10 saatte 1 kWh harcar.</p>
 
         <h2>Cihazımın gücünü nereden öğrenirim?</h2>
@@ -88,14 +88,21 @@
     </section>
 </main>
 
-<script src="hesap.js?v=52"></script>
-<script src="sayfa.js?v=52"></script>
+<script src="hesap.js?v=53"></script>
+<script src="sayfa.js?v=53"></script>
 <script>
 iskeletKur("elektrik-tuketimi-hesaplama.html");
 gizlilikBaglantisi();
 
 const ALANLAR = ["guc", "saat", "birim", "adet"];
 
+/* SINIF 3 — TIPIK DEGERLER, OLCUT DEGIL.
+   Asagidaki watt degerleri "ortalama bir cihaz" icindir; gercek guc
+   markaya, yasa, boyuta ve enerji sinifina gore BUYUK olcude degisir
+   (ornegin buzdolabi 60-350 W arasinda olabilir).
+   Resmi bir tablo degildir; kullanici kendi cihazinin etiketindeki
+   degeri girdiginde sonuc dogru olur. Sayfa bunu kullaniciya YAZAR --
+   yazmazsa, tahmini olcut sanir. */
 const ORNEK_CIHAZLAR = [
     { ad: "LED ampul", guc: 10 }, { ad: "Buzdolabı", guc: 150 },
     { ad: "Televizyon", guc: 100 }, { ad: "Bilgisayar", guc: 250 },

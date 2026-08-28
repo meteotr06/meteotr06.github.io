@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Günlük Kalori İhtiyacı Hesaplama — Bazal Metabolizma ve TDEE" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kalori-ihtiyaci-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=52" />
+<link rel="stylesheet" href="stil.css?v=53" />
 </head>
 <body>
 
@@ -105,8 +105,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=52"></script>
-<script src="sayfa.js?v=52"></script>
+<script src="hesap.js?v=53"></script>
+<script src="sayfa.js?v=53"></script>
 <script>
 iskeletKur("kalori-ihtiyaci-hesaplama.html");
 gizlilikBaglantisi();
@@ -173,7 +173,23 @@ function hesapla() {
            `${sayi(k.bazal, 0)} × ${sayi(akt, 3)}`, sayi(k.gunluk, 0) + " kcal");
     d.ekle("Kilo vermek için günlük 500 kcal açık verilir.",
            `${sayi(k.gunluk, 0)} − 500`, sayi(k.kiloVerme, 0) + " kcal");
-    document.getElementById("dokum").innerHTML = d.html();
+    /* KAYNAK VE BELIRSIZLIK KULLANICIYA GORUNMELI.
+       Kod yorumundaki siniflandirma kullaniciya ULASMAZ. Sayfa
+       "Mifflin-St Jeor" adini yaziyordu ama (a) bunun yayimlanmis bir
+       denklem oldugunu, (b) hareket carpaninin YAYGIN BIR KABUL
+       oldugunu, tek yetkili kaynagi bulunmadigini soylemiyordu.
+       Ikincisi hesabin en belirsiz parcasi: bir basamak yukari ya da
+       asagi secmek sonucu belirgin oynatir -- ve secimi kullanici
+       yapiyor. */
+    document.getElementById("dokum").innerHTML = d.html() +
+        '<p class="kucuk"><b>Bu sayılar nereden geliyor?</b> Bazal ' +
+        'metabolizma, yayımlanmış bir denklemle bulunur: Mifflin MD, ' +
+        'St Jeor ST ve ark., <i>Am J Clin Nutr</i> 1990;51:241-247. ' +
+        'Hareket katsayısı (1,2–1,9) ise <b>yaygın bir kabuldür</b>, ' +
+        'tek bir resmî kaynağı yoktur ve kişiden kişiye değişir — ' +
+        'hesabın en belirsiz parçası budur. Bir basamak yukarı ya da ' +
+        'aşağı seçmek sonucu gözle görülür biçimde değiştirir, o yüzden ' +
+        'çıkan sayıyı kesin değil <b>yaklaşık</b> okuyun.</p>';
     baglantiyaYaz(ALANLAR);
 }
 

@@ -544,6 +544,40 @@ window.addEventListener("load", async function () {
     } catch (e) { ol(t[0] + " okunamadı", false, String(e)); }
   }
 
+  /* ══ R · KAYNAK VE TARİH (K-45) ══════════════════════════════════
+     Mevduat stopajı TEK ORAN DEĞİLDİR; vadeye göre değişir. Kodda
+     düz 0,15 duruyordu ve yorumda "vadeye göre değişir" yazıyordu —
+     yani kural BİLİNİYOR ama UYGULANMIYORDU. En yaygın durum olan
+     6 aya kadar vadede gerçek oran %17,5; net getiri olduğundan
+     YÜKSEK gösteriliyordu.
+     Kaynak: 09.07.2025 Cumhurbaşkanı Kararı; 11444 sayılı Karar ile
+     31.12.2026'ya uzatıldı (R.G. 20.06.2026/33286). */
+  bas("R · Kaynak ve tarih — mevduat stopaj kademesi");
+  ol("183 güne kadar %17,5", mevduatStopajOrani(32) === 17.5, String(mevduatStopajOrani(32)));
+  ol("183 gün sınırı dahil", mevduatStopajOrani(183) === 17.5);
+  ol("184–366 gün %15", mevduatStopajOrani(300) === 15);
+  ol("366 gün sınırı dahil", mevduatStopajOrani(366) === 15);
+  ol("366 günden uzun %10", mevduatStopajOrani(400) === 10);
+  ol("geçersiz vade null döner", mevduatStopajOrani(0) === null &&
+     mevduatStopajOrani(NaN) === null);
+  /* Sayfa bunu kullanıcıya söylüyor mu — sınıflandırma kod yorumunda
+     kalırsa yapılmamış sayılır (madde 178). */
+  try {
+    const c9 = await fetch("mevduat-faizi-hesaplama.html?t=" + T);
+    const m9 = await c9.text();
+    ol("sayfa kademeyi kullanıcıya yazıyor", m9.indexOf("Stopaj oranını") >= 0);
+    ol("dayanak tarihi sayfada", m9.indexOf("09.07.2025") >= 0);
+  } catch (e) { ol("sayfa okunamadı", false, String(e)); }
+  /* Diğer kaynak yazımları */
+  for (const t of [["saat-sure-hesaplama.html", "md. 63"],
+                   ["elektrik-tuketimi-hesaplama.html", "yaklaşıktır"],
+                   ["kalori-ihtiyaci-hesaplama.html", "Am J Clin Nutr"]]) {
+    try {
+      const ca = await fetch(t[0] + "?t=" + T);
+      ol(t[0] + " → kaynak yazılı (" + t[1] + ")", (await ca.text()).indexOf(t[1]) >= 0);
+    } catch (e) { ol(t[0] + " okunamadı", false, String(e)); }
+  }
+
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
     if (s.bolum) return "<h2>" + s.bolum + "</h2>";
