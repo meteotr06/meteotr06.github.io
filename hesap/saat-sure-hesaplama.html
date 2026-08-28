@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
 <title>Saat ve Süre Hesaplama — Mesai Süresi, Süre Toplama, Ondalık Saat</title>
 <meta name="description" content="Saat hesaplama: iki saat arası mesai süresi (gece vardiyası dahil), süre toplama ve ondalık saat karşılığı. Bordro için 7:30 = 7,5 saat." />
 <meta name="theme-color" content="#ffffff" />
@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Saat ve Süre Hesaplama — Mesai Süresi, Süre Toplama, Ondalık Saat" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/saat-sure-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=48" />
+<link rel="stylesheet" href="stil.css?v=50" />
 </head>
 <body>
 
@@ -53,14 +53,14 @@
 
             <h2 class="kutu-baslik">Süreleri topla</h2>
             <div class="form-izgara">
-                <label>1. süre<input id="s1" type="text" inputmode="numeric" placeholder="7:30" value="7:30" /></label>
-                <label>2. süre<input id="s2" type="text" inputmode="numeric" placeholder="8:15" value="8:15" /></label>
-                <label>3. süre<input id="s3" type="text" inputmode="numeric" placeholder="6:45" value="6:45" /></label>
-                <label>4. süre<input id="s4" type="text" inputmode="numeric" placeholder="0:00" value="" /></label>
-                <label>5. süre<input id="s5" type="text" inputmode="numeric" placeholder="0:00" value="" /></label>
-                <label>6. süre<input id="s6" type="text" inputmode="numeric" placeholder="0:00" value="" /></label>
+                <label>1. süre<input id="s1" type="text" inputmode="decimal" placeholder="7:30" value="7:30" /></label>
+                <label>2. süre<input id="s2" type="text" inputmode="decimal" placeholder="8:15" value="8:15" /></label>
+                <label>3. süre<input id="s3" type="text" inputmode="decimal" placeholder="6:45" value="6:45" /></label>
+                <label>4. süre<input id="s4" type="text" inputmode="decimal" placeholder="0:00" value="" /></label>
+                <label>5. süre<input id="s5" type="text" inputmode="decimal" placeholder="0:00" value="" /></label>
+                <label>6. süre<input id="s6" type="text" inputmode="decimal" placeholder="0:00" value="" /></label>
             </div>
-            <p class="kucuk">Süreleri <b>7:30</b> biçiminde yazın. Ondalık da olur: <b>7,5</b> yazarsanız
+            <p class="kucuk">Süreleri <b>7:30</b> ya da <b>7,5</b> biçiminde yazın &mdash; telefonda iki nokta tuşu olmayabilir, o zaman <b>7,5</b> yazın. Ondalık: <b>7,5</b> yazarsanız
             7 saat 30 dakika olarak okunur. Boş bıraktığınız satırlar hesaba katılmaz.</p>
         </div>
         <div id="ozet"></div>
@@ -94,8 +94,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=48"></script>
-<script src="sayfa.js?v=48"></script>
+<script src="hesap.js?v=50"></script>
+<script src="sayfa.js?v=50"></script>
 <script>
 iskeletKur("saat-sure-hesaplama.html");
 gizlilikBaglantisi();

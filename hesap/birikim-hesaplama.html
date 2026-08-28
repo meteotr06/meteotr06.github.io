@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
 <title>Birikim ve Bileşik Getiri Hesaplama — Reel Karşılığıyla</title>
 <meta name="description" content="Düzenli birikim hesaplama: her ay ayırdığınız para yıllar içinde ne olur? Bileşik getiri, toplam kazanç ve enflasyondan arındırılmış gerçek karşılığı." />
 <meta name="theme-color" content="#ffffff" />
@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Birikim ve Bileşik Getiri Hesaplama — Reel Karşılığıyla" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/birikim-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=48" />
+<link rel="stylesheet" href="stil.css?v=50" />
 </head>
 <body>
 
@@ -106,8 +106,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=48"></script>
-<script src="sayfa.js?v=48"></script>
+<script src="hesap.js?v=50"></script>
+<script src="sayfa.js?v=50"></script>
 <script>
 iskeletKur("birikim-hesaplama.html");
 gizlilikBaglantisi();
@@ -138,7 +138,12 @@ function hesapla() {
         <h2 class="kutu-baslik">Bugünün parasıyla karşılığı</h2>
         ${satir("Reel (enflasyondan arındırılmış) tutar", para(b.reelBakiye), "buyuk")}
         ${satir("Reel kazanç", para(b.reelKazanc))}
-        <p class="kucuk" style="color:${reelKotu ? "var(--azalis)" : "var(--artis)"}">
+        ${/* KOSULLU SINIF: kotu senaryoda baslik ANLAMINI TERSINE
+              cevirir - 769.836 TL yaziyor ama 300.000 TL yatirip alim
+              gucu KAYBEDIYORSUN. Kazanc gibi gorunen sayi aslinda
+              kayip; bu bir nitelendirme degil, tersine cevirme.
+              Iyi senaryoda 13 px kaliyor - iyi haber bagirmaz. */""}
+        <p class="${reelKotu ? "onemli" : "kucuk"}"${reelKotu ? "" : ' style="color:var(--artis)"'}>
         ${reelKotu
             ? `<b>Dikkat:</b> Reel karşılık, yatırdığınız ${para(b.toplamYatirilan)}'nin
                <b>altında</b>. Rakam büyümüş görünse de bu senaryoda alım gücü kaybediyorsunuz —

@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
 <title>Boya ve Fayans Hesaplama — Oda Kaç Litre Boya, Kaç Karo?</title>
 <meta name="description" content="Oda ölçülerinden duvar ve tavan alanı, gereken boya litresi ve fayans/karo adedi hesaplama. Fire payı dahil." />
 <meta name="theme-color" content="#ffffff" />
@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Boya ve Fayans Hesaplama — Oda Kaç Litre Boya, Kaç Karo?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/boya-fayans-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=48" />
+<link rel="stylesheet" href="stil.css?v=50" />
 </head>
 <body>
 
@@ -64,10 +64,10 @@
                     <input id="kat" type="text" inputmode="decimal" value="2" />
                 </label>
                 <label>Karo eni (cm)
-                    <input id="karoEn" type="text" inputmode="numeric" value="60" />
+                    <input id="karoEn" type="text" inputmode="decimal" value="60" />
                 </label>
                 <label>Karo boyu (cm)
-                    <input id="karoBoy" type="text" inputmode="numeric" value="60" />
+                    <input id="karoBoy" type="text" inputmode="decimal" value="60" />
                 </label>
                 <label>Fire payı (%)
                     <input data-tur="oran" id="fire" type="text" inputmode="decimal" value="10" />
@@ -100,8 +100,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=48"></script>
-<script src="sayfa.js?v=48"></script>
+<script src="hesap.js?v=50"></script>
+<script src="sayfa.js?v=50"></script>
 <script>
 iskeletKur("boya-fayans-hesaplama.html");
 gizlilikBaglantisi();

@@ -432,6 +432,47 @@ window.addEventListener("load", async function () {
     } catch (e) { ol(s[0] + " okunamadı", false, String(e)); }
   }
 
+  /* ══ N · MOBİL — telefonda görünen, masaüstünde görünmeyen ═══════
+     Bu sınıf 163 maddenin çoğunun dışında kalıyordu: masaüstü klavyesinde
+     virgül de iki nokta da her zaman vardır, o yüzden hata hiç çıkmaz.
+
+     Ölçüldü (28 Ağustos 2026): `saat-sure` sayfasının altı alanı
+     `inputmode="numeric"` idi ve sayfanın kendi ipucu "Süreleri 7:30
+     biçiminde yazın" diyordu. Telefonun sayı tuş takımında ne `:` ne `,`
+     vardır — uygulama, kullanıcıya YAZAMAYACAĞI bir biçim tarif ediyordu.
+     `boya-fayans` karo ölçüleri de aynı durumdaydı (33,3 cm yazılamaz). */
+  bas("N · Mobil — sayı klavyesi ve görüntü alanı");
+  for (const s of ["saat-sure-hesaplama.html", "boya-fayans-hesaplama.html",
+                   "kredi-hesaplama.html", "net-maas-hesaplama.html"]) {
+    try {
+      const c4 = await fetch(s + "?t=" + T);
+      const m4 = await c4.text();
+      // Ondalık ya da iki nokta bekleyen alan `numeric` olmamalı
+      const kotu = [];
+      const girdiler = m4.match(/<input[^>]*inputmode[^>]*>/g) || [];
+      girdiler.forEach(function (g) {
+        if (!/inputmode\s*=\s*["']numeric["']/.test(g)) return;
+        const ph = (g.match(/placeholder\s*=\s*["']([^"']*)/) || ["", ""])[1];
+        const vl = (g.match(/value\s*=\s*["']([^"']*)/) || ["", ""])[1];
+        if (/[:,]/.test(ph + vl)) kotu.push(ph || vl);
+      });
+      ol(s + " → ondalık/saat alanı numeric değil", kotu.length === 0, kotu.join(" · "));
+      ol(s + " → viewport interactive-widget taşıyor",
+         /interactive-widget=resizes-content/.test(m4));
+    } catch (e) { ol(s + " okunamadı", false, String(e)); }
+  }
+  /* iOS, yazı tipi 16 px'in altındaysa girdiye dokununca sayfayı
+     kendiliğinden büyütür ve düzen kayar. */
+  try {
+    const c5 = await fetch("stil.css?t=" + T);
+    const m5 = await c5.text();
+    const j5 = m5.indexOf("input, select, textarea");
+    const blok = j5 < 0 ? "" : m5.slice(j5, j5 + 220);
+    const fs = (blok.match(/font-size:\s*(\d+)px/) || ["", "0"])[1];
+    ol("girdi yazı tipi 16 px ve üstü (iOS yakınlaştırma sıçraması yok)",
+       Number(fs) >= 16, fs + "px");
+  } catch (e) { ol("stil.css okunamadı", false, String(e)); }
+
   /* ══ Sonuç ════════════════════════════════════════════════════════ */
   document.getElementById("liste").innerHTML = sonuclar.map(function (s) {
     if (s.bolum) return "<h2>" + s.bolum + "</h2>";

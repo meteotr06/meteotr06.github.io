@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
 <title>Maaş Zammı Hesaplama — Zam Sonrası Net Maaş ve Reel Artış</title>
 <meta name="description" content="Maaş zammı hesaplama: zam sonrası brüt ve net maaşınız, enflasyona göre gerçek (reel) artış. Zam enflasyonu karşıladı mı?" />
 <meta name="theme-color" content="#ffffff" />
@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Maaş Zammı Hesaplama — Zam Sonrası Net Maaş ve Reel Artış" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/maas-zammi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=48" />
+<link rel="stylesheet" href="stil.css?v=50" />
 </head>
 <body>
 
@@ -81,8 +81,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=48"></script>
-<script src="sayfa.js?v=48"></script>
+<script src="hesap.js?v=50"></script>
+<script src="sayfa.js?v=50"></script>
 <script>
 iskeletKur("maas-zammi-hesaplama.html");
 gizlilikBaglantisi();
@@ -111,7 +111,10 @@ function hesapla() {
         ${satir("Zam oranınız", yuzdeOn(m.zamOrani))}
         ${satir("Yıllık enflasyon", yuzdeOn(enf))}
         ${satir("Reel (gerçek) zam", yuzdeOn(m.reelZam), "buyuk")}
-        <p class="kucuk" style="color:${iyi ? "var(--artis)" : "var(--azalis)"}">
+        ${/* KOSULLU SINIF: zam alinmis gibi gorunuyor ama alim gucu
+              DUSMUS. Baslik "55.935 TL zam sonrasi maas" diyor, gercek
+              su ki enflasyonun 20 puan gerisinde kalinmis. */""}
+        <p class="${iyi ? "kucuk" : "onemli"}"${iyi ? ' style="color:var(--artis)"' : ""}>
         ${iyi
             ? `<b>Alım gücünüz arttı.</b> Zammınız enflasyonu ${sayi(Math.abs(m.reelZam), 1)} puan geçti.`
             : `<b>Alım gücünüz azaldı.</b> Maaşınız arttı ama enflasyonun ${sayi(Math.abs(m.reelZam), 1)} puan

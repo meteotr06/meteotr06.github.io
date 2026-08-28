@@ -87,7 +87,23 @@ function ayarYaz(a) {
 
 function iskeletKur(aktifYol) {
     const ayar = ayarOku();
-    if (ayar.tema === "koyu") document.documentElement.dataset.tema = "koyu";
+    /* KULLANICI SEÇMEDİYSE İŞLETİM SİSTEMİNE UY.
+       Ölçüldü (28.08.2026): telefon karanlık kipteyken sayfa bembeyaz
+       açılıyordu (zemin parlaklığı 246/255). Karanlık tema VARDI ve
+       düzgün çalışıyordu — yalnızca sorulmuyordu. Kod sadece kayıtlı
+       "koyu" değerine bakıyor, ilk ziyarette ayar boş oluyordu.
+       Sistem tercihi kullanıcının KARARI değil, VARSAYILANI: açıkça
+       seçim yapmışsa seçimi kazanır. */
+    const sistemKoyu = window.matchMedia
+        && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const koyuMu = ayar.tema === "koyu"
+        || (ayar.tema !== "acik" && sistemKoyu);
+    if (koyuMu) document.documentElement.dataset.tema = "koyu";
+    // Telefonun tarayıcı çubuğu da sayfayla aynı renkte olsun.
+    try {
+        const tc = document.querySelector('meta[name="theme-color"]');
+        if (tc) tc.setAttribute("content", koyuMu ? "#0c0e13" : "#ffffff");
+    } catch (e) { }
 
     // ERİŞİLEBİLİRLİK: klavyeyle gezenler menüyü atlayıp doğrudan içeriğe geçebilsin
     const atla = document.createElement("a");
@@ -104,7 +120,7 @@ function iskeletKur(aktifYol) {
         </div>
         <div class="ust-sag">
             <button id="temaBtn" class="ikincil" type="button"
-                    aria-label="Açık veya koyu temaya geç" title="Açık / koyu tema">${ayar.tema === "koyu" ? "◑" : "◐"}</button>
+                    aria-label="Açık veya koyu temaya geç" title="Açık / koyu tema">${koyuMu ? "◑" : "◐"}</button>
         </div>`;
     document.body.insertBefore(ust, atla.nextSibling);
 
@@ -145,10 +161,19 @@ function iskeletKur(aktifYol) {
 
     document.getElementById("temaBtn").onclick = () => {
         const a = ayarOku();
-        a.tema = a.tema === "koyu" ? "acik" : "koyu";
+        /* Kayitli ayara DEGIL ekrandaki duruma bak. Tema sistemden
+           geldiyse `a.tema` undefined olur; eski mantik ilk tikta
+           "koyu" yazardi ve sayfa ZATEN koyu oldugu icin hicbir sey
+           degismezdi - kullanici dugmeyi bozuk sanardi. */
+        const suAnKoyu = document.documentElement.dataset.tema === "koyu";
+        a.tema = suAnKoyu ? "acik" : "koyu";
         if (a.tema === "koyu") document.documentElement.dataset.tema = "koyu";
         else delete document.documentElement.dataset.tema;
         document.getElementById("temaBtn").textContent = a.tema === "koyu" ? "◑" : "◐";
+        try {
+            const tc = document.querySelector('meta[name="theme-color"]');
+            if (tc) tc.setAttribute("content", a.tema === "koyu" ? "#0c0e13" : "#ffffff");
+        } catch (e) { }
         ayarYaz(a);
     };
     cevrimdisiUyari(aktifYol);
