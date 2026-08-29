@@ -688,8 +688,11 @@ function deger_tahmini(emsal, hedef) {
        Yoksa kullanici birim fiyati alan ile carptiginda ekrandaki toplamla
        tutmuyor: olculdu, 4.567 m2'de fark 1.098 TL. Ekranda ayni seyin iki
        farkli sayisi olmamali; kidem tazminati aracindaki hata tam bu siniftandi.
-       (Bu fonksiyonun ciktisi su an arayuzde gosterilmiyor ama disa acik;
-       tutarsizligi burada birakmak ileride goruntuye cikar.) */
+       GUNCEL (29.08.2026): bu deger ARTIK ekranda gosteriliyor --
+       `arayuz.js` icindeki "... m2 icin toplam" satiri dogrudan
+       `toplam_deger.orta` okuyor. Yorumun eski hali "gosterilmiyor"
+       diyordu; okuyani "bu kullanilmiyor, degistirsem zarari yok"
+       diye yaniltabilirdi. Ekrandaki toplam bu satira baglidir. */
     sonuc.toplam_deger = {
       alt:  yuvarla(sonuc.birim_fiyat.alt  * alan, 0),
       orta: yuvarla(sonuc.birim_fiyat.orta * alan, 0),
