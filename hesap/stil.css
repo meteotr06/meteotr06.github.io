@@ -1243,3 +1243,27 @@ html[data-sade] *::after {
         transition-duration: .001ms !important;
     }
 }
+
+
+/* ============================================================
+   [hidden] TOPTAN KURAL
+   ============================================================
+   OLCULDU (29 Agustos 2026). Merkez bunu Arsa'da CANLIDA yakaladi,
+   ben 09'da olctum: tarayicinin `[hidden]{display:none}` kurali
+   OZGULLUK 10; bizim `.grup-cipleri{display:flex}` kuralimiz 100.
+   Oznitelik durur, eleman CIZILIR.
+
+   09'daki hali: ana sayfada arama yapilinca `grupCipleri.hidden`
+   true oluyor ama eleman `display:flex` ve 54 px yuksekliginde
+   ekranda kaliyordu -- grup cipleri arama sonuclarinin ustunde.
+   `kaynakSerit` de ayni tuzaga yatiyordu (bugun gizlenmiyor, ama
+   gizlense kacacakti).
+
+   TEK TEK COZMEK YETMEDI: bu dosyada ayni tuzagin UC ayri nokta
+   cozumu vardi (`.panel[hidden]`, `.yapiskan-sonuc[hidden]`,
+   `.gorunum-ic[hidden]`) ve yine iki eleman kacti. Kural artik
+   toptan: `hidden` demek GIZLI demek, istisnasiz.
+
+   Nokta cozumler bilerek birakildi: birileri bu blogu silerse
+   onlar hala calisir. */
+[hidden] { display: none !important; }

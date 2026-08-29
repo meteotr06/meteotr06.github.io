@@ -981,6 +981,34 @@ function iskeletKur(aktifYol) {
     yapiskanSonuc();
 }
 
+/* Okunamayan girdiler icin sonuc kutusunun BASINA not koyar.
+   `textContent` ile yaziliyor: alan adlari sayfadan geliyor ve
+   HTML olarak birakilmamali. */
+function sonucaOkunamadiNotu(bozukIdler) {
+    const kutu = document.getElementById("ozet");
+    if (!kutu) return;
+    const eski = document.getElementById("okunamadiNotu");
+    if (eski) eski.remove();
+
+    const adlar = bozukIdler.map(function (id) {
+        const el = document.getElementById(id);
+        const etiket = el && el.labels && el.labels[0]
+            ? el.labels[0].textContent.replace(/\s+/g, " ").trim()
+            : id;
+        return etiket.split("(")[0].trim();
+    });
+
+    const n = document.createElement("p");
+    n.id = "okunamadiNotu";
+    n.className = "varsayim";
+    n.setAttribute("role", "alert");
+    n.textContent = (adlar.length === 1
+        ? "“" + adlar[0] + "” alanı sayı olarak okunamadı"
+        : adlar.length + " alan sayı olarak okunamadı (" + adlar.join(", ") + ")") +
+        " — aşağıdaki sonuç o alanı 0 kabul ederek hesaplandı.";
+    kutu.insertBefore(n, kutu.firstChild);
+}
+
 // ---------- Sonuç satırları ----------
 
 // Arama icin: buyuk/kucuk ve Turkce harkleri esitler.
@@ -1018,6 +1046,7 @@ function satir(etiket, deger, sinif) {
 // Hesabı DURDURMUYORUZ — sayfa akışını değiştirmek 47 sayfayı birden
 // etkilerdi. Yapılan: sessiz yanlışı görünür yanlışa çevirmek.
 function girdileriDenetle(idler) {
+    const bozuklar = [];
     idler.forEach(id => {
         const el = document.getElementById(id);
         if (!el || el.tagName !== "INPUT") return;
@@ -1084,6 +1113,7 @@ function girdileriDenetle(idler) {
             }
             if (!not.id) not.id = uyariKimlik;
             el.setAttribute("aria-invalid", "true");
+            bozuklar.push(id);
             const mevcut = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
             if (mevcut.indexOf(uyariKimlik) < 0) {
                 mevcut.push(uyariKimlik);
@@ -1106,6 +1136,7 @@ function girdileriDenetle(idler) {
             if (not) not.remove();
         }
     });
+    return bozuklar;
 }
 
 // Girdi kutularını dinle: her değişiklikte hesapla
@@ -1124,9 +1155,20 @@ function dinle(idler, isle) {
     // Burasi 42 aracin ORTAK gecidi; korumayi tek tek araclara birakmak
     // 42 kez hatirlamayi gerektirirdi. Bir kez burada durduruluyor.
     const sarmal = () => {
-        girdileriDenetle(idler);
+        const bozuklar = girdileriDenetle(idler);
         try {
             isle();
+            /* CEKINCE, KARARIN VERILDIGI YERDE DURMALI.
+               OLCULDU (29 Agustos 2026, on listenin 70. maddesi):
+               `tapu-harci` sayfasinda satis bedeline "abc" yazilinca
+               sonuc 122.534 -> 82.534 TL'ye dusuyordu. Uyari VARDI ama
+               GIRDININ YANINDAYDI ("bu alan sayi olarak okunamadi --
+               hesap 0 kabul ediyor"); sonuca bakan kullanici guvenle
+               duran bir sayi goruyordu. Ayni durum `araba-masrafi`da
+               19.217 -> 8.091.
+               Uyari ekranda vardi ama YANLIS YERDEYDI. Simdi sonucun
+               basina da konuyor -- 53 aracin hepsinde, tek yerden. */
+            if (bozuklar.length) sonucaOkunamadiNotu(bozuklar);
             /* CANLILIK ISARETI. Sayfanin sonundaki satir ici denetim buna
                bakiyor. YALNIZ basarili hesaptan sonra kalkar: `hesap.js`
                indirilemezse `isle()` firlatir ve isaret KALKMAZ. */
