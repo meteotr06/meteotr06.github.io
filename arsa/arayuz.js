@@ -744,12 +744,28 @@ function rapor_metni() {
     return satir.join('\n');
 }
 
+/* YAZDIRMA TARIHI — dugmeye DEGIL, YAZDIRMA OLAYINA bagli.
+   Olculdu (29.08.2026): tarih yalnizca uygulamanin kendi "Yazdır"
+   dugmesine basildiginda yaziliyordu. Ctrl+P ya da tarayici
+   menusunden yazdiran kullanici, ust kismi BOS bir kagit aliyordu.
+
+   Tarihsiz bir deger raporu yaniltir: arsa fiyatlari degisir,
+   mevzuat yillara baglidir (buradaki oranlar 2026). Uc ay sonra o
+   kagida bakan kimse ne zaman uretildigini bilemez. `beforeprint`
+   her yoldan yazdirmada tetiklenir -- dugme de dahil. */
+function yazdirma_tarihi_yaz() {
+    var t = document.getElementById('rTarih');
+    if (!t) return;
+    t.textContent = new Date().toLocaleDateString('tr-TR',
+        { year: 'numeric', month: 'long', day: 'numeric' });
+}
+window.addEventListener('beforeprint', yazdirma_tarihi_yaz);
+
 function rapor_eylemleri_bagla() {
     var yb = $('yazdirBtn'), kb = $('kopyalaBtn'), durum = $('kopyaDurum');
     if (yb) yb.onclick = function () {
-        var t = $('rTarih');
-        if (t) t.textContent = new Date().toLocaleDateString('tr-TR',
-            { year: 'numeric', month: 'long', day: 'numeric' });
+        yazdirma_tarihi_yaz();      /* beforeprint zaten yazar; iki kez
+                                       yazmak zararsiz, garanti olsun */
         window.print();
     };
     if (kb) kb.onclick = function () {

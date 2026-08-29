@@ -26,6 +26,23 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 59,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Yazdırılan raporda tarih artık her zaman çıkıyor',
+        maddeler: [
+            'Raporu Ctrl+P ile ya da tarayıcı menüsünden yazdırdıysanız ' +
+            'kâğıdın üstü BOŞ çıkıyordu — tarih yalnızca uygulamanın ' +
+            'kendi "Yazdır" düğmesine basınca yazılıyordu.',
+
+            'Tarihsiz bir değer raporu yanıltır: arsa fiyatları değişir ' +
+            've buradaki resmî oranlar 2026 yılına aittir. Üç ay sonra o ' +
+            'kâğıda bakan kimse ne zaman üretildiğini bilemez.',
+
+            'Artık hangi yoldan yazdırırsanız yazdırın tarih çıkıyor.'
+        ]
+    },
+    {
         surum: 58,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,
