@@ -26,6 +26,23 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 58,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Okunamayan defter kaydı artık uydurma sayı göstermiyor',
+        maddeler: [
+            'Bir kaydınız bozulursa uygulama eskiden onu yine de ' +
+            'çiziyordu: tarihi "01.01.1970", alanı "-500 m²" gibi ' +
+            'GERÇEKÇİ görünen ama uydurma değerlerle. Kendi kaydınız ' +
+            'sanabilirdiniz.',
+
+            'Artık böyle bir kayıt "okunamadı" diye işaretleniyor ve ' +
+            'hiçbir sayı gösterilmiyor. Yanlış bir sayı göstermektense ' +
+            'söylemeyi tercih ediyoruz. Kayıt silinmiyor — kararı size ' +
+            'bırakıyoruz; diğer kayıtlarınız etkilenmiyor.'
+        ]
+    },
+    {
         surum: 57,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,

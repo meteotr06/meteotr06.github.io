@@ -1239,6 +1239,46 @@ function defter_ekle() {
     sekme_ac('sDefter');
 }
 
+/* BIR KAYIT OKUNABILIR MI?
+   Olculdu (29.08.2026): depodaki kayitlar bozuldugunda uygulama
+   COKMUYOR ama ekrana INANDIRICI SACMALIK yaziyordu:
+       alan: 'çok'     -> "Alan —"           (sessizce yutuldu)
+       alan: -500      -> "Alan -500 m²"
+       birim: -1000    -> "-1.000 TL/m² (±%-40)"
+       alan: 1e15      -> "1.000.000.000.000.000 m²"
+       tarih: null     -> "01.01.1970"        <- en tehlikelisi
+       tarih: 'bozuk'  -> "Invalid Date"
+   "01.01.1970" ve negatif tutarlar UYDURULMUS ama GERCEKCI gorunur;
+   kullanici bunlari kendi kaydi sanir. 05'in ayni gun buldugu ders:
+   bozuk degeri KIRPMA -- kirpilmis deger inandirici bir yalan olur.
+   Burada da kirpmiyoruz: kaydin okunamadigini SOYLUYORUZ. Silmiyoruz
+   da; silmek kullanicinin verisini yok saymaktir, karar onun. */
+function defter_kayit_saglam(k) {
+    if (!k || typeof k !== 'object') return false;
+    var a = k.girdi && k.girdi.alan;
+    if (!(typeof a === 'number' && isFinite(a) && a > 0 && a < 1e9)) return false;
+    if (!(typeof k.ad === 'string' && k.ad.trim())) return false;
+    var t = Date.parse(k.tarih);
+    if (!isFinite(t)) return false;
+    if (k.ozet) {
+        var s = [k.ozet.birim, k.ozet.toplam, k.ozet.bant];
+        for (var i = 0; i < s.length; i++) {
+            var v = s[i];
+            if (v === null || v === undefined) continue;
+            if (!(typeof v === 'number' && isFinite(v) && v >= 0)) return false;
+        }
+    }
+    if (k.risk) {
+        var rs = [k.risk.kritik, k.risk.uyari];
+        for (var j = 0; j < rs.length; j++) {
+            var w = rs[j];
+            if (w === null || w === undefined) continue;
+            if (!(typeof w === 'number' && isFinite(w) && w >= 0)) return false;
+        }
+    }
+    return true;
+}
+
 function defter_ciz() {
     var kap = $('defterListe');
     kap.innerHTML = '';
@@ -1255,6 +1295,37 @@ function defter_ciz() {
     }
 
     liste.forEach(function (k, i) {
+        if (!defter_kayit_saglam(k)) {
+            /* Okunamayan kayit: uydurma sayi gostermek yerine durumu soyle. */
+            var bz = el('div', 'defter-kart defter-bozuk');
+            var bu = el('div', 'defter-ust');
+            var bs = el('div');
+            bs.appendChild(el('p', 'defter-ad',
+                (typeof k === 'object' && k && typeof k.ad === 'string' && k.ad.trim())
+                    ? k.ad : 'Adsız kayıt'));
+            bs.appendChild(el('span', 'defter-tarih', 'okunamadı'));
+            bu.appendChild(bs);
+            var bsil = el('button', 'defter-sil', '×');
+            bsil.title = 'Sil';
+            bsil.onclick = function () {
+                if (!confirm('Bu okunamayan kayıt silinsin mi?')) return;
+                var l2 = defter_oku();
+                var y2 = -1;
+                for (var q = 0; q < l2.length; q++) {
+                    if (k && k.kimlik && l2[q].kimlik === k.kimlik) { y2 = q; break; }
+                }
+                if (y2 < 0) { defter_ciz(); return; }
+                l2.splice(y2, 1); defter_yaz(l2); defter_ciz();
+            };
+            bu.appendChild(bsil);
+            bz.appendChild(bu);
+            bz.appendChild(el('p', 'alt-not',
+                'Bu kaydın bilgileri okunamıyor, o yüzden sayı göstermiyoruz — ' +
+                'yanlış bir sayı göstermektense söylemeyi tercih ediyoruz. ' +
+                'Diğer kayıtlarınız etkilenmedi.'));
+            kap.appendChild(bz);
+            return;
+        }
         var d = el('div', 'defter-kart');
         var ust = el('div', 'defter-ust');
         var sol = el('div');

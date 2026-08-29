@@ -681,3 +681,9 @@ input.gecersiz, select.gecersiz {
 .bant.aralik-yok { border-color: #c68a2e; background: #fdf6e7; }
 .bant.aralik-yok .orta { font-size: 1.15rem; color: #8a5d10; }
 .bant.aralik-yok .aralik { margin-top: .5rem; line-height: 1.7; }
+
+/* Okunamayan defter kaydı — uydurma sayı yerine dürüst uyarı.
+   Ölçüldü (29.08.2026): bozuk kayıtlar "01.01.1970" ve "-500 m²" gibi
+   İNANDIRICI ama uydurma değerler gösteriyordu. */
+.defter-kart.defter-bozuk { border-color: #c68a2e; background: #fdf6e7; }
+.defter-kart.defter-bozuk .defter-tarih { color: #8a5d10; font-style: italic; }
