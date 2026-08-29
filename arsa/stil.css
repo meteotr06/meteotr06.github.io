@@ -603,12 +603,59 @@ input.gecersiz, select.gecersiz {
 }
 
 
+/* ============================================================
+   [hidden] HER ZAMAN GIZLER — SINIFI KOKTEN KAPATAN TEK KURAL
+   ============================================================
+   Tarayicinin kendi kurali `[hidden] { display: none }` ozgullugu
+   10'dur. Bizim yazdigimiz `#kutu { display: flex }` 100, `.sinif
+   { display: flex }` ise yine 10 ama SONRA geldigi icin kazanir.
+   Sonuc: `hidden` ozniteligi durur, eleman CIZILIR.
+
+   Bu tuzak bu dosyada satir 384'te ZATEN yaziliydi ve `.katman`
+   icin cozulmustu. Tek tek cozmek yetmedi -- iki yeni eleman ayni
+   hataya dustu ve biri CANLIYA CIKTI:
+
+     #baslamadiUyari  -> hidden iken display:flex, 716x794 tam ekran
+                         "Uygulama eksik yuklendi -- hesaplama
+                         calismiyor" yazisi HER ZIYARETCIYE goruniyordu
+     #yenilikNotu     -> hidden iken display:flex
+     #kapsamOrnekBtn  -> hidden iken display:block
+
+   Ustelik statik CSS taramam yalniz BIRINI bulmustu; ucunu de
+   tarayicida her elemani tek tek `hidden` yapip
+   getComputedStyle().display okuyarak buldum. Oznitelige bakip
+   "gizli" demek olcum degildir.
+
+   Artik tek tek degil, TOPTAN. Yeni bir kutu eklendiginde
+   kimsenin hatirlamasi gerekmiyor. */
+[hidden] { display: none !important; }
+
 /* "Uygulama başlamadı" uyarısı — 05 ve 09'daki ile aynı desen. */
 #baslamadiUyari {
     position: fixed; inset: 0; z-index: 200;
     display: flex; align-items: center; justify-content: center;
     padding: 24px; background: rgba(10, 14, 20, 0.92); color: #fff;
 }
+/* AYNI TUZAK, IKINCI KEZ — ve bu sefer CANLIDA yakalandi (29.08.2026).
+   Yukarida satir 384'te bu tuzak zaten yaziliydi ve `.katman[hidden]`
+   icin cozulmustu. Ama BU kutu ayri bir eleman ve ayni `display: flex`
+   ile yazilmis, korumasi YAZILMAMIS.
+
+   Sonuc: `hidden` ozniteligi duruyordu ama kimlik secicisi (#id,
+   ozgulluk 100) tarayicinin [hidden] kuralini (10) EZIYORDU.
+   Yayindaki uygulamada olculdu:
+       hidden ozniteligi : true
+       gercek display    : flex
+       kapladigi alan    : 716x794 (tam ekran)
+   Yani "Uygulama eksik yuklendi -- hesaplama calismiyor" yazisi
+   CALISAN uygulamanin ustunde, HER ZIYARETCIYE gorunuyordu.
+   Koruma, korudugu hatayi taklit ediyordu.
+
+   `hidden` ozniteligine bakip "gizli" demek de yetmiyor: oznitelik
+   duruyor, eleman ciziliyor. Olculecek sey ozntelik degil,
+   getComputedStyle(...).display. */
+/* (Genel kural yukarida; bu satir tarihi kayit olarak duruyor.) */
+
 #baslamadiUyari > div { max-width: 34rem; font-size: 15px; line-height: 1.55; }
 #baslamadiUyari p { margin: 10px 0; }
 #baslamadiUyari button {

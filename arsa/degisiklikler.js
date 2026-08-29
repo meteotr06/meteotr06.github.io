@@ -26,6 +26,25 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 50,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Ekranı kaplayan yanlış hata uyarısı kaldırıldı',
+        maddeler: [
+            'Uygulamayı açtığınızda "Uygulama eksik yüklendi — hesaplama ' +
+            'çalışmıyor" yazan bir kutu ekranı kaplıyordu. Bu kutu ' +
+            'yanlıştı: uygulama düzgün çalışıyordu, hesap da doğruydu.',
+
+            'Sebep: kutunun gizlenmesi gerektiğini söyleyen işaret ' +
+            'duruyordu ama görünümü belirleyen kural onu eziyordu. ' +
+            'Kutu "gizli" sayılıyor, yine de çiziliyordu.',
+
+            'Sayılarda bir değişiklik yok — hesap zaten doğruydu, ' +
+            'sadece üstünü örten bir uyarı vardı. Daha önce sonuç ' +
+            'aldıysanız o sonuç geçerlidir.'
+        ]
+    },
+    {
         surum: 49,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: true,
