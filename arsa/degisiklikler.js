@@ -26,6 +26,26 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 57,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Sayılar Türkçe yazımla gösteriliyor — yanlış okunmasınlar diye',
+        maddeler: [
+            'Bazı sayılar "930.8 m²" gibi NOKTALI yazılıyordu. Türkçede ' +
+            'nokta binlik ayırıcıdır; bunu 9.308 diye okumak çok kolay. ' +
+            'Sayı doğruydu ama yazımı yanlış okunmaya açıktı. Artık ' +
+            '"930,8 m²" yazıyor.',
+
+            '"Tahmini kat adedi" 7,1 gibi kesirli çıkabiliyordu — 0,1 kat ' +
+            'diye bir şey yok. Üstelik aynı ekrandaki bahçe mesafeleri ' +
+            'zaten 7 kat üzerinden hesaplanıyordu: bir yerde 7,1, ' +
+            'öbüründe 7. Artık ikisi de aynı sayı.',
+
+            'Hesaplarda değişiklik yok; değişen yalnızca sayıların ' +
+            'ekranda nasıl yazıldığı.'
+        ]
+    },
+    {
         surum: 54,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,

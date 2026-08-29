@@ -53,6 +53,29 @@ function tl(x) {
    her yerde "%13,7" diye yaziyordu; yalniz "farki yaratan kalemler"
    tablosu "-45%" diyordu. Ayni ekranda iki farkli yazim, hangisinin
    dogru oldugunu bilmeyen kullaniciyi tereddute dusurur. */
+/* METREKARE BICIMLEYICI — ve Turkce'de NOKTA'nin tehlikesi.
+   Olculdu (29.08.2026): alan "620,5" girildiginde ekranda
+   "930.8 m²" ve "186.2 m²" yaziyordu -- JavaScript'in varsayilan
+   nokta-ondaligi. Turkce'de NOKTA BINLIK ayiricidir; okuyan
+   "930.8"i pekala 9.308 diye okur. Sayi dogru, YAZIMI yanlis --
+   ve yanlis okunan dogru sayi, yanlis sayidir.
+   Ayrica binlik ayirici da yoktu: yan yana duran iki satirda
+   "1240 m²" ile "818.400 TL" farkli bicimdeydi. */
+function m2(x) {
+    if (x === null || x === undefined || x === '' || !isFinite(x)) return '—';
+    return Number(x).toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' m²';
+}
+
+/* METRE — ayni tuzak, ayni kart. Olculdu: "Yan bahçe 3.5 m" yaziyordu
+   ve HEMEN ALTINDAKI aciklama "yan ve arka bahçe 3,00 m" diyordu.
+   Ayni kartta ayni turden iki sayi, iki ayri yazimla; biri Turkce'de
+   yanlis okunabilir bicimde. */
+function metre(x) {
+    if (x === null || x === undefined || x === '' || !isFinite(x)) return '—';
+    return Number(x).toLocaleString('tr-TR', { minimumFractionDigits: 2,
+                                               maximumFractionDigits: 2 }) + ' m';
+}
+
 function yuzde(x, isaretli) {
     if (x === null || x === undefined || !isFinite(x)) return '—';
     var n = Number(x);
@@ -924,15 +947,15 @@ function deger_karti(an, g, ek_kutu) {
            Reddettigimiz sayiyi alan ile carpip geri sunmak, redde ragmen
            ayni yanilticiligi buyuterek tekrarlamak olur. */
         if (an.yontemler.carpan !== null) {
-            satir_ekle(k, g.alan + ' m² · emsal düzeltme',
+            satir_ekle(k, m2(g.alan) + ' · emsal düzeltme',
                        tl(Math.round(an.yontemler.carpan * an.alan)));
         }
         if (an.yontemler.nominal !== null) {
-            satir_ekle(k, g.alan + ' m² · nominal puanlama',
+            satir_ekle(k, m2(g.alan) + ' · nominal puanlama',
                        tl(Math.round(an.yontemler.nominal * an.alan)));
         }
     } else if (an.toplam_deger) {
-        satir_ekle(k, g.alan + ' m² için toplam', tl(an.toplam_deger.orta));
+        satir_ekle(k, m2(g.alan) + ' için toplam', tl(an.toplam_deger.orta));
     }
 
     if (an.yontem_sayisi === 2) {
@@ -1078,23 +1101,33 @@ function imar_ciz(g) {
     /* Ne yapabilirim */
     var k1 = kart('Bu arsaya ne yapabilirsiniz');
     satir_ekle(k1, 'Zeminde kaplanabilecek alan',
-               im.taban_alani ? im.taban_alani + ' m²' : '—');
-    satir_ekle(k1, 'Toplam inşaat alanı', im.toplam_insaat_alani + ' m²');
-    satir_ekle(k1, 'Tahmini kat adedi', im.tahmini_kat_adedi || '—');
+               im.taban_alani ? m2(im.taban_alani) : '—');
+    satir_ekle(k1, 'Toplam inşaat alanı', m2(im.toplam_insaat_alani));
+    /* KAT ADEDI TAM SAYI GOSTERILIR — ve ekranin geri kalaniyla AYNI sayi.
+       Olculdu (29.08.2026): burada "7.1" yaziyordu. Iki ayri kusur:
+       (a) Turkce'de nokta binlik ayiricidir, "7.1" yanlis okunabilir;
+       (b) 0,1 kat diye bir sey yok -- kullanicinin yapabilecegi bir
+           sey degil, KAKS/TAKS oraninin ham hali.
+       Ustelik AYNI EKRANDAKI cekme mesafeleri zaten Math.round ile
+       7 kat uzerinden hesaplaniyordu: bir kartta 7,1 kat, otekinde
+       7 kata gore mesafe. Ayni ekranda iki farkli kat sayisi (K-53).
+       Artik ikisi de ayni sayidan turuyor. */
+    var katGoster = Math.round(im.tahmini_kat_adedi || 0);
+    satir_ekle(k1, 'Tahmini kat adedi', katGoster > 0 ? String(katGoster) : '—');
     satir_ekle(k1, 'Tahmini daire sayısı',
-               im.tahmini_daire_sayisi + ' adet (' + im.brut_daire_alani + ' m² brüt)');
+               im.tahmini_daire_sayisi + ' adet (' + m2(im.brut_daire_alani) + ' brüt)');
     im.uyari.forEach(function (u) { k1.appendChild(el('p', 'alt-not', u)); });
     k1.appendChild(el('p', 'alt-not', im.not));
     $('iYapilabilir').innerHTML = ''; $('iYapilabilir').appendChild(k1);
 
     /* Çekme mesafeleri */
-    var kat = Math.round(im.tahmini_kat_adedi || 0);
+    var kat = katGoster;          /* ekranda yazanla AYNI sayi */
     var k2 = kart('Çekme (bahçe) mesafeleri');
     if (kat > 0) {
         var c = M.cekme_mesafeleri({ kat_adedi: kat });
-        satir_ekle(k2, 'Ön bahçe',  c.on + ' m');
-        satir_ekle(k2, 'Yan bahçe', c.yan + ' m');
-        satir_ekle(k2, 'Arka bahçe', c.arka + ' m');
+        satir_ekle(k2, 'Ön bahçe',  metre(c.on));
+        satir_ekle(k2, 'Yan bahçe', metre(c.yan));
+        satir_ekle(k2, 'Arka bahçe', metre(c.arka));
         k2.appendChild(el('p', 'alt-not', c.gerekce));
     } else {
         k2.appendChild(el('p', 'alt-not', 'Kat adedi hesaplanamadı; TAKS girin.'));
@@ -1258,7 +1291,7 @@ function defter_ciz() {
         ust.appendChild(sil);
         d.appendChild(ust);
 
-        satir_ekle_basit(d, 'Alan', (k.girdi.alan || '—') + ' m²');
+        satir_ekle_basit(d, 'Alan', m2(k.girdi.alan));
         satir_ekle_basit(d, 'Hukuki durum', k.risk ? k.risk.vasif : '—');
         if (k.ozet) {
             satir_ekle_basit(d, 'Tahmini birim', tl(k.ozet.birim) + '/m²  (±' + yuzde(k.ozet.bant) + ')');
