@@ -1,6 +1,28 @@
 User-agent: *
 Allow: /
 
+# IC BELGELER VE ARACLAR — dizine girmesin.
+# Olculdu (29.08.2026): bunlarin hepsi canlida 200 donuyordu ve robots
+# "Allow: /" dedigi icin arama motoruna aciklardi. Icerik degiller;
+# dizinde gorunmeleri sitenin icerik kalitesini asagi ceker.
+# NOT: robots DIZINLEMEYI engeller, ERISIMI engellemez. Adresi bilen acar.
+# Sir barindirmadiklari icin bu yeterli (tarandi: kisisel bilgi/anahtar yok).
+Disallow: /BENIOKU.md
+Disallow: /REKLAM.md
+Disallow: /STANDARTLAR.md
+Disallow: /YAYINLA.md
+Disallow: /YAYINLA.bat
+Disallow: /indexnow_bildir.py
+Disallow: /yayin_denetle.py
+Disallow: /sinama_yayin_denetle.py
+Disallow: /kur-pusulasi/BENIOKU.md
+Disallow: /mobil/damga_denetle.py
+
+# Genel desen: ileride eklenecek arac/belge de kendiliginden kapansin.
+Disallow: /*.py$
+Disallow: /*.bat$
+Disallow: /*.md$
+
 Sitemap: https://meteotr06.github.io/sitemap.xml
 Sitemap: https://meteotr06.github.io/hesap/sitemap.xml
 Sitemap: https://meteotr06.github.io/goz-molasi/sitemap.xml
