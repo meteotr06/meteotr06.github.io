@@ -241,6 +241,47 @@ def ozet(veri, ad=""):
     return hashlib.md5(veri).hexdigest()
 
 
+
+def kopyalanmamis(kaynak_klasor, depo_klasor):
+    """Gelistirici klasorundeki is, YAYIN klasorune kopyalanmis mi?
+
+    NEDEN AYRI BIR OLCUM (olculdu, 29.08.2026):
+    Nobetci "yerel" derken YAYIN KLASORUNU kastediyordu. O yuzden
+    zincirin sadece IKINCI halkasini olcuyordu:
+
+        kaynak klasoru  --(1) kopyala-->  yayin klasoru  --(2) push-->  canli
+                             OLCULMUYOR                     olculuyor
+
+    Sonuc: 09'da `sayfa.js` ve `stil.css` duzeltilmis, yayin klasorune
+    HIC kopyalanmamisti. Yayin klasoru ile canli ayni oldugu icin
+    nobetci "guncel" dedi. Duzeltme kullaniciya ulasmamisti ve arac
+    bunu SOYLEMIYORDU -- yalanci yesil, avladigimiz en tehlikeli sey.
+
+    Yalniz YAYINDA ZATEN OLAN dosyalara bakar: kaynakta olup yayinda
+    olmayan seyler (sinama sayfalari, araclar, ic belgeler) kasten
+    disarida birakilmistir, onlari "eksik" saymak yanlis alarm olurdu.
+    """
+    if not kaynak_klasor or depo_klasor is None:
+        return []                      # zincir yok: tek klasorde gelisiyor
+    yay = os.path.join(KOK, depo_klasor)
+    if not os.path.isdir(kaynak_klasor) or not os.path.isdir(yay):
+        return []
+    farkli = []
+    for kok2, _, dosyalar in os.walk(yay):
+        for f in dosyalar:
+            y = os.path.join(kok2, f)
+            r = os.path.relpath(y, yay).replace(os.sep, "/")
+            k = os.path.join(kaynak_klasor, r.replace("/", os.sep))
+            if not os.path.exists(k):
+                continue               # yalniz yayinda: bilerek olabilir
+            try:
+                if ozet(io.open(k, "rb").read(), r) != ozet(io.open(y, "rb").read(), r):
+                    farkli.append(r)
+            except Exception:
+                pass
+    return sorted(farkli)
+
+
 def icerik_karsilastir(kaynak_klasor, depo_klasor, yol, canli_html):
     """Kullanici ESKI dosya mi aliyor? Dogrudan bunu olcer.
 
@@ -339,6 +380,7 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
     # İkisi de aynı kökten: araç GÖRÜNÜŞE bakıyordu.
     # Artık SONUCA bakıyor: yereldeki dosya ile canlıdaki dosya aynı mı.
     # Bu, damgalama stratejisinden bağımsız ve damgasız projede de çalışır.
+    kopyasiz = kopyalanmamis(kaynak, depo)
     farkli, bakilan = icerik_karsilastir(kaynak, depo, yol, govde)
     if farkli:
         # ZAMAN TUZAGI. Bu bulgu, push'tan hemen sonra kosulursa YANLIS
@@ -356,6 +398,18 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
                         "ÖNCE 1-2 DK BEKLEYİP TEKRAR ÖLÇ: Pages yayınlamayı "
                         "geciktirir, push yeniyse bu uyarı yanlıştır."
                         % ", ".join(farkli[:4]))
+
+    if kopyasiz:
+        # ZINCIRIN ILK HALKASI. Bu, yukaridakinden BASKA bir arizadir ve
+        # zaman tuzagi YOKTUR: iki yerel klasor karsilastiriliyor, aginin
+        # gecikmesiyle ilgisi yok. Push beklemek bunu duzeltmez --
+        # dosyalar YAYIN KLASORUNE HIC KOPYALANMAMIS demektir.
+        bulgular.append("YAYIN KLASÖRÜNE KOPYALANMAMIŞ: %s%s — düzeltme "
+                        "geliştirme klasöründe duruyor, kullanıcıya HİÇ "
+                        "gitmedi. (Bu ağ gecikmesi değildir; beklemek "
+                        "düzeltmez.)"
+                        % (", ".join(kopyasiz[:4]),
+                           "" if len(kopyasiz) <= 4 else " +%d" % (len(kopyasiz)-4)))
 
     def notlari_ekle(satirlar):
         for n in notlar:
