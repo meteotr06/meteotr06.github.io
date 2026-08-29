@@ -765,6 +765,49 @@ function risk_tara(g) {
       'inşaat ruhsatı alinamayabilir.');
   }
 
+  /* ZEMIN VE DEPREM — risk taramasi bunlara HIC bakmiyordu.
+     Olculdu (29.08.2026): kullanici "zemin: sorunlu" ve "deprem: 1.
+     derece" secse bile risk bolumunde TEK SATIR cikmiyordu. Bu iki
+     alan yalnizca DEGER puanina giriyordu; yani parselin fiyati biraz
+     dusuyor ama kullaniciya "burada dikkat et" denmiyordu.
+     Turkiye'de arsa alan biri icin bu, uyarilmasi gereken ilk sey --
+     ve uygulamanin varlik sebebi zaten "parayi vermeden once soyle".
+     Deger puanina girmek, uyarmak DEGILDIR. */
+  if (g.zemin === 'sorunlu' || g.zemin === 'alüvyon') {
+    var zorlu = g.zemin === 'sorunlu';
+    ekle(zorlu ? 'uyari' : 'bilgi',
+      zorlu ? 'Zemin sorunlu' : 'Alüvyon zemin',
+      zorlu
+        ? 'Sorunlu zeminde temel derinleşir, iyileştirme (jet grout, kazık) ' +
+          'gerekebilir; inşaat maliyeti beklenenin üstüne çıkar.'
+        : 'Alüvyon zemin deprem dalgasını büyütür ve oturma riski taşır; ' +
+          'temel çözümü zorlaşabilir.',
+      'Belediyeden parselin zemin etüt raporunu isteyin. Yoksa proje ' +
+      'öncesi zemin etüdü zorunludur; maliyetini şimdiden hesaba katın.');
+  }
+
+  var dep = parseInt(g.deprem_bolgesi, 10);
+  if (dep === 1 || dep === 2) {
+    ekle(dep === 1 ? 'uyari' : 'bilgi',
+      dep === 1 ? '1. derece deprem bölgesi' : '2. derece deprem bölgesi',
+      'Türkiye Deprem Tehlike Haritasına göre yüksek tehlike kuşağı. ' +
+      'Yapı maliyeti artar (daha güçlü taşıyıcı sistem) ve zemin etüdü ' +
+      'daha kritik hale gelir.',
+      'Zemin etüdünü mutlaka yaptırın. Projede deprem yönetmeliğine ' +
+      'uygunluk şart; müteahhit seçiminde bu belirleyici olsun.');
+  }
+
+  /* IKISI BIR ARADAYSA AYRI BIR RISK. Tek tek "uyari" olan iki sey,
+     birlikte kritik olabilir -- bunu ayrica soylemek gerekiyor. */
+  if (dep === 1 && (g.zemin === 'sorunlu' || g.zemin === 'alüvyon')) {
+    ekle('kritik', 'Sorunlu zemin + 1. derece deprem bölgesi',
+      'Bu ikisi bir arada, yapı güvenliği açısından en zorlu bileşimdir. ' +
+      'Zemin iyileştirme ve güçlendirilmiş taşıyıcı sistem birlikte ' +
+      'gerekebilir; maliyet tahmini belirsizleşir.',
+      'Parsel için ZEMIN ETUT RAPORU olmadan bağlayıcı sözleşme imzalamayın. ' +
+      'Rapordaki zemin sınıfı, maliyeti belirleyen asıl bilgidir.');
+  }
+
   if (g.tapu_turu === 'hisseli' || g.tapu_turu === 'ifrazsiz') {
     ekle('kritik', 'Hisseli tapu',
       'Müşterek mülkiyette parselin belirli bir yeri size ait değildir; ' +
