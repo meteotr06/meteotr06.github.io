@@ -1,3 +1,16 @@
+/* YAZI BOYUTLARI REM — kullanicinin tercihine uymak icin.
+   Olculdu (29.08.2026): kok yazi boyutu %100 / %150 / %200 yapildi ve
+   ekrandaki HICBIR yazi degismedi. 46 yerde `font-size: NNpx` vardi;
+   px, kullanicinin tarayici/telefon yazi boyutu ayarini YOK SAYAR.
+   Yazi buyuten kullanici -- ki arsa alan kitlenin buyuk kismi -- hicbir
+   sey gormuyordu.
+
+   YALNIZ font-size cevrildi. Kenar boslugu/yukseklik gibi olculer px
+   kaldi: hepsini rem yapmak buyuk yazida duzeni patlatir (06 projesinde
+   px->rem cevrimi yatay kaydirma URETMISTI, kayitli). Amac kutulari
+   buyutmek degil, YAZIYI kullanicinin istedigi boyutta gostermek;
+   kutularin tasmadigi %150 ve %200'de ayrica olculdu. */
+
 /* ================= ARSA REHBERİ — STİL =================
    Tasarım yönü: 07 Kur Pusulası ile aynı aile.
    - Açık zemin, kurumsal mavi, gölge yok
@@ -52,7 +65,7 @@ body {
     background: var(--zemin);
     color: var(--yazi);
     font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
     overflow-x: hidden;
@@ -73,12 +86,12 @@ body {
     position: sticky; top: 0; z-index: 20;
 }
 .ust-sol { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.ust h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
+.ust h1 { margin: 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.2px; }
 .ust h1 span { color: var(--vurgu); font-weight: 600; }
 .ust-sag { display: flex; gap: 6px; flex-shrink: 0; }
 
 .rozet {
-    font-size: 12px; padding: 3px 8px; border-radius: 999px;
+    font-size: 0.75rem; padding: 3px 8px; border-radius: 999px;
     border: 1px solid var(--cizgi); color: var(--yazi2); white-space: nowrap;
 }
 .rozet.iyi  { color: var(--iyi);   border-color: var(--iyi); }
@@ -86,7 +99,7 @@ body {
 .rozet.bekle{ color: var(--yazi2); }
 
 /* ---------- Düğmeler ---------- */
-button { font-family: inherit; font-size: 15px; cursor: pointer; }
+button { font-family: inherit; font-size: 0.9375rem; cursor: pointer; }
 
 .ikincil {
     /* OLCULDU (320 px genislikte): 40x40 idi, dokunma hedefi sinirinin
@@ -106,7 +119,7 @@ button { font-family: inherit; font-size: 15px; cursor: pointer; }
     margin-top: 6px;
 }
 .birincil:hover { background: var(--vurgu2); }
-.birincil.buyuk { min-height: 54px; font-size: 17px; margin-top: 18px; }
+.birincil.buyuk { min-height: 54px; font-size: 1.0625rem; margin-top: 18px; }
 
 /* ---------- Gezinti ---------- */
 .sekmeler {
@@ -118,7 +131,7 @@ button { font-family: inherit; font-size: 15px; cursor: pointer; }
 .sekme {
     flex: 1; min-height: 48px; padding: 8px 4px;
     background: none; border: none; border-radius: 10px;
-    color: var(--yazi2); font-size: 13px; font-weight: 600;
+    color: var(--yazi2); font-size: 0.8125rem; font-weight: 600;
 }
 .sekme.aktif { background: var(--kart-ust); color: var(--vurgu); }
 
@@ -126,7 +139,7 @@ main { max-width: 760px; margin: 0 auto; padding: 16px; }
 .sayfa { display: none; }
 .sayfa.aktif { display: block; }
 
-.giris { color: var(--yazi2); font-size: 14px; margin: 0 0 16px; }
+.giris { color: var(--yazi2); font-size: 0.875rem; margin: 0 0 16px; }
 .giris b { color: var(--yazi); }
 
 /* ---------- Bilgi kapsamı göstergesi ----------
@@ -138,9 +151,9 @@ main { max-width: 760px; margin: 0 auto; padding: 16px; }
 }
 .kapsam-ust {
     display: flex; justify-content: space-between; align-items: baseline;
-    font-size: 13px; color: var(--yazi2); margin-bottom: 8px;
+    font-size: 0.8125rem; color: var(--yazi2); margin-bottom: 8px;
 }
-.kapsam-ust b { font-size: 18px; color: var(--yazi); }
+.kapsam-ust b { font-size: 1.125rem; color: var(--yazi); }
 .kapsam-cubuk {
     height: 6px; background: var(--kart-ust); border-radius: 999px; overflow: hidden;
 }
@@ -148,7 +161,7 @@ main { max-width: 760px; margin: 0 auto; padding: 16px; }
     display: block; height: 100%; background: var(--vurgu);
     border-radius: 999px; transition: width .25s ease;
 }
-.kapsam-not { font-size: 12px; color: var(--yazi2); margin: 8px 0 0; }
+.kapsam-not { font-size: 0.75rem; color: var(--yazi2); margin: 8px 0 0; }
 
 /* ---------- Katlanır bölümler ---------- */
 .bolum {
@@ -159,7 +172,7 @@ main { max-width: 760px; margin: 0 auto; padding: 16px; }
     width: 100%; display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px; min-height: 52px;
     background: none; border: none; color: var(--yazi);
-    font-size: 15px; font-weight: 600; text-align: left;
+    font-size: 0.9375rem; font-weight: 600; text-align: left;
 }
 .bolum-ok { color: var(--yazi2); transition: transform .2s ease; }
 .bolum.acik .bolum-ok { transform: rotate(180deg); }
@@ -167,7 +180,7 @@ main { max-width: 760px; margin: 0 auto; padding: 16px; }
 .bolum.acik .bolum-govde { display: block; }
 
 .alt-baslik {
-    font-size: 13px; font-weight: 600; color: var(--yazi2);
+    font-size: 0.8125rem; font-weight: 600; color: var(--yazi2);
     margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .4px;
 }
 
@@ -175,13 +188,13 @@ main { max-width: 760px; margin: 0 auto; padding: 16px; }
 .alan { display: block; margin-top: 14px; }
 .etiket {
     display: flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600; margin-bottom: 6px;
+    font-size: 0.875rem; font-weight: 600; margin-bottom: 6px;
 }
 .etiket i { font-style: normal; font-weight: 400; color: var(--yazi2); }
 
 input[type="number"], input[type="text"], select {
     width: 100%; min-height: 46px; padding: 10px 12px;
-    font-family: inherit; font-size: 16px;      /* 16px: iOS yakınlaştırmasın */
+    font-family: inherit; font-size: 1rem;      /* 16px: iOS yakınlaştırmasın */
     background: var(--zemin2); color: var(--yazi);
     border: 1px solid var(--cizgi); border-radius: 10px;
 }
@@ -210,14 +223,14 @@ input.gecersiz, select.gecersiz {
 
 .onay {
     display: flex; align-items: flex-start; gap: 10px;
-    padding: 10px 0; min-height: 44px; font-size: 15px; cursor: pointer;
+    padding: 10px 0; min-height: 44px; font-size: 0.9375rem; cursor: pointer;
 }
 .onay input { width: 20px; height: 20px; margin-top: 2px; flex-shrink: 0; accent-color: var(--vurgu); }
 
 .onay-izgara { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
 .mesafe-izgara { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
 
-.alt-not { font-size: 13px; color: var(--yazi2); margin: 8px 0 0; }
+.alt-not { font-size: 0.8125rem; color: var(--yazi2); margin: 8px 0 0; }
 .alt-not b { color: var(--yazi); }
 .alt-not.vurgulu {
     background: var(--uyari-zemin); border-left: 3px solid var(--uyari);
@@ -227,7 +240,7 @@ input.gecersiz, select.gecersiz {
 .yardim {
     width: 20px; height: 20px; padding: 0; border-radius: 999px;
     background: var(--kart-ust); border: 1px solid var(--cizgi);
-    color: var(--yazi2); font-size: 12px; line-height: 1;
+    color: var(--yazi2); font-size: 0.75rem; line-height: 1;
 }
 
 /* ---------- Hukuki vasıf sonucu ---------- */
@@ -238,11 +251,11 @@ input.gecersiz, select.gecersiz {
 .vasif-kutu.arsa   { background: var(--iyi-zemin);    border-color: var(--iyi); }
 .vasif-kutu.uyari  { background: var(--uyari-zemin);  border-color: var(--uyari); }
 .vasif-kutu.arazi  { background: var(--kritik-zemin); border-color: var(--kritik); }
-.vasif-sonuc { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+.vasif-sonuc { font-size: 1.25rem; font-weight: 700; margin: 0 0 6px; }
 .vasif-kutu.arsa  .vasif-sonuc { color: var(--iyi); }
 .vasif-kutu.uyari .vasif-sonuc { color: var(--uyari); }
 .vasif-kutu.arazi .vasif-sonuc { color: var(--kritik); }
-.vasif-gerekce { font-size: 14px; margin: 0; }
+.vasif-gerekce { font-size: 0.875rem; margin: 0; }
 
 /* ---------- Rapor kartları ---------- */
 /* NE DEĞİŞTİ ŞERİDİ (K-44) */
@@ -260,7 +273,7 @@ input.gecersiz, select.gecersiz {
     background: var(--kart);
 }
 .yenilik-govde { flex: 1 1 240px; min-width: 0; }
-.yenilik-govde p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
+.yenilik-govde p { margin: 4px 0 0; font-size: 0.875rem; line-height: 1.5; }
 .yenilik-dugmeler { display: flex; gap: 8px; flex-wrap: wrap; }
 /* Dokunma hedefi: telefonda 44 px altina inmesin. */
 .yenilik-dugmeler > * {
@@ -274,7 +287,7 @@ input.gecersiz, select.gecersiz {
 .uyari-satir {
     margin: 8px 0 0;
     padding: 8px 10px;
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.5;
     border-left: 3px solid var(--vurgu);
     border-radius: 0 8px 8px 0;
@@ -286,14 +299,14 @@ input.gecersiz, select.gecersiz {
     border-radius: var(--yuvarlak); padding: 16px; margin-bottom: 12px;
 }
 .kart-blok h2 {
-    margin: 0 0 12px; font-size: 15px; font-weight: 700;
+    margin: 0 0 12px; font-size: 0.9375rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: .4px; color: var(--yazi2);
 }
 
 /* Belirsizlik bandı: tek rakam yerine ARALIK gösterilir. */
 .bant { text-align: center; padding: 8px 0 4px; }
-.bant .orta { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
-.bant .aralik { font-size: 14px; color: var(--yazi2); margin-top: 4px; }
+.bant .orta { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+.bant .aralik { font-size: 0.875rem; color: var(--yazi2); margin-top: 4px; }
 .bant .aralik b { color: var(--yazi); font-weight: 600; }
 .bant-cizgi {
     position: relative; height: 6px; margin: 14px 4px 6px;
@@ -310,7 +323,7 @@ input.gecersiz, select.gecersiz {
 
 .satir {
     display: flex; justify-content: space-between; gap: 12px;
-    padding: 10px 0; border-top: 1px solid var(--cizgi); font-size: 14px;
+    padding: 10px 0; border-top: 1px solid var(--cizgi); font-size: 0.875rem;
 }
 .satir:first-child { border-top: none; }
 .satir .ad { color: var(--yazi2); }
@@ -319,7 +332,7 @@ input.gecersiz, select.gecersiz {
 .satir .deger.azalis { color: var(--kritik); }
 
 .etiket-kucuk {
-    display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 4px;
+    display: inline-block; font-size: 0.6875rem; padding: 1px 6px; border-radius: 4px;
     background: var(--kart-ust); color: var(--yazi2); margin-left: 6px;
     vertical-align: middle;
 }
@@ -332,13 +345,13 @@ input.gecersiz, select.gecersiz {
 }
 .bulgu.kritik { border-color: var(--kritik); background: var(--kritik-zemin); }
 .bulgu.uyari  { border-color: var(--uyari);  background: var(--uyari-zemin); }
-.bulgu-baslik { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+.bulgu-baslik { font-weight: 700; font-size: 0.9375rem; margin: 0 0 4px; }
 .bulgu.kritik .bulgu-baslik { color: var(--kritik); }
 .bulgu.uyari  .bulgu-baslik { color: var(--uyari); }
-.bulgu p { margin: 4px 0 0; font-size: 14px; }
+.bulgu p { margin: 4px 0 0; font-size: 0.875rem; }
 .bulgu .yapilacak {
     margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--cizgi);
-    font-size: 13px;
+    font-size: 0.8125rem;
 }
 .bulgu .yapilacak b { display: block; margin-bottom: 2px; color: var(--yazi2); }
 
@@ -347,8 +360,8 @@ input.gecersiz, select.gecersiz {
     flex: 1; min-width: 90px; text-align: center; padding: 10px;
     border-radius: 10px; background: var(--kart-ust); border: 1px solid var(--cizgi);
 }
-.risk-say b { display: block; font-size: 24px; font-weight: 700; }
-.risk-say span { font-size: 12px; color: var(--yazi2); }
+.risk-say b { display: block; font-size: 1.5rem; font-weight: 700; }
+.risk-say span { font-size: 0.75rem; color: var(--yazi2); }
 .risk-say.kritik b { color: var(--kritik); }
 .risk-say.uyari  b { color: var(--uyari); }
 
@@ -365,14 +378,14 @@ input.gecersiz, select.gecersiz {
     border-radius: var(--yuvarlak); padding: 14px; margin-top: 12px;
 }
 .defter-ust { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.defter-ad { font-weight: 700; font-size: 16px; margin: 0; }
-.defter-tarih { font-size: 12px; color: var(--yazi2); }
+.defter-ad { font-weight: 700; font-size: 1rem; margin: 0; }
+.defter-tarih { font-size: 0.75rem; color: var(--yazi2); }
 .defter-sil {
     background: none; border: none; color: var(--yazi2);
-    font-size: 20px; line-height: 1; padding: 4px 8px; min-height: 44px;
+    font-size: 1.25rem; line-height: 1; padding: 4px 8px; min-height: 44px;
 }
 .defter-sil:hover { color: var(--kritik); }
-.defter-satir { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; }
+.defter-satir { display: flex; justify-content: space-between; font-size: 0.875rem; padding: 6px 0; }
 .defter-satir .ad { color: var(--yazi2); }
 
 /* ---------- Yardım katmanı ---------- */
@@ -390,28 +403,28 @@ input.gecersiz, select.gecersiz {
     background: var(--kart); border-radius: var(--yuvarlak);
     padding: 20px; max-width: 480px; width: 100%; max-height: 80vh; overflow-y: auto;
 }
-.katman-kutu h3 { margin: 0 0 10px; font-size: 17px; }
-.katman-kutu p { font-size: 14px; margin: 0 0 10px; }
+.katman-kutu h3 { margin: 0 0 10px; font-size: 1.0625rem; }
+.katman-kutu p { font-size: 0.875rem; margin: 0 0 10px; }
 .katman-kutu .ikincil { width: 100%; margin-top: 10px; }
 
 /* ---------- Hukuk notu ve dip ---------- */
 .hukuk-notu {
-    font-size: 13px; color: var(--yazi2); padding: 14px;
+    font-size: 0.8125rem; color: var(--yazi2); padding: 14px;
     border: 1px solid var(--cizgi); border-radius: var(--yuvarlak);
     background: var(--kart-ust);
 }
 .hukuk-notu b { color: var(--yazi); }
 
-.kaynak-liste { font-size: 12px; color: var(--yazi2); margin-top: 10px; }
+.kaynak-liste { font-size: 0.75rem; color: var(--yazi2); margin-top: 10px; }
 .kaynak-liste li { margin-bottom: 4px; }
 
 .dip {
     max-width: 760px; margin: 24px auto 0; padding: 16px;
-    border-top: 1px solid var(--cizgi); color: var(--yazi2); font-size: 13px;
+    border-top: 1px solid var(--cizgi); color: var(--yazi2); font-size: 0.8125rem;
 }
 .dip p { margin: 0 0 6px; }
 .dip b { color: var(--yazi); }
-.dip .kucuk { font-size: 12px; }
+.dip .kucuk { font-size: 0.75rem; }
 /* Dip bagalantisi olculdugunde 84x16 idi — parmak hedefi olarak cok kucuk.
    Satir ici bagalantiyi kutu yapip dikey bosluk vererek 44 px'e cikariyoruz. */
 .dip a {
@@ -437,7 +450,7 @@ input.gecersiz, select.gecersiz {
 .bayat-serit {
     background: var(--uyari-zemin); border: 1px solid var(--uyari);
     border-radius: var(--yuvarlak); padding: 12px 14px; margin-bottom: 12px;
-    font-size: 14px; color: var(--uyari);
+    font-size: 0.875rem; color: var(--uyari);
 }
 .bayat-serit b { color: var(--uyari); }
 #raporIcerik.bayat, #imarIcerik.bayat { opacity: .45; }
@@ -487,7 +500,7 @@ input.gecersiz, select.gecersiz {
     border-radius: 10px;
     background: var(--kart-zemin, transparent);
 }
-.daraltan-baslik { margin: 0 0 4px; font-size: 15px; }
+.daraltan-baslik { margin: 0 0 4px; font-size: 0.9375rem; }
 .daraltan-not    { margin: 0 0 10px; font-size: .92em; opacity: .9; line-height: 1.5; }
 .daraltan-liste  { margin: 0; padding-left: 20px; }
 .daraltan-liste li { margin: 0 0 12px; }
@@ -656,7 +669,7 @@ input.gecersiz, select.gecersiz {
    getComputedStyle(...).display. */
 /* (Genel kural yukarida; bu satir tarihi kayit olarak duruyor.) */
 
-#baslamadiUyari > div { max-width: 34rem; font-size: 15px; line-height: 1.55; }
+#baslamadiUyari > div { max-width: 34rem; font-size: 0.9375rem; line-height: 1.55; }
 #baslamadiUyari p { margin: 10px 0; }
 #baslamadiUyari button {
     margin-top: 12px; min-height: 48px; padding: 10px 18px;
@@ -669,9 +682,9 @@ input.gecersiz, select.gecersiz {
 /* Resmî taban değer bölümü — emsal fiyatı bilmeyen kullanıcı için.
    Kapalı başlıyor: veri ancak açılınca iniyor (84 KB). */
 .resmi-taban { margin: 10px 0 4px; border: 1px solid var(--kenar); border-radius: 10px; background: var(--zemin2); }
-.resmi-taban > summary { padding: 10px 12px; cursor: pointer; font-size: 15px; }
+.resmi-taban > summary { padding: 10px 12px; cursor: pointer; font-size: 0.9375rem; }
 .resmi-ic { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px; }
-.resmi-sonuc { margin: 0; font-size: 15px; line-height: 1.5; }
+.resmi-sonuc { margin: 0; font-size: 0.9375rem; line-height: 1.5; }
 .resmi-taban .ikincil { align-self: flex-start; }
 .resmi-taban .ikincil[disabled] { opacity: .5; cursor: not-allowed; }
 
@@ -687,3 +700,44 @@ input.gecersiz, select.gecersiz {
    İNANDIRICI ama uydurma değerler gösteriyordu. */
 .defter-kart.defter-bozuk { border-color: #c68a2e; background: #fdf6e7; }
 .defter-kart.defter-bozuk .defter-tarih { color: #8a5d10; font-style: italic; }
+
+
+/* UZUN PARSEL ADI SAYFAYI YANA KAYDIRIYORDU.
+   Ölçüldü (29.08.2026): boşluksuz 72 karakterlik bir kayıt adı
+   defter kartını 810 px yapıyor, pencere 731 px — sayfa 150 px yana
+   kayıyor ve SİLME DÜĞMESİ ekran dışına itiliyordu (sağ kenarı 880).
+   Telefonda daha kötü.
+
+   İki ayrı sebep birlikte çalışıyordu, ikisi de düzeltilmeli:
+   1) `.defter-ust` bir flex kutusu ve çocuğunun varsayılan
+      `min-width: auto` değeri, içeriğin doğal genişliğinin ALTINA
+      inmesini engelliyor — kutu küçülemiyor.
+   2) `.defter-ad` içindeki boşluksuz kelime `overflow-wrap: normal`
+      ile kırılamıyor.
+   Yalnız birini düzeltmek yetmez: min-width açılsa kelime yine
+   taşar, kelime kırılsa kutu yine küçülmez.
+
+   Boşluklu uzun adlar (615 px) zaten sarıyordu ve onlara
+   dokunulmuyor — ters dal ölçüldü. */
+.defter-ust > div { min-width: 0; }
+.defter-ad {
+    overflow-wrap: anywhere;
+    word-break: break-word;   /* eski tarayıcılar için */
+}
+.defter-sil { flex: 0 0 auto; }
+
+/* ONAY KUTUSU ETİKETİ BÜYÜK YAZIDA KESİLİYORDU.
+   Ölçüldü (29.08.2026, 375 px genişlik + %200 yazı): `.onay` bir flex
+   kutusu ve metin çocuğunun varsayılan `min-width: auto` değeri
+   küçülmesini engelliyor; etiket 438 px'e ulaşıp ekranın 63 px
+   dışına taşıyordu. Sayfa yana KAYMADIĞI için kullanıcı taşan yazıya
+   ulaşamıyor — yani metin sessizce kesiliyordu.
+
+   Aynı sebep `.onay-izgara`da da var: ızgara çocukları da varsayılan
+   olarak içeriğinin altına inmez.
+
+   Bu, defter kartındaki uzun ad tuzağının aynısı — aynı gün ikinci
+   kez. Sınıf: "flex/grid çocuğu varsayılan min-width ile küçülemez". */
+.onay > span, .onay > * { min-width: 0; }
+.onay { overflow-wrap: anywhere; }
+.onay-izgara > * { min-width: 0; }

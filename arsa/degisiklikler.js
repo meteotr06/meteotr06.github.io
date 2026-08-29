@@ -26,6 +26,26 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 69,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Telefonunuzda yazıyı büyüttüyseniz artık uygulama da büyüyor',
+        maddeler: [
+            'Telefon veya tarayıcı ayarından yazı boyutunu büyüttüyseniz ' +
+            'uygulama bunu YOK SAYIYORDU — yazılar hep aynı kalıyordu. ' +
+            'Artık sizin ayarınıza uyuyor.',
+
+            'Uzun parsel adı yazdığınızda defter kartı ekranın dışına ' +
+            'taşıyor ve SİLME düğmesi görünmez oluyordu. Düzeltildi.',
+
+            'Yazıyı iki katına çıkardığınızda onay kutularının yazısı ' +
+            'ekranın dışında kalıyor ve okunamıyordu. Düzeltildi.',
+
+            'Ölçüldü: telefon boyutunda %100, %150 ve %200 yazıda hiçbir ' +
+            'şey ekran dışına taşmıyor.'
+        ]
+    },
+    {
         surum: 64,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,
