@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v63";
+const SURUM = "arsa-v64";
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"
@@ -106,8 +106,29 @@ self.addEventListener("fetch", (olay) => {
     // Bu, yayında en sinsi hata türü: düzeltmeyi yaparsın, testler geçer,
     // kullanıcı hâlâ hatalı sürümü çalıştırır. Şimdi en fazla BİR açılış
     // eski kalıyor, sonraki açılışta kendini düzeltiyor.
+    // DAMGA UYUSMAZSA ONBELLEK KACIRIR -- `ignoreSearch` sart.
+    //
+    // Olculdu (29.08.2026), gercek onbellek uzerinde:
+    //     /cekirdek.js            -> BULUNAMADI  (damgasiz istek)
+    //     /cekirdek.js?v=63       -> bulundu     (dogru damga)
+    //     /cekirdek.js?v=999      -> BULUNAMADI  (baska damga)
+    //     /cekirdek.js?v=999 + ignoreSearch -> bulundu
+    //     /yok.js + ignoreSearch  -> bulunamadi  (ters dal: her seye
+    //                                             "var" demiyor)
+    //
+    // Tehlikeli pencere: yeni surum yayinlaninca on onbellek "?v=64"
+    // ile dolar ve eski onbellek silinir. Ama kullanicinin elindeki
+    // SAYFA hala eski olabilir ve "?v=63" ister. Damgalar uyusmaz,
+    // onbellek kacirir, aga duser -- ve kullanici o an CEVRIMDISIYSA
+    // uygulama ACILMAZ. Tam da cevrimdisi katmaninin var olma sebebi
+    // olan anda calismamis olur.
+    //
+    // `ignoreSearch` ile eski damgali istek, onbellekteki YENI kopyayi
+    // alir: hem cevrimdisi calisir hem daha guncel kodu kullanir.
+    // (05 oturumu ayni gun kendi tarafinda bu kurali sinamis ve
+    // niye sart oldugunu ayni sekilde olcmus.)
     olay.respondWith(
-        caches.match(istek).then(y => {
+        caches.match(istek, { ignoreSearch: true }).then(y => {
             const agdan = fetch(istek).then(cevap => {
                 const kopya = cevap.clone();
                 caches.open(SURUM).then(k => k.put(istek, kopya)).catch(() => {});

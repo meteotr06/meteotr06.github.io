@@ -26,6 +26,25 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 64,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Güncelleme sonrası çevrimdışı açılmama riski kapatıldı',
+        maddeler: [
+            'Yeni bir sürüm yayınlandıktan hemen sonra, elinizde hâlâ ' +
+            'eski sayfa varken interneti kaybederseniz uygulama ' +
+            'AÇILMAYABİLİRDİ — çevrimdışı katmanı, sayfanın istediği ' +
+            'sürüm etiketiyle kendi kaydettiğini eşleştiremiyordu.',
+
+            'Tam da çevrimdışı çalışmanın gerektiği anda çalışmaması ' +
+            'demekti. Artık etiket uyuşmasa bile kaydedilmiş dosya ' +
+            'kullanılıyor.',
+
+            'Ölçüldü: ağ kapatıldı, eski etiketli üç dosya da ' +
+            'açıldı; olmayan bir dosya ise doğru şekilde açılmadı.'
+        ]
+    },
+    {
         surum: 59,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,
