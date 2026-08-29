@@ -65,10 +65,10 @@ var DEGISIKLIKLER = [
         hesapDuzeltmesi: false,
         baslik: 'Sayılar Türkçe yazımla gösteriliyor — yanlış okunmasınlar diye',
         maddeler: [
-            'Bazı sayılar "930.8 m²" gibi NOKTALI yazılıyordu. Türkçede ' +
-            'nokta binlik ayırıcıdır; bunu 9.308 diye okumak çok kolay. ' +
-            'Sayı doğruydu ama yazımı yanlış okunmaya açıktı. Artık ' +
-            '"930,8 m²" yazıyor.',
+            'Bazı ondalıklı sayılar virgül yerine NOKTA ile yazılıyordu. ' +
+            'Türkçede nokta binlik ayırıcıdır; böyle yazılan bir sayıyı ' +
+            'bin kat büyük okumak çok kolaydır. Sayı doğruydu ama yazımı ' +
+            'yanlış okunmaya açıktı. Artık hepsi virgülle yazılıyor.',
 
             '"Tahmini kat adedi" 7,1 gibi kesirli çıkabiliyordu — 0,1 kat ' +
             'diye bir şey yok. Üstelik aynı ekrandaki bahçe mesafeleri ' +
