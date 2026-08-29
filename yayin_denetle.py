@@ -282,6 +282,49 @@ def kopyalanmamis(kaynak_klasor, depo_klasor):
     return sorted(farkli)
 
 
+def damga_donmus(kaynak_klasor, depo_klasor, degisenler):
+    """UCUNCU HALKA: icerik degisti ama ETIKET ayni mi?
+
+    Olculdu (29.08.2026): 09'da `sayfa.js` ve `stil.css` duzeltilmisti
+    ama `index.html` hala `?v=83` istiyordu. Dosyalari kopyalayip
+    push etmek YETMEZDI: tarayici ayni adresi yeniden istemez,
+    onbellekteki ESKI kopyayi kullanir. Duzeltme canlida durur,
+    KULLANICIYA ULASMAZ -- ve her iki nobetci de yesil gorunurdu.
+
+    Damgalama stratejisine karismaz: yalnizca "icerigi degisen bir
+    dosyanin etiketi AYNI kalmis mi" diye sorar. Dosya basina
+    damgalayan proje de bu soruya dogru cevap verir.
+    """
+    if not degisenler or not kaynak_klasor or depo_klasor is None:
+        return []
+    yay = os.path.join(KOK, depo_klasor)
+    def etiketler(klasor):
+        d = {}
+        for ad in os.listdir(klasor):
+            if not ad.endswith(".html"):
+                continue
+            try:
+                m = io.open(os.path.join(klasor, ad), encoding="utf-8", errors="ignore").read()
+            except Exception:
+                continue
+            kalip = ("(?:src|href)" + chr(92) + "s*=" + chr(92) + "s*[" +
+                     chr(34) + chr(39) + "]([" + chr(92) + "w." + chr(92) +
+                     "-/]+)" + chr(92) + "?v=(" + chr(92) + "d+)")
+            for dosya, sur in re.findall(kalip, m):
+                d.setdefault(dosya.lstrip("./"), set()).add(sur)
+        return d
+    try:
+        ek, ey = etiketler(kaynak_klasor), etiketler(yay)
+    except Exception:
+        return []
+    donmus = []
+    for r in degisenler:
+        a, b = ek.get(r), ey.get(r)
+        if a and b and a == b:
+            donmus.append("%s (?v=%s)" % (r, sorted(a)[0]))
+    return donmus
+
+
 def icerik_karsilastir(kaynak_klasor, depo_klasor, yol, canli_html):
     """Kullanici ESKI dosya mi aliyor? Dogrudan bunu olcer.
 
@@ -381,6 +424,7 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
     # Artık SONUCA bakıyor: yereldeki dosya ile canlıdaki dosya aynı mı.
     # Bu, damgalama stratejisinden bağımsız ve damgasız projede de çalışır.
     kopyasiz = kopyalanmamis(kaynak, depo)
+    donmus = damga_donmus(kaynak, depo, kopyasiz)
     farkli, bakilan = icerik_karsilastir(kaynak, depo, yol, govde)
     if farkli:
         # ZAMAN TUZAGI. Bu bulgu, push'tan hemen sonra kosulursa YANLIS
@@ -410,6 +454,13 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
                         "düzeltmez.)"
                         % (", ".join(kopyasiz[:4]),
                            "" if len(kopyasiz) <= 4 else " +%d" % (len(kopyasiz)-4)))
+
+    if donmus:
+        # UCUNCU HALKA: kopyalasan ve push etsen bile ULASMAZ.
+        bulgular.append("DAMGA DA DONMUŞ: %s — içeriği değişmiş ama etiketi "
+                        "aynı. Kopyalayıp push etseniz bile ÖNBELLEKLİ "
+                        "KULLANICI eski dosyayı kullanmaya devam eder. "
+                        "Önce damgayı yükseltin." % ", ".join(donmus[:3]))
 
     def notlari_ekle(satirlar):
         for n in notlar:
