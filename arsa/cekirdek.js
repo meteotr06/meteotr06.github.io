@@ -1288,7 +1288,23 @@ function deger_analizi(emsal, hedef) {
     bant = Math.max(bant, yayilim.yayilim_yuzde / 100);
   }
 
-  if (bant > 0.60) bant = 0.60;
+  /* BANT TAVANI — ve tavanin sessiz yalani.
+     Olculdu (29.08.2026, 4000 parsellik supurme): yukaridaki
+     `Math.max(bant, ayrisma)` satirlarinin AMACI, bandin bilinen
+     ayrismayi KAPSAMASIYDI. Buradaki kirpma o amaci sessizce geri
+     aliyordu. En kotu ornek:
+         carpan  362.552 TL/m2
+         nominal  32.752 TL/m2
+         ekranda 79.061 - 316.243 TL/m2  (±%60)
+     Uygulama, KENDI IKI TAHMINININ IKISINI DE gosterdigi araligin
+     disinda birakiyordu; ustelik ayni ekranda "iki yontem arasi
+     fark %166,9" yaziyordu. 4000 parselin 65'inde (%1,6) oldu.
+
+     Tavan kalkmiyor: ±%167'lik bir aralik kullaniciya bilgi degil.
+     Ama kirpildigi ANDA bunu SOYLEMEK zorundayiz. */
+  var BANT_TAVANI = 0.60;
+  var bant_kirpildi = false;
+  if (bant > BANT_TAVANI) { bant = BANT_TAVANI; bant_kirpildi = true; }
 
   var alan = sayi(hedef && hedef.alan);
   var sonuc = {
@@ -1307,6 +1323,23 @@ function deger_analizi(emsal, hedef) {
     carpan: carpan_sonuc,
     nominal: nominal_sonuc
   };
+
+  /* DEGISMEZ KURAL: gosterilen aralik, kendisini ureten her tahmini
+     KAPSAMALIDIR. Kapsamiyorsa aralik bir olcu degil, bir yanilticidir.
+     Bunu varsaymiyoruz -- her hesapta OLCUYORUZ. */
+  var kapsanmayan = tahminler.filter(function (v) {
+    return v < sonuc.birim_fiyat.alt || v > sonuc.birim_fiyat.ust;
+  });
+  if (kapsanmayan.length > 0) {
+    sonuc.aralik_kapsamiyor = true;
+    sonuc.aralik_disi_tahmin = kapsanmayan.map(function (v) { return yuvarla(v, 0); });
+    sonuc.aralik_sebep =
+      'İki yöntem birbirinden çok uzak (%' + tr_sayi(sonuc.ayrisma_yuzde, 1) +
+      '). Bu farkı dürüstçe kapsayan bir aralık, karar verilemeyecek kadar ' +
+      'geniş olurdu; dar bir aralık ise yanıltıcı olurdu. Bu parsel için ' +
+      'TEK BİR ARALIK VERMİYORUZ — iki tahmini ayrı ayrı gösteriyoruz.';
+  }
+  if (bant_kirpildi) sonuc.bant_kirpildi = true;
 
   if (alan && alan > 0) {
     sonuc.alan = alan;

@@ -870,6 +870,25 @@ function deger_karti(an, g, ek_kutu) {
         return k;
     }
 
+    /* ARALIK KENDI TAHMINLERINI KAPSAMIYORSA ARALIK GOSTERILMEZ.
+       Olculdu (29.08.2026): cekirdek 4000 parselin 65'inde, gosterdigi
+       araligin disinda kalan bir tahminle sonuc uretiyordu -- ustelik
+       ayni ekranda "iki yontem arasi fark %166,9" yaziyordu. Kullanici
+       iki celiskili sayiyi yan yana goruyordu. Tek bir sayiya
+       yuvarlamak yerine BILMEDIGIMIZI soyluyoruz. */
+    if (an.aralik_kapsamiyor) {
+        var uy = el('div', 'bant aralik-yok');
+        uy.appendChild(el('div', 'orta', 'Tek bir aralık veremiyoruz'));
+        uy.appendChild(el('p', 'alt-not', an.aralik_sebep));
+        var iki = el('div', 'aralik');
+        iki.innerHTML =
+            (an.yontemler.carpan !== null
+                ? 'Emsal düzeltme yöntemi: <b>' + tl(an.yontemler.carpan) + '</b>/m²<br>' : '') +
+            (an.yontemler.nominal !== null
+                ? 'Nominal puanlama yöntemi: <b>' + tl(an.yontemler.nominal) + '</b>/m²' : '');
+        uy.appendChild(iki);
+        k.appendChild(uy);
+    } else {
     var b = el('div', 'bant');
     b.appendChild(el('div', 'orta', tl(an.birim_fiyat.orta) + '/m²'));
     var ar = el('div', 'aralik');
@@ -877,8 +896,12 @@ function deger_karti(an, g, ek_kutu) {
                    tl(an.birim_fiyat.ust) + '</b> arasında  (±' + yuzde(an.bant_yuzde) + ')';
     b.appendChild(ar);
     k.appendChild(b);
+    }
 
     /* Bandı görselleştir: ne kadar geniş olduğu göze görünsün. */
+    /* Serit, aralik reddedildiyse cizilmez: %60'lik bir serit,
+       reddettigimiz araligi goze yeniden sokar. */
+    if (!an.aralik_kapsamiyor) {
     var cz = el('div', 'bant-cizgi');
     var dolgu = el('i');
     var genislik = Math.min(100, an.bant_yuzde * 2);
@@ -888,6 +911,7 @@ function deger_karti(an, g, ek_kutu) {
     var isaret = el('u'); isaret.style.left = 'calc(50% - 1px)';
     cz.appendChild(isaret);
     k.appendChild(cz);
+    }
 
     /* "Aralığı daraltmak için" kutusu BURAYA girer — bandın hemen altına.
        Ölçüldü: kartın sonuna konduğunda y=3983'te kalıyordu, büyük sayı
@@ -895,7 +919,19 @@ function deger_karti(an, g, ek_kutu) {
        yapmalıyım"; cevabın 2.400 px aşağıda olması cevap sayılmaz. */
     if (ek_kutu) k.appendChild(ek_kutu);
 
-    if (an.toplam_deger) {
+    if (an.toplam_deger && an.aralik_kapsamiyor) {
+        /* Ortalamanin toplami, reddettigimiz orta noktanin ta kendisidir.
+           Reddettigimiz sayiyi alan ile carpip geri sunmak, redde ragmen
+           ayni yanilticiligi buyuterek tekrarlamak olur. */
+        if (an.yontemler.carpan !== null) {
+            satir_ekle(k, g.alan + ' m² · emsal düzeltme',
+                       tl(Math.round(an.yontemler.carpan * an.alan)));
+        }
+        if (an.yontemler.nominal !== null) {
+            satir_ekle(k, g.alan + ' m² · nominal puanlama',
+                       tl(Math.round(an.yontemler.nominal * an.alan)));
+        }
+    } else if (an.toplam_deger) {
         satir_ekle(k, g.alan + ' m² için toplam', tl(an.toplam_deger.orta));
     }
 

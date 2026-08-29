@@ -627,3 +627,10 @@ input.gecersiz, select.gecersiz {
 .resmi-sonuc { margin: 0; font-size: 15px; line-height: 1.5; }
 .resmi-taban .ikincil { align-self: flex-start; }
 .resmi-taban .ikincil[disabled] { opacity: .5; cursor: not-allowed; }
+
+/* Aralık verilemeyen parsel — dikkat çeksin ama alarm olmasın.
+   Ölçüldü (29.08.2026): iki yöntem %60'tan fazla ayrıştığında tek bir
+   aralık göstermek, kendi tahminlerimizi dışarıda bırakıyordu. */
+.bant.aralik-yok { border-color: #c68a2e; background: #fdf6e7; }
+.bant.aralik-yok .orta { font-size: 1.15rem; color: #8a5d10; }
+.bant.aralik-yok .aralik { margin-top: .5rem; line-height: 1.7; }

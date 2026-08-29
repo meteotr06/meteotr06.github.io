@@ -26,6 +26,30 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 49,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: true,
+        baslik: 'İki yöntem çok ayrışırsa artık tek bir aralık vermiyoruz',
+        maddeler: [
+            'Uygulama parselinizi iki bağımsız yöntemle değerlendiriyor. ' +
+            'Bu iki yöntem bazen birbirinden çok uzak sonuç veriyor. ' +
+            'Eskiden bu durumda yine tek bir aralık gösteriyorduk ve ' +
+            'gösterdiğimiz aralık, kendi tahminlerimizden birini ' +
+            'DIŞARIDA bırakabiliyordu.',
+
+            'Artık böyle bir parselde "tek bir aralık veremiyoruz" diyoruz ' +
+            've iki tahmini ayrı ayrı gösteriyoruz. Dar bir aralık ' +
+            'yanıltıcı olurdu; dürüstçe geniş bir aralık ise karar ' +
+            'verilemeyecek kadar geniş olurdu.',
+
+            'Ölçüm notu: bu durumun bugünkü uygulamada oluşmadığını ' +
+            'ölçtük (62.208 seçenek bileşimi tarandı; en büyük ayrışma ' +
+            '%108,9, koruma %120 üzerinde devreye giriyor). Koruma, ' +
+            'resmî rayiç verisi gerçek emsalleri getirdiğinde gerekecek ' +
+            'diye şimdiden kondu.'
+        ]
+    },
+    {
         surum: 42,
         tarih: '28 Ağustos 2026',
         ozet: 'Yarım kalan parseliniz artık kayboluyor değil: sayfa ' +

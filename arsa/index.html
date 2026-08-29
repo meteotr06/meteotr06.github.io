@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Arsa Rehberi" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="application-name" content="Arsa Rehberi" />
-<link rel="stylesheet" href="stil.css?v=48" />
+<link rel="stylesheet" href="stil.css?v=49" />
 </head>
 <body>
 
@@ -317,11 +317,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=48"></script>
-<script src="cekirdek.js?v=48"></script>
-<script src="mevzuat.js?v=48"></script>
-<script src="rayic.js?v=48"></script>
-    <script src="arayuz.js?v=48"></script>
+<script src="degisiklikler.js?v=49" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=49" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=49" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=49" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=49" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */
@@ -360,21 +360,54 @@ if ("serviceWorker" in navigator) {
 </div>
 <script>
 (function () {
-  var basi = Date.now(), bitisAni = 0;
+  /* SURE DEGIL DURUM — ve artik TAHMIN DE DEGIL, OLCUM.
+     Eski hali "yukleme bitti + 1,5 saniye daha gecti, hala yoksa
+     bozuktur" diyordu. Iki kusuru vardi:
+       1) Sabir SURE ile olculuyordu. Magaza ekran goruntusu ureten
+          arac sanal saat kullaniyor (--virtual-time-budget): saat
+          hizli akiyor, AG gercek zamanda calisiyor. 1,9 saniyelik
+          sabir goz acip kapayana kadar tukeniyor ve uyari, dosyalar
+          gelmeden aciliyordu. UC MAGAZA GORUNTUSUNUN UCUNDE DE
+          "hesaplama calismiyor" yaziyordu -- altinda sayilar
+          hesaplanmis dururken. Koruma, korudugu hatayi taklit
+          ediyordu (ayni tuzak 05'te de yasanmisti).
+       2) Bir kez gosterdikten sonra BIR DAHA BAKMIYORDU.
+
+     Artik beklemiyoruz: 'load' aninda betikler ya calismistir ya da
+     onerror ile hata bildirmistir. Ucuncu bir ihtimal yok. */
+  var basi = Date.now();
   function saglamMi() { return !!(window.Cekirdek && window.Mevzuat); }
+  function hataBildirildi() {
+    return !!(window.__betikHata && window.__betikHata.length);
+  }
   function bak() {
-    if (saglamMi()) return;
-    if (document.readyState !== 'complete') {
-      bitisAni = 0;
+    if (saglamMi()) { gizle(); return; }
+    /* Yukleme bitmediyse karar verilmez -- ama betik zaten hata
+       bildirmisse beklemenin anlami yok. */
+    if (document.readyState !== 'complete' && !hataBildirildi()) {
       if (Date.now() - basi < 60000) setTimeout(bak, 250);
       return;
     }
-    if (!bitisAni) bitisAni = Date.now();
-    if (Date.now() - bitisAni < 1500) { setTimeout(bak, 250); return; }
 
     var u = document.getElementById('baslamadiUyari');
     if (!u) return;
     u.hidden = false;
+
+    /* GOSTERDIKTEN SONRA DA BAKMAYA DEVAM ET.
+       Olculdu (29.08.2026): magaza ekran goruntusu uretilirken bu uyari
+       CALISAN uygulamanin ustunde cikti -- altinda sayilar hesaplanmis
+       duruyordu (526 TL/m2, aralik, iki yontem). Yavas yuklemede uyari
+       aciliyor, dosyalar bir saniye sonra geliyor, ama uyari EKRANDA
+       KALIYORDU: kod bir kez gosterdikten sonra bir daha bakmiyordu.
+       Kullanici calisan uygulamaya "bozuk" diyen bir ekran goruyor.
+       Korumanin kendisi, korudugu hatayi taklit ediyordu.
+       Artik toparlanirsa uyari kendiliginden kapanir. */
+    /* Gosterdikten sonra da bakmaya devam et: yavas agda dosyalar
+       sonradan gelirse uyari kendiliginden kapansin. */
+    (function bekle() {
+      if (saglamMi()) { gizle(); return; }
+      if (Date.now() - basi < 60000) setTimeout(bekle, 300);
+    }());
     var d = document.getElementById('baslamadiYenile');
     if (!d) return;
     d.addEventListener('click', function () {
@@ -395,7 +428,14 @@ if ("serviceWorker" in navigator) {
         .then(function () { location.reload(true); });
     });
   }
-  setTimeout(bak, 400);
+  function gizle() {
+    var u = document.getElementById('baslamadiUyari');
+    if (u) u.hidden = true;
+  }
+  if (document.readyState === 'complete') bak();
+  else window.addEventListener('load', bak);
+  /* Yuklenme hic bitmezse (ag asili kaldi) yine de bir kere bak. */
+  setTimeout(bak, 20000);
 }());
 </script>
 
