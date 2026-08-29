@@ -403,11 +403,30 @@ def sitemap_denetle():
     adresler = sorted(set(a for a in adresler if not a.endswith(".xml")))
     kirik = []
     damgalar = {}          # damga -> ornek adres
+    kimliksiz = []
     for a in adresler:
         k3, g3 = getir(a)
         if k3 != 200:
             kirik.append("%s (HTTP %s)" % (a.replace(CANLI, ""), k3))
             continue
+
+        # KENDI KIMLIGINI TASIYOR MU? (22 numarali oturumun fikri)
+        # 200 donmesi sayfanin DOGRU sayfa oldugunu gostermez. Servis
+        # calisani ya da 404 yedegi devreye girmisse istenen adres
+        # ACILIR ama iceride BASKA bir sayfa durur -- ve kullanici
+        # yanlis araci kullanir. Kanonik adres bunu ele verir:
+        # her sayfa kendi adresini kanonik gosterir, yedege dusen
+        # sayfa baskasinin adresini tasir.
+        Q2 = chr(91) + chr(34) + chr(39) + chr(93)      # ["']
+        kal = ("<link[^>]+rel=" + Q2 + "canonical" + Q2 +
+               "[^>]+href=" + Q2 + "([^" + chr(34) + chr(39) + "]+)")
+        kan = re.search(kal, g3)
+        if kan:
+            beklenen = a.split("?")[0].rstrip("/")
+            gelen = kan.group(1).split("?")[0].rstrip("/")
+            if beklenen != gelen:
+                kimliksiz.append("%s -> kendini %s saniyor"
+                                 % (beklenen.replace(CANLI, ""), gelen.replace(CANLI, "")))
         # ASIMETRI (f2'nin notu): "surum artti mi" diye bakmak yetmiyor,
         # "artti ama bir sayfa geride mi kaldi" diye de sormak gerek.
         # Nobetci uygulama basina TEK sayfa cekiyordu; alt sayfalar
@@ -425,7 +444,15 @@ def sitemap_denetle():
     # Sayfalar arasi DAMGA karsilastirmasi KALDIRILDI: dosya basina
     # damgalayan projede yanlis alarm veriyordu. Hukum artik icerik
     # karsilastirmasindan geliyor (bkz. icerik_karsilastir).
-    return ["  %s sitemap: %d adresin %d'i açılıyor" % (TIK, len(adresler), len(adresler))], 0
+    if kimliksiz:
+        satirlar = ["  %s %d sayfa KENDI KIMLIGINI tasimiyor (200 donuyor ama "
+                    "iceride baska sayfa var):" % (CARPI, len(kimliksiz))]
+        satirlar += ["      " + x for x in kimliksiz[:6]]
+        if len(kimliksiz) > 6:
+            satirlar.append("      ... ve %d tane daha" % (len(kimliksiz) - 6))
+        return satirlar, len(kimliksiz)
+    return ["  %s sitemap: %d adresin %d'i açılıyor ve kendi kimliğini taşıyor"
+            % (TIK, len(adresler), len(adresler))], 0
 
 
 def main():
