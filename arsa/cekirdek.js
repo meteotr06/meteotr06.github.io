@@ -998,12 +998,16 @@ var NOMINAL_PUANLAYICI = {
 /* Bir parselin nominal puanini (0-100) hesaplar.
    Bilinmeyen faktorler DISLANIR ve agirliklar yeniden normalize edilir;
    boylece eksik bilgi puani haksiz yere dusurmez, sadece belirsizligi artirir. */
-function nominal_puan(parsel) {
+function nominal_puan(parsel, sadece) {
   parsel = parsel || {};
   var kalemler = [], eksik = [];
   var agirlik_toplami = 0, puan_toplami = 0;
 
   Object.keys(NOMINAL_AGIRLIK).forEach(function (k) {
+    /* ORTAK KUME KISITI (29.08.2026). `sadece` verilirse yalnizca o
+       faktorler puanlanir. Sebep asagida, nominal_oran icinde yazili:
+       emsal ile hedef AYNI faktor kumesi uzerinden karsilastirilmali. */
+    if (sadece && sadece.indexOf(k) === -1) return;
     var tanim = NOMINAL_AGIRLIK[k];
     var puanlayici = NOMINAL_PUANLAYICI[k];
     var p = null;
@@ -1129,8 +1133,47 @@ function deger_nominal(emsal, hedef) {
     };
   }
 
-  var pe = nominal_puan(emsal);
-  var ph = nominal_puan(hedef);
+  /* ═══ EMSAL VE HEDEF AYNI FAKTOR KUMESINDE PUANLANIR ═══
+     OLCULDU (29.08.2026): emsal parsel 15 nominal faktorun HEPSINI
+     dolduruyor (`emsal_kur`), hedef ise kullanicinin doldurmadigini
+     `undefined` birakiyor. Iki puan AYRI kumeler uzerinden
+     hesaplaniyordu ve sonuc su oldu:
+
+         emsalin BIREBIR AYNISI hedef        -> oran 1,0000  (dogru)
+         ayni parsel, 4. bolum BOS birakildi -> oran 1,1054
+
+     Yani hicbir sey degismeden, sirf CEVAPLAMAMAK parseli %10,5 daha
+     degerli gosteriyordu. Sebep: emsalin sabitlerinde DUSUK puanlilar
+     var (ada ici 'ara' = 0 puan, manzara yok = 0 puan, merkez 500 m =
+     1 puan); bunlar emsalin ortalamasini asagi cekiyor. Hedef ayni
+     alanlari bos birakinca o cekisten KURTULUYOR ve ustune cikiyor.
+
+     Uygulama tam tersini vaat ediyor: "hesaba katilmaz ve bant
+     genisler". Bant gercekten genisliyordu -- ama MERKEZ de kayiyordu,
+     ve kaymis bir merkezi genis bant duzeltmez.
+
+     Cozum, bu dosyanin NOMINAL_KOR_NOKTA yorumunda zaten yazili olan
+     ilkenin ta kendisi: "boylece yontemler AYNI BILGIYI gorur ve
+     aralarindaki fark GERCEK belirsizligi olcer, bilgi farkini degil."
+     Ayni ilke yontemler arasinda uygulanmisti, PARSELLER arasinda
+     uygulanmamisti. Simdi ortak kume kuruluyor. */
+  var pe0 = nominal_puan(emsal);
+  var ph0 = nominal_puan(hedef);
+  if (pe0.hata) return { hata: 'Emsal parsel için: ' + pe0.hata };
+  if (ph0.hata) return { hata: 'Hedef parsel için: ' + ph0.hata };
+
+  var eAnahtar = (pe0.kalemler || []).map(function (x) { return x.anahtar; });
+  var hAnahtar = (ph0.kalemler || []).map(function (x) { return x.anahtar; });
+  var ortak = eAnahtar.filter(function (k) { return hAnahtar.indexOf(k) !== -1; });
+  if (ortak.length === 0) {
+    return { hata: 'Emsal ile hedefin ortak bildiği hiçbir faktör yok; ' +
+                   'nominal karşılaştırma kurulamaz.' };
+  }
+  var disarida = eAnahtar.filter(function (k) { return ortak.indexOf(k) === -1; })
+    .concat(hAnahtar.filter(function (k) { return ortak.indexOf(k) === -1; }));
+
+  var pe = nominal_puan(emsal, ortak);
+  var ph = nominal_puan(hedef, ortak);
   if (pe.hata) return { hata: 'Emsal parsel için: ' + pe.hata };
   if (ph.hata) return { hata: 'Hedef parsel için: ' + ph.hata };
   if (pe.puan <= 0) {
@@ -1153,6 +1196,8 @@ function deger_nominal(emsal, hedef) {
     net_etki_yuzde: yuvarla((oran - 1) * 100, 1),
     birim_fiyat: yuvarla(birim * oran, 0),
     kapsam_yuzde: Math.min(pe.kapsam_yuzde, ph.kapsam_yuzde),
+    ortak_faktor_sayisi: ortak.length,
+    adalet_icin_dislanan: disarida,
     emsal_kalemler: pe.kalemler,
     hedef_kalemler: ph.kalemler,
     eksik: ph.eksik,
