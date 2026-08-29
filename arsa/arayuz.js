@@ -1235,7 +1235,17 @@ function sekme_ac(hedef) {
         s.classList.toggle('aktif', s.id === hedef);
     });
     document.querySelectorAll('.sekme').forEach(function (b) {
-        b.classList.toggle('aktif', b.dataset.hedef === hedef);
+        var secili = (b.dataset.hedef === hedef);
+        b.classList.toggle('aktif', secili);
+        /* GORUNUS TEK BASINA YETMEZ.
+           Olculdu (29.08.2026): sayfa `role="tablist"` / `role="tab"` ile
+           sekme desenini ILAN ediyordu ama geregini yapmiyordu --
+           `aria-selected` hicbirinde yoktu. Ekran okuyucu dort sekme
+           sayiyor, hangisinde oldugunu SOYLEYEMIYORDU. Ilan edilip
+           yerine getirilmeyen bir desen, hic ilan etmemekten kotudur:
+           yardimci teknoloji o desenin kurallarina gore davranir.
+           Etkin sekme artik hem RENKLE hem SOZLE belli. */
+        b.setAttribute('aria-selected', secili ? 'true' : 'false');
     });
     window.scrollTo(0, 0);
 }

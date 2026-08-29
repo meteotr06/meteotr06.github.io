@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Arsa Rehberi" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="application-name" content="Arsa Rehberi" />
-<link rel="stylesheet" href="stil.css?v=51" />
+<link rel="stylesheet" href="stil.css?v=52" />
 </head>
 <body>
 
@@ -31,10 +31,10 @@
 <!-- Gezinti: telefonda ekranın altında sabit (başparmak oraya uzanır),
      büyük ekranda üstte hap şeklinde. -->
 <nav class="sekmeler" role="tablist">
-    <button class="sekme aktif" data-hedef="sParsel" role="tab"><span>Parsel</span></button>
-    <button class="sekme" data-hedef="sRapor"  role="tab"><span>Rapor</span></button>
-    <button class="sekme" data-hedef="sImar"   role="tab"><span>İmar</span></button>
-    <button class="sekme" data-hedef="sDefter" role="tab"><span>Defter</span></button>
+    <button class="sekme aktif" data-hedef="sParsel" role="tab" aria-controls="sParsel" aria-selected="true"><span>Parsel</span></button>
+    <button class="sekme" data-hedef="sRapor"  role="tab" aria-controls="sRapor" aria-selected="false"><span>Rapor</span></button>
+    <button class="sekme" data-hedef="sImar"   role="tab" aria-controls="sImar" aria-selected="false"><span>İmar</span></button>
+    <button class="sekme" data-hedef="sDefter" role="tab" aria-controls="sDefter" aria-selected="false"><span>Defter</span></button>
 </nav>
 
 <main>
@@ -54,7 +54,7 @@
 </div>
 
 <!-- ========================= PARSEL ========================= -->
-<section id="sParsel" class="sayfa aktif">
+<section id="sParsel" role="tabpanel" tabindex="0" class="sayfa aktif">
 
     <p class="giris">
         Arsaya para vermeden önce beş dakikanızı ayırın.
@@ -244,7 +244,7 @@
 </section>
 
 <!-- ========================= RAPOR ========================= -->
-<section id="sRapor" class="sayfa">
+<section id="sRapor" role="tabpanel" tabindex="0" class="sayfa">
     <div id="raporBos" class="bos-durum">
         <p>Henüz rapor yok.</p>
         <p class="alt-not">Parsel sekmesinden bilgileri girip <b>Raporu çıkar</b>'a basın.</p>
@@ -275,7 +275,7 @@
 </section>
 
 <!-- ========================= İMAR ========================= -->
-<section id="sImar" class="sayfa">
+<section id="sImar" role="tabpanel" tabindex="0" class="sayfa">
     <div id="imarBos" class="bos-durum">
         <p>Henüz hesap yok.</p>
         <p class="alt-not">Arsa alanı ve TAKS / KAKS girilince burada ne yapabileceğiniz çıkar.</p>
@@ -288,7 +288,7 @@
 </section>
 
 <!-- ========================= DEFTER ========================= -->
-<section id="sDefter" class="sayfa">
+<section id="sDefter" role="tabpanel" tabindex="0" class="sayfa">
     <p class="giris">
         Baktığınız arsaları buraya kaydedin, yan yana karşılaştırın.
         Kayıtlar <b>sadece bu telefonda</b> durur, hiçbir yere gönderilmez.
@@ -317,11 +317,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=51" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=51" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=51" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=51" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=51" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=52" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=52" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=52" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=52" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=52" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

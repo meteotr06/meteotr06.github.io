@@ -26,6 +26,20 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 52,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Ekran okuyucu artık hangi sekmede olduğunuzu söylüyor',
+        maddeler: [
+            'Uygulama görme engelli kullanıcılar için sekme yapısını ' +
+            'ilan ediyordu ama gereğini yapmıyordu: ekran okuyucu dört ' +
+            'sekme sayıyor, hangisinin açık olduğunu SÖYLEYEMİYORDU.',
+
+            'Artık etkin sekme hem renkle hem sözle belli. Bölümler de ' +
+            'kendi sekmeleriyle eşleştirildi. Sayılarda değişiklik yok.'
+        ]
+    },
+    {
         surum: 51,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: true,
