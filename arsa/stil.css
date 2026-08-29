@@ -741,3 +741,19 @@ input.gecersiz, select.gecersiz {
 .onay > span, .onay > * { min-width: 0; }
 .onay { overflow-wrap: anywhere; }
 .onay-izgara > * { min-width: 0; }
+
+/* METNİN GİTTİĞİ HER YER — girdiği yer değil.
+   Ölçüldü (29.08.2026): rayiç adı ÜÇ yerde gösteriliyor — mahalle
+   listesi, yol listesi ve SONUÇ SATIRI (#rSonuc). Ben yalnız
+   listeleri ölçmüştüm. Sonuç satırında 80 harflik ad: kutu 286 px,
+   içerik 708 px — metin KESİLİYOR ve sayfa yana kaymadığı için
+   kullanıcı ulaşamıyor.
+
+   05 oturumu aynı gün aynı sınıfı buldu: adın SEÇİLDİĞİ yeri
+   düzeltmiş, KAYDEDİLİP GÖSTERİLDİĞİ iki yeri atlamıştı.
+   Ders: bir metnin girdiği yeri düzeltmek, gösterildiği yerleri
+   düzeltmez — metnin gittiği her yeri say. */
+#rSonuc, .rayic-sonuc {
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
