@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Arsa Rehberi" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="application-name" content="Arsa Rehberi" />
-<link rel="stylesheet" href="stil.css?v=73" />
+<link rel="stylesheet" href="stil.css?v=75" />
 </head>
 <body>
 
@@ -317,18 +317,42 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=73" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=73" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=73" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=73" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=73" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=75" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=75" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=75" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=75" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=75" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */
-if ("serviceWorker" in navigator) {
+/* SINAMA KIPI: adreste `swkapa=1` varsa servis iscisi KURULMAZ ve
+   varsa SILINIR.  Sebep (olculdu 29.08.2026): sinama sayfalari
+   uygulamayi bir cerceveye yukluyor; servis iscisi kurulunca
+   `caches.match(..., {ignoreSearch:true})` yuzunden `?v=` ile
+   onbellek kirmak da iSE YARAMIYOR, `cache:'reload'` de iSE
+   YARAMIYOR (istek yine SW'ye ugruyor).  Sonuc: sinamalar diskteki
+   kodu degil SW'nin DONDURDUGU kopyayi olcuyordu.  Kanit: arayuz.js
+   kasten delindi (84.545 bayt), tarayici 82.962 baytlik ESKI kopyayi
+   gordu ve sinama "ENJEKSIYON YOK" dedi -- gercek bir delik varken.
+   Bu, gecen her tarayici sinamasinin hangi surumu olctugunu
+   belirsiz kilan bir siniftir; bayrak onu kesin hale getirir.
+   Ad `swkapa`; `sinama` DEGIL -- test-donus.html `?sinama=N` ile
+   cevrimdisi donusu olcuyor ve orada SW'nin YASAMASI gerekiyor.
+   Kullaniciyi etkilemez: bayrak ancak elle yazilirsa devreye girer. */
+var SW_KAPALI = /[?&]swkapa=1(&|$)/.test(location.search);
+if ("serviceWorker" in navigator && !SW_KAPALI) {
     window.addEventListener("load", function () {
         navigator.serviceWorker.register("sw.js").catch(function () {});
     });
+} else if (SW_KAPALI && "serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (kayitlar) {
+        kayitlar.forEach(function (k) { k.unregister(); });
+    }).catch(function () {});
+    if (window.caches) {
+        caches.keys().then(function (a) {
+            a.forEach(function (ad) { caches.delete(ad); });
+        }).catch(function () {});
+    }
 }
 </script>
 <!-- UYGULAMA GERÇEKTEN BAŞLADI MI?
