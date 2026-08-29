@@ -757,3 +757,24 @@ input.gecersiz, select.gecersiz {
     overflow-wrap: anywhere;
     min-width: 0;
 }
+
+/* AÇIKLAMA METİNLERİNDE EĞİK ÇİZGİLİ UZUN LİSTELER.
+   Ölçüldü (29.08.2026, sabit genişlikli çerçeveyle — bölmenin kendi
+   görünüm alanı yazı büyüyünce genişlediği için yanıltıyordu):
+   360 px ekranda %200 yazıda inşaat maliyeti notu kesiliyordu.
+
+       kutu 279 px / içerik 541 px
+       sebep: "elektrik/su/doğalgaz/kanalizasyon/haberleşme)"
+              45 karakter, BOŞLUKSUZ
+
+   Eğik çizgi CSS'te satır sonu fırsatı SAYILMAZ; Türkçe teknik
+   metinlerde bu kalıp sık. Sayfa yana da kaymıyor (`overflow-x:
+   hidden`), yani kullanıcı kesilen yazıya ULAŞAMIYOR.
+
+   `anywhere` seçildi, `break-word` değil: 05'te ölçüldü, break-word
+   en küçük içerik genişliğini düşürmüyor (aynı düğmede 599'a karşı
+   244 px). Yalnız açıklama metinlerine veriliyor — başlıklara ve
+   sayılara değil, orada kelime ortasından kırmak okumayı bozar. */
+.alt-not, .aciklama, .not, .uyari-metin {
+    overflow-wrap: anywhere;
+}
