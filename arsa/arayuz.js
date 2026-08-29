@@ -1210,13 +1210,37 @@ function imar_ciz(g) {
 
     /* Tapu harcı ve emlak vergisi */
     if (g.emsal_birim_fiyat && g.alan) {
+        /* HANGI SAYIDAN HESAPLANDIGI YAZILIR.
+           Olculdu (29.08.2026): bu iki kalem, kullanicinin GIRDIGI ham
+           emsal fiyattan hesaplaniyor -- raporun kendi duzeltilmis
+           tahmininden degil. Ikisi ayni ekranda farkli sayilar ve
+           hangisinin neye dayandigi yazmiyordu. Sayiyi degistirmedik
+           (harc/vergi beyan bedeli uzerinden hesaplanir, dogrusu bu),
+           NEYE DAYANDIGINI yazdik. */
         var bedel = g.emsal_birim_fiyat * g.alan;
         var h = M.tapu_harci({ beyan_bedeli: bedel });
         satir_ekle(k3, 'Tapu harcı (alıcı payı)', tl(h.alici_harci));
-        var ev = M.emlak_vergisi({ vergi_degeri: bedel, tur: 'arsa', buyuksehir: false });
-        satir_ekle(k3, 'Yıllık emlak vergisi', tl(ev.toplam));
+
+        /* BUYUKSEHIR TAHMIN EDILMIYOR, IKISI DE GOSTERILIYOR.
+           Olculdu: `buyuksehir: false` CAKILIYDI ve tek sayi
+           gosteriliyordu. Ama uygulama il/ilce sormuyor; tek rayic veri
+           setimiz Izmir/Menemen ve Izmir BUYUKSEHIR. Yani cakili
+           varsayim, kullanicinin yarisi icin sayiyi YARIYA dusuruyordu.
+           Alt notta yazmasi yetmez -- kullanici ust satirdaki sayiyi
+           okur. Bilmedigimizi tahmin etmek yerine ikisini de veriyoruz;
+           uygulamanin her yerinde izledigimiz kural bu. */
+        var evNormal = M.emlak_vergisi({ vergi_degeri: bedel, tur: 'arsa', buyuksehir: false });
+        var evBuyuk  = M.emlak_vergisi({ vergi_degeri: bedel, tur: 'arsa', buyuksehir: true });
+        satir_ekle(k3, 'Yıllık emlak vergisi — büyükşehir dışı', tl(evNormal.toplam));
+        satir_ekle(k3, 'Yıllık emlak vergisi — büyükşehir', tl(evBuyuk.toplam));
         k3.appendChild(el('p', 'alt-not',
-            'Emlak vergisi büyükşehir belediyesi sınırındaysa iki katına çıkar.'));
+            'İkisi de gösteriliyor çünkü uygulama parselin hangi belediyede ' +
+            'olduğunu bilmiyor. Büyükşehir sınırındaysa oran iki katıdır ' +
+            '(İzmir, Ankara, İstanbul ve diğer 27 büyükşehir dahil).'));
+        k3.appendChild(el('p', 'alt-not',
+            'Bu iki kalem, girdiğiniz emsal birim fiyat × alan üzerinden ' +
+            'hesaplandı — harç ve vergi beyan bedeline göre alınır. ' +
+            'Yukarıdaki değer tahmini ayrı bir sayıdır.'));
     }
     $('iMaliyet').innerHTML = ''; $('iMaliyet').appendChild(k3);
 }
