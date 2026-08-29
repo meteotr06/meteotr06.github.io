@@ -491,7 +491,9 @@ var HIZMET_ADI = {
 
 function vasif_belirle(g) {
   g = g || {};
-  var belediye_icinde = !!g.belediye_icinde;
+  /* !! KULLANMIYORUZ: undefined'i false'a cevirirdi ve ucuncu hal
+     dogmadan olurdu. Uc hal: true · false · undefined. */
+  var belediye_icinde = g.belediye_icinde === true;
   var imar_plani = !!g.imar_plani_var;
   var hizmet = g.hizmetler || {};
 
@@ -502,7 +504,26 @@ function vasif_belirle(g) {
 
   var kod, sonuc, gerekce;
 
-  if (!belediye_icinde) {
+  /* UCUNCU HAL — "CEVAPLANMADI".
+     Olculdu (29.08.2026): belediye sorusu bir ONAY KUTUSU idi ve
+     isaretsiz kutu "hayir" sayiliyordu. Ama ana sayfa "Sadece ilk iki
+     alani doldurup da sonuc alabilirsiniz" diyor; o yolu izleyen
+     kullanicinin parseli, HIC CEVAPLAMADIGI bir soru yuzunden ARAZI
+     damgasi yiyor, degeri 0,22 ile carpiliyor (%78 dusuyor) ve raporun
+     ustune "kritik engel" bandi biniyor. 3.000 TL/m2 giren kullanici
+     660 TL/m2 goruyordu.
+     Onay kutusu UC HALI TASIYAMAZ: "evet", "hayir" ve "bilmiyorum"
+     ayri seylerdir. Bilmediğimizi soylemek, yanlis tahminden iyidir --
+     ve motor bunu ZATEN biliyor: bilinmeyen faktor `eksik`e dusuyor,
+     duzeltme atlaniyor ve bant geniisliyor ("belirsizligi buyutuyoruz").
+     Burada yapilan, o duzenege baglanmaktan ibaret. */
+  if (g.belediye_icinde === undefined || g.belediye_icinde === null) {
+    kod = 'bilinmiyor';
+    sonuc = 'BELİRSİZ';
+    gerekce = 'Belediye / mücavir alan sorusu henüz cevaplanmadı. ' +
+              'Bu tek cevap değeri kat kat değiştirir, o yüzden ' +
+              'tahmin edilmiyor.';
+  } else if (!belediye_icinde) {
     kod = 'arazi';
     sonuc = 'ARAZİ';
     gerekce = 'Belediye veya mücavir alan sınırları dışında.';
@@ -725,7 +746,14 @@ function risk_tara(g) {
 
   var vasif = vasif_belirle(g);
 
-  if (vasif.kod === 'arazi') {
+  if (vasif.kod === 'bilinmiyor') {
+    ekle('uyari', 'Belediye sınırı sorusu cevaplanmadı',
+      'Taşınmazın belediye veya mücavir alan sınırları içinde olup olmadığı ' +
+      'girilmedi. Bu tek cevap, arsa ile arazi arasındaki farkı belirler ve ' +
+      'değeri kat kat değiştirir; tahmin edilmedi, değer aralığı geniş bırakıldı.',
+      'Belediyeye sorun ya da tapu kaydına bakın. Cevapladığınızda hem vasıf ' +
+      'kesinleşir hem değer aralığı daralır.');
+  } else if (vasif.kod === 'arazi') {
     ekle('kritik', 'Bu taşınmaz hukuken ARSA değil, ARAZİ',
       vasif.gerekce + ' Arazi vasfindaki taşınmazın değeri arsaya göre kat kat düşüktür.',
       'Satıcı "arsa" diyorsa tapu kaydını ve belediyeden imar durumunu isteyin. ' +

@@ -158,6 +158,33 @@ var MESAFE_ALANLAR = [
 ];
 
 var YARDIM = {
+    /* MUCAVIR ALAN — uygulamanin en pahali sorusu, aciklamasi YOKTU.
+       Olculdu (29.08.2026): terim `index.html` etiketi ve motorun
+       gerekce cumlesi disinda HICBIR yerde gecmiyordu; YARDIM
+       sozlugunde anahtari yoktu. Oysa bu tek cevap degeri 0,22 ile
+       carpip carpmamayi belirliyor. Bilmedigi terimi tahmin eden
+       kullanici en pahali hatayi yapiyordu. */
+    mucavir: {
+        baslik: 'Mücavir alan ne demek, nereden öğrenirim?',
+        metin: '<p><b>Mücavir alan</b>, belediye sınırının hemen dışında ' +
+               'kalan ama belediyenin imar ve altyapı yetkisinin sürdüğü ' +
+               'kuşaktır. Kısacası: "belediye sınırı dışında" olmak, ' +
+               '"belediyeyle ilgisi yok" demek değildir.</p>' +
+               '<p><b>Neden bu kadar önemli?</b> Sınırın içinde olmak, ' +
+               'taşınmazın <b>arsa</b> mı <b>arazi</b> mi sayılacağını ' +
+               'belirleyen ilk ölçüt. Arazi vasfındaki bir taşınmazın değeri ' +
+               'arsaya göre kat kat düşüktür. Bu yüzden tahmin etmiyoruz: ' +
+               'bilmiyorsanız <b>"Bilmiyorum"</b> bırakın, değer aralığı ' +
+               'geniş kalsın — yanlış bir kesinlikten iyidir.</p>' +
+               '<p><b>Nereden öğrenirim?</b></p>' +
+               '<ul><li>İlgili <b>belediyenin imar müdürlüğüne</b> ada/parsel ' +
+               'numarasını söyleyip sorun — telefonla da cevap verirler.</li>' +
+               '<li><b>İmar durum belgesi (çap)</b> isterseniz zaten yazar.</li>' +
+               '<li>Tapu kaydındaki <b>mevkii/niteliği</b> alanı da fikir ' +
+               'verir ("tarla", "bağ" gibi bir nitelik güçlü bir işarettir).</li></ul>' +
+               '<p>Satıcının "burası arsa" demesi <b>belge değildir</b>.</p>'
+    },
+
     emsal: {
         baslik: 'Emsal birim fiyat nedir?',
         metin: '<p>Yakınınızdaki benzer bir arsanın <b>metrekare fiyatı</b>. ' +
@@ -367,7 +394,12 @@ function girdi_topla() {
     g.alan = sayi($('gAlan').value);
     g.emsal_birim_fiyat = sayi($('gEmsalFiyat').value);
 
-    g.belediye_icinde = $('gBelediye').checked;
+    /* UC HAL: bos secenek = CEVAPLANMADI (undefined). Onay kutusu
+       ucuncu hali tasiyamadigi icin liste yapildi -- isaretsiz kutu
+       "hayir" sayiliyor ve cevaplanmamis soru %78 deger kaybina yol
+       aciyordu (29.08.2026 olcumu). */
+    var _bel = $('gBelediye').value;
+    g.belediye_icinde = _bel === 'evet' ? true : _bel === 'hayir' ? false : undefined;
     g.imar_plani_var = $('gImarPlani').checked;
     g.takyidat_var = $('gTakyidat').checked;
     g.kamulastirma_riski = $('gKamulastirma').checked;
@@ -423,7 +455,13 @@ function girdi_topla() {
        ve koy tarlasi senaryosunda su celiski cikti: rapor ustte "ARAZI" yazip
        altta "hukuki vasif bilgisi eksik" diyordu. Ayni raporda hem biliyor
        hem bilmiyordu. Kutunun BOS olmasi da bir bilgidir (belediye disinda). */
-    g.nitelik = C.vasif_belirle(g).kod;
+    /* Vasif BILINMIYORSA nitelik ATANMAZ. Boylece motorun kendi
+       duzenegi devreye girer: bilinmeyen faktor `eksik`e duser,
+       duzeltme atlanir, bant genisler ve kullaniciya "bu soruyu
+       cevaplarsan aralik daralir" denir. Uydurma bir carpan
+       koymaktan iyidir. */
+    var _vasif = C.vasif_belirle(g);
+    if (_vasif.kod !== 'bilinmiyor') g.nitelik = _vasif.kod;
 
     return g;
 }
@@ -503,7 +541,10 @@ function kapsam_guncelle() {
    sonucun değiştiğini anında görsün. Uygulamanın en önemli anı bu. */
 function vasif_goster(g) {
     var kutu = $('vasifSonuc');
-    if (!g.belediye_icinde && Object.keys(g.hizmetler || {}).length === 0) {
+    /* Canli rozet: soru CEVAPLANMAMISSA gosterme. Eskiden
+       `!g.belediye_icinde` idi; artik uc hal var, 'hayir' diyen
+       kullaniciya rozet GOSTERILMELI. */
+    if (g.belediye_icinde === undefined && Object.keys(g.hizmetler || {}).length === 0) {
         kutu.hidden = true;
         return;
     }
