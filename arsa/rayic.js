@@ -25,7 +25,25 @@
         if (VERI || yukleniyor) return;
         yukleniyor = true;
         sonuc.textContent = 'Veri yükleniyor…';
-        fetch('veri/menemen.json')
+        /* VERI DOSYASI DA SURUMLU CEKILIR.
+           Olculdu (29.08.2026): paketi guncelledim, tarayici ESKISINI
+           verdi ve "duzeltme tutmadi" diyecektim. Sayfadaki her betik
+           `?v=NN` tasiyor; degisme ihtimali EN YUKSEK dosya olan veri
+           paketi ise etiketsizdi -- yani veri guncellenince kullanici
+           eskisinde kaliyordu.
+
+           Etiket ELLE YAZILMIYOR: kendi <script> adresinden okunuyor.
+           Iki ayri yere ayni sayiyi elle yazmak, ayrisacagi gun
+           sessizce yanlis veri gostermek demektir (sw.js'de aynen
+           bunu yasadik). */
+        var etiket = '';
+        try {
+            var kendi = document.querySelector('script[src*="rayic.js"]');
+            var m = kendi && (kendi.getAttribute('src') || '').match(/[?&]v=([^&]+)/);
+            if (m) etiket = '?v=' + m[1];
+        } catch (e) {}
+
+        fetch('veri/menemen.json' + etiket)
             .then(function (c) { if (!c.ok) throw new Error(c.status); return c.json(); })
             .then(function (d) {
                 VERI = d; yukleniyor = false;
@@ -62,7 +80,11 @@
             yolSec.appendChild(o);
         });
         /* Sokak seçilmeden TEK SAYI verilmez — yalnız aralık ve yayılım. */
-        var d = liste.map(function (y) { return y[2]; }).sort(function (a, b) { return a - b; });
+        /* Cakisan yolun IKINCI degeri de araliga girer; yoksa mahallenin
+           gercek yayilimini eksik gosteririz. */
+        var d = [];
+        liste.forEach(function (y) { d.push(y[2]); if (y[3]) d = d.concat(y[3]); });
+        d.sort(function (a, b) { return a - b; });
         var alt = d[0], ust = d[d.length - 1];
         var kat = alt > 0 ? (ust / alt) : 0;
         sonuc.textContent = ad + ' mahallesinde sokaklar ' + tl(alt) + ' ile ' + tl(ust)
@@ -74,6 +96,29 @@
         var ad = mahSec.value, i = yolSec.value;
         if (!ad || i === '' || !VERI) { kullan.disabled = true; return; }
         var y = VERI.mahalle[ad][+i];
+
+        /* RESMI CETVEL AYNI YOLU IKI KEZ YAZMIS OLABILIR.
+           Olculdu (29.08.2026): Degirmendere / 30 Agustos Cadde cetvelde
+           IKI blokta geciyor -- 17.000 ve 16.000. Onceki surumde bu yol
+           acilir listede IKI KEZ, ayni isimle goruniyordu; kullanici
+           hangisini sectigini bilemiyordu. Simdi tek satir, ama IKILIK
+           SOYLENIYOR. Bilmedigimizi soylemek, birini secip kesinmis gibi
+           sunmaktan iyidir.
+
+           Dugmeye DUSUK deger yaziliyor: bu bir TABAN degerdir ve tabani
+           yuksek tutmak degeri sisirir. Sebebi de ekranda yaziyor. */
+        if (y[3] && y[3].length) {
+            var hepsi = [y[2]].concat(y[3]).sort(function (a, b) { return a - b; });
+            sonuc.textContent = y[0] + ' ' + y[1] + ': resmî cetvelde '
+                + hepsi.length + ' ayrı değerle geçiyor — '
+                + hepsi.map(tl).join(' ve ')
+                + '. Hangisinin sizin bölümünüz olduğunu belediyeden doğrulayın; '
+                + 'düğme düşük olanı (' + tl(hepsi[0]) + ') yazar.';
+            kullan.disabled = false;
+            kullan.dataset.deger = String(hepsi[0]);
+            return;
+        }
+
         sonuc.textContent = y[0] + ' ' + y[1] + ': ' + tl(y[2])
             + ' — bu resmî TABAN değerdir, piyasa bunun üstündedir.';
         kullan.disabled = false;

@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v50";
+const SURUM = "arsa-v51";
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"
@@ -33,8 +33,14 @@ const CEKIRDEK = [
     "./rayic.js" + ETIKET,
     /* Resmi taban veri: 84 KB. Onbellege alinir ki cevrimdisi de calissin --
        ama kullanici bolumu acmadan indirilmez (rayic.js istek uzerine cekiyor).
-       Burada olmasi, bir kez indirildikten sonra internetsiz de acilmasini saglar. */
-    "./veri/menemen.json",
+       Burada olmasi, bir kez indirildikten sonra internetsiz de acilmasini saglar.
+
+       ETIKET SART: 29.08.2026'da paket guncellendi ve tarayici ESKISINI
+       verdi. rayic.js artik dosyayi "?v=NN" ile istiyor; on onbellek
+       ETIKETSIZ alsaydi istenen adres onbellekte BULUNMAZDI ve
+       cevrimdisi calisma sessizce olurdu. Ikisi ayni SURUM'dan
+       tureniyor, elle tutulmuyor. */
+    "./veri/menemen.json" + ETIKET,
     "./simge.svg",
     "./ikon-192.png",
     "./manifest.json",

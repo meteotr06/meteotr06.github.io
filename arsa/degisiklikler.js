@@ -26,6 +26,28 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 51,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: true,
+        baslik: 'Resmî cetvelde iki değerle geçen sokak artık ikisini de gösteriyor',
+        maddeler: [
+            'Menemen resmî değer cetvelinde bir cadde (Değirmendere / ' +
+            '30 Ağustos Caddesi) İKİ ayrı değerle geçiyor: 16.000 ve ' +
+            '17.000 TL/m². Eskiden bu cadde listede iki kez görünüyordu ' +
+            've hangisini seçtiğinizi anlamanın yolu yoktu.',
+
+            'Artık tek satır çıkıyor ve ikiliği açıkça söylüyor: hangi ' +
+            'değerin sizin bölümünüz olduğunu belediyeden doğrulamanız ' +
+            'gerektiğini yazıyor. Düğme düşük olanı yazar — bu bir TABAN ' +
+            'değer ve tabanı yüksek tutmak tahmini şişirir.',
+
+            'Ayrıca resmî değer listesi artık sürüm etiketiyle iniyor. ' +
+            'Önceden liste güncellendiğinde tarayıcı eskisini saklıyor ' +
+            'olabilirdi; bu, güncellenen bir resmî değeri görmemenize ' +
+            'yol açabilirdi.'
+        ]
+    },
+    {
         surum: 50,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,
