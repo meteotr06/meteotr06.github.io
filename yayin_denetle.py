@@ -372,6 +372,82 @@ def icerik_karsilastir(kaynak_klasor, depo_klasor, yol, canli_html):
     return farkli, bakilan
 
 
+
+def acik_sunucu_denetle(netstat_ciktisi=None, lan_adresi=None):
+    """Bu makinede AGA ACIK bir gelistirme sunucusu duruyor mu?
+
+    NEDEN (29.08.2026, olculdu): bir oturumun onizleme sunucusu 8731'de
+    "--bind 127.0.0.1" olmadan acilmisti. Sonuc: ayni Wi-Fi'daki herkes
+    http://192.168.1.23:8731/ adresinden BUTUN proje klasorunu geziyordu --
+    kaynak kod, ic notlar, magaza metinleri, .claude klasoru.
+
+    Iki ayri ders vardi:
+      1) launch.json'da --bind eksikligi sessizdir; kimse fark etmez.
+      2) YAPILANDIRMAYI DUZELTMEK CALISANI DUZELTMEZ. Dosya onarildi ama
+         sabah acilmis surec eski ayarla ayakta kaldi. Onaran kisi YENI
+         actigi sunucuyu olcup "tamam" dedi -- olcum dogruydu, yanlis seyi
+         olcuyordu.
+
+    YANLIS ALARMDAN KACINMA: Windows'un kendi servisleri de 0.0.0.0
+    dinler (ornek: 5040 CDPSvc). Port gormek yetmez; o porta HTTP ile
+    gidip BIZIM klasorumuzu servis edip etmedigine bakiyoruz. Sadece
+    "acik port var" demek, birkac kosuda susturulan bir uyari olurdu.
+    """
+    import subprocess
+    if netstat_ciktisi is not None:
+        cikti = netstat_ciktisi
+    else:
+        try:
+            cikti = subprocess.run(["netstat", "-an"], capture_output=True,
+                                   text=True, timeout=20).stdout
+        except Exception as e:
+            return ["  ~ açık sunucu denetimi yapılamadı (%s)" % str(e)[:40]], 0
+
+    portlar = sorted(set(re.findall(r"TCP\s+0\.0\.0\.0:(\d+)\s+.*LISTEN", cikti)))
+    if not portlar:
+        return ["  %s ağa açık sunucu yok" % TIK], 0
+
+    # Bu makinenin LAN adresi -- 127.0.0.1'den bakmak hicbir sey kanitlamaz,
+    # zaten oradan her zaman erisilir. Disaridan gorunen adresten bakmak sart.
+    import socket
+    if lan_adresi:
+        lan = lan_adresi
+    else:
+        try:
+            y = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            y.connect(("8.8.8.8", 80)); lan = y.getsockname()[0]; y.close()
+        except Exception:
+            return ["  ~ açık sunucu denetimi yapılamadı (LAN adresi bulunamadı)"], 0
+
+    acik = []
+    for port in portlar:
+        try:
+            istek = urllib.request.Request("http://%s:%s/" % (lan, port),
+                                           headers={"User-Agent": "yayin-denetle"})
+            with urllib.request.urlopen(istek, timeout=3) as c:
+                if c.getcode() != 200:
+                    continue
+                govde = c.read(4000).decode("utf-8", "ignore")
+        except Exception:
+            continue          # cevap vermiyorsa bizim sunucumuz degil
+        # BIZIM mi? Ya klasor listesi ya da proje sayfalarimizdan biri.
+        bizim = ("Directory listing" in govde
+                 or re.search(r"<title>[^<]*(Hesap|Kur Pusulas|Arsa|Göz Mola|"
+                              r"Planlay|Muhasebe|Hava Durumu)", govde))
+        if bizim:
+            acik.append("%s:%s" % (lan, port))
+
+    if not acik:
+        return ["  %s ağa açık sunucu yok (%d port dinliyor ama bizim değil)"
+                % (TIK, len(portlar))], 0
+    satirlar = ["  %s AĞA AÇIK GELİŞTİRME SUNUCUSU: %s" % (CARPI, ", ".join(acik)),
+                "      aynı Wi-Fi'daki herkes proje klasörünü gezebilir",
+                "      düzeltme: sunucuyu KAPAT (yapılandırmayı düzeltmek yetmez),",
+                "      launch.json'a --bind 127.0.0.1 ekleyip yeniden aç"]
+    return satirlar, len(acik)
+
+
+
 # ---------- denetimler ----------
 
 def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
@@ -574,6 +650,12 @@ def main():
             if "karşılaştırılamadı" in s:
                 olculemeyen += 1
         toplam += n
+
+    print()
+    satirlar, n = acik_sunucu_denetle()
+    for s3 in satirlar:
+        print(s3)
+    toplam += n
 
     print()
     satirlar, n = sitemap_denetle()
