@@ -1136,10 +1136,35 @@ function imar_ciz(g) {
    Kayıtlar sadece bu cihazda durur; hiçbir yere gönderilmez.
    ------------------------------------------------------------------- */
 function defter_oku() {
-    try { return JSON.parse(localStorage.getItem(DEPO_ANAHTAR) || '[]'); }
-    catch (e) { return []; }
+    try {
+        var d = JSON.parse(localStorage.getItem(DEPO_ANAHTAR) || '[]');
+        return Array.isArray(d) ? d : [];
+    } catch (e) { return []; }
 }
+
+/* OKUNAMAYAN VERIYI SESSIZCE EZME.
+   Depodaki deger bozulmussa defter "bos" gorunur. Sorun su ki bir
+   sonraki kayit o bozuk degerin USTUNE yazar ve icinde ne varsa
+   kurtarma sansi biter. Kullanicinin kaydettigi parseller, bu
+   uygulamada onun EMEGIDIR. Uzerine yazmadan once bir kenara
+   koyuyoruz; yer kaplamiyor ve bir daha ele gecmeyecek veriyi
+   kurtarilabilir birakiyor. */
+function defter_bozuksa_yedekle() {
+    var ham;
+    try { ham = localStorage.getItem(DEPO_ANAHTAR); } catch (e) { return; }
+    if (!ham) return;
+    var saglam = false;
+    try { saglam = Array.isArray(JSON.parse(ham)); } catch (e) { saglam = false; }
+    if (saglam) return;
+    try {
+        if (!localStorage.getItem(DEPO_ANAHTAR + '-bozuk')) {
+            localStorage.setItem(DEPO_ANAHTAR + '-bozuk', ham);
+        }
+    } catch (e) {}
+}
+
 function defter_yaz(liste) {
+    defter_bozuksa_yedekle();
     try { localStorage.setItem(DEPO_ANAHTAR, JSON.stringify(liste)); }
     catch (e) { uyar('Kayıt yapılamadı; tarayıcı depolamaya izin vermiyor.'); }
 }
@@ -1151,7 +1176,15 @@ function defter_ekle() {
     var ad = prompt('Bu parsele bir isim verin (örn. "Köyün üstü 5 dönüm"):', '');
     if (ad === null) return;
 
-    var kayit = { ad: ad || ('Parsel ' + (defter_oku().length + 1)), girdi: g,
+    /* HER KAYDIN KENDI KIMLIGI OLUR.
+       Olculdu (29.08.2026): silme DIZINE gore yapiliyordu -- kartin
+       CIZILDIGI andaki siraya. Baska bir sekme parsel eklerse liste
+       basa kayar ve dizin baska kaydi gosterir. Olcum: onay kutusu
+       "X silinsin mi?" diye sordu, kullanici onayladi, X DURDU ve
+       az once eklenen Z silindi. Kullaniciya bir sey sorulup baskasi
+       siliniyordu -- sessiz veri kaybinin en kotu bicimi. */
+    var kayit = { kimlik: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+                  ad: ad || ('Parsel ' + (defter_oku().length + 1)), girdi: g,
                   tarih: new Date().toISOString() };
 
     if (g.emsal_birim_fiyat) {
@@ -1201,7 +1234,26 @@ function defter_ciz() {
         sil.title = 'Sil';
         sil.onclick = function () {
             if (!confirm('"' + k.ad + '" defterden silinsin mi?')) return;
-            var l = defter_oku(); l.splice(i, 1); defter_yaz(l); defter_ciz();
+            /* DIZINE DEGIL KIMLIGE GORE SIL. Dizin, kartin cizildigi
+               andaki siradir; depo o andan beri degismis olabilir. */
+            var l = defter_oku();
+            var yer = -1;
+            for (var j = 0; j < l.length; j++) {
+                if (k.kimlik && l[j].kimlik) {
+                    if (l[j].kimlik === k.kimlik) { yer = j; break; }
+                } else if (l[j].tarih === k.tarih && l[j].ad === k.ad) {
+                    yer = j; break;      /* kimliksiz eski kayitlar icin */
+                }
+            }
+            if (yer < 0) {
+                /* Bulamadiysak HICBIR SEY SILMEYIZ. Yanlisini silmektense
+                   silmemek yeg; kullaniciya da sebebini soyleriz. */
+                defter_ciz();
+                uyar('Bu kayıt bulunamadı — başka bir sekmede silinmiş olabilir. ' +
+                     'Defter yenilendi.');
+                return;
+            }
+            l.splice(yer, 1); defter_yaz(l); defter_ciz();
         };
         ust.appendChild(sil);
         d.appendChild(ust);
@@ -1231,6 +1283,11 @@ function satir_ekle_basit(kap, ad, deger) {
    6. GEZİNTİ, TEMA, YARDIM
    ------------------------------------------------------------------- */
 function sekme_ac(hedef) {
+    /* Defter, sekmeye her gecisde YENIDEN CIZILIR.
+       Olculdu: sekmeye basmak defteri yenilemiyordu; baska sekmede
+       eklenen parsel burada gorunmuyor, ustelik ekrandaki eskimis
+       kartlar yanlis silmeye zemin hazirliyordu. */
+    if (hedef === 'sDefter') { try { defter_ciz(); } catch (e) {} }
     document.querySelectorAll('.sayfa').forEach(function (s) {
         s.classList.toggle('aktif', s.id === hedef);
     });
@@ -1658,6 +1715,19 @@ function baslat() {
     taslak_yukle();          /* f2'nin sirasi korunuyor: yenilikten SONRA */
     kapsam_guncelle();
     defter_ciz();
+
+    /* OTEKI SEKME YAZINCA BU SEKME HABERSIZ KALMASIN.
+       `storage` olayi yalniz DIGER sekmelerde tetiklenir. Bu olmadan
+       iki sekme birbirinin isini gormuyordu ve ekrandaki eskimis
+       liste yanlis silmeye zemin hazirliyordu. Silme artik kimlige
+       gore calisiyor, ama kullanicinin GORDUGU sey de guncel olmali:
+       kaydettigi parselin oteki sekmede gorunmemesi, "kaydolmadi mi?"
+       diye ikinci kez kaydettirir. */
+    window.addEventListener('storage', function (o) {
+        if (o.key === DEPO_ANAHTAR) {
+            try { defter_ciz(); } catch (e) {}
+        }
+    });
 
     /* Adres çubuğundaki parametreler.
        ?sekme=defter  -> manifest'teki kısayollar bunu kullanıyor

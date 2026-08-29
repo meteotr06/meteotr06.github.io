@@ -26,6 +26,30 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 54,
+        tarih: '29 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Defterde yanlış kaydın silinmesi düzeltildi',
+        maddeler: [
+            'İki sekmede birden açtıysanız, defterden bir parseli ' +
+            'silerken BAŞKA bir parsel silinebiliyordu. Onay kutusu ' +
+            '"X silinsin mi?" diye soruyor, siz onaylıyordunuz, X ' +
+            'duruyor ve az önce kaydettiğiniz parsel gidiyordu.',
+
+            'Artık her kaydın kendi kimliği var; silme sıraya değil ' +
+            'kimliğe bakıyor. Kayıt bulunamazsa hiçbir şey silinmiyor ' +
+            've size söyleniyor.',
+
+            'Defter sekmesine her geçişte yenileniyor, ve öteki ' +
+            'sekmede kaydettiğiniz parsel burada da anında görünüyor.',
+
+            'Ayrıca: kayıtlarınız bir şekilde okunamaz hâle gelirse ' +
+            'uygulama artık üzerine yazmadan önce bir kopyasını ' +
+            'saklıyor. Eskiden bu durumda "deftere ekle" sessizce ' +
+            'hiç çalışmıyordu.'
+        ]
+    },
+    {
         surum: 52,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,
