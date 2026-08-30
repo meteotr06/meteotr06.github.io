@@ -1,1 +1,1 @@
-{"ilce_sayisi":1,"ilce":[{"slug":"menemen","il":"İzmir","ad":"Menemen","yil":"2026","dosya":"veri/menemen.json","mahalle_sayisi":65,"kayit_sayisi":3354}]}
+{"ilce_sayisi":2,"ilce":[{"slug":"adalar","il":"İstanbul","ad":"Adalar","yil":"2026","dosya":"veri/adalar.json","mahalle_sayisi":5,"kayit_sayisi":387},{"slug":"menemen","il":"İzmir","ad":"Menemen","yil":"2026","dosya":"veri/menemen.json","mahalle_sayisi":65,"kayit_sayisi":3354}]}
