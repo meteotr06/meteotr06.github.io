@@ -22,9 +22,15 @@
        eklendiginde biri guncellenip digeri unutulur ve kullanici
        BASKA ILCENIN fiyatini gorur. Artik tek kaynak bu liste ve
        kunye VERI DOSYASININ KENDISINDEN okunuyor. */
-    var ILCELER = [
-        { ad: 'Menemen', il: 'İzmir', dosya: 'veri/menemen.json' }
-    ];
+    /* ILCELER ARTIK KODDA YAZILI DEGIL — `veri/ilceler.json` kayit
+       defterinden okunuyor. Sebep (30.08.2026): kullanicinin karari
+       "mahalle mahalle, gerekirse bir ay surer, hepsini". 973 ilcelik
+       bir liste kodda elle tutulamaz; her yeni ilce iki ayri yerde
+       guncelleme ister ve biri unutulunca kullanici "veri yok" gorur,
+       oysa veri vardir.
+       Simdi: ham cikarimi koy, `python veri_paketle.py <ilce>` calistir.
+       Defter kendini uretir, arayuz kendini gunceller. KOD DEGISMEZ. */
+    var ILCELER = [];
     var SECILI_ILCE = 0;
 
     var VERI = null, yukleniyor = false;
@@ -128,7 +134,18 @@
         } catch (e) { return ''; }
     }
 
-    kapsamYukle();
+    /* Once ILCE DEFTERI, sonra kapsam: kapsam listesi "bu ilcede veri
+       var mi" isaretini defterden okuyor. Ters sirada yuklenirse
+       butun ilceler "veri yok" gorunur -- sessiz ve yanlis. */
+    fetch('veri/ilceler.json' + _etiket())
+        .then(function (c) { return c.ok ? c.json() : { ilce: [] }; })
+        .then(function (d) {
+            ILCELER = (d.ilce || []).map(function (x) {
+                return { ad: x.ad, il: x.il, dosya: x.dosya, slug: x.slug };
+            });
+        })
+        .catch(function () { ILCELER = []; })
+        .then(function () { kapsamYukle(); });
 
     /* MAHALLELERI DOLDUR — ayri fonksiyon, cunku iki yerden cagriliyor:
        veri ILK KEZ yuklendiginde ve ilce yeniden secildiginde.
