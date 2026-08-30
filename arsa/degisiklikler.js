@@ -26,6 +26,26 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 133,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Yardım düğmelerine artık gerçekten basılabiliyor',
+        maddeler: [
+            'Terimlerin yanındaki soru işareti düğmeleri parmakla ' +
+            'vurulamıyordu. Daha önce düzelttiğimizi sanmıştık; yeni ' +
+            'yazdığımız ekran denetimi bunu ÇÜRÜTTÜ. Büyüttüğümüz alan ' +
+            'başka ögelerin altında kalıyormuş. Düğmenin kendisi ' +
+            'büyütüldü, görünüş aynı kaldı.',
+
+            'Onay kutularının etiketleri artık kutuya bağlı: yazıya ' +
+            'dokunmak da kutuyu işaretliyor, ekran okuyucu da ne ' +
+            'olduğunu söylüyor.',
+
+            'Rayiç kutusundaki resmî belge bağlantısı, yazı ' +
+            'büyütüldüğünde tıklanamayacak kadar küçülüyordu.'
+        ]
+    },
+    {
         surum: 128,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: false,

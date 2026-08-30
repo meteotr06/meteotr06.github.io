@@ -383,6 +383,15 @@ function ekrani_kur() {
         var lab = el('label', 'onay');
         var inp = document.createElement('input');
         inp.type = 'checkbox'; inp.dataset.hizmet = h;
+        /* ERISILEBILIR AD — ekran nobetcisi buldu (30.08.2026).
+           HTML'deki onay kutularina `for` elle eklendi ama BU kutular
+           KODDAN uretiliyor ve o duzeltmenin disinda kalmisti.
+           Bugun IKINCI kez ayni sinif (ilki yardim dugmeleriydi):
+           elle duzeltilen bir seyin koddan uretilen esi varsa,
+           duzeltme yarim kalir. */
+        inp.id = 'hizmet-' + h;
+        lab.setAttribute('for', inp.id);
+        inp.setAttribute('aria-label', C.HIZMET_ADI[h]);
         lab.appendChild(inp);
         lab.appendChild(el('span', null, C.HIZMET_ADI[h]));
         hk.appendChild(lab);

@@ -260,28 +260,36 @@ input.gecersiz, select.gecersiz {
     padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0;
 }
 
-/* YARDIM DUGMESI — GORUNEN 20 px, DOKUNULAN 44 px.
-   Olculdu (30.08.2026, telefon 375x812): bu dugmeler tam 20x20 px ve
-   padding 0 idi; dokunma hedefi esiginin (44 px) yarisindan kucuk.
-   Uygulamanin en cok ihtiyac duyulan parcasi -- "bu terim ne demek"
-   diye soran kullanici -- parmakla vuramiyordu.
+/* YARDIM DUGMESI — DUGMENIN KENDISI 44x44, GORUNEN DAIRE 24 px.
+   ---------------------------------------------------------------------
+   ONCE `::after` ile buyutulmustu ve "44 px yaptim" denmisti. EKRAN
+   NOBETCISI bunu CURUTTU (30.08.2026): kutu gercekten 44x44 idi ama
+   tiklama sinamasi merkezin 10 px altinda ETIKETI, 18 px altinda
+   GIRDIYI donduruyordu -- buyutulmus alan, DOM'da sonra gelen
+   kardeslerin altinda kaliyordu. z-index de kurtarmadi; ogeler ayri
+   yigin baglamlarinda.
 
-   Halka KUCUK kaliyor (arayuzu bozmasin), dokunma alani ::after ile
-   buyutuluyor. `position: relative` sart; `overflow` gizlemesin diye
-   ust kap `.etiket` esnek kutu, sorun cikarmiyor -- 200% yazida ve
-   dort sekmede yeniden olculdu. */
+   Ders: "kutuyu buyuttum" ile "dokunulabiliyor" AYRI SEYLER. Ikincisi
+   olculmeden birincisi bir sey ifade etmiyor.
+
+   Simdi dugmenin KENDI kutusu 44x44 -- tarayicinin isabet sinamasi
+   dogrudan bunu kullaniyor, hicbir yigin oyunu yok. Gorunen daire
+   `::before` ile ciziliyor; metin gizlenip dairenin icine konuyor. */
 .yardim {
-    position: relative;
-    width: 20px; height: 20px; padding: 0; border-radius: 999px;
-    background: var(--kart-ust); border: 1px solid var(--cizgi);
-    color: var(--yazi2); font-size: 0.75rem; line-height: 1;
+    width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+    padding: 0; border: none; background: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0;                 /* metni gizle, daire icine konacak */
     flex-shrink: 0;
 }
-.yardim::after {
-    content: ""; position: absolute;
-    top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 44px; height: 44px;
+.yardim::before {
+    content: "?";
+    width: 24px; height: 24px; border-radius: 999px;
+    background: var(--kart-ust); border: 1px solid var(--cizgi);
+    color: var(--yazi2); font-size: 0.8125rem; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
 }
+.yardim:hover::before { border-color: var(--vurgu); color: var(--vurgu); }
 
 /* ---------- Hukuki vasıf sonucu ---------- */
 .vasif-kutu {
@@ -926,3 +934,14 @@ input.gecersiz, select.gecersiz {
     border: 1px solid var(--cizgi); background: var(--kart-ust);
 }
 .parsel-harita .leaflet-control-layers { font-size: 0.8125rem; }
+
+/* TEK BASINA DURAN KUCUK BAGLANTILAR — dokunma alani.
+   Ekran nobetcisi buldu (30.08.2026): "resmi belgeyi ac" baglantisi
+   %200 yazida 85x16 px. Bir cumlenin ICINDEKI baglantiya dokunmuyoruz
+   (satir yuksekligi bozulur); kendi basina duran baglantilar parmakla
+   vurulabilmeli. Gorunum degismiyor, yalniz tiklama alani buyuyor. */
+.kaynak-liste a, .alt-not a, .resmi-sonuc a, .sorgu-kutu a {
+    display: inline-block;
+    padding: 14px 6px;
+    margin: -14px -6px;
+}
