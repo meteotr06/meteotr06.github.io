@@ -1657,6 +1657,65 @@ function degerliKonutVergisi(vergiDegeri, tekKonutMu) {
     return { kapsamda: false, vergi: 0 };
 }
 
+/* ══ 2026 EMLAK VERGI DEGERI TAVANI ═══════════════════════════════
+   7566 s.K. ile EVK gecici md. 23: 2026 vergi degeri, 2025 vergi
+   degerinin "iki kat fazlasini" gecemez.
+
+   CARPAN 3'TUR, 2 DEGIL. Turkcede "iki kat fazlasi" ile "iki kati"
+   ayri seylerdir ve teblig birincisini kullaniyor. Ayrimi kapatan sey
+   lafiz degil, tebligin KENDI FORMUL GOSTERIMI:
+
+     satir 3  Arsanin 2025 yili vergi degeri (1 x 2)          900.000,00
+     satir 5  2026 icin hesaplanan vergi degeri (2 x 4)     6.000.000,00
+     satir 6  2025 vergi degerinin 2 kat fazlasi
+                                   [3 + (3 x 2 kat)]        2.700.000,00
+     satir 7  2026 yilinda uygulanacak vergi degeri          2.700.000,00
+     satir 8  2026 asgari olcude m2 birim degeri (7 / 2)         1.800,00
+
+   Teblig ayrica duz cumleyle de soyluyor: "2025 yilinda vergi degeri
+   1.000 TL ise 2026 yilinda bu degerin 3.000 TL'yi gecemeyecegi".
+
+   OLCUM NOTU (30 Agustos 2026): ayni belge icin uc farkli ozet UC
+   FARKLI CARPAN verdi (2x, 3x, 2.5x). Kanun belirsiz degildi,
+   ozetleyici yorumluyordu. Bir akran 1.800.000 (2x) okumustu; 1.800
+   tabloda GERCEKTEN var ama 8. SATIRDA ve baska bir sey -- tavanli m2
+   birim degeri. Ozet iki satiri karistirmis.
+   Kural: sayiyi tablonun satirindan al, FORMULU de kopyala.
+
+   SAYI KIRPILMAZ. Kullanicinin girdigi deger oldugu gibi hesaplanir;
+   tavan kendi satirinda ayrica gosterilir. Kirpmak, belediyeden gelen
+   belgeyle uyusmayan bir sayi uretir ve kullanici hangisinin dogru
+   oldugunu bilemez. Bizim isimiz uyarmak, yerine karar vermek degil. */
+const EMLAK_TAVAN = {
+    kat: 3,                 /* "iki kat fazlasi" = deger + 2 x deger */
+    yil: 2026,
+    dayanak: "7566 s.K. — Emlak Vergisi Kanunu geçici madde 23",
+    teblig: "89 Seri No.lu EVK Genel Tebliği"
+};
+
+function emlakDegerTavani(deger2025, deger2026) {
+    /* `Number(x) || 0` YAZILMAZ. Proje bu kalibi yasakliyor ve sinama
+       ariyor: kullanicinin "12,5" yazdigi yerde sessizce 0 ureten kalip
+       tam olarak budur. Burada masum gorunurdu (deger yoksa olculemedi
+       diyoruz) ama kalibi masum bir yerde geri sokmak, onu yeniden
+       mesrulastirir. Nitekim sinama bunu YAKALADI. */
+    const oncekiHam = Number(deger2025);
+    const simdiHam = Number(deger2026);
+    const onceki = Number.isFinite(oncekiHam) ? oncekiHam : 0;
+    const simdi = Number.isFinite(simdiHam) ? simdiHam : 0;
+    /* 2025 degeri yoksa "tavan asilmadi" DENMEZ, "olculemedi" denir. */
+    if (onceki <= 0) return { olculdu: false, kat: EMLAK_TAVAN.kat };
+    const tavan = onceki * EMLAK_TAVAN.kat;
+    return {
+        olculdu: true,
+        kat: EMLAK_TAVAN.kat,
+        onceki: onceki,
+        tavan: tavan,
+        asiyor: simdi > tavan,
+        asanKisim: Math.max(0, simdi - tavan)
+    };
+}
+
 function emlakVergisi(tur, vergiDegeri, buyuksehirMi, muafiyetVarMi) {
     const oranCifti = EMLAK.oranlar[tur] || EMLAK.oranlar.mesken;
     const oran = oranCifti[buyuksehirMi ? 1 : 0];

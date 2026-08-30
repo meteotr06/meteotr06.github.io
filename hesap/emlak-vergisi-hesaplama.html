@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Emlak Vergisi Hesaplama 2026 — Konut, İş Yeri, Arsa ve Arazi" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/emlak-vergisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=86" />
+<link rel="stylesheet" href="stil.css?v=87" />
 </head>
 <body>
 
@@ -84,8 +84,11 @@
                         <option value="arazi">Arazi</option>
                     </select>
                 </label>
-                <label>Emlak vergi değeri (TL)
+                <label>Emlak vergi değeri (TL) — 2026
                     <input id="deger" type="text" inputmode="decimal" value="2000000" />
+                </label>
+                <label>2025 vergi değeri (TL) — <span class="kucuk">isteğe bağlı, yasal tavanı denetlemek için</span>
+                    <input id="deger2025" type="text" inputmode="decimal" value="" placeholder="biliyorsanız yazın" />
                 </label>
                 <label class="onay">
                     <input id="buyuksehir" type="checkbox" checked />
@@ -154,13 +157,13 @@
     </section>
 </main>
 
-<script src="hesap.js?v=86"></script>
-<script src="sayfa.js?v=86"></script>
+<script src="hesap.js?v=87"></script>
+<script src="sayfa.js?v=87"></script>
 <script>
 iskeletKur("emlak-vergisi-hesaplama.html");
 gizlilikBaglantisi();
 
-const ALANLAR = ["tur", "deger", "buyuksehir", "muafiyet"];
+const ALANLAR = ["tur", "deger", "deger2025", "buyuksehir", "muafiyet"];
 
 function hesapla() {
     const tur = document.getElementById("tur").value;
@@ -173,6 +176,14 @@ function hesapla() {
     const e = emlakVergisi(tur, deger, bs, muaf);
     const binde = (o) => "binde " + sayi(o * 1000, 0);
 
+    /* YASAL TAVAN DENETIMI. Hesabi degistirmez, girdiyi sorgular:
+       kullanici 2026 degerini belediyenin CETVELINDEN okuduysa o deger
+       tavan uygulanmadan once hazirlanmis olabilir (cetveller Haziran
+       2025 tarihli, kanun Aralik 2025). Tahakkuk fisindeki deger
+       tavanlidir, cetveldeki olmayabilir. Girdinin KAYNAGI sonucu
+       belirliyor; onun icin sayiyi kirpmiyor, soruyoruz. */
+    const tv = emlakDegerTavani(oku("deger2025"), deger);
+
     document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
         <div class="dev-deger">${para(e.yillik)}</div>
         <div class="dev-etiket">yıllık emlak vergisi — ${e.turAd}${bs ? ", büyükşehir" : ""}</div>
@@ -183,6 +194,17 @@ function hesapla() {
         ${satir("Yıllık vergi", para(e.yillik), "buyuk")}
         ${satir("1. taksit (son gün Mayıs sonu)", para(e.taksit))}
         ${satir("2. taksit (son gün Kasım sonu)", para(e.taksit))}
+        ${tv.olculdu && tv.asiyor ? `<p class="onemli">
+            <b>Girdiğiniz 2026 değeri yasal tavanı aşıyor.</b>
+            2025 değeriniz ${para(tv.onceki)} olduğuna göre 2026 değeri en çok
+            <b>${para(tv.tavan)}</b> olabilir (${tv.kat} katı). Girdiğiniz değer
+            bunu ${para(tv.asanKisim)} aşıyor. Belediyelerin 2026 cetvelleri bu
+            sınır getirilmeden ÖNCE hazırlandı; <b>tahakkuk fişindeki</b> değeri
+            kullanın. Yukarıdaki vergi, girdiğiniz değere göre hesaplandı —
+            sayıyı kendiliğimizden değiştirmiyoruz.</p>` : ""}
+        ${tv.olculdu && !tv.asiyor ? `<p class="kucuk">
+            Yasal tavan denetlendi: 2025 değerinize göre 2026 için sınır
+            ${para(tv.tavan)}; girdiğiniz değer bunun altında.</p>` : ""}
         ${e.muaf ? `<p class="onemli"><b>Muafiyet uygulandı.</b>
             Şartları taşıyorsanız tek meskeniniz için oran <b>sıfırdır</b>. Muafiyet
             kendiliğinden işlemez — belediyeye <b>dilekçe ve belge</b> vermeniz gerekir.</p>` : ""}
@@ -220,6 +242,7 @@ function hesapla() {
     if (e.muaf) d.ekle("Muafiyet şartları sağlandı: oran sıfır.", "oran = 0", para(0));
     else d.ekle("Vergi değeri oranla çarpılır.", `${sayi(e.vergiDegeri, 0)} × ${sayi(e.oran, 4)}`, para(e.yillik));
     d.ekle("İki eşit taksite bölünür.", `${sayi(e.yillik, 2)} ÷ 2`, para(e.taksit));
+    if (tv.olculdu) d.ekle("2026 değeri, 2025 değerinin " + tv.kat + " katını aşamaz (7566 s.K.).", `${sayi(tv.onceki, 0)} × ${tv.kat}`, para(tv.tavan));
     if (e.dkv.vergi > 0) d.ekle("Değerli konut vergisi ayrıca hesaplanır.",
         `(${sayi(e.vergiDegeri,0)} − ${sayi(e.dkv.dilimTabani,0)}) × ${sayi(e.dkv.dilimOrani,3)} + ${sayi(e.dkv.dilimBirikmis,0)}`,
         para(e.dkv.vergi));
