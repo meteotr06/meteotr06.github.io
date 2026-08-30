@@ -125,10 +125,31 @@
         kullan.dataset.deger = String(y[2]);
     });
 
+    /* KOKEN RAPORA TASINMALI.
+       Olculdu (29.08.2026): bu dugme emlak vergisine esas ASGARI
+       (taban) degeri emsal alanina yaziyor ve girisde iki kez uyari
+       veriliyor -- ama RAPORDA hicbir iz kalmiyordu. Kullanici taban
+       degerden turetilmis bir rakami "Deger tahmini" basligi altinda
+       yazdirip pazarliga goturuyor; ustelik rapor iki yonlu aralik
+       verdigi icin TABANIN ALTINI bile olasi gosteriyor.
+       Cozum: alana kokeni isaretle, rapor onu okusun. Kullanici
+       sayiyi ELLE degistirirse isaret DUSER -- artik taban degil. */
+    function _kokenBirak() {
+        if (hedef) delete hedef.dataset.koken;
+    }
+    if (hedef) {
+        hedef.addEventListener('input', function (e) {
+            if (!e.__rayic) _kokenBirak();
+        });
+    }
+
     kullan.addEventListener('click', function () {
         if (!hedef || !kullan.dataset.deger) return;
         hedef.value = Number(kullan.dataset.deger).toLocaleString('tr-TR');
-        hedef.dispatchEvent(new Event('input', { bubbles: true }));
+        hedef.dataset.koken = 'rayic';
+        var _o = new Event('input', { bubbles: true });
+        _o.__rayic = true;
+        hedef.dispatchEvent(_o);
         sonuc.textContent = 'Emsal alanına yazıldı. Unutmayın: bu TABAN değerdir, '
             + 'gerçek piyasa fiyatı genellikle daha yüksektir — biliyorsanız onu yazın.';
     });

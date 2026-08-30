@@ -393,6 +393,8 @@ function girdi_topla() {
 
     g.alan = sayi($('gAlan').value);
     g.emsal_birim_fiyat = sayi($('gEmsalFiyat').value);
+    /* Emsal fiyat RESMI TABAN degerden mi geldi? Rapor bunu yazmali. */
+    g.emsal_koken = $('gEmsalFiyat').dataset.koken || null;
 
     /* UC HAL: bos secenek = CEVAPLANMADI (undefined). Onay kutusu
        ucuncu hali tasiyamadigi icin liste yapildi -- isaretsiz kutu
@@ -1118,6 +1120,23 @@ function deger_karti(an, g, ek_kutu) {
         k.appendChild(el('p', 'alt-not',
             'Şu bilgiler eksik olduğu için aralık genişledi: ' +
             an.carpan.eksik_bilgi.map(function (e) { return e.ad; }).join(', ') + '.'));
+    }
+
+    /* KOKEN UYARISI — girisdeki uyari rapora TASINMIYORDU.
+       Rayic dugmesi emlak vergisine esas ASGARI (taban) degeri emsal
+       alanina yaziyor. Girisde iki kez uyariliyor ama kullanici raporu
+       yazdirip pazarliga goturunce o uyarilar geride kaliyor. Ustelik
+       rapor iki yonlu aralik verdigi icin TABANIN ALTINI bile olasi
+       gosteriyor -- oysa taban, tanimi geregi alt siniridir.
+       Bu satir yalnizca dugme kullanildiysa cikar; kullanici sayiyi
+       elle degistirirse isaret duser ve satir cikmaz. */
+    if (g && g.emsal_koken === 'rayic') {
+        k.appendChild(el('p', 'alt-not vurgulu',
+            'DİKKAT: girdiğiniz emsal fiyat, belediyenin emlak vergisine esas ' +
+            'ASGARİ (taban) değeridir — piyasa fiyatı değildir. Gerçek satış ' +
+            'fiyatları genellikle bunun ÜSTÜNDEDİR. Buradaki aralığın alt ucu, ' +
+            'taban değerin de altına iner; bunu bir pazarlık hedefi saymayın. ' +
+            'Piyasa fiyatını biliyorsanız onu yazın, sonuç isabetli olur.'));
     }
 
     k.appendChild(el('p', 'alt-not',
