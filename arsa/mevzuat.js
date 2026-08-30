@@ -76,9 +76,18 @@ var RAYIC_SON_YIL = 2029;
        8  2026 asgari olcude m2 birim degeri (7 / 2)          1.800,00 TL
 
      Formulun kendisi ayrimi kapatiyor: [3 + (3 x 2)] = degerin kendisi
-     + iki kati = UC KAT. Teblig ayrica duz cumleyle de soyluyor:
-     "2025 yilinda vergi degeri 1.000 TL ise 2026 yilinda bu degerin
-     3.000 TL'yi gecemeyecegi anlamina gelmektedir."
+     + iki kati = UC KAT. Tebligin Ornek 1 metni de acikca yaziyor:
+     "...2025 yilina ait vergi degerinin iki kat fazlasini
+     [900.000,00 + (900.000,00 x 2) = 2.700.000,00 TL] astigindan,
+     arsaya iliskin 2026 yili emlak vergi degeri 2.700.000,00 TL
+     olarak dikkate alinacaktir."
+
+     ATIF DUZELTMESI (30.08.2026, ikinci tur denetim): burada once
+     "2025'te 1.000 TL ise 2026'da 3.000 TL" diye bir cumle TEBLIGE
+     ait gibi alintilanmisti. O cumle teblig metninde GECMIYOR; bir
+     mali musavir sirkulerinden geliyor. Aritmetigi dogruydu ama
+     KAYNAGI yanlisti -- yani bu yorumun kendi anlattigi hataya
+     dusmustum. Yerine tebligin KENDI cumlesi konuldu.
 
      ILK SURUM 2 YAZIYORDU VE YANLISTI (30.08.2026, v104 canlida kaldi).
      Sebep: tabloyu degil bir sirkulerin OZETINI okumustum; ozet
@@ -295,12 +304,29 @@ function konut_sinifi(g) {
       return { hata: 'Kat adedi veya yapı yüksekliği (m) gerekli.' };
     }
     yukseklik = kat * 3.00;
+    /* BODRUM SAYILIR — ATIF DUZELTILDI (30.08.2026).
+       Burada dayanak olarak md. 23/1-d gosteriliyordu; o madde
+       "zeminin altinda kalan katlar HARIC" diyor ve YALNIZCA bahce
+       mesafesi hesabi icindir. Yapi sinifini belirleyen "yapi
+       yuksekligi" tanimi ise md. 4/1-tttt: "BODRUM KATLAR, ASMA
+       KATLAR VE CATI ARASI PIYESLER DAHIL".
+
+       Fark para ediyor: 7 kat + 1 bodrum -> kod 21,00 m (3B, 21.050
+       TL/m2) diyordu; dogrusu 24,00 m (3C, 23.400 TL/m2). 1.000 m2'de
+       2,35 milyon TL. Yon KULLANICININ ALEYHINE: maliyet dusuk
+       gorunuyor.
+
+       Sayiyi KENDILIGINDEN artirmiyoruz: kullanicinin girdigi "kat
+       adedi"ne bodrumu katip katmadigini bilmiyoruz ve tahmin etmek
+       ters yone hata uretebilir. Onun yerine SORUYORUZ.             */
     uyari = 'Yapı yüksekliği girilmedi; kat başına 3,00 m kabul edilerek ' +
             kat + ' kat = ' + yukseklik.toLocaleString('tr-TR',
                 { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
-            ' m varsayıldı ' +
-            '(Planlı Alanlar İmar Yön. md. 23/1-d kat adedi ölçütü). ' +
-            'Gerçek yükseklik farklıysa yapı sınıfı ve maliyet değişir.';
+            ' m varsayıldı. DİKKAT: yapı yüksekliğine BODRUM KATLAR, ' +
+            'ASMA KATLAR ve ÇATI ARASI PİYESLER de dâhildir (Planlı ' +
+            'Alanlar İmar Yön. md. 4/1-tttt). Girdiğiniz kat sayısına ' +
+            'bunları katmadıysanız gerçek yükseklik daha fazladır ve ' +
+            'yapı sınıfı bir üste çıkabilir — maliyet artar.';
   }
 
   var sonuc;
@@ -382,10 +408,20 @@ function tapu_harci(g) {
   /* Harclar Kanunu md. 63: matrah emlak vergisi degerinden dusuk olamaz. */
   if (isFinite(emlak_degeri) && emlak_degeri > beyan) {
     matrah = emlak_degeri;
+    /* CEZA ORANI 2025 SONUNDA DEGISTI.
+       Burada "%25 vergi ziyai cezasi" yaziyordu. 7566 s.K. md. 6
+       (RG 19/12/2025, Sayi 33112) 492 s.K. md. 63/4'teki
+       "% 25 nispetinde" ibaresini "BIR KAT" yapti; yururluk yayim
+       tarihi. Yani ceza dort katina cikti ve biz kullaniciya hala
+       eski ve DUSUK olani soyluyorduk -- "dusuk beyan cezasi kucuk"
+       yanilgisina iten bir para hatasi.
+       Ayrica kanun "ikmalen VEYA RE'SEN" diyor; tek bicim yaziliydi. */
     uyari = 'Beyan bedeli emlak vergisi değerinin altında kaldı; harç emlak ' +
             'vergisi değeri üzerinden hesaplandı (Harçlar K. md. 63). ' +
-            'Düşük beyan hâlinde harç farkı ikmalen tarh edilir ve %25 vergi ' +
-            'ziyaı cezası uygulanır.';
+            'Düşük beyan hâlinde harç farkı ikmalen veya re’sen tarh ' +
+            'edilir ve vergi ziyaı cezası BİR KAT (yani eksik harcın tamamı ' +
+            'kadar) uygulanır — 7566 s.K. md. 6 ile 19/12/2025’ten ' +
+            'itibaren; eski oran %25 idi.';
   }
 
   var taraf = matrah * TAPU_HARCI_ORANI;

@@ -26,6 +26,38 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 115,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: true,
+        baslik: 'Mevzuat denetimi: beş düzeltme',
+        maddeler: [
+            'DÜŞÜK BEYAN CEZASI DÖRT KAT ARTMIŞ, biz eskisini ' +
+            'yazıyorduk. Tapuda gerçek bedelin altında beyan ' +
+            'ederseniz vergi ziyaı cezası artık %25 değil BİR KAT ' +
+            '(eksik harcın tamamı kadar) — 7566 sayılı Kanun, ' +
+            '19 Aralık 2025. Cezayı olduğundan küçük gösteriyorduk.',
+
+            'RAYİÇ DEĞERİ DE TAVANA TABİ. Cetvelden aldığınız ' +
+            'metrekare değeri belediyenin HAM TAKDİR rakamıdır. ' +
+            'Tebliğin örneğinde takdir 4.000 TL iken uygulanan değer ' +
+            '1.800 TL olmuş. Artık emsal alanına yazarken bunu ' +
+            'söylüyoruz.',
+
+            'BODRUM KAT MALİYETİ DEĞİŞTİRİR. Yapı yüksekliğine ' +
+            'bodrum, asma kat ve çatı arası da dâhil. Kat sayınıza ' +
+            'bunları katmadıysanız yapı sınıfı bir üste çıkabilir ve ' +
+            'inşaat maliyeti artar; uyarıyı ekledik.',
+
+            'Emlak vergisi satırı artık "+ %10 katkı payı" diyor. ' +
+            'Sayı zaten doğruydu ama adı eksikti; belediye ' +
+            'tahakkukuyla karşılaştıran %10 fazla görüyordu.',
+
+            'Yasal tavan 2029 sonuna kadar SÜRMÜYOR: 2026 için tek ' +
+            'seferlik. 2027-2029 bu sınırlı değere yeniden değerleme ' +
+            'oranı eklenerek yürüyor. Yanlış yazmıştık.'
+        ]
+    },
+    {
         surum: 111,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: false,

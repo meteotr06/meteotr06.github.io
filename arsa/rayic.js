@@ -395,5 +395,43 @@
         hedef.dispatchEvent(_o);
         sonuc.textContent = 'Emsal alanına yazıldı. Unutmayın: bu TABAN değerdir, '
             + 'gerçek piyasa fiyatı genellikle daha yüksektir — biliyorsanız onu yazın.';
+        tavanUyarisi();
     });
+
+    /* ---------------------------------------------------------------
+       M2 BIRIM DEGERI DE YASAL TAVANA TABI
+       ---------------------------------------------------------------
+       Olculdu (30.08.2026, ikinci tur mevzuat denetimi): tavan yalniz
+       toplam vergi degerine degil, ASGARI OLCUDE M2 BIRIM DEGERININ
+       KENDISINE de isliyor. 89 No.lu EVK Genel Tebligi Ornek 1:
+
+         satir 1  2025 m2 birim degeri            600,00 TL
+         satir 4  2026 icin TAKDIR edilen        4.000,00 TL
+         satir 8  2026'da uygulanacak m2 degeri   1.800,00 TL   (7 / 2)
+
+       Yani cetvelde yazan 4.000 TL degil, 1.800 TL uygulaniyor --
+       takdirin yarisindan az. Bizim veri dosyalarimiz belediyelerin
+       HAZIRAN 2025 tarihli cetvellerinden, yani kanundan ONCE
+       hazirlanmis ham takdir degerleri. Bu sayiyi emsal alanina
+       yazip susmak, kullaniciyi yasanin izin verdiginin cok ustunde
+       bir taban degere baktiriyordu.
+
+       KIRPMIYORUZ, SOYLUYORUZ: kullanicinin 2025 m2 degeri elimizde
+       yok; tahminle kirpmak sessiz yanlis sayi uretmek olurdu.        */
+    function tavanUyarisi() {
+        var kap = document.getElementById('rSorgu');
+        if (!kap) return;
+        kap.innerHTML = '';
+        var p = document.createElement('p');
+        p.className = 'alt-not';
+        p.textContent =
+            '⚠ Bu sayı belediyenin HAM TAKDİR değeridir. 2026 cetvelleri ' +
+            'Haziran 2025 tarihinde, yani yasal tavandan önce hazırlandı. ' +
+            'EVK geçici md. 23: uygulanacak metrekare değeri, 2025 ' +
+            'metrekare değerinizin üç katını geçemez. Tebliğin örneğinde ' +
+            'takdir 4.000 TL iken uygulanan değer 1.800 TL olmuştur. ' +
+            '2025 metrekare değerinizi biliyorsanız bu sayıyı onun üç ' +
+            'katıyla karşılaştırın — küçük olan geçerlidir.';
+        kap.appendChild(p);
+    }
 })();

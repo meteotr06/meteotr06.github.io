@@ -1360,8 +1360,20 @@ function imar_ciz(g) {
            uygulamanin her yerinde izledigimiz kural bu. */
         var evNormal = M.emlak_vergisi({ vergi_degeri: bedel, tur: 'arsa', buyuksehir: false });
         var evBuyuk  = M.emlak_vergisi({ vergi_degeri: bedel, tur: 'arsa', buyuksehir: true });
-        satir_ekle(k3, 'Yıllık emlak vergisi — büyükşehir dışı', tl(evNormal.toplam));
-        satir_ekle(k3, 'Yıllık emlak vergisi — büyükşehir', tl(evBuyuk.toplam));
+        /* ETIKET NE ODENECEGINI SOYLEMELI.
+           Sayi DOGRUYDU ama adi eksikti: `toplam` = vergi + %10
+           kultur varliklarini koruma katki payi (2863 s.K. md. 12).
+           Belediye tahakkukuyla karsilastiran kullanici %10 fazla
+           gorup sayiyi yanlis saniyordu. */
+        satir_ekle(k3, 'Yıllık emlak vergisi + %10 katkı payı — büyükşehir dışı',
+                   tl(evNormal.toplam));
+        satir_ekle(k3, 'Yıllık emlak vergisi + %10 katkı payı — büyükşehir',
+                   tl(evBuyuk.toplam));
+        k3.appendChild(el('p', 'alt-not',
+            'Bu tutarlar verginin kendisi (' + tl(evNormal.yillik_vergi) +
+            ' / ' + tl(evBuyuk.yillik_vergi) + ') artı %10 taşınmaz ' +
+            'kültür varlıklarını koruma katkı payıdır (2863 s.K. md. 12). ' +
+            'Katkı payı emlak vergisiyle birlikte tahakkuk eder.'));
         k3.appendChild(el('p', 'alt-not',
             'İkisi de gösteriliyor çünkü uygulama parselin hangi belediyede ' +
             'olduğunu bilmiyor. Büyükşehir sınırındaysa oran iki katıdır ' +
@@ -1412,7 +1424,10 @@ function imar_ciz(g) {
                      'tavanın ÜSTÜNDE — belediye tavanı aşan bir vergi ' +
                      'değeri uygularsa itiraz edebilirsiniz.')
                   : ('Beyan bedeliniz tavanın altında kalıyor.')) +
-                ' Bu sınır 2029 sonuna kadar sürer ve aynı değerlere ' +
+                ' Bu sınır 2026 yılı için TEK SEFERLİKTİR: 2027-2029 ' +
+                'yıllarında vergi, bu sınırlı 2026 değerine yeniden ' +
+                'değerleme oranı eklenerek hesaplanır (89 No.lu EVK ' +
+                'Genel Tebliği md. 7/2). Aynı sınır, bu değerlere ' +
                 'dayanan harçlara da işler.'));
             k3.appendChild(el('p', 'kaynak-liste', 'Kaynak: ' + M.MEVZUAT_KAYNAK.M7));
         } else {
