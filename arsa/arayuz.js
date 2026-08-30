@@ -164,6 +164,36 @@ var YARDIM = {
        sozlugunde anahtari yoktu. Oysa bu tek cevap degeri 0,22 ile
        carpip carpmamayi belirliyor. Bilmedigi terimi tahmin eden
        kullanici en pahali hatayi yapiyordu. */
+    /* TAVAN — 2026'nin en cok para eden mevzuat degisikligi.
+       Kullanicinin cogu bu kanundan haberdar degil; belediye cetvelinde
+       gordugu buyuk sayiyi kesin sanip pazarligi ona gore yapiyor. */
+    tavan: {
+        baslik: '2025 emlak vergi değeri neden soruluyor?',
+        metin: '<p>2025 yılının sonunda çıkan <b>7566 sayılı Kanun</b> ' +
+               '(EVK geçici md. 23) emlak vergisine bir <b>tavan</b> ' +
+               'koydu: <b>2026 vergi değeri, 2025 vergi değerinizin iki ' +
+               'katını geçemez.</b></p>' +
+               '<p><b>Bu neden önemli?</b> Belediyelerin 2026 rayiç ' +
+               'cetvelleri <b>Haziran 2025 tarihinde</b>, yani bu kanundan ' +
+               '<b>önce</b> hazırlandı. Cetveldeki metrekare değeri ham ' +
+               'takdir değeridir; bazı yerlerde 2025 değerinin on katına çıktı. ' +
+               'Tavan uygulandığında ödeyeceğiniz vergi çok daha ' +
+               'düşük olabilir.</p>' +
+               '<p><b>Sınır sadece vergiye değil</b>, bu değerlere dayanan ' +
+               '<b>harçlara</b> da işler — tapu harcının alt sınırı olan ' +
+               'emlak vergi değeri de tavana tabidir.</p>' +
+               '<p><b>Nereden öğrenirim?</b> 2025 emlak vergisi ' +
+               'tahakkukunuzda yazar. Elinizde yoksa belediyenin emlak ' +
+               'servisinden veya belediyenin e-belediye sayfasından ' +
+               'öğrenebilirsiniz.</p>' +
+               '<p><b>Boş bırakırsanız</b> hiçbir şey bozulmaz; sadece ' +
+               'tavanı hesaplayamayız ve raporda "ölçülemedi" yazarız. ' +
+               'Tahmini bir sayıyla tavan hesaplamayız — yanlış bir ' +
+               'vergi rakamı, hiç rakam olmamasından kötüdür.</p>' +
+               '<p>Sınır 2026-2029 arası geçerlidir ve sonraki yıllar bu ' +
+               'sınırlı değerler üzerinden yürür.</p>'
+    },
+
     mucavir: {
         baslik: 'Mücavir alan ne demek, nereden öğrenirim?',
         metin: '<p><b>Mücavir alan</b>, belediye sınırının hemen dışında ' +
@@ -395,6 +425,10 @@ function girdi_topla() {
     g.emsal_birim_fiyat = sayi($('gEmsalFiyat').value);
     /* Emsal fiyat RESMI TABAN degerden mi geldi? Rapor bunu yazmali. */
     g.emsal_koken = $('gEmsalFiyat').dataset.koken || null;
+
+    /* YASAL TAVAN icin gereken TEK sayi (EVK gecici md. 23). Bos ise
+       undefined kalir; motor "olculemedi" der, hicbir sey sinirlanmaz. */
+    g.vergi_degeri_2025 = sayi($('gVergiDegeri2025').value);
 
     /* UC HAL: bos secenek = CEVAPLANMADI (undefined). Onay kutusu
        ucuncu hali tasiyamadigi icin liste yapildi -- isaretsiz kutu
@@ -1285,6 +1319,62 @@ function imar_ciz(g) {
             'Bu iki kalem, girdiğiniz emsal birim fiyat × alan üzerinden ' +
             'hesaplandı — harç ve vergi beyan bedeline göre alınır. ' +
             'Yukarıdaki değer tahmini ayrı bir sayıdır.'));
+
+        /* ---------------------------------------------------------------
+           YASAL TAVAN — EVK gecici md. 23 (7566 s.K.)
+           ---------------------------------------------------------------
+           NEDEN YUKARIDAKI SAYIYI KIRPMIYORUZ
+             Tavan, belediyenin VERGI DEGERI'ne konulmus bir sinir.
+             Yukaridaki iki satir ise kullanicinin BEYAN BEDELI'nden
+             (emsal fiyat x alan) hesaplaniyor. Ikisi ayni sey degil.
+             Beyan bedelini "2025 vergi degerinin 2 kati" ile kirpmak,
+             zayif bir vekili kesin sayiya terfi ettirmek olurdu --
+             bugun ikon ve paylasim kartinda iki kez yasadigimiz olcut
+             hatasinin ta kendisi.
+
+             Onun yerine tavan KENDI ADIYLA, ayri satirda gosteriliyor:
+             "belediye en cok sunu vergi degeri sayabilir".            */
+        var tav = M.deger_tavani({
+            hesaplanan: bedel,
+            onceki: g.vergi_degeri_2025,
+            ad: 'vergi değeri'
+        });
+
+        if (!tav.hata && tav.kapsamda && !tav.olculemedi) {
+            var evtN = M.emlak_vergisi({ vergi_degeri: tav.tavan, tur: 'arsa',
+                                         buyuksehir: false });
+            var evtB = M.emlak_vergisi({ vergi_degeri: tav.tavan, tur: 'arsa',
+                                         buyuksehir: true });
+            satir_ekle(k3, 'YASAL TAVAN — vergi değeri en çok', tl(tav.tavan));
+            satir_ekle(k3, 'Tavandaki emlak vergisi — büyükşehir dışı',
+                       tl(evtN.toplam));
+            satir_ekle(k3, 'Tavandaki emlak vergisi — büyükşehir',
+                       tl(evtB.toplam));
+            k3.appendChild(el('p', 'alt-not',
+                'Girdiğiniz 2025 vergi değeri ' + tl(tav.onceki_2025) +
+                '. EVK geçici md. 23 (7566 s.K.): belediyenin 2026 vergi ' +
+                'değeri bunun iki katını geçemez. ' +
+                (tav.sinirlandi
+                  ? ('Yukarıdaki beyan bedeliniz (' + tl(bedel) + ') bu ' +
+                     'tavanın ÜSTÜNDE — belediye tavanı aşan bir vergi ' +
+                     'değeri uygularsa itiraz edebilirsiniz.')
+                  : ('Beyan bedeliniz tavanın altında kalıyor.')) +
+                ' Bu sınır 2029 sonuna kadar sürer ve aynı değerlere ' +
+                'dayanan harçlara da işler.'));
+            k3.appendChild(el('p', 'kaynak-liste', 'Kaynak: ' + M.MEVZUAT_KAYNAK.M7));
+        } else {
+            /* 2025 DEGERI YOKSA UYDURMUYORUZ, SORUYORUZ.
+               Bu uyarinin ekrana cikmasi sart: eski surumde ayni bilgi
+               motorda `not_2026` alaninda duruyordu ve HICBIR YERDE
+               gosterilmiyordu -- ustelik "uc kat" diye YANLIS yaziyordu. */
+            k3.appendChild(el('p', 'alt-not',
+                '⚠ YASAL TAVAN ÖLÇÜLEMEDİ. 2026 emlak vergi değeri, 2025 ' +
+                'değerinizin İKİ KATINI geçemez (EVK geçici md. 23, 7566 ' +
+                's.K.). Belediyelerin 2026 cetvelleri bu kanundan ÖNCE, ' +
+                'Haziran 2025 tarihinde hazırlandı; oradaki sayı ham takdir ' +
+                'değeridir ve tavan uygulanmamış olabilir. 2025 emlak ' +
+                'vergi değerinizi yukarıya girerseniz tavanı hesaplarız.'));
+        }
     }
     $('iMaliyet').innerHTML = ''; $('iMaliyet').appendChild(k3);
 }

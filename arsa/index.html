@@ -34,7 +34,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=102" />
+<link rel="stylesheet" href="stil.css?v=104" />
 </head>
 <body>
 
@@ -127,6 +127,28 @@
                 Yakındaki benzer bir parselin metrekare fiyatı. Emlakçıya
                 <b>"buralarda metrekaresi kaça gidiyor"</b> diye sorun.
                 Bu rakamı biz vermiyoruz — sizin verdiğinizi bilimsel katsayılarla düzeltiyoruz.
+            </p>
+
+            <!-- YASAL TAVAN GIRDISI — EVK gecici md. 23 (7566 s.K.).
+                 2026 vergi degeri, 2025 vergi degerinin IKI KATINI gecemez.
+                 Bu sayiyi biz bilemeyiz: belediye cetvelinde yok, veri
+                 dosyasinda yok. Tahmin edilirse sessizce yanlis vergi ve
+                 harc uretiriz. O yuzden SORULUYOR; bos birakilirsa tavan
+                 "olculemedi" denir ve hicbir sey sinirlanmaz. -->
+            <label class="alan" for="gVergiDegeri2025">
+                <span class="etiket">
+                    2025 emlak vergi değeri <i>(TL, isteğe bağlı)</i>
+                    <button type="button" class="yardim" data-yardim="tavan">?</button>
+                </span>
+                <input type="text" id="gVergiDegeri2025" inputmode="decimal"
+                       placeholder="örn. 900.000" />
+            </label>
+            <p class="alt-not">
+                Girerseniz <b>yasal tavan</b> hesaplanır: 2026 vergi değeri,
+                2025 değerinizin <b>iki katını</b> geçemez (EVK geçici md. 23).
+                Belediyenin 2026 cetveli bu sınırdan <b>önce</b> hazırlandı;
+                oradaki sayı ham takdir değeridir. 2025 değerinizi emlak
+                vergisi tahakkukunuzda veya belediyeden öğrenebilirsiniz.
             </p>
 
             <!-- Resmi taban: belediyenin emlak vergisine esas ASGARI m2 degeri.
@@ -363,11 +385,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=102" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=102" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=102" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=102" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=102" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=104" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=104" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=104" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=104" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=104" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

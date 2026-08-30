@@ -26,6 +26,36 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 104,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: true,
+        baslik: 'Emlak vergisine yasal tavan geldi — uygulama yanlış yazıyordu',
+        maddeler: [
+            '2025 sonunda çıkan 7566 sayılı Kanun, 2026 emlak vergi ' +
+            'değerine bir TAVAN koydu: 2025 değerinizin İKİ KATINI ' +
+            'geçemez. Uygulama bu sınırı "üç katı" diye YANLIŞ yazıyordu ' +
+            've bu not hiçbir ekranda görünmüyordu. Düzeltildi.',
+
+            'Belediyelerin 2026 rayiç cetvelleri bu kanundan ÖNCE ' +
+            'hazırlandı. Yani cetveldeki metrekare değeri ham takdir ' +
+            'değeridir; tavan uygulanmamış olabilir. Uygulama artık bunu ' +
+            'söylüyor.',
+
+            'Yeni alan: "2025 emlak vergi değeri". Girerseniz yasal tavanı ' +
+            've o tavandaki yıllık vergiyi hesaplıyoruz. Boş bırakırsanız ' +
+            'hiçbir şey bozulmaz — sadece "ölçülemedi" yazarız, tahminî ' +
+            'bir sayıyla tavan hesaplamayız.',
+
+            'Sınır yalnız vergiye değil, aynı değerlere dayanan HARÇLARA ' +
+            'da işliyor; tapu harcının alt sınırı olan emlak vergi değeri ' +
+            'de tavana tabi.',
+
+            'Gizlilik ve "neler değişti" sayfaları 29 sürüm eski kod ' +
+            'istiyordu; o sayfaları açanlar eski sürümü alıyordu. ' +
+            'Düzeltildi.'
+        ]
+    },
+    {
         surum: 69,
         tarih: '29 Ağustos 2026',
         hesapDuzeltmesi: false,

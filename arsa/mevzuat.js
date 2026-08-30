@@ -48,6 +48,109 @@ var YIL = 2026;
    Mevzuat yillik degisir; rayic cetveli 4 yilda bir belirlenir. */
 var RAYIC_SON_YIL = 2029;
 
+/* ---------------------------------------------------------------------
+   YASAL TAVAN — EVK gecici md. 23 (7566 s.K., RG 19/12/2025-33112)
+   ---------------------------------------------------------------------
+   NE DIYOR
+     2025'te 2026 icin takdir edilen asgari olcude arsa/arazi m2 birim
+     degerleri esas alinarak hesaplanan 2026 vergi degeri, 2025 vergi
+     degerinin IKI KATINI gecemez. Tavan hem vergi degerine hem de m2
+     birim degerinin kendisine isler; ayrica bu degerler uzerinden alinan
+     "vergi, harc ve diger mali yukumlulukler" icin de gecerlidir
+     (yani tapu harcinin emlak-vergisi tabanina da).
+     2027-2028-2029 bu SINIRLI degerler uzerinden yurur.
+
+   NEDEN BURADA
+     Belediyelerin yayimladigi cetveller Haziran 2025 tarihli, yani
+     kanundan ONCE. Cetveldeki sayi HAM TAKDIR degeridir; tavan
+     uygulanmamistir. Uygulama cetvel sayisini oldugu gibi gosterirse
+     kullanici yasanin izin verdiginden yuksek bir degere razi olur.
+
+   CARPAN NEDEN 2, 3 DEGIL
+     Kanun metni "iki kat fazlasini gecemez" diyor; bu ifade Turkcede
+     3 kat gibi de okunabiliyor ve bir hukuk kaynagi oyle yazmisti.
+     Sayisal ornek konuyu kapatiyor: 2025 degeri 900.000 TL -> 2026
+     tavani 1.800.000 TL. Yani IKI KAT. Metnin lafzina degil ORNEGIN
+     ARITMETIGINE bakildi (bkz. M7).
+
+   OLCULEMEZ HALI
+     Kullanicinin 2025 degeri elimizde yok; cetvelde de yok. O yuzden
+     tavan KENDILIGINDEN uygulanmaz — bilinmiyorsa "olculemedi" denir
+     ve kullaniciya sorulur. Tahmin edilmis bir 2025 degeriyle tavan
+     uygulamak, sessizce yanlis sayi uretmenin baska bir yoludur.        */
+var TAVAN_KAT = 2;
+var TAVAN_ILK_YIL = 2026;
+var TAVAN_SON_YIL = 2029;
+
+function deger_tavani(g) {
+  g = g || {};
+  var hesaplanan = sayi(g.hesaplanan);
+  var onceki = sayi(g.onceki);
+  var yil = g.yil || YIL;
+  var ad = g.ad || 'değer';
+
+  if (!isFinite(hesaplanan) || hesaplanan <= 0) {
+    return { hata: 'Hesaplanan ' + ad + ' geçersiz.' };
+  }
+
+  var kapsamda = yil >= TAVAN_ILK_YIL && yil <= TAVAN_SON_YIL;
+  if (!kapsamda) {
+    return {
+      uygulanan: Math.round(hesaplanan), kapsamda: false, olculemedi: false,
+      sinirlandi: false,
+      metin: yil + ' yılı, EVK geçici md. 23 kapsamı dışında (' +
+             TAVAN_ILK_YIL + '-' + TAVAN_SON_YIL + ').'
+    };
+  }
+
+  if (!isFinite(onceki) || onceki <= 0) {
+    return {
+      uygulanan: Math.round(hesaplanan), kapsamda: true, olculemedi: true,
+      sinirlandi: false, kat: TAVAN_KAT,
+      metin: '2025 değeri girilmediği için yasal tavan ÖLÇÜLEMEDİ. ' +
+             'EVK geçici md. 23 (7566 s.K.): ' + yil + ' için uygulanacak ' +
+             ad + ', 2025 değerinin ' + TAVAN_KAT + ' katını geçemez. ' +
+             'Belediye cetvelindeki sayı ham takdir değeridir; tavan ' +
+             'uygulanmamış olabilir. 2025 değerini girerseniz hesaplanır.',
+      kaynak: MEVZUAT_KAYNAK.M7
+    };
+  }
+
+  var tavan = onceki * TAVAN_KAT;
+  var sinirlandi = hesaplanan > tavan;
+  return {
+    uygulanan: Math.round(sinirlandi ? tavan : hesaplanan),
+    ham: Math.round(hesaplanan),
+    onceki_2025: Math.round(onceki),
+    tavan: Math.round(tavan),
+    kat: TAVAN_KAT,
+    kapsamda: true,
+    olculemedi: false,
+    sinirlandi: sinirlandi,
+    metin: sinirlandi
+      ? ('YASAL TAVAN UYGULANDI. Hesaplanan ' + ad + ' ' +
+         bicim_tl(hesaplanan) + ', ancak 2025 değerinin ' + TAVAN_KAT +
+         ' katı olan ' + bicim_tl(tavan) + ' ile sınırlı ' +
+         '(EVK geçici md. 23). Fazlası ' + TAVAN_SON_YIL + ' sonuna kadar ' +
+         'uygulanmaz.')
+      : ('Yasal tavanın altında: hesaplanan değer, 2025 değerinin ' +
+         TAVAN_KAT + ' katı olan ' + bicim_tl(tavan) + ' sınırını aşmıyor.'),
+    kaynak: MEVZUAT_KAYNAK.M7
+  };
+}
+
+/* Tavan metinlerinde sayilar okunakli olmali; toLocaleString ortama gore
+   degisiyor (Node'da ICU eksikse bosluk ayirici cikiyordu). Sabit bicim. */
+function bicim_tl(n) {
+  var t = String(Math.round(n));
+  var s = '';
+  for (var i = 0; i < t.length; i++) {
+    if (i > 0 && (t.length - i) % 3 === 0) s += '.';
+    s += t.charAt(i);
+  }
+  return s + ' TL';
+}
+
 /* UYGULAMA ESKIDIGINI SOYLEMELI.
    Olculdu (29.08.2026): kod hicbir yerde `getFullYear` cagirmiyordu;
    yani 2027'de acan bir kullanici 2026 birim fiyatlariyla, 2026 harc
@@ -103,7 +206,12 @@ var MEVZUAT_KAYNAK = {
       'Sayı 33124 (5. Mukerrer).',
   M5: 'Planlı Alanlar İmar Yönetmeliği, RG 3/7/2017-30113. Son değişiklikler: ' +
       'RG 13/8/2025-32985, RG 14/1/2026-33137, RG 1/7/2026-33297.',
-  M6: 'TKGM 2026 Yılı Döner Sermaye Tarife Cetveli. Yürürlük 1/1/2026.'
+  M6: 'TKGM 2026 Yılı Döner Sermaye Tarife Cetveli. Yürürlük 1/1/2026.',
+  M7: '1319 sayılı EVK geçici md. 23 (7566 sayılı Kanun, RG 19/12/2025, ' +
+      'Sayı 33112). Uygulama esasları: 89 Seri No.lu EVK Genel Tebliği, ' +
+      'RG 31/12/2025, Sayı 33124 (5. Mükerrer). 2026 vergi değeri, 2025 ' +
+      'vergi değerinin iki katını geçemez; 2027-2029 bu sınırlı değerler ' +
+      'üzerinden yürür. Aynı sınır, bu değerlere dayanan harçlara da işler.'
 };
 
 /* ---------------------------------------------------------------------
@@ -231,9 +339,24 @@ var TAPU_HARCI_ORANI = 0.020;   /* her taraf icin binde 20 */
 function tapu_harci(g) {
   g = g || {};
   var beyan = sayi(g.beyan_bedeli);
-  var emlak_degeri = sayi(g.emlak_vergi_degeri);
+  var emlak_ham = sayi(g.emlak_vergi_degeri);
 
   if (!isFinite(beyan) || beyan <= 0) return { hata: 'Beyan bedeli geçersiz.' };
+
+  /* TAVAN HARCA DA ISLER. EVK gecici md. 23 son fikrasi: bu degerler esas
+     alinarak uygulanan "vergi, HARC ve diger mali yukumlulukler" icin de
+     sinirli degerler dikkate alinir. Tavansiz bir emlak vergi degeri,
+     Harclar K. md. 63 tabani uzerinden harci da sisirir.                */
+  var harc_tavani = null;
+  var emlak_degeri = emlak_ham;
+  if (isFinite(emlak_ham) && emlak_ham > 0) {
+    harc_tavani = deger_tavani({
+      hesaplanan: emlak_ham,
+      onceki: g.emlak_vergi_degeri_2025,
+      ad: 'emlak vergi değeri'
+    });
+    emlak_degeri = harc_tavani.uygulanan;
+  }
 
   var matrah = beyan;
   var uyari = null;
@@ -250,6 +373,8 @@ function tapu_harci(g) {
   return {
     yil: YIL,
     matrah: Math.round(matrah),
+    emlak_vergi_degeri_ham: isFinite(emlak_ham) ? Math.round(emlak_ham) : null,
+    tavan: harc_tavani,
     oran_taraf: TAPU_HARCI_ORANI,
     alici_harci: Math.round(taraf),
     satici_harci: Math.round(taraf),
@@ -281,13 +406,24 @@ var BUYUKSEHIR_ILLERI = [
 
 function emlak_vergisi(g) {
   g = g || {};
-  var deger = sayi(g.vergi_degeri);
+  var ham_deger = sayi(g.vergi_degeri);
   var tur = g.tur || 'arsa';
   var buyuksehir = !!g.buyuksehir;
   var kayit = EMLAK_VERGISI_ORANI[tur];
 
   if (!kayit) return { hata: 'Bilinmeyen taşınmaz türü: ' + tur };
-  if (!isFinite(deger) || deger <= 0) return { hata: 'Vergi değeri geçersiz.' };
+  if (!isFinite(ham_deger) || ham_deger <= 0) {
+    return { hata: 'Vergi değeri geçersiz.' };
+  }
+
+  /* YASAL TAVAN once uygulanir; vergi TAVANLI deger uzerinden hesaplanir.
+     Tersi yapilirsa vergi yasanin izin verdiginden yuksek cikar.        */
+  var tavan = deger_tavani({
+    hesaplanan: ham_deger,
+    onceki: g.vergi_degeri_2025,
+    ad: 'vergi değeri'
+  });
+  var deger = tavan.uygulanan;
 
   var oran = kayit.normal * (buyuksehir ? 2 : 1);
   var vergi = deger * oran;
@@ -302,12 +438,12 @@ function emlak_vergisi(g) {
     oran: oran,
     oran_binde: Math.round(oran * 1000 * 100) / 100,
     vergi_degeri: Math.round(deger),
+    vergi_degeri_ham: Math.round(ham_deger),
+    tavan: tavan,
     yillik_vergi: Math.round(vergi),
     kultur_varliklari_katki_payi: Math.round(katki_payi),
     toplam: Math.round(vergi + katki_payi),
     odeme: '1. taksit Mart-Nisan-Mayıs, 2. taksit Kasım (EVK md. 30).',
-    not_2026: '2026 için hesaplanan vergi değeri, 2025 vergi değerinin uc katını ' +
-              'geçemez (7566 s.K. ile degisik EVK geçici md. 23).',
     kaynak: MEVZUAT_KAYNAK.M3
   };
 }
@@ -568,6 +704,11 @@ var API = {
   TAPU_HARCI_ORANI: TAPU_HARCI_ORANI,
   guncellik: guncellik,
   tapu_harci: tapu_harci,
+
+  TAVAN_KAT: TAVAN_KAT,
+  TAVAN_ILK_YIL: TAVAN_ILK_YIL,
+  TAVAN_SON_YIL: TAVAN_SON_YIL,
+  deger_tavani: deger_tavani,
 
   EMLAK_VERGISI_ORANI: EMLAK_VERGISI_ORANI,
   BUYUKSEHIR_ILLERI: BUYUKSEHIR_ILLERI,
