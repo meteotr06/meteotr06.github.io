@@ -42,6 +42,56 @@
     /* Fiyat verisi olan ilceler: ILCELER listesinden turuyor.
        "Kapsam" ile "fiyat" AYRI kavramlar -- ikisini karistirmak,
        elimizde olmayan veriyi varmis gibi gostermek olurdu. */
+    /* BELEDIYENIN KENDI SORGU SAYFASI.
+       `veri/sorgu.json` bicimi: { "İzmir": { "Çeşme": "https://..." } }
+       Dosya yoksa ya da bozuksa hicbir sey olmaz -- baglanti cikmaz,
+       uygulama eskisi gibi calisir. Veri dosyasi bir SUS, sart degil. */
+    var SORGU = null, sorguYuklendi = false;
+    function sorguYukle() {
+        if (sorguYuklendi) return Promise.resolve(SORGU);
+        sorguYuklendi = true;
+        return fetch('veri/sorgu.json')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) { SORGU = d; return d; })
+            .catch(function () { SORGU = null; return null; });
+    }
+
+    function sorguBaglantisi(il, ilce) {
+        var kap = document.getElementById('rSorgu');
+        if (!kap) return;
+        kap.innerHTML = '';
+        sorguYukle().then(function (d) {
+            var adres = d && d[il] && d[il][ilce];
+            if (!adres) {
+                kap.appendChild(yaz('p', 'alt-not',
+                    'Cetvel belediyenizin ya da muhtarlığınızın panosunda ' +
+                    'asılıdır. Emsal fiyatı elle de girebilirsiniz.'));
+                return;
+            }
+            kap.appendChild(yaz('p', 'alt-not',
+                'Ama ' + ilce + ' Belediyesi rayiç değerleri kendi sitesinde ' +
+                'sorgulanabiliyor. Oradaki sayı her zaman günceldir:'));
+            var a = document.createElement('a');
+            a.href = adres;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.className = 'ikincil';
+            a.textContent = ilce + ' Belediyesi — resmî rayiç sorgusu';
+            kap.appendChild(a);
+            kap.appendChild(yaz('p', 'alt-not',
+                'Bu bağlantı belediyenin kendi sayfasına gider; uygulamadan ' +
+                'çıkarsınız. Bulduğunuz metrekare değerini emsal fiyat ' +
+                'alanına yazabilirsiniz.'));
+        });
+    }
+
+    function yaz(etiket, sinif, metin) {
+        var e = document.createElement(etiket);
+        if (sinif) e.className = sinif;
+        e.textContent = metin;
+        return e;
+    }
+
     function fiyatVarMi(il, ilce) {
         return ILCELER.some(function (x) {
             return x.il === il && x.ad === ilce;
@@ -89,6 +139,15 @@
             var il = ilSec.value, ilce = ilceSec.value;
             if (!ilce) return;
             if (fiyatVarMi(il, ilce)) {
+                /* ONCEKI ILCENIN SORGU BAGLANTISINI SIL.
+                   Olculdu (30.08.2026): Cesme secilip sonra Menemen'e
+                   gecilince ekranda Menemen'in 65 mahallesi VE "Cesme
+                   Belediyesi - resmi rayic sorgusu" baglantisi birlikte
+                   duruyordu. Kullanici baska bir ilcenin adresine
+                   tiklayabilirdi. Kutu hicbir yerde temizlenmiyordu;
+                   karsit hal sinamasi (verisi olan ilce) yakaladi. */
+                var ks = document.getElementById('rSorgu');
+                if (ks) ks.innerHTML = '';
                 var i = ILCELER.findIndex(function (x) { return x.il === il && x.ad === ilce; });
                 if (i >= 0 && i !== SECILI_ILCE) { SECILI_ILCE = i; VERI = null; }
                 yolSec.innerHTML = '<option value="">— önce mahalle seçin —</option>';
@@ -104,13 +163,26 @@
                     yukle();
                 }
             } else {
-                /* SESSIZ GECMIYORUZ: elimizde olmadigini soyluyoruz. */
+                /* SESSIZ GECMIYORUZ: elimizde olmadigini soyluyoruz.
+                   AMA CIKMAZ SOKAKTA DA BIRAKMIYORUZ.
+
+                   Olculdu (30.08.2026): belediyelerin cogu cetveli PDF
+                   olarak degil, kendi e-belediye sitesinde SORGU SAYFASI
+                   olarak yayimliyor. Izmir'in 30 ilcesinde PDF 1, sorgu
+                   sayfasi 8 cikti -- yani yalniz PDF arayan bir yaklasim
+                   isin cogunu goremiyor.
+
+                   Bu baglanti bizim verimizden IYI bile olabilir:
+                   belediyenin kendi sayfasi her zaman guncel, bizim
+                   kopyamiz eskir. "Veri yok" demekle "iste resmi kaynak"
+                   demek arasindaki fark, kullanicinin isini bitirip
+                   bitirmedigidir.                                        */
                 mahSec.innerHTML = '<option value="">— bu ilçe için veri yok —</option>';
                 yolSec.innerHTML = '<option value="">—</option>';
                 kullan.disabled = true;
-                sonuc.textContent = il + ' / ' + ilce + ' için resmî taban değer verisi ' +
-                    'henüz yok. Belediyenizin ya da muhtarlığınızın panosunda asılıdır; ' +
-                    'emsal fiyatı elle girebilirsiniz.';
+                sonuc.textContent = il + ' / ' + ilce + ' için resmî taban değer ' +
+                    'verisi bizde henüz yok.';
+                sorguBaglantisi(il, ilce);
             }
         });
     }

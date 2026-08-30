@@ -26,6 +26,30 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 111,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Verisi olmayan ilçede artık belediyenin resmî sorgusuna yönlendiriyoruz',
+        maddeler: [
+            'Eskiden "bu ilçe için veri yok" deyip sizi orada bırakıyorduk. ' +
+            'Artık o ilçenin belediyesi rayiç değerlerini kendi sitesinde ' +
+            'sorgulatıyorsa, doğrudan o sayfaya bağlantı veriyoruz.',
+
+            'Neden önemli: belediyelerin çoğu cetveli PDF olarak değil, ' +
+            'kendi e-belediye sitesinde sorgu sayfası olarak yayımlıyor. ' +
+            'İzmirin 30 ilçesini taradık: PDF olarak yayımlayan 1, sorgu ' +
+            'sayfası olan 8 çıktı.',
+
+            'Belediyenin kendi sayfası HER ZAMAN GÜNCELDİR; bizim ' +
+            'kopyamız zamanla eskir. Bu yüzden verimiz olmayan yerde ' +
+            'sizi kaynağa göndermek daha doğru cevap.',
+
+            'Bağlantı belediyenin sitesine gider, uygulamadan çıkarsınız — ' +
+            'bunu da ekranda yazıyoruz. Bulduğunuz metrekare değerini ' +
+            'emsal fiyat alanına yazabilirsiniz.'
+        ]
+    },
+    {
         surum: 107,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: false,

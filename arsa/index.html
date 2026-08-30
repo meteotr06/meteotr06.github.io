@@ -34,7 +34,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=108" />
+<link rel="stylesheet" href="stil.css?v=111" />
 </head>
 <body>
 
@@ -194,6 +194,10 @@
                         <select id="rYol"><option value="">— önce mahalle seçin —</option></select>
                     </label>
                     <p id="rSonuc" class="resmi-sonuc" role="status" aria-live="polite"></p>
+                    <!-- Verisi olmayan ilcede cikmaz sokak birakmamak icin:
+                         belediyenin kendi rayic sorgu sayfasina baglanti.
+                         `rayic.js` doldurur, `veri/sorgu.json`dan okur. -->
+                    <div id="rSorgu" class="sorgu-kutu"></div>
                     <button type="button" id="rKullan" class="ikincil" disabled>Bu değeri emsal alanına yaz</button>
                 </div>
             </details>
@@ -445,11 +449,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=108" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=108" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=108" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=108" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=108" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=111" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=111" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=111" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=111" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=111" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

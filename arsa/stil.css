@@ -830,3 +830,12 @@ input.gecersiz, select.gecersiz {
     min-width: 0;
 }
 .guncellik-uyari[hidden] { display: none !important; }
+
+/* BELEDIYENIN KENDI SORGU SAYFASINA BAGLANTI.
+   Verisi olmayan ilcede kullaniciyi cikmaz sokakta birakmamak icin.
+   Baglanti dis siteye gider; bunu metin de soyluyor. */
+.sorgu-kutu { margin-top: 10px; }
+.sorgu-kutu a {
+    display: inline-block; margin-top: 6px; text-decoration: none;
+    text-align: center;
+}
