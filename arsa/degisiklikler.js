@@ -26,6 +26,26 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 117,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: true,
+        baslik: 'Değer artışı istisnası YILLIK — işlem başına değil',
+        maddeler: [
+            'Aynı yıl iki taşınmaz satan biri için vergiyi olduğundan ' +
+            'DÜŞÜK gösteriyorduk. 150.000 TL istisna, bir takvim ' +
+            'yılındaki değer artışı kazançlarının TOPLAMINA bir kez ' +
+            'uygulanır (GVK mükerrer md. 80); biz her satışta yeniden ' +
+            'düşüyorduk.',
+
+            'Bu hata sizi EKSİK BEYANA sürükleyebilirdi — cezası da ' +
+            'var. Artık istisnanın yıllık olduğunu ekranda yazıyoruz ve ' +
+            'o yıl kullandığınız kısmı hesaba katabiliyoruz.',
+
+            'Aynı yıl birden fazla satış yaptıysanız hesabı tekrar ' +
+            'yapın.'
+        ]
+    },
+    {
         surum: 115,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: true,

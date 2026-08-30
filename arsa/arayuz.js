@@ -1502,10 +1502,15 @@ function imar_ciz(g) {
                                tl(dak.endekslenmis_maliyet));
                 }
                 satir_ekle(dakKutu, 'Düşülen giderler', tl(dak.giderler));
-                satir_ekle(dakKutu, 'İstisna (2026)', tl(M.DAK_ISTISNA));
+                satir_ekle(dakKutu, 'İstisna (2026)', tl(dak.istisna));
                 satir_ekle(dakKutu, 'ÖDENECEK VERGİ', tl(dak.vergi));
                 if (dak.endeks_notu) {
                     dakKutu.appendChild(el('p', 'alt-not', dak.endeks_notu));
+                }
+                /* Istisna YILLIK. Ayni yil ikinci satista tekrar
+                   dusulemez; soylemezsek kullanici eksik beyan eder. */
+                if (dak.istisna_notu) {
+                    dakKutu.appendChild(el('p', 'alt-not', dak.istisna_notu));
                 }
                 dakKutu.appendChild(el('p', 'alt-not',
                     'Satış bedeli olarak girdiğiniz emsal fiyat × alan ' +

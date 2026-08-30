@@ -600,7 +600,20 @@ function deger_artis_kazanci(g) {
   }
 
   var safi = satis - maliyet - giderler;
-  var matrah = safi - DAK_ISTISNA;
+
+  /* ISTISNA YILLIKTIR, ISLEM BASINA DEGIL.
+     GVK mukerrer md. 80: istisna, bir takvim yilinda elde edilen deger
+     artisi kazanclarinin TOPLAMINA bir kez uygulanir. Kod her cagrida
+     tam istisnayi dusuyordu; ayni yil iki tasinmaz satan biri istisnayi
+     IKI KEZ dusmus olur ve vergi OLDUGUNDAN DUSUK cikar -- yani hata
+     kullanicinin lehine gorunup onu eksik beyana suruklerdi.
+     Cagiran, o yil zaten kullandigi istisnayi bildirebilir.           */
+  var kullanilan = sayi(g.istisna_kullanilan);
+  if (!isFinite(kullanilan) || kullanilan < 0) kullanilan = 0;
+  if (kullanilan > DAK_ISTISNA) kullanilan = DAK_ISTISNA;
+  var istisna = DAK_ISTISNA - kullanilan;
+
+  var matrah = safi - istisna;
   if (matrah < 0) matrah = 0;
   var vergi = gelir_vergisi(matrah);
 
@@ -614,10 +627,16 @@ function deger_artis_kazanci(g) {
     satis_bedeli: Math.round(satis),
     giderler: Math.round(giderler),
     safi_kazanc: Math.round(safi),
-    istisna: DAK_ISTISNA,
+    istisna: Math.round(istisna),
+    istisna_tam: DAK_ISTISNA,
+    istisna_kullanilan: Math.round(kullanilan),
     matrah: Math.round(matrah),
     vergi: Math.round(vergi),
     efektif_oran: safi > 0 ? Math.round(vergi / safi * 1000) / 10 : 0,
+    istisna_notu: 'İstisna YILLIKTIR: ' + DAK_ISTISNA.toLocaleString('tr-TR') +
+                  ' TL, bir takvim yılındaki değer artışı kazançlarının ' +
+                  'TOPLAMINA bir kez uygulanır. Aynı yıl başka bir ' +
+                  'taşınmaz daha sattıysanız istisnanın kalanı geçerlidir.',
     beyan: 'İzleyen yılın MART ayında yıllık gelir vergisi beyannamesi ile ' +
            'beyan edilir (GVK md. 92).',
     kaynak: MEVZUAT_KAYNAK.M4
@@ -629,6 +648,20 @@ function deger_artis_kazanci(g) {
    ------------------------------------------------------------------- */
 
 /* Md. 5/6 — 1/7/2026'da tamamen degisti (RG 33297). */
+/* ⚠ DOGRULANMAYI BEKLEYEN SORU (30.08.2026 mevzuat denetimi).
+   Bir denetim ajani sunu bildirdi: PAIY md. 5/6'nin BIRINCI cumlesi
+   "planda acikca belirlenmemis ise TAKS %40'i gecemez" diyor; bu
+   fonksiyonun hicbir dali 0.40 dondurmuyor, hepsi 0.60 donuyor.
+   Dogruysa taban alanini %50 fazla gosteriyoruz.
+
+   DEGISTIRMEDIM. Sebep K-61'in kendisi: elimde yonetmeligin ISLENMIS
+   ORNEGI yok, tek bir ajan raporu var. Bugun tam da "ozet gordum,
+   dogrulanmis sandim" diye canliya yanlis sayi cikardim. Ayni hatayi
+   ters yone yapmayacagim.
+
+   OLCULEMEDI olarak kayitli. Onceligi dusuk cunku bu fonksiyon
+   ARAYUZDEN CAGRILMIYOR (yalniz test.html); yani su an canli bir sayi
+   uretmiyor. Arayuze baglanmadan once yonetmeligin metni okunmali. */
 function taks_siniri(g) {
   g = g || {};
   if (g.nizam === 'bitisik') {
