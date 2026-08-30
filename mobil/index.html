@@ -536,9 +536,19 @@ function goster(yer, v, hk, modeller){
       nem:v.hourly.relative_humidity_2m[i], yagis:v.hourly.precipitation[i]||0,
       olasilik:v.hourly.precipitation_probability[i]||0, kod:v.hourly.weather_code[i], ilk:i===bas });
 
+  /* "SIMDI" ETIKETI IKI FARKLI SAYIYI AYNI ADLA GOSTERIYORDU.
+     Olculdu (30.08.2026, telefon): saat 19:45'te ust kart 30 derece,
+     seridin ilk karti "Şimdi" etiketiyle 31 derece yaziyordu.
+     Ikisi de DOGRU veri: ust kart `current.temperature_2m` yani ANLIK
+     olcum; serit ise `hourly` yani SAAT DILIMI tahmini (19:00).
+     Ama ayni ekranda "şimdi" diyen iki farkli sayi, kullanicinin
+     hangisine guvenecegini bilememesi demek -- cokme yok, celiski var.
+     Cozum: seridin ilk karti da kendi SAATINI yaziyor (19:00). Serit
+     bastan sona saatlik oluyor, "şimdi" iddiasi kalmiyor; hangi saatte
+     oldugumuz zaten kartin vurgulu zemininden (simdi-kart) belli. */
   const saatlikHTML = saatler.map(s => `
     <div class="saat-kart ${s.ilk?'simdi-kart':''}">
-      <div class="s">${s.ilk?"Şimdi":s.saat}</div>
+      <div class="s">${s.saat}</div>
       ${ikon(kodCoz(s.kod)[1],34)}
       <div class="d">${sy(s.sicaklik,"","°")}</div>
       <div class="v" style="color:var(--nem)">${sy(s.nem,"%","")}</div>
@@ -659,7 +669,21 @@ function betikYukle(src){ return new Promise((c,h) => {
 
 async function haritayiAc(){
   const btn = document.getElementById("haritaBtn");
-  if (harita){ document.getElementById("haritaKutu").classList.toggle("acik"); return; }
+  /* DUGME ETIKETI DURUMU YANSITMIYORDU.
+     Olculdu (30.08.2026): harita bir kez yuklendikten sonra etiket
+     kalici olarak "Haritayi gizle" kaliyordu -- harita GIZLIYKEN de.
+     Yani dugme, basinca ne olacagini degil, bir kereye mahsus yazilmis
+     bir cumleyi gosteriyordu. Kullanici hangi durumda oldugunu
+     dugmeden okuyamiyordu.
+     Sebep: asagidaki erken donus etiketi hic guncellemiyordu; etiket
+     yalnizca ILK yuklemede (satir ~712) yaziliyordu. */
+  if (harita){
+    const kutu = document.getElementById("haritaKutu");
+    const acik = kutu.classList.toggle("acik");
+    btn.textContent = acik ? "🗺️ Haritayı gizle" : "🗺️ Haritayı göster";
+    btn.setAttribute("aria-expanded", acik ? "true" : "false");
+    return;
+  }
   btn.textContent = "Harita yükleniyor…";
   try {
     if (!window.L){
@@ -700,6 +724,7 @@ async function haritayiAc(){
       yukle({ ...enIyi, e:e.latlng.lat, b:e.latlng.lng });
     });
     btn.textContent = "🗺️ Haritayı gizle";
+    btn.setAttribute("aria-expanded", "true");
     document.getElementById("radarBtn").style.display = "flex";
     // harita her hareket edince gorunen illerin sicakliklarini tazele (debounce)
     harita.on("moveend", () => {
