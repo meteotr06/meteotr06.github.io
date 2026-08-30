@@ -10,6 +10,23 @@
    kullanmayanın ilk açılışını yavaşlatmasın. */
 (function () {
     'use strict';
+    /* ILCE LISTESI — buyumeye hazir yapi.
+       Bugun tek ilce var (Menemen). Yeni ilce eklemek icin: veri/
+       klasorune ayni bicimde bir json koy ve asagiya bir satir ekle.
+       Arayuz gerisini kendisi yapar: tek ilce varsa secici GOSTERILMEZ,
+       iki ve uzeri varsa secici cikar.
+
+       NEDEN LISTE (olculdu 30.08.2026): dosya adi koda GOMULUYDU
+       ('veri/menemen.json') ve ilce adi HTML'e ELLE yazilmisti
+       ("(Menemen)"). Ikisi ayri yerde duran ayni bilgi -- ilce
+       eklendiginde biri guncellenip digeri unutulur ve kullanici
+       BASKA ILCENIN fiyatini gorur. Artik tek kaynak bu liste ve
+       kunye VERI DOSYASININ KENDISINDEN okunuyor. */
+    var ILCELER = [
+        { ad: 'Menemen', il: 'İzmir', dosya: 'veri/menemen.json' }
+    ];
+    var SECILI_ILCE = 0;
+
     var VERI = null, yukleniyor = false;
     var kutu = document.getElementById('resmiTaban');
     if (!kutu) return;
@@ -43,7 +60,7 @@
             if (m) etiket = '?v=' + m[1];
         } catch (e) {}
 
-        fetch('veri/menemen.json' + etiket)
+        fetch(ILCELER[SECILI_ILCE].dosya + etiket)
             .then(function (c) { if (!c.ok) throw new Error(c.status); return c.json(); })
             .then(function (d) {
                 VERI = d; yukleniyor = false;
@@ -53,7 +70,24 @@
                     o.value = ad; o.textContent = ad + ' (' + d.mahalle[ad].length + ' yol)';
                     mahSec.appendChild(o);
                 });
-                sonuc.textContent = adlar.length + ' mahalle yüklendi. Mahallenizi seçin.';
+                /* KUNYE VERI DOSYASINDAN. Onceden HTML'de elle "(Menemen)"
+                   yaziyordu ve yil/kaynak hic gosterilmiyordu -- oysa
+                   dosya il, ilce, yil, kaynak ve gecerlilik alanlarini
+                   ZATEN tasiyor. Elle yazilan etiket, veri degisince
+                   sessizce yalan soyler. */
+                var bas = document.getElementById('rayicKunye');
+                if (bas) {
+                    bas.textContent = (d.il || '') + ' · ' + (d.ilce || '') +
+                        ' — ' + (d.yil || '') + ' yılı cetveli' +
+                        (d.gecerlilik ? ' (' + d.gecerlilik + ' geçerli)' : '');
+                }
+                var ozet = document.querySelector('#resmiTaban summary');
+                if (ozet && d.ilce) {
+                    ozet.textContent = 'Bilmiyor musunuz? Resmî taban değere bakın (' +
+                        d.ilce + ')';
+                }
+                sonuc.textContent = adlar.length + ' mahalle yüklendi (' +
+                    (d.ilce || '') + '). Mahallenizi seçin.';
             })
             .catch(function () {
                 yukleniyor = false;
@@ -119,7 +153,13 @@
             return;
         }
 
-        sonuc.textContent = y[0] + ' ' + y[1] + ': ' + tl(y[2])
+        /* ILCE ADI SONUCTA DA YAZAR. Mahalle adlari ilceler arasinda
+           ORTAK ("Cumhuriyet", "Yeni" gibi); kullanici baska ilcede
+           yasiyorsa ayni adi secip BASKA ILCENIN fiyatini alabilir.
+           Ilceyi sonucun icine koymak bunu imkansiz kilmaz ama
+           gorunur kilar. */
+        sonuc.textContent = (VERI.ilce ? VERI.ilce + ' · ' : '') +
+            y[0] + ' ' + y[1] + ': ' + tl(y[2])
             + ' — bu resmî TABAN değerdir, piyasa bunun üstündedir.';
         kullan.disabled = false;
         kullan.dataset.deger = String(y[2]);
