@@ -89,13 +89,17 @@ body {
 button {
     font-family: inherit; font-size: 15px; cursor: pointer;
     border-radius: 10px; border: 1px solid var(--cizgi);
-    min-height: 42px; padding: 0 14px;
+    min-height: 44px; padding: 0 14px;
     background: var(--kart); color: var(--yazi);
     transition: background .12s;
 }
 button:active { background: var(--kart-ust); }
 button.birincil { background: var(--vurgu); color: #fff; border-color: var(--vurgu); font-weight: 600; }
-button.ikincil { background: transparent; border-color: transparent; min-width: 42px; padding: 0 8px; color: var(--yazi2); }
+/* DOKUNMA HEDEFI 44 px — GENISLIK DE.
+   Olculdu (30.08.2026, telefon 375x812): min-height 44 yapildiktan
+   sonra bu dugmeler 42x44 kaldi; esik iki YONDE de gecerli.
+   Yukseklik duzeltip genisligi unutmak, kusuru yarim kapatmak. */
+button.ikincil { background: transparent; border-color: transparent; min-width: 44px; padding: 0 8px; color: var(--yazi2); }
 button.ikincil:hover { background: var(--kart-ust); color: var(--yazi); }
 
 .rozet {
@@ -149,7 +153,7 @@ h4 { font-size: 14px; margin: 0 0 6px; font-weight: 600; }
 
 .arac-serit { display: flex; gap: 8px; margin-bottom: 10px; }
 input, select, textarea {
-    font-family: inherit; font-size: 16px; min-height: 42px;
+    font-family: inherit; font-size: 16px; min-height: 44px;
     background: var(--zemin2); color: var(--yazi);
     border: 1px solid var(--cizgi); border-radius: 10px; padding: 8px 12px; width: 100%;
 }
@@ -172,7 +176,10 @@ input:focus, select:focus { outline: 2px solid var(--vurgu); outline-offset: -1p
 .ana-fiyat { font-size: 46px; font-weight: 700; line-height: 1.05; margin: 6px 0 4px; letter-spacing: -1.5px; }
 .ana-fark { font-size: 14px; font-weight: 600; }
 .ana-istatistik { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--yazi2); margin-top: 10px; }
-.ana-secim { width: auto; max-width: 112px; flex: 0 0 auto; font-size: 14px; font-weight: 600; min-height: 38px; }
+/* 38px -> 44px: dokunma esigi. Bu kutu ana para birimini secer,
+   yani sayfanin butun sayilarini degistirir; en cok dokunulan
+   ogelerden biri esigin ALTINDAYDI. */
+.ana-secim { width: auto; max-width: 112px; flex: 0 0 auto; font-size: 14px; font-weight: 600; min-height: 44px; }
 
 /* Tahminler kutu değil, SATIR — banka ekstresi gibi okunur */
 .ana-tahminler { margin-top: 16px; border-top: 1px solid var(--cizgi); }
@@ -328,7 +335,7 @@ tr.vurgu-satir td { background: var(--kart-ust); font-weight: 600; }
 .form-satir { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 label { display: block; font-size: 13px; color: var(--yazi2); font-weight: 500; }
 label input, label select { margin-top: 5px; }
-label.onay { display: flex; align-items: center; gap: 10px; color: var(--yazi); font-size: 14px; min-height: 42px; }
+label.onay { display: flex; align-items: center; gap: 10px; color: var(--yazi); font-size: 14px; min-height: 44px; }
 label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex: 0 0 auto; }
 
 .sonuc-kutu { margin-top: 14px; border-top: 1px solid var(--cizgi); padding-top: 4px; }
@@ -390,7 +397,7 @@ label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex:
 
 .renk-satir { display: flex; gap: 12px; flex-wrap: wrap; }
 .renk-nokta {
-    width: 40px; height: 40px; min-height: 40px; border-radius: 50%; padding: 0;
+    width: 44px; height: 44px; min-height: 44px; border-radius: 50%; padding: 0;
     border: 1px solid var(--cizgi); position: relative;
 }
 .renk-nokta.aktif { border: 2px solid var(--yazi); }
@@ -551,7 +558,20 @@ body.sade .gelismis { display: none !important; }
   .diger-uyg > a b, .diger-izgara > a b { font-size: 13px; font-weight: 500; }
 }
 
-/* Kapat (✕) dugmesi telefonda 32px kaliyordu; parmakla basmak icin 40px lazim */
+/* Kapat (✕) dugmesi telefonda 32px kaliyordu; parmakla basmak icin 44px lazim.
+   30.08.2026: burasi 40px'e cikarilmisti ama esik 44. Ustelik bu kural
+   TELEFON icin yazilmis ve tam telefonda taban kuraldaki 44'u EZIYORDU --
+   yani iyilestirme icin konan kural, esigin altinda tutuyordu.
+   Olculdu: yenile/tema/ayar/kapat dugmeleri 40x40 kaliyordu. */
 @media (max-width: 719px) {
-    .panel-kapat, button.ikincil { min-height: 40px; min-width: 40px; }
+    .panel-kapat, button.ikincil { min-height: 44px; min-width: 44px; }
+}
+
+
+/* TEK BASINA DURAN KUCUK BAGLANTILAR — bkz. hesap/stil.css.
+   Olculdu: "Gizlilik politikasi" 91x17 px. */
+.alt-bilgi a, footer a, .site-alt a {
+    display: inline-block;
+    padding: 13px 6px;
+    margin: -13px -6px;
 }

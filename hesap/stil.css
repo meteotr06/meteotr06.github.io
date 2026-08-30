@@ -114,13 +114,17 @@ body {
 button {
     font-family: inherit; font-size: .9375rem; cursor: pointer;
     border-radius: 10px; border: 1px solid var(--cizgi);
-    min-height: 42px; padding: 0 14px;
+    min-height: 44px; padding: 0 14px;
     background: var(--kart); color: var(--yazi);
     transition: background .12s;
 }
 button:active { background: var(--kart-ust); }
 button.birincil { background: var(--vurgu); color: #fff; border-color: var(--vurgu); font-weight: 600; }
-button.ikincil { background: transparent; border-color: transparent; min-width: 42px; padding: 0 8px; color: var(--yazi2); }
+/* DOKUNMA HEDEFI 44 px — GENISLIK DE.
+   Olculdu (30.08.2026, telefon 375x812): min-height 44 yapildiktan
+   sonra bu dugmeler 42x44 kaldi; esik iki YONDE de gecerli.
+   Yukseklik duzeltip genisligi unutmak, kusuru yarim kapatmak. */
+button.ikincil { background: transparent; border-color: transparent; min-width: 44px; padding: 0 8px; color: var(--yazi2); }
 button.ikincil:hover { background: var(--kart-ust); color: var(--yazi); }
 
 .rozet {
@@ -265,7 +269,7 @@ h4 { font-size: .875rem; margin: 0 0 6px; font-weight: 600; }
 
 .arac-serit { display: flex; gap: 8px; margin-bottom: 10px; }
 input, select, textarea {
-    font-family: inherit; font-size: 1rem; min-height: 42px;
+    font-family: inherit; font-size: 1rem; min-height: 44px;
     background: var(--zemin2); color: var(--yazi);
     border: 1px solid var(--cizgi); border-radius: 10px; padding: 8px 12px; width: 100%;
     /* `width:100%` tek basina yetmiyor: bazi girdilerin (ozellikle
@@ -483,7 +487,7 @@ tr.vurgu-satir td { background: var(--kart-ust); font-weight: 600; }
 .form-izgara > *, .form-satir > * { min-width: 0; }
 label { display: block; font-size: .8125rem; color: var(--yazi2); font-weight: 500; }
 label input, label select { margin-top: 5px; }
-label.onay { display: flex; align-items: center; gap: 10px; color: var(--yazi); font-size: .875rem; min-height: 42px; }
+label.onay { display: flex; align-items: center; gap: 10px; color: var(--yazi); font-size: .875rem; min-height: 44px; }
 /* Uzun aciklamali onay kutusu (orn. emlak vergisi muafiyet sarti) sarsin */
 .form-izgara label.onay { grid-column: 1 / -1; align-items: flex-start; padding: 4px 0; }
 .form-izgara label.onay span { line-height: 1.45; }
@@ -551,7 +555,7 @@ label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex:
 
 .renk-satir { display: flex; gap: 12px; flex-wrap: wrap; }
 .renk-nokta {
-    width: 40px; height: 40px; min-height: 40px; border-radius: 50%; padding: 0;
+    width: 44px; height: 44px; min-height: 44px; border-radius: 50%; padding: 0;
     border: 1px solid var(--cizgi); position: relative;
 }
 .renk-nokta.aktif { border: 2px solid var(--yazi); }
@@ -690,7 +694,7 @@ body.sade .gelismis { display: none !important; }
 body { padding-bottom: 0; }
 
 .marka { font-size: 1.0625rem; font-weight: 700; color: var(--yazi); text-decoration: none;
-         letter-spacing: -.2px; display: inline-flex; align-items: center; min-height: 40px; }
+         letter-spacing: -.2px; display: inline-flex; align-items: center; min-height: 44px; }
 .marka span { color: var(--vurgu); }
 
 .arac-gezinti {
@@ -938,7 +942,7 @@ main:focus { outline: none; }
 
 /* Dokunma hedefleri en az 40px — ölçümde 3 düğme altında kalmıştı */
 .eylem-cubugu button, .aralik-dugmeler button, .uyari button,
-.etiket-dugme, .portfoy-satir .sil { min-height: 40px; }
+.etiket-dugme, .portfoy-satir .sil { min-height: 44px; }
 
 /* Sayiyi yaziyla: uzun metin dev-deger'e sigmaz, kendi olcusu olsun */
 .yazi-sonuc {
@@ -979,7 +983,7 @@ main:focus { outline: none; }
     border-radius: var(--yuvarlak); background: var(--kart-ust);
 }
 .kurulum-yazi { flex: 1 1 240px; font-size: .875rem; color: var(--yazi); }
-.kurulum-serit button { min-height: 40px; }
+.kurulum-serit button { min-height: 44px; }
 .kurulum-yardim { flex: 1 1 100%; font-size: .875rem; color: var(--yazi2); }
 .kurulum-yardim p { margin: 10px 0 4px; color: var(--yazi); }
 .kurulum-yardim ol { margin: 0 0 6px; padding-left: 20px; }
@@ -1030,7 +1034,7 @@ main:focus { outline: none; }
 .grup-cipleri::-webkit-scrollbar { display: none; }
 .grup-cip {
     display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
-    padding: 9px 14px; min-height: 40px; border-radius: 999px;
+    padding: 11px 14px; min-height: 44px; border-radius: 999px;
     border: 1px solid var(--cizgi); background: var(--kart);
     color: var(--yazi); text-decoration: none; font-size: .84375rem;
     white-space: nowrap; transition: border-color .15s, background .15s;
@@ -1181,7 +1185,7 @@ td.hayir { color: var(--azalis); font-weight: 600; white-space: nowrap; }
 .gorunum-boylar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .gorunum-ic button {
     display: flex; align-items: center; gap: 7px;
-    min-height: 40px; padding: 0 10px; min-width: 0;
+    min-height: 44px; padding: 0 10px; min-width: 0;
     border: 1px solid var(--cizgi); border-radius: 8px;
     background: var(--kart-ust); color: var(--yazi);
     font: inherit; font-size: .8125rem; text-align: left; cursor: pointer;
@@ -1267,3 +1271,17 @@ html[data-sade] *::after {
    Nokta cozumler bilerek birakildi: birileri bu blogu silerse
    onlar hala calisir. */
 [hidden] { display: none !important; }
+
+
+/* TEK BASINA DURAN KUCUK BAGLANTILAR — dokunma alani.
+   Olculdu (30.08.2026, telefon): "Neler degisti?" 85x19 px,
+   "Gizlilik politikasi" 91x17 px. Bir cumlenin ICINDEKI baglanti
+   ayri konu (satir yuksekligi bozulur, oradan uzak duruyoruz); ama
+   kendi basina duran bu baglantilar parmakla vurulmali.
+   Gorunum degismiyor, yalniz tiklama alani buyuyor. */
+.duyuru-serit a, .alt-bilgi a, footer a, .site-alt a,
+.duyuru a, .serit a, .ys-govde a, [class*="duyuru"] a {
+    display: inline-block;
+    padding: 12px 6px;
+    margin: -12px -6px;          /* yerlesim kaymasin */
+}

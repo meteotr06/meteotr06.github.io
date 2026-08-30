@@ -2,7 +2,7 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v36";
+const SURUM = "kur-pusulasi-v37";
 const DOSYALAR = [
     "./",
     "./index.html",
