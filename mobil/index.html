@@ -125,7 +125,8 @@
              background:rgba(18,26,38,.86); padding:2px 7px 2px 3px; border-radius:11px; }
   .sic-ust b { color:#fff; font-size:12px; font-weight:700; line-height:1; }
   .sic-ic .ad { display:block; font-size:9px; color:#fff; font-weight:600; margin-top:1px; }
-  .secili-pin { background:transparent !important; border:none !important; }
+  .secili-pin { background:transparent !important; border:none !important;
+    display:flex; align-items:center; justify-content:center; }
   .secili-nokta { width:16px; height:16px; border-radius:50%; background:var(--vurgu);
     border:3px solid #fff; box-shadow:0 0 0 2px rgba(0,0,0,.28); }
 
@@ -710,8 +711,15 @@ async function haritayiAc(){
       }
     });
     // secili yer isaretcisi: resim dosyasi gerekmeyen sik bir nokta (divIcon)
+    /* DOKUNMA ALANI 44, GORUNEN NOKTA AYNI.
+       Ekran nobetcisi olctu (30.08.2026): isaretci 22x22 idi, yani
+       parmak esiginin (44) yarisi. Harita uzerinde sehir secmenin ana
+       yolu bu isaretci. Kutu 44'e cikarildi, gorunen nokta `.secili-nokta`
+       ile kucuk kaliyor -- harita kalabaliklasmiyor.
+       `aria-label` de eklendi: ekran okuyucu "div" diyordu. */
     const pin = L.divIcon({ className:"secili-pin",
-      html:'<div class="secili-nokta"></div>', iconSize:[22,22], iconAnchor:[11,11] });
+      html:'<div class="secili-nokta" role="img" aria-label="Seçili konum"></div>',
+      iconSize:[44,44], iconAnchor:[22,22] });
     L.marker([sonYer.e, sonYer.b], {icon:pin, zIndexOffset:1000})
       .addTo(harita).bindPopup(sonYer.etiket);
     // haritaya dokununca oranın havası
