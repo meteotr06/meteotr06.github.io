@@ -54,10 +54,10 @@ var RAYIC_SON_YIL = 2029;
    NE DIYOR
      2025'te 2026 icin takdir edilen asgari olcude arsa/arazi m2 birim
      degerleri esas alinarak hesaplanan 2026 vergi degeri, 2025 vergi
-     degerinin IKI KATINI gecemez. Tavan hem vergi degerine hem de m2
-     birim degerinin kendisine isler; ayrica bu degerler uzerinden alinan
-     "vergi, harc ve diger mali yukumlulukler" icin de gecerlidir
-     (yani tapu harcinin emlak-vergisi tabanina da).
+     degerinin "IKI KAT FAZLASINI" gecemez -- yani UC KATINI. Tavan hem
+     vergi degerine hem de m2 birim degerinin kendisine isler; ayrica bu
+     degerler uzerinden alinan "vergi, harc ve diger mali yukumlulukler"
+     icin de gecerlidir (yani tapu harcinin emlak-vergisi tabanina da).
      2027-2028-2029 bu SINIRLI degerler uzerinden yurur.
 
    NEDEN BURADA
@@ -66,19 +66,35 @@ var RAYIC_SON_YIL = 2029;
      uygulanmamistir. Uygulama cetvel sayisini oldugu gibi gosterirse
      kullanici yasanin izin verdiginden yuksek bir degere razi olur.
 
-   CARPAN NEDEN 2, 3 DEGIL
-     Kanun metni "iki kat fazlasini gecemez" diyor; bu ifade Turkcede
-     3 kat gibi de okunabiliyor ve bir hukuk kaynagi oyle yazmisti.
-     Sayisal ornek konuyu kapatiyor: 2025 degeri 900.000 TL -> 2026
-     tavani 1.800.000 TL. Yani IKI KAT. Metnin lafzina degil ORNEGIN
-     ARITMETIGINE bakildi (bkz. M7).
+   CARPAN NEDEN 3
+     89 Seri No.lu EVK Genel Tebligi, Ornek 1 -- TABLONUN KENDI SATIRLARI:
+
+       3  Arsanin 2025 yili vergi degeri (1 x 2)            900.000,00 TL
+       5  2026 icin hesaplanan vergi degeri (2 x 4)       6.000.000,00 TL
+       6  2025 vergi degerinin 2 kat fazlasi [3+(3x2 kat)] 2.700.000,00 TL
+       7  2026 yilinda uygulanacak vergi degeri            2.700.000,00 TL
+       8  2026 asgari olcude m2 birim degeri (7 / 2)          1.800,00 TL
+
+     Formulun kendisi ayrimi kapatiyor: [3 + (3 x 2)] = degerin kendisi
+     + iki kati = UC KAT. Teblig ayrica duz cumleyle de soyluyor:
+     "2025 yilinda vergi degeri 1.000 TL ise 2026 yilinda bu degerin
+     3.000 TL'yi gecemeyecegi anlamina gelmektedir."
+
+     ILK SURUM 2 YAZIYORDU VE YANLISTI (30.08.2026, v104 canlida kaldi).
+     Sebep: tabloyu degil bir sirkulerin OZETINI okumustum; ozet
+     "900.000 -> 1.800.000" demisti. 1.800 sayisi tabloda GERCEKTEN var
+     ama 8. satirda ve BASKA BIR SEY: tavanli m2 BIRIM degeri (7/2).
+     Yani ozet iki satiri birbirine karistirmis, ben de ona guvenmistim.
+     Ders: ozetin verdigi sayi da ozettir. Tablonun satirini kopyala.
+     3 numarali oturum ayni gun bunu olcup itiraz etti; PDF metni
+     dogrudan cikarilarak dogrulandi.
 
    OLCULEMEZ HALI
      Kullanicinin 2025 degeri elimizde yok; cetvelde de yok. O yuzden
      tavan KENDILIGINDEN uygulanmaz — bilinmiyorsa "olculemedi" denir
      ve kullaniciya sorulur. Tahmin edilmis bir 2025 degeriyle tavan
      uygulamak, sessizce yanlis sayi uretmenin baska bir yoludur.        */
-var TAVAN_KAT = 2;
+var TAVAN_KAT = 3;
 var TAVAN_ILK_YIL = 2026;
 var TAVAN_SON_YIL = 2029;
 
@@ -210,8 +226,11 @@ var MEVZUAT_KAYNAK = {
   M7: '1319 sayılı EVK geçici md. 23 (7566 sayılı Kanun, RG 19/12/2025, ' +
       'Sayı 33112). Uygulama esasları: 89 Seri No.lu EVK Genel Tebliği, ' +
       'RG 31/12/2025, Sayı 33124 (5. Mükerrer). 2026 vergi değeri, 2025 ' +
-      'vergi değerinin iki katını geçemez; 2027-2029 bu sınırlı değerler ' +
-      'üzerinden yürür. Aynı sınır, bu değerlere dayanan harçlara da işler.'
+      'vergi değerinin "iki kat fazlasını" — yani ÜÇ KATINI — geçemez. ' +
+      'Tebliğin Örnek 1 tablosu: 2025 değeri 900.000 TL, tavan ' +
+      '[900.000 + (900.000 x 2)] = 2.700.000 TL. 2027-2029 bu sınırlı ' +
+      'değerler üzerinden yürür; aynı sınır bu değerlere dayanan harçlara ' +
+      'da işler.'
 };
 
 /* ---------------------------------------------------------------------

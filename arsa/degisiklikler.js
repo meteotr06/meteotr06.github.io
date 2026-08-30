@@ -26,15 +26,39 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 105,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: true,
+        baslik: 'DÜZELTME: yasal tavan üç kat, iki kat değil',
+        maddeler: [
+            'Birkaç saat önce yayınladığımız sürümde yasal tavanı "2025 ' +
+            'değerinizin İKİ KATI" diye yazmıştık. YANLIŞTI. Doğrusu: ' +
+            'ÜÇ KATI. Kanun "iki kat fazlasını geçemez" diyor ve tebliğin ' +
+            'örneği bunu 900.000 + (900.000 × 2) = 2.700.000 TL diye ' +
+            'hesaplıyor.',
+
+            'Neden yanlış yazdık: kanun metnini değil, bir mali müşavir ' +
+            'özetini okumuştuk. Özet "900.000 → 1.800.000" demişti. ' +
+            '1.800 sayısı tebliğin tablosunda GERÇEKTEN var ama başka bir ' +
+            'satırda ve başka bir şeyi anlatıyor (metrekare birim değeri). ' +
+            'Şimdi tebliğin PDF metni doğrudan okundu ve tablonun her ' +
+            'satırı sınamaya çıpa olarak konuldu.',
+
+            'Bu arada tavan hesabı yaptıysanız TEKRAR YAPIN: eski sürüm ' +
+            'sınırı olduğundan düşük gösteriyordu, yani belediyenin ' +
+            'uygulayabileceği değeri olduğundan düşük sanmış olabilirsiniz.'
+        ]
+    },
+    {
         surum: 104,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: true,
-        baslik: 'Emlak vergisine yasal tavan geldi — uygulama yanlış yazıyordu',
+        baslik: 'Emlak vergisine yasal tavan eklendi',
         maddeler: [
             '2025 sonunda çıkan 7566 sayılı Kanun, 2026 emlak vergi ' +
-            'değerine bir TAVAN koydu: 2025 değerinizin İKİ KATINI ' +
-            'geçemez. Uygulama bu sınırı "üç katı" diye YANLIŞ yazıyordu ' +
-            've bu not hiçbir ekranda görünmüyordu. Düzeltildi.',
+            'değerine bir TAVAN koydu. Uygulama bu sınırı hiçbir ekranda ' +
+            'göstermiyordu; artık gösteriyor. (Bu sürümde çarpan yanlış ' +
+            'yazılmıştı, v105 düzeltti.)',
 
             'Belediyelerin 2026 rayiç cetvelleri bu kanundan ÖNCE ' +
             'hazırlandı. Yani cetveldeki metrekare değeri ham takdir ' +

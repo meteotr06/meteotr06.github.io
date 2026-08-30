@@ -171,8 +171,13 @@ var YARDIM = {
         baslik: '2025 emlak vergi değeri neden soruluyor?',
         metin: '<p>2025 yılının sonunda çıkan <b>7566 sayılı Kanun</b> ' +
                '(EVK geçici md. 23) emlak vergisine bir <b>tavan</b> ' +
-               'koydu: <b>2026 vergi değeri, 2025 vergi değerinizin iki ' +
+               'koydu: <b>2026 vergi değeri, 2025 vergi değerinizin üç ' +
                'katını geçemez.</b></p>' +
+               '<p><b>Kanun "iki kat fazlası" diyor — bu üç kat demek.</b> ' +
+               'Tebliğin örneği tartışmayı kapatıyor: 2025 değeri ' +
+               '900.000 TL olan bir arsada tavan ' +
+               '<b>900.000 + (900.000 × 2) = 2.700.000 TL</b>. Aynı örnekte ' +
+               'metrekare değeri de 600 TL iken tavan 1.800 TL oluyor.</p>' +
                '<p><b>Bu neden önemli?</b> Belediyelerin 2026 rayiç ' +
                'cetvelleri <b>Haziran 2025 tarihinde</b>, yani bu kanundan ' +
                '<b>önce</b> hazırlandı. Cetveldeki metrekare değeri ham ' +
@@ -1353,7 +1358,9 @@ function imar_ciz(g) {
             k3.appendChild(el('p', 'alt-not',
                 'Girdiğiniz 2025 vergi değeri ' + tl(tav.onceki_2025) +
                 '. EVK geçici md. 23 (7566 s.K.): belediyenin 2026 vergi ' +
-                'değeri bunun iki katını geçemez. ' +
+                'değeri bunun ÜÇ KATINI geçemez — kanun "iki kat fazlası" ' +
+                'diyor, tebliğin örneği bunu 900.000 + (900.000 x 2) = ' +
+                '2.700.000 diye hesaplıyor. ' +
                 (tav.sinirlandi
                   ? ('Yukarıdaki beyan bedeliniz (' + tl(bedel) + ') bu ' +
                      'tavanın ÜSTÜNDE — belediye tavanı aşan bir vergi ' +
@@ -1366,10 +1373,15 @@ function imar_ciz(g) {
             /* 2025 DEGERI YOKSA UYDURMUYORUZ, SORUYORUZ.
                Bu uyarinin ekrana cikmasi sart: eski surumde ayni bilgi
                motorda `not_2026` alaninda duruyordu ve HICBIR YERDE
-               gosterilmiyordu -- ustelik "uc kat" diye YANLIS yaziyordu. */
+               gosterilmiyordu. (O metnin "uc kat" demesi ASLINDA
+               DOGRUYDU; v104'te yanlislikla "iki kat" yapildi ve v105'te
+               tebligin tablosuyla geri alindi. Gorunmeyen bir dogru,
+               gorunen bir yanlisin onune gecemez.) */
             k3.appendChild(el('p', 'alt-not',
                 '⚠ YASAL TAVAN ÖLÇÜLEMEDİ. 2026 emlak vergi değeri, 2025 ' +
-                'değerinizin İKİ KATINI geçemez (EVK geçici md. 23, 7566 ' +
+                'değerinizin ÜÇ KATINI geçemez — kanun "iki kat fazlası" ' +
+                'diyor, tebliğin örneği bunu 900.000 + (900.000 x 2) = ' +
+                '2.700.000 diye hesaplıyor (EVK geçici md. 23, 7566 ' +
                 's.K.). Belediyelerin 2026 cetvelleri bu kanundan ÖNCE, ' +
                 'Haziran 2025 tarihinde hazırlandı; oradaki sayı ham takdir ' +
                 'değeridir ve tavan uygulanmamış olabilir. 2025 emlak ' +
