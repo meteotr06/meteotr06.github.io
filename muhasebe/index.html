@@ -56,7 +56,10 @@ h1{font-size:20px; margin:6px 0 12px; display:flex; align-items:center; gap:8px;
 
 /* ==== Segment (donem) ==== */
 .segment{display:flex; gap:6px; margin-bottom:12px;}
-.segment button{flex:1; min-height:38px; border:0; border-radius:10px;
+/* 38 -> 44 px: dokunma esigi. Ekran nobetcisi olctu (30.08.2026):
+   donem dugmeleri 112x38 idi -- en cok basilan dugmeler esigin
+   altindaydi. */
+.segment button{flex:1; min-height:44px; border:0; border-radius:10px;
   background:var(--panel); color:var(--yazi2); font-weight:700; font-size:13px; cursor:pointer;}
 .segment button.aktif{background:var(--vurgu); color:#fff;}
 
@@ -189,7 +192,11 @@ select{appearance:none;}
 </div>
 
 <!-- Yuzen ekle dugmesi -->
-<button class="fab" id="fab">+</button>
+<!-- ERISILEBILIR AD: ekran nobetcisi buldu (30.08.2026). Ekran
+     okuyucu bu dugmeyi "dugme, arti" diye okuyordu; ne ekledigi
+     anlasilmiyordu. Ayrica type="button" -- form gondermesin. -->
+<button class="fab" id="fab" type="button" aria-label="Yeni kayıt ekle"
+        title="Yeni kayıt ekle">+</button>
 
 <!-- Alt menu -->
 <div class="altmenu">
