@@ -303,6 +303,19 @@ input.gecersiz, select.gecersiz {
     text-transform: uppercase; letter-spacing: .4px; color: var(--yazi2);
 }
 
+/* KART İÇİ ALT BÖLÜM — bir kartta iki ayrı konu varsa.
+   İnşaat maliyeti kartının altına "satarsanız vergi" eklendi; ayırıcı
+   olmadan iki farklı hesabın satırları tek liste gibi okunuyordu.
+   Ayrı sayıların ayrı başlık altında durması yanlış okumayı önler. */
+.alt-blok {
+    margin-top: 18px; padding-top: 14px;
+    border-top: 1px solid var(--cizgi);
+}
+.alt-blok h4 {
+    margin: 0 0 10px; font-size: 0.875rem; font-weight: 700;
+    color: var(--yazi);
+}
+
 /* Belirsizlik bandı: tek rakam yerine ARALIK gösterilir. */
 .bant { text-align: center; padding: 8px 0 4px; }
 .bant .orta { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }

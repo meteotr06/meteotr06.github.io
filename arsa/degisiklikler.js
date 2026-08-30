@@ -26,6 +26,32 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 107,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Yeni: satarsanız ne kadar vergi ödersiniz',
+        maddeler: [
+            'Bir arsayı aldıktan sonra 5 YIL DOLMADAN satarsanız, kârınız ' +
+            'üzerinden "değer artışı kazancı" vergisi ödersiniz. Uygulama ' +
+            'bunu HİÇ SÖYLEMİYORDU — oysa hesabı içinde zaten vardı ve ' +
+            'sınanmıştı; sadece hiçbir ekrana bağlanmamıştı.',
+
+            'Artık İmar sekmesindeki maliyet kartında görünüyor. Arsa ' +
+            'zaten sizinse Parsel sekmesindeki "6 · Satarsanız vergi" ' +
+            'bölümüne alış tarihinizi ve bedelinizi girin; tutarı ' +
+            'hesaplıyoruz. Almayı düşünüyorsanız boş bırakın — 5 yıl ' +
+            'kuralını yine de yazıyoruz.',
+
+            '5 yıl dolduktan sonra satarsanız bu vergi doğmaz. Miras ' +
+            'veya bağışla edindiğiniz taşınmazda da doğmaz; ikisini de ' +
+            'ayrı ayrı söylüyoruz.',
+
+            'Satış giderlerinizi (tapu harcı, emlakçı, ilan) girmezseniz ' +
+            '0 kabul edilir ve vergi olduğundan YÜKSEK çıkar. Bunu da ' +
+            'ekranda yazıyoruz.'
+        ]
+    },
+    {
         surum: 105,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: true,

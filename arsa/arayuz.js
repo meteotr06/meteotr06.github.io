@@ -85,6 +85,17 @@ function yuzde(x, isaretli) {
     return (n > 0 ? '+' : n < 0 ? '-' : '') + '%' + Math.abs(n)
         .toLocaleString('tr-TR', { maximumFractionDigits: 1 });
 }
+/* DUZ SAYI — Turkce ondalik ayraciyla. Yil sayisi gibi para ve yuzde
+   olmayan degerler icin. Dogrudan metne eklemek NOKTA'li yazim uretir
+   ve Turkce'de nokta binlik ayracidir: "4.3 yil" okuyan biri onu 43
+   diye anlayabilir. Ayni tuzagi `tl` ve `yuzde` icin daha once
+   yasamistik; ucuncu yerde tekrarlamamak icin yardimci eklendi. */
+function ondalik(x, basamak) {
+    if (x === null || x === undefined || !isFinite(x)) return '—';
+    return Number(x).toLocaleString('tr-TR', {
+        maximumFractionDigits: basamak === undefined ? 1 : basamak });
+}
+
 /* Sayi okumayi CEKIRDEGE biraktik. Burada basit bir virgul->nokta
    donusumu vardi ve "1.500,50" girdisini 1,5 okuyordu — 1000 kat sessiz
    hata. Supurme sinamasi yakaladi; cozumleyici cekirdege tasindi ki
@@ -197,6 +208,34 @@ var YARDIM = {
                'vergi rakamı, hiç rakam olmamasından kötüdür.</p>' +
                '<p>Sınır 2026-2029 arası geçerlidir ve sonraki yıllar bu ' +
                'sınırlı değerler üzerinden yürür.</p>'
+    },
+
+    /* DAK — arsa satan insanin en sik carptigi vergi. Cogu kisi
+       "kar ettim, bitti" saniyor; beyanname ertesi yil Mart'ta. */
+    dak: {
+        baslik: 'Değer artışı kazancı vergisi nedir?',
+        metin: '<p>Bir arsayı satın aldıktan sonra <b>5 yıl dolmadan</b> ' +
+               'satarsanız, elde ettiğiniz <b>kâr</b> üzerinden gelir ' +
+               'vergisi ödersiniz. Adı <b>değer artışı kazancı</b> ' +
+               '(GVK mükerrer md. 80).</p>' +
+               '<p><b>5 yıl dolduktan sonra satarsanız bu vergi ' +
+               'doğmaz.</b> Süre, tapudaki iktisap tarihinden başlar — ' +
+               'sözleşme tarihinden değil.</p>' +
+               '<p><b>Miras veya bağış</b> yoluyla edindiğiniz bir ' +
+               'taşınmazı satarken de bu vergi doğmaz, kaç yıl sonra ' +
+               'sattığınıza bakılmaksızın.</p>' +
+               '<p><b>Kâr nasıl bulunur?</b> Satış bedeli eksi alış ' +
+               'bedeli eksi satış giderleri (tapu harcı, emlakçı ' +
+               'komisyonu, ilan). Kalandan <b>istisna</b> düşülür; ' +
+               'kalanı vergilendirilir.</p>' +
+               '<p><b>Enflasyon düzeltmesi:</b> alış ile satış arasındaki ' +
+               'Yİ-ÜFE artışı %10 veya üzerindeyse alış bedeliniz ' +
+               'endekslenir ve vergi düşer (GVK mükerrer md. 81). ' +
+               'Bu uygulama endeksleme için gereken Yİ-ÜFE sayılarını ' +
+               'içermiyor; hesap endekslemesiz yapılıyor, yani gerçek ' +
+               'vergi <b>daha düşük</b> çıkabilir.</p>' +
+               '<p><b>Ne zaman beyan edilir?</b> Satışın ertesi yılı ' +
+               'Mart ayında yıllık gelir vergisi beyannamesiyle.</p>'
     },
 
     mucavir: {
@@ -434,6 +473,13 @@ function girdi_topla() {
     /* YASAL TAVAN icin gereken TEK sayi (EVK gecici md. 23). Bos ise
        undefined kalir; motor "olculemedi" der, hicbir sey sinirlanmaz. */
     g.vergi_degeri_2025 = sayi($('gVergiDegeri2025').value);
+
+    /* DEGER ARTIS KAZANCI — hepsi istege bagli. Bos birakilirsa hesap
+       yapilmaz, sadece 5 yil kurali anlatilir. */
+    g.alis_tarihi = $('gAlisTarihi').value || null;
+    g.alis_bedeli = sayi($('gAlisBedeli').value);
+    g.bedelsiz_iktisap = $('gBedelsiz').checked;
+    g.satis_giderleri = sayi($('gSatisGiderleri').value);
 
     /* UC HAL: bos secenek = CEVAPLANMADI (undefined). Onay kutusu
        ucuncu hali tasiyamadigi icin liste yapildi -- isaretsiz kutu
@@ -1387,6 +1433,92 @@ function imar_ciz(g) {
                 'değeridir ve tavan uygulanmamış olabilir. 2025 emlak ' +
                 'vergi değerinizi yukarıya girerseniz tavanı hesaplarız.'));
         }
+
+        /* ---------------------------------------------------------------
+           DEGER ARTIS KAZANCI VERGISI (GVK mukerrer md. 80)
+           ---------------------------------------------------------------
+           Motor bunu AYLARDIR hesapliyordu ve arayuz HIC cagirmiyordu.
+           Bir arsayi 5 yil dolmadan satan kisi bu vergiyi oduyor; uygulama
+           tek kelime etmiyordu. Sessiz eksik, sessiz yanlis sayi kadar
+           pahali olabilir.
+
+           SATIS BEDELI olarak beyan bedeli aliniyor -- kullanicinin
+           girdigi emsal fiyat x alan. Raporun kendi duzeltilmis tahmini
+           DEGIL; vergi de beyan uzerinden hesaplaniyor. Bu tercih
+           ekranda ayrica yaziliyor.                                    */
+        var dakKutu = el('div', 'alt-blok');
+        dakKutu.appendChild(el('h4', null, 'Satarsanız: değer artışı kazancı vergisi'));
+
+        if (g.alis_tarihi && (isFinite(g.alis_bedeli) || g.bedelsiz_iktisap)) {
+            var bugun = new Date();
+            var bugunMetin = bugun.getFullYear() + '-' +
+                             ('0' + (bugun.getMonth() + 1)).slice(-2) + '-' +
+                             ('0' + bugun.getDate()).slice(-2);
+            var dak = M.deger_artis_kazanci({
+                alis_bedeli: g.bedelsiz_iktisap ? 0 : g.alis_bedeli,
+                satis_bedeli: bedel,
+                alis_tarihi: g.alis_tarihi,
+                satis_tarihi: bugunMetin,
+                giderler: g.satis_giderleri,
+                bedelsiz_iktisap: g.bedelsiz_iktisap
+            });
+
+            if (dak.hata) {
+                dakKutu.appendChild(el('p', 'alt-not', dak.hata));
+            } else if (!dak.vergi_var_mi) {
+                /* VERGI YOK DEMEK DE BIR SONUCTUR ve gerekcesi yazilir.
+                   Satir etiketi kisa: baslik zaten "Satarsaniz: deger
+                   artisi kazanci vergisi" diyor, tekrari ekranda
+                   "...vergisiDeger artisi kazanci vergisiYOK" gibi
+                   okunuyordu. */
+                satir_ekle(dakKutu, 'Durum', 'Vergi DOĞMAZ');
+                dakKutu.appendChild(el('p', 'alt-not', dak.gerekce));
+                if (dak.elde_tutma_yili != null) {
+                    dakKutu.appendChild(el('p', 'alt-not',
+                        'Elde tutma süresi: ' + ondalik(dak.elde_tutma_yili) + ' yıl.'));
+                }
+            } else {
+                satir_ekle(dakKutu, 'Elde tutma süresi',
+                           ondalik(dak.elde_tutma_yili) + ' yıl');
+                satir_ekle(dakKutu, 'Satış bedeli (beyan)', tl(dak.satis_bedeli));
+                satir_ekle(dakKutu, 'Alış bedeli', tl(dak.alis_bedeli));
+                if (dak.endekslenmis_maliyet !== dak.alis_bedeli) {
+                    satir_ekle(dakKutu, 'Endekslenmiş maliyet',
+                               tl(dak.endekslenmis_maliyet));
+                }
+                satir_ekle(dakKutu, 'Düşülen giderler', tl(dak.giderler));
+                satir_ekle(dakKutu, 'İstisna (2026)', tl(M.DAK_ISTISNA));
+                satir_ekle(dakKutu, 'ÖDENECEK VERGİ', tl(dak.vergi));
+                if (dak.endeks_notu) {
+                    dakKutu.appendChild(el('p', 'alt-not', dak.endeks_notu));
+                }
+                dakKutu.appendChild(el('p', 'alt-not',
+                    'Satış bedeli olarak girdiğiniz emsal fiyat × alan ' +
+                    '(' + tl(bedel) + ') alındı. Gerçek satış bedeliniz ' +
+                    'farklıysa vergi de değişir. Beyanname, satışın ' +
+                    'ertesi yılı Mart ayında verilir.'));
+            }
+            dakKutu.appendChild(el('p', 'kaynak-liste',
+                                   'Kaynak: ' + M.MEVZUAT_KAYNAK.M4));
+        } else {
+            /* BOSSA HESAP YOK AMA KURAL VAR. Arsayi almayi dusunen biri
+               icin asil bilgi kuralin kendisi: 5 yil. */
+            dakKutu.appendChild(el('p', 'alt-not',
+                'Bir arsayı aldıktan sonra ' + M.DAK_YIL_SINIRI + ' YIL ' +
+                'DOLMADAN satarsanız, kârınız üzerinden gelir vergisi ' +
+                'ödersiniz (değer artışı kazancı, GVK mükerrer md. 80). ' +
+                M.DAK_YIL_SINIRI + ' yıl dolduktan sonra satarsanız bu ' +
+                'vergi DOĞMAZ. Miras veya bağışla edinilen taşınmazda da ' +
+                'doğmaz. 2026 istisnası ' + tl(M.DAK_ISTISNA) + '; kârın ' +
+                'bu tutarı aşan kısmı vergilendirilir.'));
+            dakKutu.appendChild(el('p', 'alt-not',
+                'Bu arsa zaten sizinse, Parsel sekmesindeki ' +
+                '"6 · Satarsanız vergi" bölümüne alış tarihinizi ve ' +
+                'bedelinizi girin — tutarı hesaplayalım.'));
+            dakKutu.appendChild(el('p', 'kaynak-liste',
+                                   'Kaynak: ' + M.MEVZUAT_KAYNAK.M4));
+        }
+        k3.appendChild(dakKutu);
     }
     $('iMaliyet').innerHTML = ''; $('iMaliyet').appendChild(k3);
 }

@@ -34,7 +34,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=105" />
+<link rel="stylesheet" href="stil.css?v=107" />
 </head>
 <body>
 
@@ -306,6 +306,64 @@
         </div>
     </div>
 
+    <!-- 6. SATIS — DEGER ARTIS KAZANCI VERGISI
+         ------------------------------------------------------------------
+         NEDEN EKLENDI (30.08.2026): `mevzuat.js` icindeki
+         `deger_artis_kazanci()` fonksiyonu AYLARDIR vardi, sinanmisti
+         (test-supurme ve test.html dahil 20'den fazla sinama) ama
+         ARAYUZ ONU HIC CAGIRMIYORDU. Yani arsasini 5 yil dolmadan satan
+         biri onbinlerce lira vergi oduyor ve uygulama bundan hic
+         bahsetmiyordu. Motorun bildigi, ekrana cikmiyorsa kullanici icin
+         yok hukmundedir.
+
+         Iki kitle var:
+           ALAN  -> "5 yil dolmadan satarsam ne olur" (kural bilgisi)
+           SATAN -> "2023'te aldim, simdi satiyorum" (hesap)
+         Ikisi de karsilaniyor: alanlar bos birakinca kural yaziliyor,
+         dolunca hesap yapiliyor. -->
+    <div class="bolum" data-bolum="satis">
+        <button class="bolum-baslik" type="button">
+            <span class="bolum-ad">6 · Satarsanız vergi <i>(isteğe bağlı)</i></span>
+            <span class="bolum-ok">▾</span>
+        </button>
+        <div class="bolum-govde">
+            <p class="alt-not">
+                Bu arsayı <b>zaten sizde varsa</b> doldurun: satarken
+                <b>değer artışı kazancı vergisi</b> doğup doğmadığını
+                hesaplarız. Almayı düşünüyorsanız boş bırakın —
+                aşağıdaki kuralı yine de gösteriyoruz.
+            </p>
+            <div class="ikili">
+                <label class="alan" for="gAlisTarihi">
+                    <span class="etiket">
+                        Alış tarihi
+                        <button type="button" class="yardim" data-yardim="dak">?</button>
+                    </span>
+                    <input type="date" id="gAlisTarihi" />
+                </label>
+                <label class="alan" for="gAlisBedeli">
+                    <span class="etiket">Alış bedeli <i>(TL)</i></span>
+                    <input type="text" id="gAlisBedeli" inputmode="decimal"
+                           placeholder="örn. 1.200.000" />
+                </label>
+            </div>
+            <label class="onay" for="gBedelsiz">
+                <input type="checkbox" id="gBedelsiz" />
+                <span>Miras veya bağış yoluyla edindim (bedel ödemedim)</span>
+            </label>
+            <label class="alan" for="gSatisGiderleri">
+                <span class="etiket">Satış giderleri <i>(TL, isteğe bağlı)</i></span>
+                <input type="text" id="gSatisGiderleri" inputmode="decimal"
+                       placeholder="tapu harcı, emlakçı, ilan" />
+            </label>
+            <p class="alt-not">
+                Giderleri girmezseniz <b>0 kabul edilir</b> ve vergi
+                olduğundan <b>yüksek</b> çıkar — düşülebilecek gerçek
+                giderleriniz varsa yazın.
+            </p>
+        </div>
+    </div>
+
     <button id="hesaplaBtn" class="birincil buyuk">Raporu çıkar</button>
     <button id="ornekBtn" class="ikincil" style="width:100%;margin-top:10px">
         Ne çıkacağını görmek için örnek bir parsel doldur
@@ -387,11 +445,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=105" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=105" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=105" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=105" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=105" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=107" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=107" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=107" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=107" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=107" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */
