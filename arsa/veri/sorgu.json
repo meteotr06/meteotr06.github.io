@@ -1,4 +1,18 @@
 {
+ "Adana": {
+  "Seyhan": "https://ebelediye.seyhan.bel.tr/Emlak/RayicBedel"
+ },
+ "Ankara": {
+  "Etimesgut": "https://ebelediye.etimesgut.bel.tr/Emlak/RayicBedel"
+ },
+ "Bursa": {
+  "Gürsu": "https://ebelediye.gursu.bel.tr/Emlak/RayicBedel",
+  "Osmangazi": "https://ebelediye.osmangazi.bel.tr/Emlak/RayicBedel",
+  "Yıldırım": "https://ebelediye.yildirim.bel.tr/Emlak/RayicBedel"
+ },
+ "Edirne": {
+  "Uzunköprü": "https://ebelediye.uzunkopru.bel.tr/Emlak/RayicBedel"
+ },
  "İzmir": {
   "Bayındır": "https://ebelediye.bayindir.bel.tr/Emlak/RayicBedel",
   "Buca": "https://ebelediye.buca.bel.tr/Emlak/RayicBedel",
