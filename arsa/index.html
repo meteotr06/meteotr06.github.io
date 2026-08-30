@@ -34,7 +34,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=117" />
+<link rel="stylesheet" href="stil.css?v=120" />
 </head>
 <body>
 
@@ -119,7 +119,7 @@
             <label class="alan" for="gEmsalFiyat">
                 <span class="etiket">
                     Emsal birim fiyat <i>(TL/m²)</i>
-                    <button type="button" class="yardim" data-yardim="emsal">?</button>
+                    <button type="button" class="yardim" data-yardim="emsal" aria-label="Emsal birim fiyat nedir?" title="Emsal birim fiyat nedir?">?</button>
                 </span>
                 <input type="text" id="gEmsalFiyat" inputmode="decimal" placeholder="örn. 3000" />
             </label>
@@ -138,7 +138,7 @@
             <label class="alan" for="gVergiDegeri2025">
                 <span class="etiket">
                     2025 emlak vergi değeri <i>(TL, isteğe bağlı)</i>
-                    <button type="button" class="yardim" data-yardim="tavan">?</button>
+                    <button type="button" class="yardim" data-yardim="tavan" aria-label="2025 emlak vergi değeri neden soruluyor?" title="2025 emlak vergi değeri neden soruluyor?">?</button>
                 </span>
                 <input type="text" id="gVergiDegeri2025" inputmode="decimal"
                        placeholder="örn. 900.000" />
@@ -218,7 +218,7 @@
 
             <label class="alan" for="gBelediye">
                 <span class="etiket">Belediye / mücavir alan sınırları içinde mi?
-                    <button type="button" class="yardim" data-yardim="mucavir">?</button>
+                    <button type="button" class="yardim" data-yardim="mucavir" aria-label="Mücavir alan nedir?" title="Mücavir alan nedir?">?</button>
                 </span>
                 <select id="gBelediye">
                     <option value="">Bilmiyorum — henüz bakmadım</option>
@@ -238,7 +238,7 @@
 
             <label class="alan" for="gTapuTuru">
                 <span class="etiket">Tapu türü
-                    <button type="button" class="yardim" data-yardim="tapu">?</button>
+                    <button type="button" class="yardim" data-yardim="tapu" aria-label="Tapu türü nedir?" title="Tapu türü nedir?">?</button>
                 </span>
                 <select id="gTapuTuru"></select>
             </label>
@@ -290,20 +290,20 @@
             <div class="ikili">
                 <label class="alan" for="gTaks">
                     <span class="etiket">TAKS
-                        <button type="button" class="yardim" data-yardim="taks">?</button>
+                        <button type="button" class="yardim" data-yardim="taks" aria-label="TAKS nedir?" title="TAKS nedir?">?</button>
                     </span>
                     <input type="text" id="gTaks" inputmode="decimal" data-tur="oran" placeholder="0,30" />
                 </label>
                 <label class="alan" for="gKaks">
                     <span class="etiket">KAKS / Emsal
-                        <button type="button" class="yardim" data-yardim="kaks">?</button>
+                        <button type="button" class="yardim" data-yardim="kaks" aria-label="KAKS nedir?" title="KAKS nedir?">?</button>
                     </span>
                     <input type="text" id="gKaks" inputmode="decimal" data-tur="oran" placeholder="1,50" />
                 </label>
             </div>
             <label class="alan" for="gFonksiyon">
                 <span class="etiket">İmar fonksiyonu
-                    <button type="button" class="yardim" data-yardim="fonksiyon">?</button>
+                    <button type="button" class="yardim" data-yardim="fonksiyon" aria-label="İmar fonksiyonu nedir?" title="İmar fonksiyonu nedir?">?</button>
                 </span>
                 <select id="gFonksiyon"></select>
             </label>
@@ -341,7 +341,7 @@
                 <label class="alan" for="gAlisTarihi">
                     <span class="etiket">
                         Alış tarihi
-                        <button type="button" class="yardim" data-yardim="dak">?</button>
+                        <button type="button" class="yardim" data-yardim="dak" aria-label="Değer artışı kazancı vergisi nedir?" title="Değer artışı kazancı vergisi nedir?">?</button>
                     </span>
                     <input type="date" id="gAlisTarihi" />
                 </label>
@@ -449,11 +449,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=117" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=117" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=117" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=117" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=117" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

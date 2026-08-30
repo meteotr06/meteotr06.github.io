@@ -26,6 +26,29 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 120,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Telefonda: "undefined" yazısı ve küçük yardım düğmeleri düzeltildi',
+        maddeler: [
+            'Güncelleme şeridinde ekranın en üstünde "undefined" ' +
+            'yazıyordu — hem de neyin değiştiğini anlatması gereken ' +
+            'yerde. Kod, kayıtlarda bulunmayan bir alanı okuyordu. ' +
+            'Sayfa çalıştığı ve konsol temiz olduğu için aylarca fark ' +
+            'edilmemiş; ekrana bakan ölçüm yakaladı.',
+
+            'Terimlerin yanındaki "?" düğmeleri 20 piksel karedi — ' +
+            'parmakla vurulması gereken en küçük ölçünün yarısı. ' +
+            'Görünüş aynı kaldı, dokunma alanı 44 piksele çıkarıldı.',
+
+            'Aynı düğmeler ekran okuyucuda sadece "soru işareti" diye ' +
+            'okunuyordu; artık hangi alanı açıkladıklarını söylüyorlar.',
+
+            'Ölçüldü: telefon boyutunda (375 piksel) ve yazı iki ' +
+            'katına çıkarıldığında hiçbir şey ekran dışına taşmıyor.'
+        ]
+    },
+    {
         surum: 117,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: true,

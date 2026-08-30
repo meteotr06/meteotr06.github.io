@@ -414,6 +414,15 @@ function ekrani_kur() {
             var yb = el('button', 'yardim', '?');
             yb.type = 'button';
             yb.dataset.yardim = a.yardim;
+            /* ERISILEBILIR AD — ekran okuyucu "dugme, soru isareti"
+               diye okumasin. index.html'deki yardim dugmelerine elle
+               ad verildi; BU dugme KODDAN uretildigi icin o duzeltmenin
+               disinda kalmisti ve tek adsiz dugme olarak olculdu.
+               Ders: elle duzeltilen bir seyin KODDAN URETILEN esi
+               varsa, duzeltme yarim kalir. */
+            var ad = (a.etiket || 'Bu alan') + ' hakkında bilgi';
+            yb.setAttribute('aria-label', ad);
+            yb.title = ad;
             sp.appendChild(yb);
         }
         lab.appendChild(sp);
@@ -2026,10 +2035,30 @@ function yenilik_goster() {
     var metin = document.getElementById('yenilikMetin');
     if (!not || !metin) return;
 
-    var govde = kayit.ozet;
+    /* EKRANDA "undefined" YAZIYORDU — canli, hem de ILK EKRANDA.
+       Bu kod `kayit.ozet` okuyor ama 18 kaydin 16'sinda `ozet` alani
+       HIC YOK; yalnizca `baslik` ve `maddeler` var. Yani geri donen
+       kullanici neredeyse her seferinde su cumleyi goruyordu:
+           "undefined Daha once sonuc aldiysaniz, sonucunuzu bir kez
+            daha alin."
+       Ustelik tam da "neden tekrar hesaplamalisin" sorusunun cevabinin
+       durmasi gereken yerde. K-44 sozunun (ne degistigini SOYLE)
+       sessizce bos donmesi.
+
+       Neden hic fark edilmedi: `undefined` gecerli bir JS degeri,
+       hata firlatmiyor; sayfa calisiyor, sinamalar geciyor, konsol
+       temiz. Yalnizca EKRANA BAKAN goruyor -- 6 uygulamayi telefon
+       boyutunda olcen denetim yakaladi.
+
+       Cozum: `ozet` varsa onu kullan, yoksa `baslik`a dus. Ikisi de
+       yoksa cumleyi hic kurma -- bos bir serit, "undefined" yazan
+       seritten iyidir. */
+    var govde = kayit.ozet || kayit.baslik || '';
     if (kayit.hesapDuzeltmesi) {
-        govde += ' Daha önce sonuç aldıysanız, sonucunuzu bir kez daha alın.';
+        govde = (govde ? govde + ' ' : '') +
+                'Daha önce sonuç aldıysanız, sonucunuzu bir kez daha alın.';
     }
+    if (!govde) { gorulen_yaz(damga); return; }
     metin.textContent = govde;
 
     /* İKİ BİLDİRİM ÜST ÜSTE BİNMESİN.

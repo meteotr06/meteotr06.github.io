@@ -260,10 +260,27 @@ input.gecersiz, select.gecersiz {
     padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0;
 }
 
+/* YARDIM DUGMESI — GORUNEN 20 px, DOKUNULAN 44 px.
+   Olculdu (30.08.2026, telefon 375x812): bu dugmeler tam 20x20 px ve
+   padding 0 idi; dokunma hedefi esiginin (44 px) yarisindan kucuk.
+   Uygulamanin en cok ihtiyac duyulan parcasi -- "bu terim ne demek"
+   diye soran kullanici -- parmakla vuramiyordu.
+
+   Halka KUCUK kaliyor (arayuzu bozmasin), dokunma alani ::after ile
+   buyutuluyor. `position: relative` sart; `overflow` gizlemesin diye
+   ust kap `.etiket` esnek kutu, sorun cikarmiyor -- 200% yazida ve
+   dort sekmede yeniden olculdu. */
 .yardim {
+    position: relative;
     width: 20px; height: 20px; padding: 0; border-radius: 999px;
     background: var(--kart-ust); border: 1px solid var(--cizgi);
     color: var(--yazi2); font-size: 0.75rem; line-height: 1;
+    flex-shrink: 0;
+}
+.yardim::after {
+    content: ""; position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 44px; height: 44px;
 }
 
 /* ---------- Hukuki vasıf sonucu ---------- */
