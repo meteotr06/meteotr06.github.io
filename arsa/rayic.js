@@ -28,6 +28,86 @@
     var SECILI_ILCE = 0;
 
     var VERI = null, yukleniyor = false;
+    var KAPSAM = null;                     /* 81 il / 973 ilce -- TAM */
+    var ilSec   = document.getElementById('rIl');
+    var ilceSec = document.getElementById('rIlce');
+    var kapsamP = document.getElementById('rKapsam');
+
+    /* Fiyat verisi olan ilceler: ILCELER listesinden turuyor.
+       "Kapsam" ile "fiyat" AYRI kavramlar -- ikisini karistirmak,
+       elimizde olmayan veriyi varmis gibi gostermek olurdu. */
+    function fiyatVarMi(il, ilce) {
+        return ILCELER.some(function (x) {
+            return x.il === il && x.ad === ilce;
+        });
+    }
+
+    function kapsamYukle() {
+        if (KAPSAM) return Promise.resolve(KAPSAM);
+        return fetch('veri/il-ilce.json' + _etiket())
+            .then(function (c) { if (!c.ok) throw new Error(c.status); return c.json(); })
+            .then(function (d) {
+                KAPSAM = d;
+                if (!ilSec) return d;
+                Object.keys(d.il).forEach(function (il) {
+                    var o = document.createElement('option');
+                    o.value = il;
+                    o.textContent = il + (fiyatVarMi(il, null) ? '' : '');
+                    ilSec.appendChild(o);
+                });
+                if (kapsamP) {
+                    kapsamP.textContent = 'Türkiye’nin ' + d.il_sayisi + ' ili ve ' +
+                        d.ilce_sayisi + ' ilçesi listede. Resmî taban değer verisi ' +
+                        'şu an ' + ILCELER.length + ' ilçe için var; diğerleri ekleniyor.';
+                }
+                return d;
+            })
+            .catch(function () {
+                if (kapsamP) kapsamP.textContent = 'İl/ilçe listesi yüklenemedi.';
+            });
+    }
+
+    if (ilSec) {
+        ilSec.addEventListener('change', function () {
+            var il = ilSec.value;
+            ilceSec.innerHTML = '<option value="">— seçin —</option>';
+            if (!il || !KAPSAM) return;
+            (KAPSAM.il[il] || []).forEach(function (ilce) {
+                var o = document.createElement('option');
+                o.value = ilce;
+                o.textContent = ilce + (fiyatVarMi(il, ilce) ? '  ✔ veri var' : '');
+                ilceSec.appendChild(o);
+            });
+        });
+        ilceSec.addEventListener('change', function () {
+            var il = ilSec.value, ilce = ilceSec.value;
+            if (!ilce) return;
+            if (fiyatVarMi(il, ilce)) {
+                var i = ILCELER.findIndex(function (x) { return x.il === il && x.ad === ilce; });
+                if (i >= 0 && i !== SECILI_ILCE) { SECILI_ILCE = i; VERI = null; }
+                yolSec.innerHTML = '<option value="">— önce mahalle seçin —</option>';
+                kullan.disabled = true;
+                if (VERI) {
+                    /* Veri zaten elimizde: yeniden cekmeye gerek yok,
+                       dogrudan doldur. `yukle()` bu durumda erken doner. */
+                    var ad2 = mahalleleriDoldur(VERI);
+                    sonuc.textContent = ad2.length + ' mahalle (' + (VERI.ilce || '') +
+                        '). Mahallenizi seçin.';
+                } else {
+                    mahSec.innerHTML = '<option value="">— seçin —</option>';
+                    yukle();
+                }
+            } else {
+                /* SESSIZ GECMIYORUZ: elimizde olmadigini soyluyoruz. */
+                mahSec.innerHTML = '<option value="">— bu ilçe için veri yok —</option>';
+                yolSec.innerHTML = '<option value="">—</option>';
+                kullan.disabled = true;
+                sonuc.textContent = il + ' / ' + ilce + ' için resmî taban değer verisi ' +
+                    'henüz yok. Belediyenizin ya da muhtarlığınızın panosunda asılıdır; ' +
+                    'emsal fiyatı elle girebilirsiniz.';
+            }
+        });
+    }
     var kutu = document.getElementById('resmiTaban');
     if (!kutu) return;
     var mahSec = document.getElementById('rMahalle');
@@ -37,6 +117,36 @@
     var hedef  = document.getElementById('gEmsalFiyat');
 
     function tl(n) { return n.toLocaleString('tr-TR') + ' TL/m²'; }
+
+    /* Surum etiketi kendi <script> adresinden okunur -- elle yazilan
+       ikinci bir sayi, ayrisacagi gun sessizce eski veri gosterir. */
+    function _etiket() {
+        try {
+            var kendi = document.querySelector('script[src*="rayic.js"]');
+            var m = kendi && (kendi.getAttribute('src') || '').match(/[?&]v=([^&]+)/);
+            return m ? '?v=' + m[1] : '';
+        } catch (e) { return ''; }
+    }
+
+    kapsamYukle();
+
+    /* MAHALLELERI DOLDUR — ayri fonksiyon, cunku iki yerden cagriliyor:
+       veri ILK KEZ yuklendiginde ve ilce yeniden secildiginde.
+       Olculdu (30.08.2026): ilce secicisi eklendikten sonra Menemen
+       secilince mahalleler GELMIYORDU. Sebep: `details` acilinca veri
+       zaten yukleniyor, sonra ilce secilince listeyi temizliyordum ama
+       `yukle()` "VERI zaten var" deyip ERKEN DONUYORDU. Temizlenmis
+       liste bir daha dolmuyordu. */
+    function mahalleleriDoldur(d) {
+        var adlar = Object.keys(d.mahalle);
+        mahSec.innerHTML = '<option value="">— seçin —</option>';
+        adlar.forEach(function (ad) {
+            var o = document.createElement('option');
+            o.value = ad; o.textContent = ad + ' (' + d.mahalle[ad].length + ' yol)';
+            mahSec.appendChild(o);
+        });
+        return adlar;
+    }
 
     function yukle() {
         if (VERI || yukleniyor) return;
@@ -53,23 +163,13 @@
            Iki ayri yere ayni sayiyi elle yazmak, ayrisacagi gun
            sessizce yanlis veri gostermek demektir (sw.js'de aynen
            bunu yasadik). */
-        var etiket = '';
-        try {
-            var kendi = document.querySelector('script[src*="rayic.js"]');
-            var m = kendi && (kendi.getAttribute('src') || '').match(/[?&]v=([^&]+)/);
-            if (m) etiket = '?v=' + m[1];
-        } catch (e) {}
+        var etiket = _etiket();
 
         fetch(ILCELER[SECILI_ILCE].dosya + etiket)
             .then(function (c) { if (!c.ok) throw new Error(c.status); return c.json(); })
             .then(function (d) {
                 VERI = d; yukleniyor = false;
-                var adlar = Object.keys(d.mahalle);
-                adlar.forEach(function (ad) {
-                    var o = document.createElement('option');
-                    o.value = ad; o.textContent = ad + ' (' + d.mahalle[ad].length + ' yol)';
-                    mahSec.appendChild(o);
-                });
+                var adlar = mahalleleriDoldur(d);
                 /* KUNYE VERI DOSYASINDAN. Onceden HTML'de elle "(Menemen)"
                    yaziyordu ve yil/kaynak hic gosterilmiyordu -- oysa
                    dosya il, ilce, yil, kaynak ve gecerlilik alanlarini

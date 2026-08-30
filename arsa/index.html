@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Arsa Rehberi" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="application-name" content="Arsa Rehberi" />
-<link rel="stylesheet" href="stil.css?v=96" />
+<link rel="stylesheet" href="stil.css?v=97" />
 </head>
 <body>
 
@@ -122,6 +122,24 @@
                         <b>piyasa değeri değildir</b>, piyasa bunun üstündedir.
                         Emsal fiyatı bilmiyorsanız <b>alt sınır</b> olarak işinize yarar.
                     </p>
+                    <!-- IL/ILCE — KAPSAM KATMANI (30.08.2026).
+                         Turkiye'nin 81 ili ve 973 ilcesi burada TAM;
+                         fiyat verisi ise ilce ilce buyuyor. Kullanici
+                         once nerede oldugunu soyluyor, uygulama da o
+                         ilce icin verisi VAR MI acikca cevapliyor.
+                         Onceden hic sorulmuyordu: mahalle adlari ilceler
+                         arasinda ortak oldugu icin baska ilcedeki biri
+                         Menemen'in fiyatini kendi mahallesi sanabilirdi. -->
+                    <label class="alan" for="rIl">
+                        <span class="etiket">İl</span>
+                        <select id="rIl"><option value="">— seçin —</option></select>
+                    </label>
+                    <label class="alan" for="rIlce">
+                        <span class="etiket">İlçe</span>
+                        <select id="rIlce"><option value="">— önce il seçin —</option></select>
+                    </label>
+                    <p id="rKapsam" class="kucuk"></p>
+
                     <label class="alan" for="rMahalle">
                         <span class="etiket">Mahalle</span>
                         <select id="rMahalle"><option value="">— seçin —</option></select>
@@ -324,11 +342,11 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=96" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=96" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=96" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=96" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=96" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=97" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=97" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=97" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=97" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+    <script src="arayuz.js?v=97" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */
