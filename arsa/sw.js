@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v100";
+const SURUM = "arsa-v101";
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"
@@ -111,8 +111,8 @@ self.addEventListener("fetch", (olay) => {
     // Olculdu (29.08.2026), gercek onbellek uzerinde:
     //     /cekirdek.js            -> BULUNAMADI  (damgasiz istek)
     //     /cekirdek.js?v=63       -> bulundu     (dogru damga)
-    //     /cekirdek.js?v=1009      -> BULUNAMADI  (baska damga)
-    //     /cekirdek.js?v=1009 + ignoreSearch -> bulundu
+    //     /cekirdek.js?v=1019      -> BULUNAMADI  (baska damga)
+    //     /cekirdek.js?v=1019 + ignoreSearch -> bulundu
     //     /yok.js + ignoreSearch  -> bulunamadi  (ters dal: her seye
     //                                             "var" demiyor)
     //

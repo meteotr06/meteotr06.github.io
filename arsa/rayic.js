@@ -197,6 +197,20 @@
                     bas.textContent = (d.il || '') + ' · ' + (d.ilce || '') +
                         ' — ' + (d.yil || '') + ' yılı cetveli' +
                         (d.gecerlilik ? ' (' + d.gecerlilik + ' geçerli)' : '');
+                    /* KAYNAK BAGLANTISI. Kullanici belediyenin RESMI
+                       belgesini acip sayiyi kendi gozuyle dogrulayabilsin.
+                       Guven "bize inanin" ile degil "kaynak burada" ile
+                       kurulur -- ve yanlis bir sayi varsa kullanici bunu
+                       bize degil, belgeye bakarak anlar. */
+                    if (d.kaynak_adres) {
+                        bas.appendChild(document.createTextNode(' · '));
+                        var ba = document.createElement('a');
+                        ba.href = d.kaynak_adres;
+                        ba.target = '_blank';
+                        ba.rel = 'noopener noreferrer';
+                        ba.textContent = 'resmî belgeyi aç';
+                        bas.appendChild(ba);
+                    }
                 }
                 var ozet = document.querySelector('#resmiTaban summary');
                 if (ozet && d.ilce) {
