@@ -30,6 +30,7 @@ KULLANIM
 """
 
 import hashlib
+import re
 import io
 import os
 import re
@@ -242,6 +243,29 @@ def ozet(veri, ad=""):
 
 
 
+DAMGA_DESENI = [rb"[?]v=[0-9]+", rb"-v[0-9]+\"", rb"= *\"[a-z-]+-v[0-9]+\""]
+
+
+def damgasiz(veri, ad):
+    """Surum damgasi (?v=86, "hesap-v86") disinda icerik ayni mi?
+
+    NEDEN (olculdu, 30.08.2026): nobetci Hesap Araclari icin 62 dosya
+    icin "YAYIN KLASORUNE KOPYALANMAMIS" dedi. Bunlarin 60'i yalnizca
+    ?v=85 -> ?v=86 farkiydi: yayin tarafinda damga yukseltilmis,
+    gelistirme tarafinda yukseltilmemisti. Zararsiz.
+
+    Ama o 60 sahte satirin ARASINDA GERCEK BIR TANE VARDI: emlak
+    vergisi 2026 yasal tavani gelistirmede bitmis, yayina hic
+    gitmemisti -- para etkileyen bir eksik. Kimse gormedi.
+
+    Gurultu, uyariyi susturmaz; uyariyi GOMER. O yuzden damga farki
+    ayri sinifa alindi.
+    """
+    for d in DAMGA_DESENI:
+        veri = re.sub(d, b"", veri)
+    return ozet(veri, ad)
+
+
 def kopyalanmamis(kaynak_klasor, depo_klasor):
     """Gelistirici klasorundeki is, YAYIN klasorune kopyalanmis mi?
 
@@ -262,11 +286,11 @@ def kopyalanmamis(kaynak_klasor, depo_klasor):
     disarida birakilmistir, onlari "eksik" saymak yanlis alarm olurdu.
     """
     if not kaynak_klasor or depo_klasor is None:
-        return []                      # zincir yok: tek klasorde gelisiyor
+        return [], [], []              # zincir yok: tek klasorde gelisiyor
     yay = os.path.join(KOK, depo_klasor)
     if not os.path.isdir(kaynak_klasor) or not os.path.isdir(yay):
-        return []
-    farkli = []
+        return [], [], []
+    gitmemis, geride, damgalik = [], [], []
     for kok2, _, dosyalar in os.walk(yay):
         for f in dosyalar:
             y = os.path.join(kok2, f)
@@ -275,11 +299,18 @@ def kopyalanmamis(kaynak_klasor, depo_klasor):
             if not os.path.exists(k):
                 continue               # yalniz yayinda: bilerek olabilir
             try:
-                if ozet(io.open(k, "rb").read(), r) != ozet(io.open(y, "rb").read(), r):
-                    farkli.append(r)
+                kb, yb = io.open(k, "rb").read(), io.open(y, "rb").read()
+                if ozet(kb, r) == ozet(yb, r):
+                    continue
+                if damgasiz(kb, r) == damgasiz(yb, r):
+                    damgalik.append(r)          # yalniz ?v=NN farki
+                elif os.path.getmtime(k) > os.path.getmtime(y):
+                    gitmemis.append(r)          # GELISTIRMEDE HAZIR, yayina gitmemis
+                else:
+                    geride.append(r)            # yayindaki daha yeni
             except Exception:
                 pass
-    return sorted(farkli)
+    return sorted(gitmemis), sorted(geride), sorted(damgalik)
 
 
 def damga_donmus(kaynak_klasor, depo_klasor, degisenler):
@@ -499,7 +530,7 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
     # İkisi de aynı kökten: araç GÖRÜNÜŞE bakıyordu.
     # Artık SONUCA bakıyor: yereldeki dosya ile canlıdaki dosya aynı mı.
     # Bu, damgalama stratejisinden bağımsız ve damgasız projede de çalışır.
-    kopyasiz = kopyalanmamis(kaynak, depo)
+    kopyasiz, yayin_ileri, damga_farki = kopyalanmamis(kaynak, depo)
     donmus = damga_donmus(kaynak, depo, kopyasiz)
     farkli, bakilan = icerik_karsilastir(kaynak, depo, yol, govde)
     if farkli:
@@ -519,6 +550,19 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
                         "geciktirir, push yeniyse bu uyarı yanlıştır."
                         % ", ".join(farkli[:4]))
 
+    # KOD ile RESIM ayri yazilir. Ikisini tek listeye koymak, para
+    # etkileyen bir .js dosyasini 43 onizleme .png'sinin arkasina
+    # dusurur -- bu betigin bugun duzelttigi gomme kusurunun aynisi.
+    KOD_UZANTI = (".html", ".js", ".css", ".json")
+    kod = [f for f in kopyasiz if f.lower().endswith(KOD_UZANTI)]
+    varlik = [f for f in kopyasiz if f not in kod]
+    if varlik and not kod:
+        notlar.append("yayına gitmemiş %d görsel/dosya (kod değil): %s"
+                      % (len(varlik), ", ".join(varlik[:3])))
+    elif varlik:
+        notlar.append("ayrıca yayına gitmemiş %d görsel/dosya" % len(varlik))
+    kopyasiz = kod
+
     if kopyasiz:
         # ZINCIRIN ILK HALKASI. Bu, yukaridakinden BASKA bir arizadir ve
         # zaman tuzagi YOKTUR: iki yerel klasor karsilastiriliyor, aginin
@@ -530,6 +574,25 @@ def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
                         "düzeltmez.)"
                         % (", ".join(kopyasiz[:4]),
                            "" if len(kopyasiz) <= 4 else " +%d" % (len(kopyasiz)-4)))
+
+    if yayin_ileri:
+        # TERS YON. Nobetci bunu da "kopyalanmamis" diye yaziyordu ve
+        # yanlis is yaptiriyordu: "kopyala" denince CANLIDAKI DUZELTME
+        # SILINIRDI. Olculdu 30.08.2026 -- Muhasebe'de erisilebilirlik
+        # duzeltmeleri (maximum-scale, 7 etiket, 44 px) yayin tarafinda
+        # duruyordu, gelistirme tarafi 27.08 kalmisti. Bir sonraki
+        # kopyalama hepsini geri silecekti.
+        notlar.append("yayındaki hâli daha yeni: %s — geliştirme klasörü "
+                      "geride. KOPYALAMAYIN, ters yöne alın; yoksa "
+                      "yayındaki düzeltme silinir."
+                      % ", ".join(yayin_ileri[:4]))
+
+    if damga_farki:
+        # SESSIZ SINIF: yalniz ?v=NN farki. Zararsiz -- ama 60 tanesi
+        # gercek bir eksigi GOMDU (bkz. damgasiz()). Sayiyi yaziyoruz ki
+        # gurultu, uyari sanilmasin.
+        notlar.append("yalnız sürüm damgası farklı: %d dosya (içerik aynı)"
+                      % len(damga_farki))
 
     if donmus:
         # UCUNCU HALKA: kopyalasan ve push etsen bile ULASMAZ.
