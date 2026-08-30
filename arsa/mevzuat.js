@@ -44,6 +44,52 @@ function sayi(x, tur) {
 
 var YIL = 2026;
 
+/* RAYIC CETVELININ OMRU — veri dosyasindaki `gecerlilik` alani.
+   Mevzuat yillik degisir; rayic cetveli 4 yilda bir belirlenir. */
+var RAYIC_SON_YIL = 2029;
+
+/* UYGULAMA ESKIDIGINI SOYLEMELI.
+   Olculdu (29.08.2026): kod hicbir yerde `getFullYear` cagirmiyordu;
+   yani 2027'de acan bir kullanici 2026 birim fiyatlariyla, 2026 harc
+   ve vergi oranlariyla hesap yapiyor ve BUNU HIC OGRENMIYOR. Sayilar
+   makul gorunur, kaynak satiri "2026" yazar, kimse fark etmez.
+   Sessiz yanlis sayinin en sinsi bicimi: dogru sayi, YANLIS YIL.
+
+   Iki omru AYRI soyluyoruz -- birlikte soylemek yaniltir:
+     mevzuat (birim fiyat, harc, vergi) : YILLIK
+     rayic cetveli                       : 2026-2029
+
+   Cihaz saati yanlissa yanlis alarm cikabilir; bu yuzden metin
+   "cihazinizin tarihine gore" diyor ve hicbir sey ENGELLENMIYOR. */
+function guncellik(bugun_yil) {
+  var y = bugun_yil;
+  if (y === undefined || y === null) {
+    try { y = new Date().getFullYear(); } catch (e) { y = null; }
+  }
+  y = parseInt(y, 10);
+  if (!isFinite(y) || y < 2000 || y > 2100) {
+    return { olculemedi: true, sebep: 'Cihaz tarihi okunamadı.' };
+  }
+  var mev_fark = y - YIL;
+  var ray_fark = y - RAYIC_SON_YIL;
+  return {
+    bugun: y,
+    mevzuat_yili: YIL,
+    rayic_son_yil: RAYIC_SON_YIL,
+    mevzuat_eski: mev_fark > 0,
+    mevzuat_kac_yil: mev_fark > 0 ? mev_fark : 0,
+    rayic_eski: ray_fark > 0,
+    metin: mev_fark <= 0 ? null
+      : ('Bu hesap ' + YIL + ' yılı birim fiyatlarına, harç ve vergi ' +
+         'oranlarına dayanıyor. Cihazınızın tarihine göre ' + y + ' ' +
+         'yılındasınız — ' + (mev_fark === 1 ? 'geçen yılın' : mev_fark + ' yıl önceki') +
+         ' rakamlarını görüyorsunuz. Resmî oranlar her yıl değişir.'),
+    rayic_metin: ray_fark <= 0 ? null
+      : ('Rayiç cetveli ' + RAYIC_SON_YIL + ' sonuna kadar geçerliydi; ' +
+         'yenisi belirlenmiş olmalı.')
+  };
+}
+
 var MEVZUAT_KAYNAK = {
   M1: 'Çevre, Şehircilik ve Iklim Değişikliği Bakanlığı — 2026 Yılı Yapı ' +
       'Yaklaşık Birim Maliyetleri Hakkında Tebliğ. RG 3/2/2026, Sayı 33157. ' +
@@ -520,6 +566,7 @@ var API = {
   insaat_maliyeti: insaat_maliyeti,
 
   TAPU_HARCI_ORANI: TAPU_HARCI_ORANI,
+  guncellik: guncellik,
   tapu_harci: tapu_harci,
 
   EMLAK_VERGISI_ORANI: EMLAK_VERGISI_ORANI,

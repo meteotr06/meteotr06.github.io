@@ -900,6 +900,31 @@ function rapor_ciz() {
     $('rRisk').innerHTML = ''; $('rRisk').appendChild(risk_karti(r));
 
     /* --- Hukuki uyarı --- */
+    /* VERI ESKIYSE ONCE ONU SOYLE. Raporun en ustunde, hukuki
+       uyarinin hemen oncesinde. Sessiz degil ama bagirmiyor da:
+       kullanici sayilara bakmadan once yilin gectigini bilmeli.
+       Olculdu (29.08.2026): kod hicbir yerde bugunun yilini
+       sormuyordu; 2027'de acan biri 2026 oranlariyla hesap yapip
+       bunu hic ogrenmiyordu. */
+    var _g = M.guncellik();
+    var _gk = $('rGuncellik');
+    if (!_gk) {
+        _gk = el('div', 'guncellik-uyari');
+        _gk.id = 'rGuncellik';
+        $('rUyari').parentNode.insertBefore(_gk, $('rUyari'));
+    }
+    _gk.innerHTML = '';
+    if (_g && !_g.olculemedi && (_g.metin || _g.rayic_metin)) {
+        var _p = el('p', null, _g.metin || '');
+        if (_g.rayic_metin) {
+            _p.appendChild(document.createTextNode(' ' + _g.rayic_metin));
+        }
+        _gk.appendChild(_p);
+        _gk.hidden = false;
+    } else {
+        _gk.hidden = true;
+    }
+
     $('rUyari').innerHTML =
         '<b>Bu bir değerleme raporu değildir.</b> Uygulama bilgilendirme ' +
         'amaçlıdır; gayrimenkul değerleme Türkiye\'de SPK lisansına tabi bir ' +

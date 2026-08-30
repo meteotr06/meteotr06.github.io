@@ -778,3 +778,19 @@ input.gecersiz, select.gecersiz {
 .alt-not, .aciklama, .not, .uyari-metin {
     overflow-wrap: anywhere;
 }
+
+
+/* VERI ESKIDIGINDE cikan satir. Bagirmiyor (kirmizi degil) ama
+   goz kaciramiyor: sol kenarda kalin cizgi, hafif zemin. */
+.guncellik-uyari {
+    border-left: 4px solid var(--uyari, #d08a2e);
+    background: rgba(208, 138, 46, .10);
+    padding: .6rem .8rem;
+    border-radius: .3rem;
+    margin: 0 0 .8rem;
+    font-size: .92rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+.guncellik-uyari[hidden] { display: none !important; }
