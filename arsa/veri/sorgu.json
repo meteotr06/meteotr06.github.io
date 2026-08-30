@@ -2,12 +2,10 @@
  "İzmir": {
   "Bayındır": "https://ebelediye.bayindir.bel.tr/Emlak/RayicBedel",
   "Buca": "https://ebelediye.buca.bel.tr/Emlak/RayicBedel",
-  "Gaziemir": "https://ebelediye.gaziemir.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Karaburun": "https://ebelediye.karaburun.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Menderes": "https://e-belediye.menderes.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Narlıdere": "https://ebelediye.narlidere-bld.gov.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Seferihisar": "https://ebelediye.seferihisar.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
-  "Selçuk": "https://ebelediye.selcuk.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Çeşme": "https://ebelediye.cesme.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri"
  }
 }
