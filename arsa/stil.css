@@ -192,7 +192,14 @@ main { max-width: 760px; margin: 0 auto; padding: 16px; }
 }
 .etiket i { font-style: normal; font-weight: 400; color: var(--yazi2); }
 
-input[type="number"], input[type="text"], select {
+/* `date` DE BU LISTEDE OLMALI.
+   Olculdu (30.08.2026, 375 px): yeni eklenen alis tarihi alani 122 px
+   genisliginde kaldi, yanindaki metin alani 149 px idi -- ayni izgara
+   hucresinde iki farkli boyda kutu. Kural yalniz `text` ve `number`
+   hedefliyordu; tarayicinin varsayilan tarih kutusu ne 100 % genisler
+   ne de 46 px yuksekliginde olur. Tasma yoktu, ama hizasizlik vardi:
+   yeni bir girdi turu eklerken bu listeye de bakilmali. */
+input[type="number"], input[type="text"], input[type="date"], select {
     width: 100%; min-height: 46px; padding: 10px 12px;
     font-family: inherit; font-size: 1rem;      /* 16px: iOS yakınlaştırmasın */
     background: var(--zemin2); color: var(--yazi);
@@ -219,7 +226,23 @@ input.gecersiz, select.gecersiz {
     color: var(--uyari);
 }
 
-.ikili { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* IKI SUTUN — ama YER VARSA.
+   Olculdu (30.08.2026): `1fr 1fr` esit sutun DEGILDIR; `1fr` aslinda
+   `minmax(auto, 1fr)` demek, yani bir cocugun ic genisligi payini asarsa
+   sutunu buyutur ve komsusunun yerini alir. Yeni `type="date"` kutusu
+   tam bunu yapti: 375 px ekranda tarih 169 px, yanindaki metin 128 px
+   kaldi. %200 yazi boyutunda ise ikisi de ekran disina tasti.
+
+   `minmax(0, ...)` cocugun kucultulmesine izin verir; `auto-fit` ise
+   yer kalmayinca satiri TEK SUTUNA indirir. Tasmaktansa alt alta
+   dizilmek yeglenir -- projenin 69. surumunde ayni sinif (buyutulmus
+   yazida ekran disina tasma) bir kez kapanmisti, burada geri acilmisti. */
+.ikili {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+    gap: 12px;
+}
+.ikili > * { min-width: 0; }
 
 .onay {
     display: flex; align-items: flex-start; gap: 10px;
