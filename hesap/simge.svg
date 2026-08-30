@@ -1,9 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#1c5fd6"/>
-  <rect x="19" y="14" width="26" height="9" rx="2.5" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Hesap Araçları">
+  <!-- Sekme simgesi. PNG ikonlarla AYNI tasarim olmali: renkler ve
+       olculer kalite-Hesap-512.png uzerinden piksel olcerek cikarildi,
+       tahmin edilmedi. Ayri durursa kullanici sekmede baska, kurulu
+       uygulamada baska bir logo gorur. Bu tuzak 10 (Arsa) tarafinda
+       yasandi: simge.svg maviydi, ana sayfa PNG kullandigi icin fark
+       edilmiyordu, alt sayfalarda sekme baska renkti.
+
+       NOT: XML yorumunda cift tire kullanilamaz. Ilk yazista
+       kullanilmisti ve dosya HIC AYRISMADI; sekme simgesi kirik
+       geliyordu. Renk dogru, sayilar dogru, dosya diskteydi, ekranda
+       yoktu. "Dosya degisti" ile "ekranda degisti" ayni sey degil. -->
+  <defs>
+    <linearGradient id="zemin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7369ED"/>
+      <stop offset="1" stop-color="#372DB2"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#zemin)"/>
+  <!-- Ekran paneli. Esittir panelin USTUNE cizilmez, panelden OYULUR:
+       ustune beyaz cizilen esittir 48 pikselde panelle kaynasip
+       gorunmez oluyordu (olculdu). -->
+  <rect x="10.1" y="10.1" width="42.6" height="17.8" rx="4.2" fill="#ffffff"/>
+  <rect x="17.6" y="14.1" width="27.6" height="3.2" rx="1.6" fill="#4C42CF"/>
+  <rect x="17.6" y="20.8" width="27.6" height="3.2" rx="1.6" fill="#4C42CF"/>
+  <!-- Tus sirasi -->
   <g fill="#ffffff">
-    <circle cx="23.5" cy="32" r="3"/><circle cx="32" cy="32" r="3"/><circle cx="40.5" cy="32" r="3"/>
-    <circle cx="23.5" cy="40.5" r="3"/><circle cx="32" cy="40.5" r="3"/><circle cx="40.5" cy="40.5" r="3"/>
-    <circle cx="23.5" cy="49" r="3"/><circle cx="32" cy="49" r="3"/><circle cx="40.5" cy="49" r="3"/>
+    <rect x="10.1" y="35.0" width="9.9" height="7.9" rx="2.5"/>
+    <rect x="26.5" y="35.0" width="9.9" height="7.9" rx="2.5"/>
+    <rect x="42.9" y="35.0" width="9.9" height="7.9" rx="2.5"/>
   </g>
 </svg>

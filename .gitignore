@@ -15,6 +15,12 @@ Hava Durumu.exe
 planlayici/
 
 # Ic sinama sayfalari yayina gitmez (K-48)
-hesap/sinama.html
-hesap/test-*.html
+# UZANTI YAZILMAZ. Onceki hal `hesap/test-*.html` idi ve yalnizca
+# HTML'i kesiyordu; YAYINLA.bat ise `copy /y "*.css"` ile kok
+# dizindeki HER .css'i tasiyor. `test-stil-eski.css` bu delikten
+# gecip canliya cikacakti (30 Agustos 2026'da olculdu: 
+# `git check-ignore` o dosya icin BOS donuyordu). Kalip artik
+# uzantisiz: hangi uzantiyla gelirse gelsin ic dosya yayina gitmez.
+hesap/sinama*
+hesap/test-*
 arsa/test*.html

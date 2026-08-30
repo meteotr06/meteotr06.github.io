@@ -169,6 +169,35 @@ function ayarYaz(a) {
    yazilir; ikisi ayrissa da bildirim calisir. */
 const DEGISIKLIKLER = [
     {
+        surum: 81,
+        tarih: "30 Ağustos 2026",
+        ozet: "Kopyaladığınız sonuçta ASIL CEVAP eksik kalıyordu — 20 araçta düzeltildi.",
+        /* Ekrandaki sayilar YANLIS DEGILDI; panoya giden metin eksikti.
+           "Sonucunuzu yeniden alın" uyarısı yanlış hesap içindir, o
+           yüzden burada false. Uyarıyı gereksiz yere açmak, gerçekten
+           açılması gereken günde inandırıcılığını düşürür. */
+        hesapDuzeltmesi: false,
+        maddeler: [
+            "Araçların çoğu sonucu iki katmanda gösteriyor: en üstte <b>büyük " +
+            "cevap</b>, altında dökümü. “Kopyala” düğmesi <b>yalnızca dökümü</b> " +
+            "alıyordu; büyük cevap panoya hiç girmiyordu.",
+            "Somut olarak: <b>kredi</b> hesabında aylık taksit, <b>kirala mı al " +
+            "mı</b> aracında tavsiyenin kendisi (“Satın almak”), <b>vücut kitle " +
+            "indeksi</b>nde BKİ değeri, <b>damga vergisi</b>nde verginin kendisi " +
+            "kopyalanan metinde <b>yoktu</b>. Yapıştırdığınızda her şey varmış " +
+            "gibi duruyor, ama sorunuzun cevabı eksik oluyordu.",
+            "<b>53 aracın tamamı tek tek ölçüldü</b>; 20 araç bu durumdaydı, " +
+            "hepsi düzeltildi. Büyük cevap artık kopyalanan metnin en başında. " +
+            "Zaten dökümde geçen değerler <b>iki kez yazılmıyor</b>.",
+            "<b>Ekrandaki sayılar yanlış değildi</b> — daha önce yaptığınız " +
+            "hesapları yeniden yapmanız gerekmiyor. Eksik olan yalnızca " +
+            "kopyalanan metindi.",
+            "<b>Yeni logo:</b> hesap makinesi ekranı ve tuş sırası, eşittir " +
+            "ekrandan oyulmuş. Sekmedeki simge ile telefonunuza kurduğunuz " +
+            "uygulamanın simgesi artık aynı.",
+        ],
+    },
+    {
         surum: 80,
         tarih: "28 Ağustos 2026",
         ozet: "Yeni araç: emeklilik şartları — ve neden tarih vermediğimiz.",
@@ -1430,10 +1459,65 @@ function eylemleriBagla(sonucGetir) {
 // Ekrandaki sonuç satırlarını düz metne çevirir (kopyalamak için)
 function sonucMetni(baslik) {
     const satirlar = [baslik || document.querySelector("h1").innerText.trim(), ""];
+    /* Satir DEGERLERI ayrica tutuluyor: asagidaki "bu deger zaten
+       yazilmis mi" denetimi ALTDIZGE ile yapilamaz. Olculdu (30
+       Agustos 2026): damga vergisinde buyuk cevap "0,00 TL" idi ve
+       "240.000,00 TL" satirinin ICINDE altdizge olarak bulunuyordu;
+       sonuc: VERGININ KENDISI panoya hic girmiyordu. Kisa degerler
+       (birim cevirmede "10") bu tuzagi daha da buyutur. Karsilastirma
+       artik TAM DEGER uzerinden. */
+    const satirDegerleri = [];
     document.querySelectorAll("#ozet .sonuc-satir").forEach(s => {
         const p = s.innerText.split("\n").filter(Boolean);
-        if (p.length >= 2) satirlar.push(p[0] + ": " + p[p.length - 1]);
+        if (p.length >= 2) {
+            satirlar.push(p[0] + ": " + p[p.length - 1]);
+            satirDegerleri.push(p[p.length - 1].trim());
+        }
     });
+
+    /* EKRANDAKI BUYUK CEVAP DA PANOYA GIRER (.one-cikan).
+       Araclarin cogu sonucu iki katmanda gosteriyor: ustte tek buyuk
+       CEVAP (`.dev-deger` + `.dev-etiket`), altta dokum satirlari.
+       Bu islev yalnizca dokum satirlarini okuyordu.
+
+       OLCULDU (30 Agustos 2026, 53 aracin hepsi tarayicida kosuldu):
+       19 aracta ekrandaki buyuk cevap panoya HIC GITMIYORDU. Ornekler:
+         kredi              -> "6.523,81 TL aylik taksit" yok; panoda
+                               kredi tutari, toplam odeme, faiz var ama
+                               ASIL SORUNUN CEVABI yok.
+         kiralamak-mi-...   -> "Satin almak" TAVSIYESI yok; on satir
+                               dokum var, hukum yok.
+         vucut-kitle-indeksi-> BKI degerinin kendisi yok.
+       Kullanici yapistiriyor, her sey var gibi duruyor, cevap yok.
+
+       ILK DUZELTME BU 19'U KACIRIYORDU: kosul "hic satir yoksa" idi
+       (`satirlar.length === 2`). Oysa `satir()` uretecinin cikardigi
+       `.sonuc-satir` ogeleri `.one-cikan` kutusunun ICINDE duruyor;
+       `#ozet .sonuc-satir` onlari da buluyor, dizi hic bos kalmiyor ve
+       kapi acilmiyordu. Yalniz `yuzde-hesaplama` gibi gercekten
+       satirsiz araclarda calisiyordu -- yani duzeltme kendi
+       olculdugu ornekte dogru, sinifin gerisinde etkisizdi.
+
+       DOGRU KOSUL "satir yok" degil, "BU DEGER ZATEN YAZILMIS MI":
+       net-maas'ta buyuk cevap (58.080,27) zaten "Net maas" satirinda
+       geciyor, ikinci kez yazilmasi gerekmiyor. Deger metinde varsa
+       atlanir, yoksa BASA konur -- cevap en ustte olmali. */
+    const basliklar = [];
+    document.querySelectorAll("#ozet .one-cikan").forEach(k => {
+        const dv = k.querySelector(".dev-deger");
+        const et = k.querySelector(".dev-etiket");
+        const deger = dv ? dv.innerText.trim() : "";
+        if (!deger || satirDegerleri.indexOf(deger) >= 0) return;
+        const etiket = et ? et.innerText.trim() : "";
+        /* EKRANDAKI SIRA: once buyuk deger, altinda aciklama.
+           Panoda da ayni sirada olsun -- "aylik taksit ...: 6.523,81"
+           degil "6.523,81 TL -- aylik taksit ...". Oteki satirlar
+           "Etiket: Deger" bicimindedir; bu satir onlardan FARKLI
+           cunku o bir dokum satiri degil, CEVABIN KENDISI. */
+        basliklar.push(etiket ? deger + " — " + etiket : deger);
+    });
+    if (basliklar.length) satirlar.splice(2, 0, ...basliklar);
+
     satirlar.push("", location.href);
     return satirlar.join("\n");
 }
