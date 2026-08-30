@@ -1,0 +1,331 @@
+{
+ "kaynak": "TKGM Parsel Sorgu (MEGSIS) il listesi",
+ "alindi": "2026-08-30",
+ "not": "TKGM ic kimlikleri. PLAKA KODU DEGILDIR (Izmir=57, plaka 35 degil). Yanlis kimlik verilince servis hata vermez, BASKA ilin ilcelerini doner.",
+ "il": [
+  {
+   "id": 23,
+   "ad": "Adana"
+  },
+  {
+   "id": 24,
+   "ad": "Adıyaman"
+  },
+  {
+   "id": 25,
+   "ad": "Afyonkarahisar"
+  },
+  {
+   "id": 90,
+   "ad": "Aksaray"
+  },
+  {
+   "id": 27,
+   "ad": "Amasya"
+  },
+  {
+   "id": 28,
+   "ad": "Ankara"
+  },
+  {
+   "id": 29,
+   "ad": "Antalya"
+  },
+  {
+   "id": 97,
+   "ad": "Ardahan"
+  },
+  {
+   "id": 30,
+   "ad": "Artvin"
+  },
+  {
+   "id": 31,
+   "ad": "Aydın"
+  },
+  {
+   "id": 26,
+   "ad": "Ağrı"
+  },
+  {
+   "id": 32,
+   "ad": "Balıkesir"
+  },
+  {
+   "id": 96,
+   "ad": "Bartın"
+  },
+  {
+   "id": 94,
+   "ad": "Batman"
+  },
+  {
+   "id": 91,
+   "ad": "Bayburt"
+  },
+  {
+   "id": 33,
+   "ad": "Bilecik"
+  },
+  {
+   "id": 34,
+   "ad": "Bingöl"
+  },
+  {
+   "id": 35,
+   "ad": "Bitlis"
+  },
+  {
+   "id": 36,
+   "ad": "Bolu"
+  },
+  {
+   "id": 37,
+   "ad": "Burdur"
+  },
+  {
+   "id": 38,
+   "ad": "Bursa"
+  },
+  {
+   "id": 42,
+   "ad": "Denizli"
+  },
+  {
+   "id": 43,
+   "ad": "Diyarbakır"
+  },
+  {
+   "id": 103,
+   "ad": "Düzce"
+  },
+  {
+   "id": 44,
+   "ad": "Edirne"
+  },
+  {
+   "id": 45,
+   "ad": "Elazığ"
+  },
+  {
+   "id": 46,
+   "ad": "Erzincan"
+  },
+  {
+   "id": 47,
+   "ad": "Erzurum"
+  },
+  {
+   "id": 48,
+   "ad": "Eskişehir"
+  },
+  {
+   "id": 49,
+   "ad": "Gaziantep"
+  },
+  {
+   "id": 50,
+   "ad": "Giresun"
+  },
+  {
+   "id": 51,
+   "ad": "Gümüşhane"
+  },
+  {
+   "id": 52,
+   "ad": "Hakkari"
+  },
+  {
+   "id": 53,
+   "ad": "Hatay"
+  },
+  {
+   "id": 54,
+   "ad": "Isparta"
+  },
+  {
+   "id": 98,
+   "ad": "Iğdır"
+  },
+  {
+   "id": 68,
+   "ad": "Kahramanmaraş"
+  },
+  {
+   "id": 100,
+   "ad": "Karabük"
+  },
+  {
+   "id": 92,
+   "ad": "Karaman"
+  },
+  {
+   "id": 58,
+   "ad": "Kars"
+  },
+  {
+   "id": 59,
+   "ad": "Kastamonu"
+  },
+  {
+   "id": 60,
+   "ad": "Kayseri"
+  },
+  {
+   "id": 101,
+   "ad": "Kilis"
+  },
+  {
+   "id": 63,
+   "ad": "Kocaeli"
+  },
+  {
+   "id": 64,
+   "ad": "Konya"
+  },
+  {
+   "id": 65,
+   "ad": "Kütahya"
+  },
+  {
+   "id": 61,
+   "ad": "Kırklareli"
+  },
+  {
+   "id": 93,
+   "ad": "Kırıkkale"
+  },
+  {
+   "id": 62,
+   "ad": "Kırşehir"
+  },
+  {
+   "id": 66,
+   "ad": "Malatya"
+  },
+  {
+   "id": 67,
+   "ad": "Manisa"
+  },
+  {
+   "id": 69,
+   "ad": "Mardin"
+  },
+  {
+   "id": 55,
+   "ad": "Mersin"
+  },
+  {
+   "id": 70,
+   "ad": "Muğla"
+  },
+  {
+   "id": 71,
+   "ad": "Muş"
+  },
+  {
+   "id": 72,
+   "ad": "Nevşehir"
+  },
+  {
+   "id": 73,
+   "ad": "Niğde"
+  },
+  {
+   "id": 74,
+   "ad": "Ordu"
+  },
+  {
+   "id": 102,
+   "ad": "Osmaniye"
+  },
+  {
+   "id": 75,
+   "ad": "Rize"
+  },
+  {
+   "id": 76,
+   "ad": "Sakarya"
+  },
+  {
+   "id": 77,
+   "ad": "Samsun"
+  },
+  {
+   "id": 78,
+   "ad": "Siirt"
+  },
+  {
+   "id": 79,
+   "ad": "Sinop"
+  },
+  {
+   "id": 80,
+   "ad": "Sivas"
+  },
+  {
+   "id": 81,
+   "ad": "Tekirdağ"
+  },
+  {
+   "id": 82,
+   "ad": "Tokat"
+  },
+  {
+   "id": 83,
+   "ad": "Trabzon"
+  },
+  {
+   "id": 84,
+   "ad": "Tunceli"
+  },
+  {
+   "id": 86,
+   "ad": "Uşak"
+  },
+  {
+   "id": 87,
+   "ad": "Van"
+  },
+  {
+   "id": 99,
+   "ad": "Yalova"
+  },
+  {
+   "id": 88,
+   "ad": "Yozgat"
+  },
+  {
+   "id": 89,
+   "ad": "Zonguldak"
+  },
+  {
+   "id": 39,
+   "ad": "Çanakkale"
+  },
+  {
+   "id": 40,
+   "ad": "Çankırı"
+  },
+  {
+   "id": 41,
+   "ad": "Çorum"
+  },
+  {
+   "id": 56,
+   "ad": "İstanbul"
+  },
+  {
+   "id": 57,
+   "ad": "İzmir"
+  },
+  {
+   "id": 85,
+   "ad": "Şanlıurfa"
+  },
+  {
+   "id": 95,
+   "ad": "Şırnak"
+  }
+ ]
+}

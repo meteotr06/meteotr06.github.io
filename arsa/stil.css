@@ -856,3 +856,73 @@ input.gecersiz, select.gecersiz {
     display: inline-block; margin-top: 6px; text-decoration: none;
     text-align: center;
 }
+
+/* ============ BASLANGIC KARTI ============
+   Olculdu (30.08.2026): uygulamanin sahibi telefonda acti ve
+   "nerden yapacagimi anlamadim, cok karisik" dedi. Ilk ekranin en
+   buyuk ogesi "Bilgi kapsami %0" idi; altinda "1 · Temel bilgiler"
+   duruyordu, yani "daha 5 bolum var" izlenimi veriyordu.
+   Simdi ilk goruntu TEK BIR SEY soyluyor: iki alan doldur. */
+.baslangic {
+    background: var(--kart); border: 1px solid var(--cizgi);
+    border-left: 4px solid var(--vurgu);
+    border-radius: var(--yuvarlak);
+    padding: 16px; margin-bottom: 14px;
+}
+.baslangic h2 {
+    margin: 0 0 8px; font-size: 1.0625rem; font-weight: 700;
+}
+.baslangic p { margin: 0 0 8px; font-size: 0.9375rem; line-height: 1.5; }
+.baslangic .alt-not { margin-bottom: 12px; }
+.baslangic-ornek {
+    width: 100%; min-height: 48px; padding: 12px 14px;
+    border-radius: 10px; border: 1px solid var(--vurgu);
+    background: transparent; color: var(--vurgu); font-weight: 600;
+}
+.baslangic-ornek:hover { background: var(--kart-ust); }
+
+/* Buradan sonrasi istege bagli — ayirac */
+.istege-bagli-ayrac {
+    margin: 22px 0 10px; font-size: 0.8125rem; color: var(--yazi2);
+    text-align: center; position: relative;
+}
+.bolum-ad i {
+    font-style: normal; font-weight: 400; color: var(--yazi2);
+    font-size: 0.8125rem;
+}
+
+/* ---------- TAPUDAN GETİR (TKGM parsel sorgusu) ---------- */
+.parsel-kutu {
+    border: 1px solid var(--cizgi); border-radius: 10px;
+    background: var(--kart-ust); margin-top: 14px; overflow: hidden;
+}
+.parsel-kutu > summary {
+    padding: 13px 14px; min-height: 46px; cursor: pointer;
+    font-weight: 600; font-size: 0.9375rem;
+    display: flex; align-items: center;
+}
+.parsel-govde { padding: 0 14px 14px; }
+.parsel-sonuc { margin-top: 12px; }
+.parsel-sonuc h4 { margin: 0 0 10px; font-size: 0.9375rem; }
+.parsel-sonuc a.ikincil { display: inline-block; margin-top: 10px; text-decoration: none; }
+
+/* Parselin sekli — kutuphanesiz SVG.
+   Harita dosemesi CEKILMIYOR: uygulama cevrimdisi calisiyor ve dis
+   sunucuya istek, kullanicinin nereye baktigini oraya soyler. */
+.parsel-sekil {
+    display: block; width: 100%; max-width: 260px; height: auto;
+    margin: 0 auto 12px; background: var(--zemin2);
+    border: 1px solid var(--cizgi); border-radius: 8px;
+}
+.parsel-sekil polygon {
+    fill: var(--uyari-zemin); stroke: var(--vurgu); stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+/* Parsel haritasi — uydu goruntusu ustunde sinir. */
+.parsel-harita-kap { margin: 12px 0; }
+.parsel-harita {
+    width: 100%; height: 260px; border-radius: 10px;
+    border: 1px solid var(--cizgi); background: var(--kart-ust);
+}
+.parsel-harita .leaflet-control-layers { font-size: 0.8125rem; }

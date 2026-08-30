@@ -34,7 +34,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=120" />
+<link rel="stylesheet" href="stil.css?v=128" />
 </head>
 <body>
 
@@ -77,30 +77,31 @@
 <!-- ========================= PARSEL ========================= -->
 <section id="sParsel" role="tabpanel" tabindex="0" class="sayfa aktif">
 
-    <p class="giris">
-        Arsaya para vermeden önce beş dakikanızı ayırın.
-        <b>Sadece ilk iki alanı</b> doldurup da sonuç alabilirsiniz —
-        ne kadar çok doldurursanız tahmin o kadar daralır.
-    </p>
+    <!-- ============ NE YAPACAGIM? ============
+         Olculdu (30.08.2026, uygulamanin SAHIBI telefonda acti):
+         "ben nerden yapicagimi anlamadim, cok karisik".
+         Ilk ekranin en buyuk ogesi "Bilgi kapsami %0" idi -- yeni
+         kullaniciya hicbir sey anlatmayan bir sayi. Hemen altinda
+         "1 · Temel bilgiler" duruyordu, yani "daha 5 bolum var"
+         izlenimi. "Sadece ilk iki alani doldurun yeter" cumlesi ise
+         bir paragrafin ICINDE kayboluyordu.
 
-    <!-- Bilgi kapsamı: doldurdukça dolar. Kesinlik taklidi yapmamak için
-         kullanıcı ne kadar bilgi verdiğini GÖRÜR. -->
-    <div class="kapsam-kutu">
-        <div class="kapsam-ust">
-            <span>Bilgi kapsamı</span>
-            <b id="kapsamYuzde">%0</b>
-        </div>
-        <div class="kapsam-cubuk"><i id="kapsamDolgu" style="width:0%"></i></div>
-        <p id="kapsamNot" class="kapsam-not">Boş. En az arsa alanını girin.</p>
-        <!-- BOS DURUM CIKMAZ SOKAK OLMASIN.
-             Olculdu (27.08.2026): ilk acilista kullanici bes katlanmis
-             bolumden olusan bos bir form ve "Boş. En az arsa alanını girin."
-             yazisi goruyordu. "Ornek bir parsel doldur" dugmesi VARDI ama
-             formun EN ALTINDA -- yani kullanicinin bulundugu yerde degil.
-             Uygulamanin ne ise yaradigini 5 saniyede gostermek, formu
-             doldurtmaya calismaktan once gelir. -->
-        <button type="button" id="kapsamOrnekBtn" class="kapsam-ornek" hidden>
-            Ne çıkacağını örnek bir parselle gör
+         Simdi ilk goruntu tek bir sey soyluyor: IKI ALAN DOLDUR.
+         Ornek dugmesi de artik gizli degil -- uygulamanin ne ise
+         yaradigini 5 saniyede gostermenin en kisa yolu. -->
+    <div class="baslangic">
+        <h2>İki alan yeter</h2>
+        <p>
+            Aşağıya <b>arsanın alanını</b> ve <b>metrekare fiyatını</b> yazın,
+            <b>Raporu çıkar</b>a basın. Değer tahmini, vergiler, ne
+            yapılabileceği ve riskler çıkar.
+        </p>
+        <p class="alt-not">
+            Diğer bölümler <b>isteğe bağlı</b>. Doldurdukça tahmin daralır,
+            boş bırakırsanız bozulmaz.
+        </p>
+        <button type="button" id="kapsamOrnekBtn" class="baslangic-ornek">
+            Önce ne çıkacağını gör — örnek bir parsel doldur
         </button>
     </div>
 
@@ -111,6 +112,50 @@
             <span class="bolum-ok">▾</span>
         </button>
         <div class="bolum-govde">
+
+            <!-- ============ TAPUDAN GETIR ============
+                 Uygulamanin butun hesabi ALAN ile basliyor ve alani
+                 kullanici ELLE giriyordu. Tapuda yazan alani yanlis
+                 hatirlamak, sonraki butun sayilari bozar.
+                 TKGM Parsel Sorgu servisi acik: giris yok, kimlik yok,
+                 MALIK BILGISI YOK. Ada/parsel ile resmi alan, nitelik
+                 ve sinir sekli geliyor. Istek yalniz DUGMEYE BASINCA
+                 gidiyor; otomatik tarama, dongu, toplu cekme YOK. -->
+            <details class="parsel-kutu" id="parselKutu">
+                <summary>Arsamı haritada bul — ilçe ve mahalle seçerek</summary>
+                <div class="parsel-govde">
+                    <!-- HERKES YAPABILMELI (kullanicinin sarti, 30.08.2026):
+                         "hic bilmeyen birinin bile anlayip yapabilecegi bir
+                          sistem olmali; okumayi bilen herkes yapabilmeli".
+                         "Ada" ve "parsel" kelimeleri bilmeyen icin hicbir sey
+                         ifade etmiyor. NEREDE YAZDIGINI soyluyoruz. -->
+                    <p class="alt-not">
+                        <b>İlinizi, ilçenizi ve mahallenizi seçin</b> —
+                        arsanızın bulunduğu yeri <b>uydu görüntüsünde</b>
+                        gösterelim. Türkiye’nin <b>43.265 mahalle ve köyü</b>
+                        listede var.
+                    </p>
+                    <div class="ikili">
+                        <label class="alan" for="pIl">
+                            <span class="etiket">İl</span>
+                            <select id="pIl"><option value="">— seçin —</option></select>
+                        </label>
+                        <label class="alan" for="pIlce">
+                            <span class="etiket">İlçe</span>
+                            <select id="pIlce" disabled><option value="">— önce il —</option></select>
+                        </label>
+                    </div>
+                    <label class="alan" for="pMahalle">
+                        <span class="etiket">Mahalle / Köy</span>
+                        <select id="pMahalle" disabled><option value="">— önce ilçe —</option></select>
+                    </label>
+                    <button type="button" id="pGetir" class="birincil" disabled>
+                        Haritada göster
+                    </button>
+                    <div id="pSonuc" role="status" aria-live="polite"></div>
+                </div>
+            </details>
+
             <label class="alan">
                 <span class="etiket">Arsa alanı <i>(m²)</i></span>
                 <input type="text" id="gAlan" inputmode="decimal" placeholder="örn. 500" />
@@ -204,10 +249,30 @@
         </div>
     </div>
 
+    <!-- BILGI KAPSAMI — artik ILK EKRANDA degil, ilk bolumun ALTINDA.
+         Sebep: "%0" yeni kullaniciya hicbir sey anlatmiyor ve ilk
+         goruntunun en buyuk ogesiydi. Burada anlami var: iki alani
+         doldurdun, simdi ne kadar daraltabilecegini goruyorsun. -->
+    <div class="kapsam-kutu">
+        <div class="kapsam-ust">
+            <span>Bilgi kapsamı</span>
+            <b id="kapsamYuzde">%0</b>
+        </div>
+        <div class="kapsam-cubuk"><i id="kapsamDolgu" style="width:0%"></i></div>
+        <p id="kapsamNot" class="kapsam-not">Boş. En az arsa alanını girin.</p>
+    </div>
+
+    <!-- BURADAN SONRASI ISTEGE BAGLI.
+         Kullanici "daha 5 bolum var" sanip vazgeciyordu. Ayirac bunu
+         acikca soyluyor: asagisi zorunlu degil, tahmini DARALTIR. -->
+    <p class="istege-bagli-ayrac">
+        Buradan sonrası <b>isteğe bağlı</b> — doldurdukça tahmin daralır
+    </p>
+
     <!-- 2. HUKUKİ DURUM — uygulamanın en kritik bölümü -->
-    <div class="bolum acik" data-bolum="hukuki">
+    <div class="bolum" data-bolum="hukuki">
         <button class="bolum-baslik" type="button">
-            <span class="bolum-ad">2 · Hukuki durum</span>
+            <span class="bolum-ad">2 · Hukuki durum <i>(isteğe bağlı)</i></span>
             <span class="bolum-ok">▾</span>
         </button>
         <div class="bolum-govde">
@@ -256,7 +321,7 @@
     <!-- 3. FİZİKİ ÖZELLİKLER -->
     <div class="bolum" data-bolum="fiziki">
         <button class="bolum-baslik" type="button">
-            <span class="bolum-ad">3 · Parselin özellikleri</span>
+            <span class="bolum-ad">3 · Parselin özellikleri <i>(isteğe bağlı)</i></span>
             <span class="bolum-ok">▾</span>
         </button>
         <div class="bolum-govde" id="fizikiKutu"><!-- arayuz.js doldurur --></div>
@@ -265,7 +330,7 @@
     <!-- 4. KONUM -->
     <div class="bolum" data-bolum="konum">
         <button class="bolum-baslik" type="button">
-            <span class="bolum-ad">4 · Konum ve çevre</span>
+            <span class="bolum-ad">4 · Konum ve çevre <i>(isteğe bağlı)</i></span>
             <span class="bolum-ok">▾</span>
         </button>
         <div class="bolum-govde">
@@ -280,7 +345,7 @@
     <!-- 5. İMAR -->
     <div class="bolum" data-bolum="imar">
         <button class="bolum-baslik" type="button">
-            <span class="bolum-ad">5 · İmar durumu</span>
+            <span class="bolum-ad">5 · İmar durumu <i>(isteğe bağlı)</i></span>
             <span class="bolum-ok">▾</span>
         </button>
         <div class="bolum-govde">
@@ -449,11 +514,12 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-    <script src="arayuz.js?v=120" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=128" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=128" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=128" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=128" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+<script src="parsel.js?v=128" onerror="(window.__betikHata=window.__betikHata||[]).push('parsel.js')"></script>
+    <script src="arayuz.js?v=128" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

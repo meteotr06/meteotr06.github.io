@@ -626,8 +626,18 @@ function kapsam_guncelle() {
 
     /* Örnek teklifi YALNIZ hiçbir şey girilmemişken görünür; kullanıcı
        kendi verisini girmeye başladıysa yolundan çekilir. */
+    /* Ornek dugmesi artik BASLANGIC KARTINDA ve bastan gorunur.
+       Kullanici kendi verisini girmeye baslayinca yoldan cekiliyor;
+       bu kural aynen duruyor, degisen yalnizca dugmenin YERI. */
     var ob = $('kapsamOrnekBtn');
-    if (ob) ob.hidden = !!(g.alan || g.emsal_birim_fiyat);
+    if (ob) {
+        var doldu = !!(g.alan || g.emsal_birim_fiyat);
+        var kart = ob.closest ? ob.closest('.baslangic') : null;
+        ob.hidden = doldu;
+        /* Kart da kaybolsun: is basladiktan sonra "iki alan yeter"
+           yonergesi ekranda yer kaplamasin. */
+        if (kart) kart.hidden = doldu;
+    }
 
     vasif_goster(g);
     bayatlik_guncelle(g);
@@ -2271,4 +2281,233 @@ if (typeof window !== 'undefined') {
     window.ArayuzSinama = { rapor_metni: rapor_metni };
 }
 
+})();
+
+
+/* =====================================================================
+   YERİNİZİ BULUN — arayüz bağlantısı
+   ---------------------------------------------------------------------
+   `parsel.js` (Yer modülü) veriyi ve konumu getiriyor; burası ekranı
+   sürüyor.
+
+   TASARIM ŞARTI (kullanıcı, 30.08.2026):
+     "hiç bilmeyen birinin bile anlayıp yapabileceği bir sistem olmalı;
+      okumayı bilen herkes yapabilmeli"
+   Bu yüzden: üç açılır kutu, üçü de tanıdık kelimelerle (İl, İlçe,
+   Mahalle). Terim yok, kısaltma yok, numara istemiyoruz.
+   ===================================================================== */
+(function () {
+    if (typeof Yer === 'undefined') return;
+    var kutu = document.getElementById('parselKutu');
+    if (!kutu) return;
+
+    /* YEREL YARDIMCILAR — `el` ve `satir_ekle` dosyanın ANA kapsamında;
+       bu blok ayrı kapsam, oradan görmüyor. Ölçüldü: "ReferenceError:
+       el is not defined" -- kutu açılıyordu, hiçbir şey olmuyordu,
+       konsolda hata vardı ama EKRANDA yoktu. */
+    function el(etiket, sinif, metin) {
+        var d = document.createElement(etiket);
+        if (sinif) d.className = sinif;
+        if (metin !== undefined) d.textContent = metin;
+        return d;
+    }
+    function satir_ekle(kap, ad, deger) {
+        var s = el('div', 'satir');
+        s.appendChild(el('span', 'satir-ad', ad));
+        s.appendChild(el('span', 'satir-deger deger', deger));
+        kap.appendChild(s);
+        return s;
+    }
+
+    var sIl = document.getElementById('pIl');
+    var sIlce = document.getElementById('pIlce');
+    var sMah = document.getElementById('pMahalle');
+    var btn = document.getElementById('pGetir');
+    var sonuc = document.getElementById('pSonuc');
+    var yuklendi = false;
+
+    function bosalt(sec, metin) {
+        sec.innerHTML = '';
+        var o = document.createElement('option');
+        o.value = ''; o.textContent = metin;
+        sec.appendChild(o);
+    }
+    function doldur(sec, liste, metin) {
+        bosalt(sec, metin);
+        for (var i = 0; i < liste.length; i++) {
+            var v = liste[i], ad = v, deger = v;
+            if (typeof v === 'object') { ad = v.a + (v.t === 'k' ? ' (köy)' : ''); deger = v.a; }
+            var o = document.createElement('option');
+            o.value = deger; o.textContent = ad;
+            sec.appendChild(o);
+        }
+        sec.disabled = false;
+    }
+    function durum(metin, sinif) {
+        sonuc.innerHTML = '';
+        sonuc.appendChild(el('p', sinif || 'alt-not', metin));
+    }
+    function dugmeDurumu() { btn.disabled = !(sIl.value && sIlce.value && sMah.value); }
+
+    kutu.addEventListener('toggle', function () {
+        if (!kutu.open || yuklendi) return;
+        yuklendi = true;
+        durum('Yerleşim listesi yükleniyor (bir kez iner, sonra çevrimdışı da çalışır)…');
+        Yer.iller().then(function (l) {
+            doldur(sIl, l, '— seçin —');
+            durum('İlinizi, ilçenizi ve mahallenizi seçin.');
+        }).catch(function (e) {
+            yuklendi = false;
+            durum('Yerleşim listesi yüklenemedi (' + (e.message || 'ağ hatası') +
+                  '). Alanı elle girebilirsiniz.', 'uyari-satir');
+        });
+    });
+
+    sIl.addEventListener('change', function () {
+        bosalt(sIlce, '— seçin —'); sIlce.disabled = true;
+        bosalt(sMah, '— önce ilçe —'); sMah.disabled = true;
+        dugmeDurumu();
+        if (!sIl.value) { bosalt(sIlce, '— önce il —'); return; }
+        Yer.ilceler(sIl.value).then(function (l) { doldur(sIlce, l, '— seçin —'); });
+    });
+
+    sIlce.addEventListener('change', function () {
+        bosalt(sMah, '— seçin —'); sMah.disabled = true;
+        dugmeDurumu();
+        if (!sIlce.value) { bosalt(sMah, '— önce ilçe —'); return; }
+        Yer.yerlesimler(sIl.value, sIlce.value).then(function (l) {
+            doldur(sMah, l, '— seçin —');
+            durum(l.length + ' mahalle/köy bulundu. Sizinkini seçin.');
+        });
+    });
+
+    sMah.addEventListener('change', dugmeDurumu);
+
+    btn.addEventListener('click', function () {
+        btn.disabled = true;
+        durum('Haritada aranıyor…');
+        var il = sIl.value, ilce = sIlce.value, yer = sMah.value;
+        Yer.konumBul(il, ilce, yer).then(function (k) {
+            btn.disabled = false;
+            goster(il, ilce, yer, k);
+        }).catch(function () {
+            btn.disabled = false;
+            goster(il, ilce, yer, null);
+        });
+    });
+
+    function goster(il, ilce, yer, konum) {
+        sonuc.innerHTML = '';
+        var k = el('div', 'parsel-sonuc');
+        k.appendChild(el('h4', null, yer + ' — ' + ilce + ' / ' + il));
+
+        if (konum && typeof yerHaritasi === 'function') {
+            var hKap = el('div', 'parsel-harita-kap');
+            k.appendChild(hKap);
+            yerHaritasi(hKap, konum, yer);
+        } else {
+            k.appendChild(el('p', 'uyari-satir',
+                'Bu mahalle haritada bulunamadı. Aşağıdaki bağlantıdan ' +
+                'kendiniz arayabilirsiniz.'));
+        }
+
+        /* RAYIC — verimiz varsa buradan da erisilsin. Kullanicinin
+           "kendi yerini, fiyatini ve bilgilerini ogrenebilmeli" sarti. */
+        k.appendChild(el('p', 'alt-not',
+            'Bu mahallenin metrekare değeri için aşağıdaki ' +
+            '"Resmî taban değer" bölümünü açın; verimiz varsa oradan ' +
+            'seçebilirsiniz.'));
+
+        var a = document.createElement('a');
+        a.href = Yer.tkgm_adresi();
+        a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.className = 'ikincil';
+        a.textContent = 'Tapudaki tam alanı öğren — TKGM Parsel Sorgu';
+        k.appendChild(a);
+        k.appendChild(el('p', 'alt-not',
+            'Ada ve parsel numaranızla TKGM sayfasında arsanızın resmî ' +
+            'alanını görebilirsiniz. Gördüğünüz metrekareyi yukarıdaki ' +
+            '"Arsa alanı" kutusuna yazın.'));
+
+        k.appendChild(el('p', 'kaynak-liste', 'Kaynak: ' + Yer.KAYNAK));
+        sonuc.appendChild(k);
+    }
+})();
+
+/* =====================================================================
+   MAHALLE HARİTASI — uydu görüntüsü
+   ---------------------------------------------------------------------
+   Leaflet YERELDEN yükleniyor (leaflet/), dış CDN'e bağımlı değiliz.
+   İki katman: uydu (Esri) ve sokak haritası (OpenStreetMap). Arsa bakan
+   insan uyduyu ister — ağaç var mı, yol açılmış mı, komşu ne yapmış.
+
+   Harita İSTEĞE BAĞLI ve SONRADAN yükleniyor: uygulama çevrimdışı
+   çalışıyor, döşemeler internet ister. İnternet yoksa uygulama bozulmaz.
+   ===================================================================== */
+(function () {
+    var hazir = false, bekleyen = null;
+
+    function leafletYukle() {
+        if (hazir) return Promise.resolve();
+        if (bekleyen) return bekleyen;
+        bekleyen = new Promise(function (c, h) {
+            var css = document.createElement('link');
+            css.rel = 'stylesheet'; css.href = 'leaflet/leaflet.css';
+            document.head.appendChild(css);
+            var s = document.createElement('script');
+            s.src = 'leaflet/leaflet.js';
+            s.onload = function () { hazir = true; c(); };
+            s.onerror = function () { h(new Error('harita kitaplığı yüklenemedi')); };
+            document.head.appendChild(s);
+        });
+        return bekleyen;
+    }
+
+    window.yerHaritasi = function (kap, konum, ad) {
+        kap.innerHTML = '';
+        var n = document.createElement('p');
+        n.className = 'alt-not';
+        n.textContent = 'Harita yükleniyor…';
+        kap.appendChild(n);
+
+        leafletYukle().then(function () {
+            kap.innerHTML = '';
+            var kutu = document.createElement('div');
+            kutu.className = 'parsel-harita';
+            kap.appendChild(kutu);
+
+            var harita = L.map(kutu).setView([konum.enlem, konum.boylam], 15);
+
+            var uydu = L.tileLayer(
+                'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+                'World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                { maxZoom: 19, attribution: 'Uydu görüntüsü: Esri' });
+            var sokak = L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                { maxZoom: 19, subdomains: ['a', 'b', 'c'],
+                  attribution: '© OpenStreetMap katkıcıları' });
+
+            uydu.addTo(harita);
+            L.control.layers({ 'Uydu': uydu, 'Sokak haritası': sokak },
+                             null, { collapsed: false }).addTo(harita);
+            L.marker([konum.enlem, konum.boylam]).addTo(harita)
+                .bindPopup('<b>' + (ad || '') + '</b><br>Mahalle merkezi');
+
+            setTimeout(function () { harita.invalidateSize(); }, 200);
+
+            var g = document.createElement('p');
+            g.className = 'alt-not';
+            g.textContent = 'İşaret mahallenin MERKEZİNİ gösterir, arsanızı ' +
+                'değil — haritayı yakınlaştırıp kendi arsanızı bulabilirsiniz. ' +
+                'Harita döşemeleri OpenStreetMap ve Esri sunucularından gelir; ' +
+                'bu istekler baktığınız konumu o sunuculara bildirir.';
+            kap.appendChild(g);
+        }).catch(function () {
+            kap.innerHTML = '';
+            var h = document.createElement('p');
+            h.className = 'alt-not';
+            h.textContent = 'Harita yüklenemedi (internet gerekiyor).';
+            kap.appendChild(h);
+        });
+    };
 })();

@@ -26,6 +26,31 @@
  */
 var DEGISIKLIKLER = [
     {
+        surum: 128,
+        tarih: '30 Ağustos 2026',
+        hesapDuzeltmesi: false,
+        baslik: 'Arsanızı haritada bulun — Türkiyenin bütün mahalleleri',
+        maddeler: [
+            'Yeni: il, ilçe ve mahallenizi seçin, arsanızın bulunduğu yeri ' +
+            'UYDU GÖRÜNTÜSÜNDE gösterelim. Türkiyenin 43.265 mahalle ve ' +
+            'köyü listede.',
+
+            'Numara istemiyoruz, terim kullanmıyoruz: üç açılır kutu, ' +
+            'hepsi tanıdık kelimelerle.',
+
+            'İşaret mahallenin MERKEZİNİ gösterir, arsanızı değil. ' +
+            'Haritayı yakınlaştırıp kendi arsanızı bulabilirsiniz.',
+
+            'Tapudaki tam alan için TKGMnin kendi sayfasına bağlantı ' +
+            'koyduk. TKGM verisini uygulamanın içine çekmiyoruz — servis ' +
+            'başka sitelerin çağırmasını istemiyor, biz de bu sınıra ' +
+            'uyuyoruz.',
+
+            'Harita internet ister; olmadığında uygulama eskisi gibi ' +
+            'çalışmaya devam eder.'
+        ]
+    },
+    {
         surum: 120,
         tarih: '30 Ağustos 2026',
         hesapDuzeltmesi: false,
