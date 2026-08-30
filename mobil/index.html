@@ -149,6 +149,8 @@
     animation:belir 400ms ease both;
   }
   .kur-serit.acik { display:flex; }
+  /* Serit acikken sayfanin alti erisilebilir kalsin (bkz. seritGoster) */
+  body.serit-acik { padding-bottom:calc(110px + env(safe-area-inset-bottom)); }
   .kur-serit .metin { flex:1; font-size:13px; line-height:1.35; }
   .kur-serit .metin small { color:var(--yazi3); font-size:11px; }
   .kur-serit .kapat { color:var(--yazi3); font-size:18px; padding:8px; cursor:pointer; }
@@ -854,6 +856,15 @@ function seritGoster(){
   if (zatenKurulu()) return;                       // zaten eklemis
   if (Hafiza.oku("kurulumGizle")) return; // kullanici kapatmis
   serit.classList.add("acik");
+  /* SERIT SAYFANIN ALTINI ORTUYORDU.
+     Olculdu (30.08.2026, telefon 375x812): serit position:fixed ve
+     y=706-800 arasini kapliyor; "Gizlilik Politikasi" baglantisi
+     y=762-778'de kaliyor ve TIKLANAMIYOR -- elementFromPoint baglanti
+     yerine seridin kendisini donduruyor. Kaynak yazisi da (Open-Meteo,
+     RainViewer) ayni sekilde ortuluyor.
+     body'nin alt bosugu 0 idi; serit acikken serit kadar bosluk
+     veriliyor ki altindaki icerik erisilebilir kalsin. */
+  document.body.classList.add("serit-acik");
 }
 
 window.addEventListener("beforeinstallprompt", olay => {
@@ -868,6 +879,7 @@ document.getElementById("kurBtn").onclick = async () => {
     await kurulumOlayi.userChoice;
     kurulumOlayi = null;
     serit.classList.remove("acik");
+    document.body.classList.remove("serit-acik");
     return;
   }
   // Sinyal yoksa cihaza gore DOGRU talimati goster
@@ -884,6 +896,7 @@ document.getElementById("kurBtn").onclick = async () => {
 };
 document.getElementById("kurKapat").onclick = () => {
   serit.classList.remove("acik");
+    document.body.classList.remove("serit-acik");
   Hafiza.yaz("kurulumGizle", "1");   // bir daha rahatsiz etme
 };
 
