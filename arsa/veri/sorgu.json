@@ -40,6 +40,7 @@
   "Arifiye": "https://e-belediye.arifiye.bel.tr/arsaRayic.aspx"
  },
  "Samsun": {
+  "Ladik": "https://e-belediye.ladik.bel.tr/arsaRayic.aspx",
   "Çarşamba": "https://ebelediye.carsamba.bel.tr/Rayic/Index/"
  },
  "Sinop": {
@@ -50,11 +51,18 @@
   "Çorlu": "https://ebelediye.corlu.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Şarköy": "https://e-belediye.sarkoy.bel.tr/arsaRayic.aspx"
  },
+ "Tokat": {
+  "Zile": "https://ebelediye.zile.bel.tr/Rayic/Index/"
+ },
  "Yalova": {
   "Çınarcık": "https://e-belediye.cinarcik.bel.tr/arsaRayic.aspx"
  },
+ "Yozgat": {
+  "Yerköy": "https://e-belediye.yerkoy.bel.tr/arsaRayic.aspx"
+ },
  "Zonguldak": {
-  "Devrek": "https://ebelediye.devrek.bel.tr/Emlak/RayicBedel"
+  "Devrek": "https://ebelediye.devrek.bel.tr/Emlak/RayicBedel",
+  "Gökçebey": "https://e-belediye.gokcebey.bel.tr/arsaRayic.aspx"
  },
  "İzmir": {
   "Balçova": "https://e-belediye.balcova.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
