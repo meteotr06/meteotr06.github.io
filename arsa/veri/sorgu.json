@@ -5,6 +5,9 @@
  "Ankara": {
   "Etimesgut": "https://ebelediye.etimesgut.bel.tr/Emlak/RayicBedel"
  },
+ "Antalya": {
+  "Kumluca": "https://ebelediye.kumluca-bld.gov.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri"
+ },
  "Bursa": {
   "Gürsu": "https://ebelediye.gursu.bel.tr/Emlak/RayicBedel",
   "Osmangazi": "https://ebelediye.osmangazi.bel.tr/Emlak/RayicBedel",
@@ -13,7 +16,48 @@
  "Edirne": {
   "Uzunköprü": "https://ebelediye.uzunkopru.bel.tr/Emlak/RayicBedel"
  },
+ "Gaziantep": {
+  "Nurdağı": "https://ebelediye.nurdagi.bel.tr/Emlak/RayicBedel"
+ },
+ "Isparta": {
+  "Yalvaç": "https://ebelediye.yalvac.bel.tr/Emlak/RayicBedel"
+ },
+ "Konya": {
+  "Bozkır": "https://ebelediye.bozkir.bel.tr/Emlak/RayicBedel"
+ },
+ "Kırklareli": {
+  "Lüleburgaz": "https://ebelediye.luleburgaz.bel.tr/Emlak/RayicBedel"
+ },
+ "Manisa": {
+  "Turgutlu": "https://ebelediye.turgutlu.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri"
+ },
+ "Mersin": {
+  "Erdemli": "https://ebelediye.erdemli.bel.tr/Emlak/RayicBedel",
+  "Silifke": "https://ebelediye.silifke.bel.tr/Emlak/RayicBedel",
+  "Tarsus": "https://ebelediye.tarsus.bel.tr/Emlak/RayicBedel"
+ },
+ "Sakarya": {
+  "Arifiye": "https://e-belediye.arifiye.bel.tr/arsaRayic.aspx"
+ },
+ "Samsun": {
+  "Çarşamba": "https://ebelediye.carsamba.bel.tr/Rayic/Index/"
+ },
+ "Sinop": {
+  "Türkeli": "https://e-belediye.turkeli.bel.tr/arsaRayic.aspx"
+ },
+ "Tekirdağ": {
+  "Ergene": "https://ebelediye.ergene.bel.tr/Rayic/Index/",
+  "Çorlu": "https://ebelediye.corlu.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
+  "Şarköy": "https://e-belediye.sarkoy.bel.tr/arsaRayic.aspx"
+ },
+ "Yalova": {
+  "Çınarcık": "https://e-belediye.cinarcik.bel.tr/arsaRayic.aspx"
+ },
+ "Zonguldak": {
+  "Devrek": "https://ebelediye.devrek.bel.tr/Emlak/RayicBedel"
+ },
  "İzmir": {
+  "Balçova": "https://e-belediye.balcova.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Bayındır": "https://ebelediye.bayindir.bel.tr/Emlak/RayicBedel",
   "Buca": "https://ebelediye.buca.bel.tr/Emlak/RayicBedel",
   "Karaburun": "https://ebelediye.karaburun.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
@@ -21,5 +65,8 @@
   "Narlıdere": "https://ebelediye.narlidere-bld.gov.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Seferihisar": "https://ebelediye.seferihisar.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri",
   "Çeşme": "https://ebelediye.cesme.bel.tr/ebelediye/SorgulamaIslemleri/ArsaRayicDegerleri"
+ },
+ "Şanlıurfa": {
+  "Haliliye": "https://ebelediye.haliliye.bel.tr/Rayic/Index/"
  }
 }
