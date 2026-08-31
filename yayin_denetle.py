@@ -30,7 +30,6 @@ KULLANIM
 """
 
 import hashlib
-import re
 import io
 import os
 import re

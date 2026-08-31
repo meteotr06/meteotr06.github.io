@@ -2,13 +2,22 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v37";
+const SURUM = "kur-pusulasi-v38";
+// DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
+// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v38"ye
+// cikarilmis ama asagidaki liste "?v=36" kalmisti. Sayfa "?v=38"
+// istiyor, on-bellege alinan "?v=36" -- FARKLI ANAHTAR, hic eslesmiyor.
+// Sonuc: cevrimdisi acilista CSS/JS bulunamiyor, uygulama yarim aciliyor.
+// Cevrimiciyken hicbir sey bozulmadigi icin kimse fark etmiyor.
+// Ayni hata 09 Hesap Araclari'nda da vardi; cozum orada da bu:
+// iki ayri yerde yazilan sayi ayrisir, tek kaynaktan turetilen ayrisamaz.
+const DAMGA = "?v=" + SURUM.replace(/^\D*v/, "");
 const DOSYALAR = [
     "./",
     "./index.html",
-    "./stil.css?v=36",
-    "./cekirdek.js?v=36",
-    "./arayuz.js?v=36",
+    "./stil.css" + DAMGA,
+    "./cekirdek.js" + DAMGA,
+    "./arayuz.js" + DAMGA,
     "./manifest.json",
     "./ikon-192.png",
     "./ikon-512.png",
