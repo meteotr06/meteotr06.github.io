@@ -13,8 +13,8 @@
     "minimal-ui"
   ],
   "orientation": "any",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#0c0e13",
+  "theme_color": "#0c0e13",
   "categories": [
     "finance",
     "utilities",
@@ -93,5 +93,6 @@
         }
       ]
     }
-  ]
+  ],
+  "_not_renk": "30.08.2026: ikisi de #ffffff idi -- kurulu uygulamanin acilis ekrani bembeyaz patliyordu. Manifest renkleri DURAGANDIR, telefonun kipini takip edemez; tek deger secmek zorundayiz. Koyu secildi cunku zarar SIMETRIK DEGIL: karanlik odada beyaz parlama can yakar, gunduz koyu bir an fark edilmez."
 }

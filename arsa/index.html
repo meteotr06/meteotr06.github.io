@@ -6,6 +6,61 @@
 <title>Arsa Rehberi</title>
 <meta name="description" content="Arsa almadan önce kontrol edin: tapuda arsa mı arazi mi, üstüne ne yapabilirsiniz, kaça mal olur, hangi tuzaklar var. Resmî mevzuat ve akademik yöntemlerle." />
 <meta name="theme-color" content="#ffffff" />
+<meta name="color-scheme" content="light dark" />
+<script>
+/* TELEFONUN KARANLIK KIP AYARINI DINLE.
+   Kullanici bildirdi (30.08.2026): "ana renkler acik oluyordu".
+   Olculdu -- koyu tema ZATEN VARDI (html[data-tema="koyu"], ◐ dugmesi)
+   ama telefonun ayarina hic bakmiyordu. Kullanici ◐'ye basmadikca,
+   telefon karanlik kipteyken bile sayfa bembeyaz aciliyordu.
+
+   PALET KOPYALANMIYOR. Ayni koyu bloga OZNITELIK uzerinden giriliyor;
+   boylece iki yerde iki renk listesi olusup ilerde ayrisamaz.
+
+   DISKE YAZILMIYOR -- en onemli kisim. Telefondan turetilen tema
+   kaydedilirse ILK ACILISTA DONAR: kullanici sonra telefonunu acik
+   kipe alsa bile sayfa koyu kalirdi. Bir kaydin, anlattigi seyden
+   uzun yasamasi ("kendisinden uzun yasayan durum" -- 5 numarali
+   oturum ayni gun bunun canli bir ornegini buldu). Diske yalniz
+   kullanicinin ◐ ile yaptigi ACIK SECIM yazilir.
+
+   Bu betik <head> icinde ve stil dosyasindan ONCE: sonra calissaydi
+   sayfa once beyaz cizilir, sonra koyuya atlardi. */
+(function () {
+    var kok = document.documentElement;
+
+    /* Secim HER SEFERINDE diskten okunur, basta okunup saklanmaz.
+       Saklasaydik: kullanici ◐ ile koyu secer, sonra telefonu kip
+       degistirir, dinleyici hala "secim yok" sanip KULLANICININ
+       SECIMINI EZERDI. Kapanis degiskeni, altindaki gercekten eskiyebilir. */
+    function secili() {
+        try { return localStorage.getItem('arsa-rehberi-tema'); }
+        catch (e) { return null; }
+    }
+
+    function uygula() {
+        var t = secili();
+        if (!t) {                       /* secim YOKSA telefonu dinle */
+            t = (window.matchMedia &&
+                 window.matchMedia('(prefers-color-scheme: dark)').matches)
+                ? 'koyu' : 'acik';
+        }
+        kok.setAttribute('data-tema', t);
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', t === 'koyu' ? '#0c0e13' : '#ffffff');
+    }
+    uygula();
+
+    /* Sayfa ACIKKEN telefon kip degistirirse de takip etsin -- ama
+       yalniz kullanicinin kendi secimi yoksa. */
+    try {
+        var s = window.matchMedia('(prefers-color-scheme: dark)');
+        var dinle = function () { if (!secili()) uygula(); };
+        if (s.addEventListener) s.addEventListener('change', dinle);
+        else if (s.addListener) s.addListener(dinle);
+    } catch (e) {}
+})();
+</script>
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" type="image/png" href="ikon-192.png" />
 <link rel="apple-touch-icon" href="ikon-192.png" />
@@ -34,7 +89,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=135" />
+<link rel="stylesheet" href="stil.css?v=136" />
 </head>
 <body>
 
@@ -514,12 +569,12 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — hiçbir bilginiz cihazınızdan çıkmaz.</p>
 </footer>
 
-<script src="degisiklikler.js?v=135" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=135" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=135" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=135" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-<script src="parsel.js?v=135" onerror="(window.__betikHata=window.__betikHata||[]).push('parsel.js')"></script>
-    <script src="arayuz.js?v=135" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=136" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=136" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=136" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=136" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+<script src="parsel.js?v=136" onerror="(window.__betikHata=window.__betikHata||[]).push('parsel.js')"></script>
+    <script src="arayuz.js?v=136" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */
