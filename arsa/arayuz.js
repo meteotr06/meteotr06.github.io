@@ -17,6 +17,7 @@ var M = window.Mevzuat;
 
 var DEPO_ANAHTAR = 'arsa-rehberi-defter';
 var TEMA_ANAHTAR = 'arsa-rehberi-tema';
+var SEKME_ANAHTAR = 'arsa-rehberi-sekme';
 /* AYRI ANAHTAR - bilerek defterin ya da temanin yaninda degil.
    05 Goz Molasi'nda bu isaret ayar nesnesine konmustu; oradaki
    kaydet() nesneyi alan alan yeniden kurdugu icin isaret 15
@@ -1816,6 +1817,35 @@ function sekme_ac(hedef) {
         b.setAttribute('aria-selected', secili ? 'true' : 'false');
     });
     window.scrollTo(0, 0);
+
+    /* NEREDE KALDIGINI HATIRLA.
+       Kullanici bildirdi (31.08.2026): "mobilde hala baslama sikintisi var,
+       [uygulamayi] baslattiginda en bastan basliyor".
+       Olculdu: girdiler KAYBOLMUYOR, taslak dordunu de geri getiriyor.
+       Kaybolan sey NEREDE KALDIGI -- hangi sekmede olursa olsun uygulama
+       hep giris ekraninda aciliyordu ve HESAPLANMIS RAPOR gidiyordu;
+       kullanicinin "Raporu cikar"a yeniden basmasi gerekiyordu. */
+    try { localStorage.setItem(SEKME_ANAHTAR, hedef); } catch (e) {}
+}
+
+function sekme_geri_yukle() {
+    var h;
+    try { h = localStorage.getItem(SEKME_ANAHTAR); } catch (e) { return; }
+    if (!h || h === 'sParsel') return;      /* zaten acilan sekme */
+    if (!document.getElementById(h)) return;
+
+    if (h === 'sRapor') {
+        /* Rapor diske yazilmiyor; ancak YENIDEN HESAPLANIRSA var olur.
+           Ama rapor_ciz() veri eksikse uyari KUTUSU aciyor -- acilista
+           kor cagirirsak kullanici her seferinde kutuyla karsilasir.
+           O yuzden once ayni kaynaktan kontrol: alan yoksa hic girisme,
+           giris ekraninda kal. */
+        var veri;
+        try { veri = girdi_topla(); } catch (e) { return; }
+        if (!veri || !veri.alan) return;
+        if (!rapor_ciz()) return;
+    }
+    sekme_ac(h);
 }
 
 function uyar(metin) {
@@ -2246,6 +2276,7 @@ function baslat() {
     taslak_yukle();          /* f2'nin sirasi korunuyor: yenilikten SONRA */
     kapsam_guncelle();
     defter_ciz();
+    sekme_geri_yukle();      /* taslaktan SONRA: alanlar dolmadan rapor cizilemez */
 
     /* OTEKI SEKME YAZINCA BU SEKME HABERSIZ KALMASIN.
        `storage` olayi yalniz DIGER sekmelerde tetiklenir. Bu olmadan
