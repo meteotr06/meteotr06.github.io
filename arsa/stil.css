@@ -30,6 +30,10 @@
     --yazi: #0f172a;
     --yazi2: #6b7382;
     --vurgu: #1c5fd6;
+    /* VURGU USTUNDEKI YAZI. Olculdu (01.09.2026): koyu temada
+       dugme acik mavi zemine BEYAZ yazi koyuyordu -> kontrast 2,71
+       (esik 4,5). Her tema kendi ust yazi rengini soylemeli. */
+    --vurgu-yazi: #ffffff;
     --vurgu2: #123f96;
     --iyi: #067647;
     --kritik: #b42318;
@@ -65,6 +69,7 @@ html[data-tema="koyu"] {
     --yazi: #eef1f6;
     --yazi2: #939cab;
     --vurgu: #6b9bff;
+    --vurgu-yazi: #0c0e13;   /* koyu yazi: 7,13 */
     --vurgu2: #a5c2ff;
     --iyi: #34c77b;
     --kritik: #f4685c;
@@ -73,6 +78,41 @@ html[data-tema="koyu"] {
     --uyari-zemin: #2a2110;
     --iyi-zemin: #0f2419;
 }
+/* ===== RENK TEMALARI =====
+   OLCEREK secildi, goze gore degil. Her renk DORT sarti birden
+   tutuyor: acik temada metin (>=4,5) ve ustundeki beyaz yazi (>=4,5),
+   koyu temada metin (>=4,5) ve ustundeki koyu yazi (>=4,5).
+
+   Ilk denemem esigi ASMAYA calisti ve neredeyse siyah renkler uretti
+   (kontrast 17). Esigi asmak yetmiyor -- renk RENK GIBI DURMALI.
+   Hedef, mevcut varsayilanin degeri olarak alindi: acik 5,4 / koyu 7,0.
+   Olcum dogruydu, HEDEFI yanlis kurmustum.
+
+   Vurgu hem metin hem dugme zemini oldugu icin tek bir renk iki
+   yonde birden tutmak zorunda; bu yuzden aralik dar. */
+html[data-renk="okyanus"] { --vurgu: #036e8c; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="okyanus"] { --vurgu: #00a8d6; --vurgu-yazi: #0c0e13; }
+html[data-renk="firuze"] { --vurgu: #047269; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="firuze"] { --vurgu: #04afa1; --vurgu-yazi: #0c0e13; }
+html[data-renk="orman"] { --vurgu: #00752b; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="orman"] { --vurgu: #04b444; --vurgu-yazi: #0c0e13; }
+html[data-renk="zeytin"] { --vurgu: #3b7204; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="zeytin"] { --vurgu: #5eaf0d; --vurgu-yazi: #0c0e13; }
+html[data-renk="toprak"] { --vurgu: #9e4f00; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="toprak"] { --vurgu: #f57a00; --vurgu-yazi: #0c0e13; }
+html[data-renk="gunbatimi"] { --vurgu: #b83700; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="gunbatimi"] { --vurgu: #ff7033; --vurgu-yazi: #0c0e13; }
+html[data-renk="nar"] { --vurgu: #cc0011; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="nar"] { --vurgu: #ff6b77; --vurgu-yazi: #0c0e13; }
+html[data-renk="erik"] { --vurgu: #c2007b; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="erik"] { --vurgu: #ff5cc3; --vurgu-yazi: #0c0e13; }
+html[data-renk="lavanta"] { --vurgu: #8d0dfd; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="lavanta"] { --vurgu: #c17dfc; --vurgu-yazi: #0c0e13; }
+html[data-renk="gece"] { --vurgu: #3a4afd; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="gece"] { --vurgu: #8993fa; --vurgu-yazi: #0c0e13; }
+html[data-renk="kiremit"] { --vurgu: #c71b00; --vurgu-yazi: #ffffff; }
+html[data-tema="koyu"][data-renk="kiremit"] { --vurgu: #fc705a; --vurgu-yazi: #0c0e13; }
+
 
 * { box-sizing: border-box; }
 
@@ -131,7 +171,7 @@ button { font-family: inherit; font-size: 0.9375rem; cursor: pointer; }
 .birincil {
     width: 100%; min-height: 48px; padding: 13px 18px;
     border: none; border-radius: var(--yuvarlak);
-    background: var(--vurgu); color: #fff; font-weight: 600;
+    background: var(--vurgu); color: var(--vurgu-yazi); font-weight: 600;
     margin-top: 6px;
 }
 .birincil:hover { background: var(--vurgu2); }
@@ -595,7 +635,7 @@ input.gecersiz, select.gecersiz {
     border: 1px solid var(--vurgu); border-radius: 8px;
     background: transparent; color: var(--vurgu);
 }
-.daraltan-git:hover { background: var(--vurgu); color: #fff; }
+.daraltan-git:hover { background: var(--vurgu); color: var(--vurgu-yazi); }
 .daraltan-alt { margin: 4px 0 0; font-size: .85em; opacity: .75; }
 
 /* Cevaplanacak alan kısaca vurgulanır — "nereye baktım" belli olsun */
@@ -613,7 +653,7 @@ input.gecersiz, select.gecersiz {
     border: 1px solid var(--vurgu); border-radius: 8px;
     background: transparent; color: var(--vurgu);
 }
-.kapsam-ornek:hover { background: var(--vurgu); color: #fff; }
+.kapsam-ornek:hover { background: var(--vurgu); color: var(--vurgu-yazi); }
 
 /* ---- Raporu dışarı çıkarma ---- */
 .rapor-eylem {
@@ -626,7 +666,7 @@ input.gecersiz, select.gecersiz {
     border: 1px solid var(--vurgu); border-radius: 8px;
     background: transparent; color: var(--vurgu);
 }
-.rapor-eylem button:hover { background: var(--vurgu); color: #fff; }
+.rapor-eylem button:hover { background: var(--vurgu); color: var(--vurgu-yazi); }
 .kopya-durum { font-size: .88em; opacity: .85; }
 .yazdir-basligi { display: none; }
 
@@ -961,3 +1001,34 @@ input.gecersiz, select.gecersiz {
     padding: 14px 6px;
     margin: -14px -6px;
 }
+
+
+/* ===== RENK SECME PANELI ===== */
+.renk-panel {
+    position: fixed; z-index: 60; right: 12px; top: 64px;
+    background: var(--kart); border: 1px solid var(--cizgi);
+    border-radius: var(--yuvarlak); padding: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.22); max-width: min(92vw, 320px);
+}
+.renk-panel h3 { margin: 0 0 10px; font-size: 1rem; }
+.renk-liste {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 8px; margin-bottom: 12px;
+}
+/* DOKUNMA HEDEFI 44 px -- iki yonde birden.
+   Bugun Hesap Araclari'nda olculdu: yalniz yuksekligi 44 yapmak
+   kusuru YARIM kapatiyor, dugmeler 42x44 kaliyordu. */
+.renk-nokta {
+    min-width: 44px; min-height: 44px; border-radius: 10px;
+    border: 2px solid transparent; cursor: pointer; padding: 4px 2px 3px;
+    background: var(--kart-ust); color: var(--yazi);
+    font: inherit; font-size: .68rem; line-height: 1.1;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px;
+}
+.renk-nokta .yuvar {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1px solid rgba(0,0,0,.18);
+}
+.renk-nokta[aria-pressed="true"] { border-color: var(--vurgu); font-weight: 600; }
+.renk-nokta:focus-visible { outline: 3px solid var(--vurgu); outline-offset: 2px; }

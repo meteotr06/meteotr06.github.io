@@ -46,6 +46,12 @@
                 ? 'koyu' : 'acik';
         }
         kok.setAttribute('data-tema', t);
+        /* RENK de burada kurulur: stil dosyasindan ONCE. Sonra
+           kurulsaydi sayfa once mavi cizilir, sonra renge atlardi. */
+        try {
+            var r = localStorage.getItem('arsa-rehberi-renk');
+            if (r && r !== 'varsayilan') kok.setAttribute('data-renk', r);
+        } catch (e) {}
         var m = document.querySelector('meta[name="theme-color"]');
         if (m) m.setAttribute('content', t === 'koyu' ? '#0c0e13' : '#ffffff');
     }
@@ -89,7 +95,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=139" />
+<link rel="stylesheet" href="stil.css?v=140" />
 </head>
 <body>
 
@@ -100,6 +106,7 @@
     </div>
     <div class="ust-sag">
         <button id="temaBtn" class="ikincil" title="Açık / koyu tema">◐</button>
+        <button id="renkBtn" class="ikincil" title="Renk seç" aria-haspopup="true" aria-expanded="false">🎨</button>
         <button id="sifirlaBtn" class="ikincil" title="Formu temizle">↻</button>
     </div>
 </header>
@@ -552,6 +559,15 @@
 </main>
 
 <!-- Yardım balonu -->
+<!-- RENK PANELI. Renkler OLCEREK secildi: her biri hem metin hem
+     dugme zemini olarak, hem acik hem koyu temada WCAG esigini gecer. -->
+<div id="renkPanel" class="renk-panel" hidden role="dialog"
+     aria-modal="true" aria-labelledby="renkPanelBaslik">
+    <h3 id="renkPanelBaslik">Renk seç</h3>
+    <div id="renkListe" class="renk-liste"></div>
+    <button id="renkKapat" class="ikincil">Kapat</button>
+</div>
+
 <div id="yardimKatman" class="katman" hidden>
     <div class="katman-kutu">
         <h3 id="yardimBaslik"></h3>
@@ -569,12 +585,12 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — parsel bilgileriniz ve defteriniz cihazınızda kalır; yalnızca haritayı açtığınızda seçtiğiniz yerin adı harita servisine gider.</p>
 </footer>
 
-<script src="degisiklikler.js?v=139" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=139" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=139" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=139" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-<script src="parsel.js?v=139" onerror="(window.__betikHata=window.__betikHata||[]).push('parsel.js')"></script>
-    <script src="arayuz.js?v=139" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="degisiklikler.js?v=140" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=140" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=140" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=140" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+<script src="parsel.js?v=140" onerror="(window.__betikHata=window.__betikHata||[]).push('parsel.js')"></script>
+    <script src="arayuz.js?v=140" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
    bu yüzden hata sessizce yutuluyor, kullanıcıyı ilgilendirmiyor. */

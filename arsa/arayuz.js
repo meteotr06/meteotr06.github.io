@@ -18,6 +18,7 @@ var M = window.Mevzuat;
 var DEPO_ANAHTAR = 'arsa-rehberi-defter';
 var TEMA_ANAHTAR = 'arsa-rehberi-tema';
 var SEKME_ANAHTAR = 'arsa-rehberi-sekme';
+var RENK_ANAHTAR = 'arsa-rehberi-renk';
 /* AYRI ANAHTAR - bilerek defterin ya da temanin yaninda degil.
    05 Goz Molasi'nda bu isaret ayar nesnesine konmustu; oradaki
    kaydet() nesneyi alan alan yeniden kurdugu icin isaret 15
@@ -1828,6 +1829,90 @@ function sekme_ac(hedef) {
     try { localStorage.setItem(SEKME_ANAHTAR, hedef); } catch (e) {}
 }
 
+
+/* ===== RENK TEMALARI =====
+   On bir renk + varsayilan. Hepsi OLCEREK secildi: her renk dort sarti
+   birden tutuyor -- acik temada metin ve ustundeki beyaz yazi, koyu
+   temada metin ve ustundeki koyu yazi, hepsi WCAG 4,5 uzerinde.
+   Ornek yuvarlarda ACIK tema degeri gosteriliyor. */
+var RENKLER = [
+    ['varsayilan', 'Mavi',       '#1c5fd6'],
+    ['okyanus',    'Okyanus',    '#036e8c'],
+    ['firuze',     'Firuze',     '#047269'],
+    ['orman',      'Orman',      '#00752b'],
+    ['zeytin',     'Zeytin',     '#3b7204'],
+    ['toprak',     'Toprak',     '#9e4f00'],
+    ['gunbatimi',  'Gün batımı', '#b83700'],
+    ['nar',        'Nar',        '#cc0011'],
+    ['kiremit',    'Kiremit',    '#c71b00'],
+    ['erik',       'Erik',       '#c2007b'],
+    ['lavanta',    'Lavanta',    '#8d0dfd'],
+    ['gece',       'Gece',       '#3a4afd']
+];
+
+function renk_uygula(r, yaz) {
+    if (r && r !== 'varsayilan') {
+        document.documentElement.setAttribute('data-renk', r);
+    } else {
+        document.documentElement.removeAttribute('data-renk');
+        r = 'varsayilan';
+    }
+    /* SECIM diske yazilir -- bu bir KULLANICI SECIMIDIR, turetilmis
+       bir deger degil. (Tema tarafinda tam tersi: telefondan turetilen
+       deger diske YAZILMAZ, yoksa ilk acilista donar.) */
+    if (yaz) { try { localStorage.setItem(RENK_ANAHTAR, r); } catch (e) {} }
+    document.querySelectorAll('.renk-nokta').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.renk === r ? 'true' : 'false');
+    });
+}
+
+function renk_paneli_kur() {
+    var liste = document.getElementById('renkListe');
+    var panel = document.getElementById('renkPanel');
+    var btn = document.getElementById('renkBtn');
+    if (!liste || !panel || !btn) return;
+
+    RENKLER.forEach(function (r) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'renk-nokta';
+        b.dataset.renk = r[0];
+        b.setAttribute('aria-pressed', 'false');
+        var y = document.createElement('span');
+        y.className = 'yuvar';
+        y.style.background = r[2];
+        b.appendChild(y);
+        b.appendChild(document.createTextNode(r[1]));
+        /* Ekran okuyucu icin ad SART: yuvar bir renk kutusu, adi yoksa
+           "dugme" diye okunur ve hangi renk oldugu bilinmez. */
+        b.setAttribute('aria-label', r[1] + ' rengi');
+        b.onclick = function () { renk_uygula(r[0], true); };
+        liste.appendChild(b);
+    });
+
+    function ac() {
+        panel.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        var ilk = liste.querySelector('.renk-nokta');
+        if (ilk) ilk.focus();
+    }
+    function kapat() {
+        panel.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();          /* odak geldigi yere DONMELI */
+    }
+    btn.onclick = function () { panel.hidden ? ac() : kapat(); };
+    var kapatBtn = document.getElementById('renkKapat');
+    if (kapatBtn) kapatBtn.onclick = kapat;
+    panel.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { e.preventDefault(); kapat(); }
+    });
+
+    var secili = null;
+    try { secili = localStorage.getItem(RENK_ANAHTAR); } catch (e) {}
+    renk_uygula(secili || 'varsayilan', false);
+}
+
 function sekme_geri_yukle() {
     var h;
     try { h = localStorage.getItem(SEKME_ANAHTAR); } catch (e) { return; }
@@ -2276,6 +2361,7 @@ function baslat() {
     taslak_yukle();          /* f2'nin sirasi korunuyor: yenilikten SONRA */
     kapsam_guncelle();
     defter_ciz();
+    renk_paneli_kur();
     sekme_geri_yukle();      /* taslaktan SONRA: alanlar dolmadan rapor cizilemez */
 
     /* OTEKI SEKME YAZINCA BU SEKME HABERSIZ KALMASIN.
