@@ -47,7 +47,30 @@ function yukle() {
     yukleniyor = fetch('veri/yerlesim.json').then(function (y) {
         if (!y.ok) throw new Error('yerleşim listesi okunamadı');
         return y.json();
-    }).then(function (d) { VERI = d; return d; });
+    }).then(function (d) { VERI = d; return d; })
+      .catch(function (hata) {
+        /* BASARISIZLIKTA SOZU BIRAKMA — TEK ATISLIK YUKLEME BAYRAGI.
+           Olculdu (01.09.2026, test-yeniden-deneme.html): kisa bir ag
+           kopmasinda ilk deneme "Yerlesim listesi yuklenemedi" veriyor,
+           ama REDDEDILEN soz (promise) bu degiskende KALIYORDU. Ikinci
+           denemede yukaridaki `if (yukleniyor) return yukleniyor;`
+           kullaniciyi ayni olu soze bagliyordu:
+
+               ilk denemede giden istek:    1
+               ikinci denemede giden istek: 0     <-- ag istegi BILE yok
+
+           Yani ag geri gelse bile kullanici ayni hatayi goruyor ve
+           SAYFAYI YENILEMEDEN cikamiyor. Arayuz katmani dogru
+           davraniyordu (arayuz.js, `catch` icinde `yuklendi = false`);
+           kusur bu alt katmandaydi. Ayni sifirlama artik burada da var.
+
+           Reddin KENDISI cagirana geri veriliyor: hatayi yutup sessizce
+           bos liste dondurmek, bu projedeki en tehlikeli sinif olan
+           "sessiz yanlis" olurdu — kullanici listeyi eksik sanmaz,
+           hic yuklenmedigini bilir. */
+        yukleniyor = null;
+        throw hata;
+      });
     return yukleniyor;
 }
 
@@ -96,6 +119,20 @@ function konumBul(il, ilce, yer) {
         .then(function (y) { return y.ok ? y.json() : []; })
         .then(function (d) {
             if (!d || !d.length) return null;
+            /* BURADA `parseFloat` DOGRUDUR — `C.sayi_oku` KULLANMAYIN.
+               Tarayici denetimleri bu satiri "korumasiz parseFloat" diye
+               isaretliyor; degil. Sebep: `lat`/`lon` KULLANICININ YAZDIGI
+               metin degil, Nominatim'in JSON cevabi. JSON sayilari tanim
+               geregi Ingiliz bicimlidir — nokta ONDALIK ayracidir, binlik
+               ayraci hic yoktur.
+               Turkce cozumleyiciyi buraya takmak DUZELTMEZ, BOZAR: o
+               fonksiyon "nokta + ucer haneli grup" kalibini binlik ayraci
+               sayar ve Turkiye boylamlari tam bu kaliba uyar (olculdu,
+               4df54c7):
+                   boylam "35.321" (Adana)     -> sayi_oku 35321
+                   boylam "30.483" (Eskisehir) -> sayi_oku 30483
+               Yani harita 1000 kat yanlis yere giderdi. Bozuk/eksik cevap
+               zaten asagidaki isFinite denetiminde null'a dusuyor. */
             var k = { enlem: parseFloat(d[0].lat), boylam: parseFloat(d[0].lon),
                       ad: d[0].display_name || sorgu };
             if (!isFinite(k.enlem) || !isFinite(k.boylam)) return null;

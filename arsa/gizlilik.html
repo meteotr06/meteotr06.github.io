@@ -9,7 +9,7 @@
 <link rel="icon" href="simge.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <link rel="manifest" href="manifest.json" />
-<link rel="stylesheet" href="stil.css?v=134" />
+<link rel="stylesheet" href="stil.css?v=139" />
 </head>
 <body>
 
@@ -30,7 +30,7 @@
         <h2>Kısacası</h2>
         <p><b>Hiçbir bilginizi toplamıyoruz.</b> Girdiğiniz arsa bilgileri ve
         defterinize kaydettikleriniz yalnızca <b>kendi cihazınızda</b> kalır.
-        Bize, bir sunucuya veya üçüncü bir tarafa gönderilmez. Hesaplar
+        Bize ve bizim bir sunucumuza <strong>hiç gönderilmez</strong> — zaten sunucumuz yok. Tek istisna haritadır ve aşağıda ayrı başlıkta açıkça yazılmıştır. Hesaplar
         telefonunuzun içinde yapılır; uygulama internetsiz de çalışır.</p>
     </div>
 
@@ -58,10 +58,32 @@
     </div>
 
     <div class="kart-blok">
+        <h2>Harita kullanınca ne oluyor?</h2>
+        <p>Uygulamada arsanızı haritada görme bölümü var. <strong>Bu bölümü
+        açtığınızda iki dış servise istek gider</strong> — bunu açıkça
+        yazıyoruz, çünkü yukarıda "hiçbir şey gönderilmez" demek doğru
+        olmazdı:</p>
+        <ul>
+            <li><strong>Seçtiğiniz yerin adı</strong> (il, ilçe, mahalle)
+            OpenStreetMap'in adres servisine (<code>nominatim.openstreetmap.org</code>)
+            gönderilir. Karşılığında o yerin enlem–boylamı döner. Gönderilen
+            şey <em>yalnızca yer adıdır</em>: parsel bilgileriniz, tutarlar,
+            hesaplar ve defter kayıtlarınız gönderilmez.</li>
+            <li><strong>Harita görüntüleri</strong> Esri
+            (<code>server.arcgisonline.com</code>) ve OpenStreetMap
+            sunucularından indirilir. Bu servisler, hangi bölgeye
+            baktığınızı doğal olarak görür.</li>
+        </ul>
+        <p><strong>Telefonunuzun konumu okunmaz.</strong> Uygulama GPS
+        istemez, konum izni sormaz; haritada gösterilen yer, sizin listeden
+        <em>kendi seçtiğiniz</em> il/ilçe/mahalledir.</p>
+        <p>Harita bölümünü hiç açmazsanız bu isteklerin <strong>hiçbiri</strong>
+        yapılmaz. Uygulamanın geri kalanı internetsiz de çalışır.</p>
+
         <h2>Toplanmayan veriler</h2>
         <p>Uygulama şunların <b>hiçbirini</b> istemez ve toplamaz: ad soyad,
         e-posta, telefon numarası, T.C. kimlik numarası, tapu bilgileri,
-        konum, kişi listesi, fotoğraf, kamera veya mikrofon erişimi.</p>
+        kişi listesi, fotoğraf, kamera veya mikrofon erişimi.</p>
         <p class="alt-not">Uygulama size hesap açtırmaz; giriş yapmanız
         gerekmez.</p>
     </div>

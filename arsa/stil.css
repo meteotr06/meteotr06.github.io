@@ -45,7 +45,23 @@ html[data-tema="koyu"] {
     --zemin2: #12151c;
     --kart: #12151c;
     --kart-ust: #1a1e27;
-    --cizgi: #242935;
+    /* AYRAC CIZGISI — olculerek secildi (01.09.2026).
+       Onceki deger #242935 idi: kart zeminine (#12151c) karsi kontrast
+       1,26. Yani ayrac neredeyse yok; satirlar ve kart kenarlari
+       birbirine giriyordu. Koyu zeminde 1,2'lik bir fark goz icin
+       yoktur.
+       Yeni deger #556075 -- olculen kontrastlar (WCAG nispi parlaklik):
+         kart    #12151c -> 2,88
+         zemin   #0c0e13 -> 3,05   (1.4.11 metin disi 3:1 esigini gecer)
+         kart-ust#1a1e27 -> 2,63
+         yazi    #eef1f6 -> 5,59   (cizgi yaziyla yarismiyor)
+       Daha parlagi (#5d6980, 3,30/3,49) denendi ve SECILMEDI: --cizgi
+       30'dan fazla yerde kullaniliyor (kart kenarligi, girdi kenarligi,
+       tablo ayraci). Daha parlak olan her karti gri bir kutuya cevirip
+       sayilarin onune geciyor. #556075, "ayrac gorunur" ile "ayrac
+       bagirmaz" arasindaki en yuksek nokta.
+       ACIK TEMADAKI --cizgi'ye DOKUNULMADI. */
+    --cizgi: #556075;
     --yazi: #eef1f6;
     --yazi2: #939cab;
     --vurgu: #6b9bff;

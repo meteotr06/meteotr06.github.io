@@ -254,7 +254,48 @@
            bunu yasadik). */
         var etiket = _etiket();
 
-        fetch(ILCELER[SECILI_ILCE].dosya + etiket)
+        /* HATA CIKISI TEK YERDE. Asagida iki ayri yerden cagriliyor
+           (senkron cokus ve ag hatasi) — kullanicinin gordugu cumle
+           ikisinde de AYNI olmali. */
+        function basarisiz() {
+            yukleniyor = false;
+            /* Sessiz başarısızlık yok: ne olduğunu ve ne yapılacağını söyle. */
+            sonuc.textContent = 'Resmî değer listesi yüklenemedi. İnternet bağlantınız '
+                + 'yoksa bir kez bağlanıp bu bölümü açmanız yeterli; sonra çevrimdışı da çalışır.';
+        }
+
+        /* ILCE DEFTERI GELMEMIS OLABILIR — SENKRON COKUS KUSURU.
+           Olculdu (01.09.2026, test-yeniden-deneme.html): `veri/ilceler.json`
+           gelmezse yukarida `ILCELER = []` kaliyor. Burada eskiden
+           dogrudan `ILCELER[SECILI_ILCE].dosya` yaziliyordu ve bu,
+           `fetch` daha CAGRILMADAN senkron bir TypeError firlatiyordu:
+
+               Uncaught TypeError: Cannot read properties of undefined
+                                   (reading 'dosya')
+
+           Zincirin sonundaki `.catch` hic KURULMADIGI icin, asagiya
+           yazilmis olan durust hata mesajina hic ulasilamiyordu:
+           ekranda "Veri yükleniyor…" ASILI KALIYORDU. Ustelik
+           `yukleniyor` da `true` takili kaliyor, yani kullanici bolumu
+           kapatip acsa bile ikinci deneme HIC BASLAMIYORDU (olculdu:
+           ikinci acilista ekrana tek harf yazilmadi).
+
+           Ekip kullaniciya ne diyecegini dusunmus ve yazmisti; eksik
+           olan mesaj degil, ona giden yoldu. */
+        var kayit = ILCELER[SECILI_ILCE];
+        if (!kayit || !kayit.dosya) { basarisiz(); return; }
+
+        /* `fetch` kendisi de senkron atabilir (gecersiz adres gibi).
+           Istegi ayri kurup sarmalıyoruz ki o hal de ayni mesaja dussun. */
+        var istek;
+        try {
+            istek = fetch(kayit.dosya + etiket);
+        } catch (e) {
+            basarisiz();
+            return;
+        }
+
+        istek
             .then(function (c) { if (!c.ok) throw new Error(c.status); return c.json(); })
             .then(function (d) {
                 VERI = d; yukleniyor = false;
@@ -292,12 +333,7 @@
                 sonuc.textContent = adlar.length + ' mahalle yüklendi (' +
                     (d.ilce || '') + '). Mahallenizi seçin.';
             })
-            .catch(function () {
-                yukleniyor = false;
-                /* Sessiz başarısızlık yok: ne olduğunu ve ne yapılacağını söyle. */
-                sonuc.textContent = 'Resmî değer listesi yüklenemedi. İnternet bağlantınız '
-                    + 'yoksa bir kez bağlanıp bu bölümü açmanız yeterli; sonra çevrimdışı da çalışır.';
-            });
+            .catch(basarisiz);
     }
 
     kutu.addEventListener('toggle', function () { if (kutu.open) yukle(); });
