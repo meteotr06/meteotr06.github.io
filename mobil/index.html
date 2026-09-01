@@ -351,7 +351,10 @@ const ETIKET = (ilce, il) => `${ilce} (${il})`;
 const kucult = s => s.replace(/I/g,"ı").replace(/İ/g,"i").toLowerCase();
 const TUM_YERLER = [
   ...ILLER.map(([ad,e,b]) => ({etiket:ad, alt:"il", e, b, k:kucult(ad)})),
-  ...ILCELER.map(([a,i,e,b]) => ({etiket:ETIKET(a,i), alt:i+" ilçesi", e, b, k:kucult(a)}))
+  // 5. alan varsa ilçenin ESKİ resmi adıdır (örnek: Eyüpsultan <- Eyüp).
+  // Arama anahtarına ekleniyor ki ad değişince kullanıcı eski adla da bulabilsin.
+  ...ILCELER.map(([a,i,e,b,eski]) => ({etiket:ETIKET(a,i), alt:i+" ilçesi", e, b,
+      k: kucult(a) + (eski ? " " + kucult(eski) : "")}))
 ];
 
 /* ---- havaya göre arka plan (temanın üstüne "tint") ---- */
