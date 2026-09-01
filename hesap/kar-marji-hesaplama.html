@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Kâr Marjı ve Satış Fiyatı Hesaplama — Marj mı Markup mu?" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kar-marji-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=87" />
+<link rel="stylesheet" href="stil.css?v=88" />
 </head>
 <body>
 
@@ -139,29 +139,78 @@
     </section>
 </main>
 
-<script src="hesap.js?v=87"></script>
-<script src="sayfa.js?v=87"></script>
+<script src="hesap.js?v=88"></script>
+<script src="sayfa.js?v=88"></script>
 <script>
 iskeletKur("kar-marji-hesaplama.html");
 gizlilikBaglantisi();
 
 const ALANLAR = ["maliyet", "yontem", "deger", "kdv", "indirim"];
 
+/* `#deger` KUTUSU UC ISI BIRDEN GORUR — turu yontemle degisir:
+       markup / marj -> yuzde  (ORAN: nokta her zaman ondaliktir)
+       fiyat         -> TL     (PARA: "1.500" bin bes yuzdur)
+   Kutuda sabit `data-tur="oran"` duruyordu ve "fiyat" kipinde YIKICIYDI.
+
+   OLCULDU (01 Eylul 2026, sayfa surulerek): etiket "Satış fiyatı (TL)"
+   iken "1.500" yazildi -> `oku("deger")` 1,5 verdi -> ekranda
+       "1,50 ₺  ·  Kâr −98,50 ₺  ·  Zarardasınız."
+   Bin kat yanlis, cokme yok, kirmizi alan isareti yok -- cunku "1.500"
+   GECERLI bir sayidir, yalnizca YANLIS KURALLA okunuyordu.
+   `girdileriDenetle` de ayni `dataset.tur`u okudugundan o da sessizdi.
+
+   Tur, okumadan ONCE ayarlanir; yalnizca hesapla() icinde ayarlansaydi
+   yontem degistigi ANDAKI `girdileriDenetle` bir olcum geride kalirdi
+   (o, hesapla()'dan once kosar). Onun icin `#yontem`in kendi
+   dinleyicisine de baglanmis durumda -- dinle()'den ONCE kayit
+   edildigi icin ondan once kosar. */
+function degerTuruAyarla() {
+    const yontem = document.getElementById("yontem").value;
+    const el = document.getElementById("deger");
+    if (yontem === "fiyat") el.removeAttribute("data-tur");
+    else el.setAttribute("data-tur", "oran");
+    /* Etiket de ayni yerden gelsin; iki dogruluk iki yerde ayrisamasin. */
+    const et = document.getElementById("etDeger");
+    et.childNodes[0].nodeValue = (yontem === "fiyat" ? "Satış fiyatı (TL)" : "Oran (%)") + " ";
+    return yontem;
+}
+
 function hesapla() {
     const maliyet = oku("maliyet");
-    const yontem = document.getElementById("yontem").value;
+    const yontem = degerTuruAyarla();
     const deger = oku("deger");
     const kdvOran = oku("kdv");
     const ind = oku("indirim");
 
-    // Etiket yöntemle birlikte değişsin
-    const et = document.getElementById("etDeger");
-    et.childNodes[0].nodeValue = (yontem === "fiyat" ? "Satış fiyatı (TL)" : "Oran (%)") + " ";
-
     if (!maliyet || maliyet <= 0) {
         sonucBekliyor("Birim maliyeti girin."); return;
     }
+    /* BOS SATIS FIYATI 0 TL DEGILDIR (K-66).
+       "markup"/"marj" kipinde bos kutu mesru bir sifirdir (oran yok =
+       maliyetine satis). "fiyat" kipinde ise hicbir fiyat verilmemistir;
+       `deger || 0` orada 0 TL uretiyor ve ekranda "0,00 ₺ · Zarardasınız"
+       yaziyordu -- hesap yapilmadigi halde yapilmis gibi. */
+    if (yontem === "fiyat" && document.getElementById("deger").value.trim() === "") {
+        sonucBekliyor("Satış fiyatını girin."); return;
+    }
     const k = karMarji(maliyet, deger, yontem, kdvOran);
+
+    /* %100 VE USTU MARJ: SESSIZ KIRPMA DEGIL, RED.
+       Olculdu (01.09.2026): motor `Math.min(99.99, deger)` yapiyordu.
+       %100 yazan kullanici 100 TL maliyet icin "999.999,99 ₺" goruyordu;
+       %150 ve %500 de AYNI sayiyi veriyordu. Bolen sifira gidiyor, kirpma
+       bunu makul gorunen sonlu bir fiyatla ortuyordu. Uyari yoktu.
+       Simdi reddediliyor ve SEBEBI soyleniyor -- kullanici neyi yanlis
+       anladigini (marj ile markup'i karistirdigini) buradan ogrenir. */
+    if (k.gecersiz) {
+        sonucBekliyor("Kâr marjı %100 veya daha büyük olamaz — bu, satışın tamamının " +
+            "kâr olması, yani maliyetin sıfır olması demektir. Girdiğiniz oran " +
+            "(%" + sayi(deger, 2) + ") maliyetin ÜZERİNE eklenecek oran ise, " +
+            "yöntem kutusundan “Maliyetin üzerine % ekle (markup)” seçin: " +
+            "maliyete %" + sayi(deger, 0) + " eklemek geçerli bir hesaptır.");
+        return;
+    }
+
     const i = indirimEtkisi(maliyet, k.satis, ind);
 
     document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
@@ -216,6 +265,22 @@ function hesapla() {
 }
 
 baglantidanOku(ALANLAR);
+/* Paylasilan baglantiyla "fiyat" kipinde gelinebilir: tur, ilk
+   `girdileriDenetle` kosmadan once dogru olmali. */
+degerTuruAyarla();
+/* HEM `input` HEM `change` — ikisi de sart.
+
+   ILK YAZISIMDA yalniz `change` baglanmisti ve kunyeye "girdi denetimi
+   bir olcum geride kalmaz" diye YAZILMISTI. Olculdu, DOGRU DEGILDI:
+   ortak `dinle()` gecidi alanlara HEM `input` HEM `change` bagliyor
+   (sayfa.js:1224-1225) ve `<select>` once `input` firlatir. Yani yontem
+   degistiginde sira suydu:
+       input  -> hesapla()  ESKI `data-tur` ile kosar
+       change -> degerTuruAyarla() turu duzeltir, sonra hesapla() tekrar
+   Ekran dogru bitiyordu ama arada bir tur yanlis tur kullaniliyordu.
+   Simdi tur `input`ta da ayarlandigi icin o ara tur da dogru. */
+document.getElementById("yontem").addEventListener("change", degerTuruAyarla);
+document.getElementById("yontem").addEventListener("input", degerTuruAyarla);
 document.getElementById("eylemler").appendChild(eylemCubugu());
 dinle(ALANLAR, hesapla);
 

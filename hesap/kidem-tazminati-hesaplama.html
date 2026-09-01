@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Kıdem ve İhbar Tazminatı Hesaplama 2026 — Tavan Dahil" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kidem-tazminati-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=87" />
+<link rel="stylesheet" href="stil.css?v=88" />
 </head>
 <body>
 
@@ -146,8 +146,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=87"></script>
-<script src="sayfa.js?v=87"></script>
+<script src="hesap.js?v=88"></script>
+<script src="sayfa.js?v=88"></script>
 <script>
 iskeletKur("kidem-tazminati-hesaplama.html");
 gizlilikBaglantisi();
@@ -175,6 +175,46 @@ function hesapla() {
         return;
     }
     const ih = ihbarTazminati(ucret, k.toplamGun, dilim);
+    const gunTR = (t) => t.split("-").reverse().join(".");
+
+    /* TAVAN VERISI OLMAYAN TARIH: SAYI BASILMAZ.
+       Olculdu (01.09.2026): 2025'te ayrilan kullanici, dokum satirinda
+       "cikis tarihindeki yasal tavan 73.729,87" goruyordu -- oysa o,
+       2026'nin IKINCI YARISININ tavani. `kidemTavani` eslesme
+       bulamayinca sessizce tablonun son satirini donduruyordu.
+       Tavan hesabin CARPANI oldugu icin "yaklasik" bir kidem tutari da
+       gosterilmiyor; ihbar tazminati tavandan bagimsizdir, o hesaplanir. */
+    if (k.tavanBilinmiyor) {
+        document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
+            <p class="onemli" style="color:var(--azalis)">
+            <b>Bu çıkış tarihi için kıdem tavanı verimiz yok.</b>
+            Kıdem tavanı altı ayda bir değişir ve <b>çıkış tarihindeki</b> tavan
+            geçerlidir. Elimizdeki doğrulanmış tablo
+            <b>${gunTR(k.tavanEnErken)}</b> – <b>${gunTR(k.tavanEnGec)}</b> aralığını
+            kapsıyor; girdiğiniz çıkış tarihi (<b>${gunTR(cikis)}</b>) bunun dışında.
+            Yanlış bir tavanla hesap yapmaktansa <b>hesaplamıyoruz</b>.</p>
+            ${satir("Çalışma süresi", `${k.yil} yıl ${k.artanGun} gün (${k.toplamGun} gün)`)}
+            ${satir("Giydirilmiş ücretiniz", para(k.giydirilmis))}
+            ${satir("Kıdem hakkı", k.hakEdiyorMu ? "doğdu (1 yılı doldurdunuz)" : "doğmadı (1 yıldan az)")}
+            <p class="kucuk">O tarihin tavanını öğrendiğinizde hesap şudur:
+            brüt kıdem = <b>min(giydirilmiş ücret ; tavan) × (${k.toplamGun} ÷ 365)</b>,
+            ardından binde 7,59 damga vergisi düşülür.</p>
+        </div>
+
+        <div class="kutu">
+            <h2 class="kutu-baslik">İhbar tazminatı</h2>
+            <p class="kucuk">İhbar tazminatı kıdem tavanına bağlı değildir; bu tutar hesaplanabiliyor.</p>
+            ${satir("İhbar süresi", `${ih.hafta} hafta (${ih.gun} gün)`)}
+            ${satir("Günlük giydirilmiş ücret", para(ih.gunlukUcret))}
+            ${satir("Brüt ihbar tazminatı", para(ih.brut))}
+            ${satir("Gelir vergisi (%" + sayi(dilim, 0) + ")", "−" + para(ih.gelirVergisi))}
+            ${satir("Damga vergisi", "−" + para(ih.damga))}
+            ${satir("Net ihbar tazminatı", para(ih.net), "buyuk")}
+        </div>`;
+        document.getElementById("dokum").innerHTML = "";
+        baglantiyaYaz(ALANLAR);
+        return;
+    }
 
     document.getElementById("ozet").innerHTML = `<div class="kutu one-cikan">
         <div class="dev-deger">${para(k.hakEdiyorMu ? k.net : 0)}</div>

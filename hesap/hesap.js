@@ -639,9 +639,33 @@ function alimSatimKar(alisBirim, satisBirim, miktar, gunSayisi, yillikEnflasyon,
 //    Gelir vergisi ve SGK primi kesilmez. İhbar tazminatında ise
 //    hem gelir vergisi hem damga kesilir — ikisi karıştırılır.
 
+/* TABLO DISI TARIHTE SESSIZ VARSAYILAN YOK.
+   Eski hâli eslesme bulamayinca tablonun SON satirini donduruyordu.
+   2025'te isten ayrilan kullanici, dokumde "cikis tarihindeki yasal
+   tavan 73.729,87" goruyordu -- oysa o, 2026'nin ikinci yarisinin
+   tavani. Cokme yok, uyari yok; yalnizca yanlis sayi, ustelik
+   "cikis tarihindeki" diye etiketlenmis hâlde.
+
+   Gecmis yillarin tavanlari icin elimizde dogrulanmis resmi kaynak YOK.
+   Hatirlanan bir tablo yazmak sessiz varsayilandan DAHA kotu olurdu:
+   yanlis sayiya bir de kaynakli gorunumu eklerdi (bu depoda ayni tuzak
+   emlak tavani carpaninda olculdu -- ayni belge icin uc ozet uc farkli
+   sayi verdi). Onun icin secilen yol: hic sayi uretme, bilmedigini soyle.
+
+   Tabloya dogrulanmis satirlar eklendiginde bu islev degismeden calisir;
+   yalnizca "bilinmiyor" denen aralik daralir. */
 function kidemTavani(cikisTarihi) {
-    const t = PARAMETRE.kidemTavanlari.find(x => cikisTarihi >= x.baslangic && cikisTarihi <= x.bitis);
-    return t ? t : PARAMETRE.kidemTavanlari[PARAMETRE.kidemTavanlari.length - 1];
+    const liste = PARAMETRE.kidemTavanlari;
+    const t = liste.find(x => cikisTarihi >= x.baslangic && cikisTarihi <= x.bitis);
+    if (t) return {
+        bilinmiyor: false, tutar: t.tutar,
+        baslangic: t.baslangic, bitis: t.bitis
+    };
+    return {
+        bilinmiyor: true, tutar: null,
+        enErken: liste[0].baslangic,
+        enGec: liste[liste.length - 1].bitis
+    };
 }
 
 function gunFarki(baslangic, bitis) {
@@ -653,18 +677,34 @@ function kidemTazminati(giydirilmisBrut, giris, cikis) {
     const toplamGun = gunFarki(giris, cikis);
     if (toplamGun <= 0) return null;
 
-    const tavan = kidemTavani(cikis);
-    const tavanAsildi = giydirilmisBrut > tavan.tutar;
-    const esasUcret = Math.min(giydirilmisBrut, tavan.tutar);
-
     const yil = Math.floor(toplamGun / 365);
     const artanGun = toplamGun - yil * 365;
+
+    const tavan = kidemTavani(cikis);
+    /* Tavani bilmeden tazminat hesaplanamaz: tavan hesabin CARPANIDIR,
+       susleme degil. Sure ve hak dogumu gibi tavandan bagimsiz bilgiler
+       yine verilir; para alanlari `null` doner ki sayfa yanlislikla bir
+       sayi basmasin (`|| 0` ile 0,00 TL yazan bir sayfa da yalan soyler). */
+    if (tavan.bilinmiyor) {
+        return {
+            toplamGun: toplamGun, yil: yil, artanGun: artanGun,
+            tavanBilinmiyor: true, tavanEnErken: tavan.enErken, tavanEnGec: tavan.enGec,
+            tavan: null, tavanAsildi: null,
+            esasUcret: null, giydirilmis: giydirilmisBrut,
+            brut: null, damga: null, net: null,
+            hakEdiyorMu: toplamGun >= 365
+        };
+    }
+
+    const tavanAsildi = giydirilmisBrut > tavan.tutar;
+    const esasUcret = Math.min(giydirilmisBrut, tavan.tutar);
 
     const brut = esasUcret * (toplamGun / 365);
     const damga = brut * PARAMETRE.damgaOran;
 
     return {
         toplamGun: toplamGun, yil: yil, artanGun: artanGun,
+        tavanBilinmiyor: false,
         tavan: tavan.tutar, tavanAsildi: tavanAsildi,
         esasUcret: esasUcret, giydirilmis: giydirilmisBrut,
         brut: brut, damga: damga, net: brut - damga,
@@ -1642,7 +1682,9 @@ const EMLAK = {
 
 function degerliKonutVergisi(vergiDegeri, tekKonutMu) {
     if (vergiDegeri <= EMLAK.dkvEsik) return { kapsamda: false, vergi: 0, sebep: "esikAlti" };
-    // Türkiye'de tek meskeni olan, değeri ne olursa olsun muaf
+    // Türkiye'de tek meskeni olan, değeri ne olursa olsun muaf (EVK md. 46/b).
+    // Bu istisnanın yaş, gelir ya da m² şartı YOKTUR — emeklilik muafiyetiyle
+    // karıştırılmamalı; ayrımın gerekçesi `emlakVergisi` içinde yazılı.
     if (tekKonutMu) return { kapsamda: true, vergi: 0, sebep: "tekKonutMuafiyeti" };
 
     for (const d of EMLAK.dkvDilimler) {
@@ -1716,15 +1758,38 @@ function emlakDegerTavani(deger2025, deger2026) {
     };
 }
 
-function emlakVergisi(tur, vergiDegeri, buyuksehirMi, muafiyetVarMi) {
+/* IKI AYRI SART, IKI AYRI PARAMETRE. Bir sure tek kutuya bagliydilar;
+   dusuruldugu sinif su:
+
+     `muafiyetVarMi` -> EMLAK vergisi orani sifir (EVK md. 8).
+        Sartlari: emekli/dul/yetim/engelli/gazi OLMAK + Turkiye'de tek
+        konut + brut 200 m2 alti + kira disi gelir yok.
+     `tekMeskenMi`   -> DEGERLI KONUT vergisinden muaf (EVK md. 46/b).
+        Tek sarti: Turkiye'de mesken nitelikli tek tasinmaz.
+        Yas, gelir ve m2 sarti YOK; deger ne olursa olsun muaf.
+
+   Ikisini tek kutuya baglamak, tek meskeni olan ama EMEKLI OLMAYAN
+   kullaniciyi cikmaza sokuyordu: kutuyu dogruluk geregi isaretleyemiyor,
+   isaretlemeyince de hak etmedigi bir degerli konut vergisi goruyordu
+   (25.000.000 TL mesken icin 21.867,00 TL). Sayfanin kendi anlatimi
+   istisnayi dogru yaziyordu -- yani hesap, kendi metnini yalanliyordu.
+
+   `muafiyetVarMi` DKV istisnasini da acar: o kutunun kendi metni zaten
+   "Turkiye'de tek konutum" diyor, yani sarti kapsiyor. Bu yuzden ikisi
+   `||` ile birlesir, ama artik kullanicinin yalnizca tek meskeni
+   oldugunu soyleyebilecegi AYRI bir yol var. */
+function emlakVergisi(tur, vergiDegeri, buyuksehirMi, muafiyetVarMi, tekMeskenMi) {
     const oranCifti = EMLAK.oranlar[tur] || EMLAK.oranlar.mesken;
     const oran = oranCifti[buyuksehirMi ? 1 : 0];
     // Emekli/dul/yetim/malul/gazi + tek konut + brüt 200 m² altı => oran SIFIR
     const muaf = !!muafiyetVarMi && tur === "mesken";
     const yillik = muaf ? 0 : (vergiDegeri || 0) * oran;
 
+    // Emeklilik muafiyeti tek konut şartını zaten içerdiği için DKV
+    // istisnasını da açar; ama tek başına "tek meskenim" demek de yeter.
+    const tekMesken = !!tekMeskenMi || !!muafiyetVarMi;
     const dkv = tur === "mesken"
-        ? degerliKonutVergisi(vergiDegeri || 0, !!muafiyetVarMi)
+        ? degerliKonutVergisi(vergiDegeri || 0, tekMesken)
         : { kapsamda: false, vergi: 0 };
 
     return {
@@ -1734,6 +1799,7 @@ function emlakVergisi(tur, vergiDegeri, buyuksehirMi, muafiyetVarMi) {
         oran: oran, oranBinde: oran * 1000,
         normalOran: oranCifti[0],
         muaf: muaf,
+        tekMesken: tekMesken,
         yillik: yillik,
         taksit: yillik / 2,
         dkv: dkv,
@@ -1747,14 +1813,42 @@ function emlakVergisi(tur, vergiDegeri, buyuksehirMi, muafiyetVarMi) {
 //   Maliyet 100'e %50 eklersen satış 150 olur; kâr 50, ama satışın %33,3'ü.
 //   Satışın %50'si kâr olsun istiyorsan satış 200 olmalı.
 
+/* MARJ %100 OLAMAZ — KIRPMA DEGIL, RED.
+   Eski hâli `Math.min(99.99, deger)` yapiyordu. Kullanici %100 yazinca
+   bolen sifira gidiyor; kirpma bunu gizleyip maliyetin 10.000 KATI olan
+   sonlu ve makul gorunen bir fiyat uretiyordu (100 TL maliyet ->
+   999.999,99 TL satis). %100, %150 ve %500 AYNI sayiyi veriyordu:
+   girdinin sonucu degistirmemesi, kirpmanin kendi parmak iziydi.
+
+   Neden burada "sinira cek" DEGIL de "reddet": marjin %100 olmasi
+   satisin tamaminin kar olmasi, yani maliyetin sifir olmasi demektir --
+   matematiksel imkansizlik. Cekilecek mesru bir komsu deger yok.
+   Karsilastir: `askerlikBorclanmasi` ve `bagkurPrimi` KANUNI taban-tavana
+   ceker, cunku orada sinirin kendisi gecerli bir beyandir; onlar da
+   cektiklerini `sinirlandi` ile ekranda soyler. Ortak kural sinira cekmek
+   degil, SESSIZ KALMAMAK.
+
+   Sinir yalnizca marj kipine aittir: markup %150 gayet normaldir
+   (maliyetin uzerine %150 eklemek), "fiyat" kipinde de oran yoktur.
+   Negatif marj da mesrudur: zararina satis. */
 function karMarji(maliyet, deger, yontem, kdvOran) {
     maliyet = maliyet || 0;
     deger = deger || 0;
     const kdv = (kdvOran || 0) / 100;
     let satis;
 
+    if (yontem === "marj" && deger >= 100) {
+        return {
+            gecersiz: true, sebep: "marjYuzOtesi",
+            istenenMarj: deger, maliyet: maliyet,
+            satis: null, kar: null, marj: null, markup: null,
+            kdvTutar: null, kdvliSatis: null,
+            zararda: null, basaBasKatsayi: null
+        };
+    }
+
     if (yontem === "marj") {            // deger = satış üzerinden kâr yüzdesi
-        const m = Math.min(99.99, deger) / 100;
+        const m = deger / 100;
         satis = maliyet / (1 - m);
     } else if (yontem === "markup") {   // deger = maliyet üzerine eklenen yüzde
         satis = maliyet * (1 + deger / 100);
@@ -1767,6 +1861,7 @@ function karMarji(maliyet, deger, yontem, kdvOran) {
     const markup = maliyet > 0 ? kar / maliyet * 100 : 0;  // maliyet üzerine
 
     return {
+        gecersiz: false,
         maliyet: maliyet, satis: satis, kar: kar,
         marj: marj, markup: markup,
         kdvTutar: satis * kdv,

@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Emlak Vergisi Hesaplama 2026 — Konut, İş Yeri, Arsa ve Arazi" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/emlak-vergisi-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=87" />
+<link rel="stylesheet" href="stil.css?v=88" />
 </head>
 <body>
 
@@ -97,6 +97,16 @@
                 <label class="onay">
                     <input id="muafiyet" type="checkbox" />
                     <span>Emekli / dul / yetim / engelli / gazi — Türkiye'de tek konutum, brüt 200 m² altı, başka gelirim yok</span>
+                </label>
+                <!-- AYRI KUTU, AYRI SART. Degerli Konut Vergisi istisnasi bir sure
+                     ustteki emeklilik kutusuna bagliydi; tek meskeni olan ama emekli
+                     OLMAYAN kullanici o kutuyu dogruluk geregi isaretleyemiyor ve hak
+                     etmedigi degerli konut vergisini goruyordu. Bu istisnanin yas,
+                     gelir ve m2 sarti YOKTUR (EVK md. 46/b) -- sayfanin kendi anlatim
+                     metni bunu zaten dogru yaziyordu. -->
+                <label class="onay">
+                    <input id="tekMesken" type="checkbox" />
+                    <span>Türkiye'de mesken nitelikli <b>tek</b> taşınmazım — <span class="kucuk">yalnızca Değerli Konut Vergisi istisnası için; emeklilik şartı aranmaz</span></span>
                 </label>
             </div>
             <p class="kucuk">Vergi değerini <b>belediyeden</b> ya da e-Devlet üzerinden öğrenebilirsiniz;
@@ -157,23 +167,24 @@
     </section>
 </main>
 
-<script src="hesap.js?v=87"></script>
-<script src="sayfa.js?v=87"></script>
+<script src="hesap.js?v=88"></script>
+<script src="sayfa.js?v=88"></script>
 <script>
 iskeletKur("emlak-vergisi-hesaplama.html");
 gizlilikBaglantisi();
 
-const ALANLAR = ["tur", "deger", "deger2025", "buyuksehir", "muafiyet"];
+const ALANLAR = ["tur", "deger", "deger2025", "buyuksehir", "muafiyet", "tekMesken"];
 
 function hesapla() {
     const tur = document.getElementById("tur").value;
     const deger = oku("deger");
     const bs = isaretli("buyuksehir");
     const muaf = isaretli("muafiyet");
+    const tekMesken = isaretli("tekMesken");
     if (!deger || deger <= 0) {
         sonucBekliyor("Belediyeden aldığınız emlak vergi değerini girin."); return;
     }
-    const e = emlakVergisi(tur, deger, bs, muaf);
+    const e = emlakVergisi(tur, deger, bs, muaf, tekMesken);
     const binde = (o) => "binde " + sayi(o * 1000, 0);
 
     /* YASAL TAVAN DENETIMI. Hesabi degistirmez, girdiyi sorgular:
@@ -222,7 +233,10 @@ function hesapla() {
                ${satir("Emlak + değerli konut toplamı", para(e.toplamYillik))}
                <p class="kucuk">Bu vergi emlak vergisine <b>ek</b>tir ve belediyeye değil
                <b>vergi dairesine</b> beyan edilir. Beyan Şubat ayında, ödeme iki taksitte
-               (Şubat ve Ağustos) yapılır.</p>`}
+               (Şubat ve Ağustos) yapılır.</p>
+               <p class="onemli">Türkiye'de mesken nitelikli <b>tek</b> taşınmazınız varsa
+               bu vergiden <b>muafsınız</b> — emekli olmanız gerekmez, değeri de fark etmez.
+               Öyleyse yukarıdaki <b>"Türkiye'de tek taşınmazım"</b> kutusunu işaretleyin.</p>`}
     </div>` : ""}
 
     <div class="kutu">
