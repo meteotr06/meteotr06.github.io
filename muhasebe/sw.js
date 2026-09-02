@@ -21,11 +21,12 @@
      4) Yedek sayfa yalnızca gerçek sayfa (navigate) isteğine döner.
 */
 
-const SURUM = "muhasebe-v9";
+const SURUM = "muhasebe-v10";
 const DOSYALAR = [
   "./",
   "index.html",
   "gizlilik.html",
+  "kurulum.js",
   "manifest.json",
   "simge-192.png",
   "simge-512.png",

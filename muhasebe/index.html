@@ -65,15 +65,31 @@ h1{font-size:20px; margin:6px 0 12px; display:flex; align-items:center; gap:8px;
 
 /* ==== Liste ==== */
 .liste{display:flex; flex-direction:column; gap:8px;}
+/* Satirlar GERCEK <button>: eskiden <div>+onclick idi. Olculdu (01.09.2026,
+   tarayici): tabIndex=-1, focus() tutmuyor, Enter tusu satiri silmiyordu --
+   yani yanlis girilen bir tutar KLAVYEYLE SILINEMIYORDU. Buton olunca
+   Tab ile gezilir, Enter/Space ile silme onayi acilir.
+   font/color/text-align: butonun kendi varsayilanlarini geri aliyoruz. */
 .satir{background:var(--panel); border:1px solid var(--cizgi); border-radius:12px;
-  padding:12px 14px; display:flex; align-items:center; gap:12px;}
+  padding:12px 14px; display:flex; align-items:center; gap:12px;
+  width:100%; font:inherit; color:inherit; text-align:left; cursor:pointer;}
+.satir:focus-visible{outline:3px solid var(--vurgu); outline-offset:2px;}
 .nokta{width:10px; height:10px; border-radius:50%; flex:0 0 auto;}
-.satir .orta{flex:1; min-width:0;}
+/* Buton icindeki <div>'ler <span> oldu (buton icerigi metin duzeyinde
+   olmali); blok gorunumu geri veriyoruz. */
+.satir .kat,.satir .alt,.satir .tut{display:block;}
+.satir .orta{display:block; flex:1; min-width:0;}
 .satir .kat{font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .satir .alt{font-size:12px; color:var(--yazi3); margin-top:2px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .satir .tut{font-weight:800; font-size:15px; white-space:nowrap;}
 .bos{color:var(--yazi3); text-align:center; padding:36px 10px; font-size:14px;}
+.uyari-serit{background:var(--panel); border:1px solid var(--uyari); color:var(--uyari);
+  border-radius:12px; padding:10px 12px; font-size:13px; margin:0 0 12px; line-height:1.45;}
+/* Yalnizca ekran okuyucunun gordugu bolge: goren kullanici sonucu kartlarda
+   okuyor, goremeyen kullanici bugune kadar HIC duymuyordu. */
+.yalniz-okuyucu{position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0;}
 
 /* ==== Alt menu ==== */
 /* Diger uygulamalara koprü — alt menu sabit oldugu icin altta bosluk birakilir */
@@ -151,6 +167,16 @@ select{appearance:none;}
 <div class="kapsul">
   <h1>📒 Muhasebe <span class="firma" id="firma"></span></h1>
 
+  <!-- Depolama engelliyse sessiz kalmak yanlis olur: kullanici kaydettigini
+       saniyor, sayfayi kapatinca her sey gidiyor. Bir kez soyleriz. -->
+  <p id="hafiza-uyari" class="uyari-serit" hidden>⚠️ Tarayıcınız depolamayı
+    engelliyor. Uygulama çalışır ama <b>kayıtlarınız bu sayfa kapanınca
+    silinir</b>. Gizli sekmedeyseniz normal sekmede açın.</p>
+
+  <!-- Canli bolge: kaydetme onayi ve hesap sonucu buraya yazilir, ekran
+       okuyucu kendiliginden okur. Sayfada gorunmez. -->
+  <p id="duyuru" class="yalniz-okuyucu" role="status" aria-live="polite"></p>
+
   <!-- ===== KASA (gelir/gider) ===== -->
   <div class="sayfa aktif" id="sayfa-kasa">
     <div class="kartlar">
@@ -158,10 +184,12 @@ select{appearance:none;}
       <div class="kart"><div class="b">GİDER</div><div class="d gider" id="k-gider">0,00 ₺</div></div>
       <div class="kart"><div class="b" id="k-net-b">NET</div><div class="d" id="k-net">0,00 ₺</div></div>
     </div>
-    <div class="segment" id="donem-segment">
-      <button data-d="ay" class="aktif">Bu Ay</button>
-      <button data-d="yil">Bu Yıl</button>
-      <button data-d="tum">Tümü</button>
+    <!-- aria-pressed: hangi donemin secili oldugu YALNIZ renkle belliydi;
+         goremeyen kullanici uc dugmeyi de ayni duyuyordu. -->
+    <div class="segment" id="donem-segment" role="group" aria-label="Dönem seçimi">
+      <button type="button" data-d="ay" class="aktif" aria-pressed="true">Bu Ay</button>
+      <button type="button" data-d="yil" aria-pressed="false">Bu Yıl</button>
+      <button type="button" data-d="tum" aria-pressed="false">Tümü</button>
     </div>
     <div class="liste" id="hareket-liste"></div>
   </div>
@@ -216,9 +244,12 @@ select{appearance:none;}
   <div class="form">
     <h2 id="form-baslik">Yeni Kayıt</h2>
     <div id="form-kasa">
-      <div class="tur-sec">
-        <button id="t-gelir" class="g-aktif">Gelir</button>
-        <button id="t-gider">Gider</button>
+      <!-- aria-pressed: secili tur YALNIZ renkten anlasiliyordu. Goremeyen
+           kullanici Gelir mi Gider mi secili bilmeden kaydediyordu -- yani
+           gideri gelir olarak yazabiliyordu. -->
+      <div class="tur-sec" role="group" aria-label="Kayıt türü">
+        <button type="button" id="t-gelir" class="g-aktif" aria-pressed="true">Gelir</button>
+        <button type="button" id="t-gider" aria-pressed="false">Gider</button>
       </div>
       <label for="f-tutar">Tutar (₺)</label>
       <input id="f-tutar" class="buyuk-tutar" inputmode="decimal" placeholder="0,00">
@@ -246,10 +277,33 @@ select{appearance:none;}
 
 <script>
 "use strict";
-// ============ Veri (localStorage) ============
+// ============ GUVENLI HAFIZA ============
+/* localStorage bazi tarayicilarda HATA FIRLATIR: Safari gizli sekme, kati
+   gizlilik ayarlari, cerez engelleyiciler, bazi gomulu tarayicilar.
+   Dogrudan cagirirsak "use strict" altinda betik olur, sayfa BOMBOS acilir.
+   Olculdu (01.09.2026, tarayici): depolama engelliyken acilis satiri, kaydet()
+   ve davet satiri UCU DE SecurityError ile cokuyordu.
+   Ayni sarmalayici Hava Durumu (02) ve Goz Molasi (05) icinde de var --
+   kardesten kopyalandi. Hafiza yoksa uygulama yine calisir; yalnizca kayitlar
+   sonraki acilista hatirlanmaz, bunu da kullaniciya bir kez soyleriz. */
+const Hafiza = {
+  yaz(anahtar, deger){ try{ localStorage.setItem(anahtar, deger); return true; }
+                       catch(e){ return false; } },
+  oku(anahtar){ try{ return localStorage.getItem(anahtar); }
+                catch(e){ return null; } }
+};
+// Depolama gercekten yaziyor mu? (Safari gizli sekmede setItem hep patlar.)
+const HAFIZA_VAR = (function(){
+  try{ localStorage.setItem("__deneme__","1"); localStorage.removeItem("__deneme__"); return true; }
+  catch(e){ return false; }
+})();
+
+// ============ Veri ============
 const VARSAYILAN = {hareketler:[], cariler:[], sayac:1};
-let db = JSON.parse(localStorage.getItem("muhasebe_mobil") || "null") || VARSAYILAN;
-function kaydet(){ localStorage.setItem("muhasebe_mobil", JSON.stringify(db)); }
+let db;
+try{ db = JSON.parse(Hafiza.oku("muhasebe_mobil") || "null") || VARSAYILAN; }
+catch(e){ db = VARSAYILAN; }   // bozuk/yarim JSON de sayfayi coldurmesin
+function kaydet(){ Hafiza.yaz("muhasebe_mobil", JSON.stringify(db)); }
 function yeniId(){ return db.sayac++; }
 
 const GELIR_KAT = ["Satış","Hizmet","Faiz Geliri","Kira Geliri","Diğer Gelir"];
@@ -279,18 +333,66 @@ function para(k, simge=true){
 }
 
 // ============ Tarih ============
-function bugun(){ return new Date().toISOString().slice(0,10); }
+/* Bir tarihi YEREL gun sinirina gore "YYYY-AA-GG" yapar.
+   NEDEN toISOString KULLANMIYORUZ: toISOString once UTC'ye cevirir. Turkiye
+   UTC+3 oldugu icin YEREL gece yarisi UTC'de bir onceki gunun 21:00'idir.
+   Olcum (01.09.2026, Europe/Istanbul, tarayici):
+     donemAralik("ay") -> ["2026-08-31","2026-09-29"]   (dogrusu 09-01..09-30)
+     30 Eylul'de girilen gelir KAR kartina HIC girmiyordu;
+     31 Agustos'un kaydi eylule ekleniyordu.
+     new Date(2026,8,1,1,0,0).toISOString() -> "2026-08-31" ; yani gece
+     00:00-03:00 arasi girilen kayit bir gun GERIYE dusuyordu.
+   Bu islev yalnizca yerel alanlari (getFullYear/getMonth/getDate) okur,
+   saat dilimi ne olursa olsun kullanicinin gordugu gunu verir. */
+function yerelGun(d){
+  const iki = n => (n<10?"0":"")+n;
+  return d.getFullYear()+"-"+iki(d.getMonth()+1)+"-"+iki(d.getDate());
+}
+function bugun(){ return yerelGun(new Date()); }   // kayit anahtari - yerel olmali
 function tarihGoster(t){ let p=(t||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : t; }
+
+/* Kullanicinin yazdigi metni innerHTML'e gomerken HTML kacisi SART.
+   Olculdu (01.09.2026, gercek sayfa): cari adi "<b>Bora</b> Ticaret" ekranda
+   "Bora Ticaret" diye gorunuyordu -- kullanici kaydettigi adi goremiyor,
+   sessizce baska bir sey okuyor. "<img src=x onerror=...>" yazan bir ad ise
+   gomulu kodu CALISTIRIYORDU (olcumde calisti=true). Veri yerelde saklandigi
+   icin bir kez yapistirilan metin her acilista yeniden calisirdi. */
+function kacir(s){
+  return String(s==null?"":s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
 function donemAralik(d){
   let now=new Date(), y=now.getFullYear(), ay=now.getMonth();
   if(d==="ay"){ let ilk=new Date(y,ay,1), son=new Date(y,ay+1,0);
-    return [ilk.toISOString().slice(0,10), son.toISOString().slice(0,10)]; }
+    return [yerelGun(ilk), yerelGun(son)]; }   // aralik siniri - yerel olmali
   if(d==="yil") return [y+"-01-01", y+"-12-31"];
   return [null,null];
 }
 
 // ============ Durum ============
 let donem="ay", formTur="gelir";
+
+// ============ Ekran okuyucu duyurusu ============
+/* Goren kullanici sonucu kartlarda okuyor; goremeyen kullanici bugune kadar
+   ne kaydetme onayini ne de hesap sonucunu HIC duymuyordu (olculdu: sayfada
+   sifir aria-live / role=status bolgesi vardi).
+   Once bosaltip sonra yaziyoruz: ayni metin ust uste gelirse okuyucu
+   degisiklik saymaz ve susar. */
+const DONEM_ADI = {ay:"Bu ay", yil:"Bu yıl", tum:"Tüm zamanlar"};
+function duyur(metin){
+  const el=document.getElementById("duyuru");
+  el.textContent="";
+  setTimeout(()=>{ el.textContent=metin; }, 60);
+}
+function ozetMetni(){
+  let hs=suzulmus();
+  let g=hs.filter(h=>h.tur==="gelir").reduce((t,h)=>t+h.tutar,0);
+  let x=hs.filter(h=>h.tur==="gider").reduce((t,h)=>t+h.tutar,0);
+  let net=g-x;
+  return `${DONEM_ADI[donem]||""}: gelir ${para(g)}, gider ${para(x)}, `+
+         `net ${net>=0?"kâr":"zarar"} ${para(Math.abs(net))}. ${hs.length} kayıt.`;
+}
 
 // ============ Ozet + liste ciz ============
 function suzulmus(){
@@ -315,14 +417,20 @@ function hareketleriCiz(){
   if(!hs.length){ el.innerHTML='<div class="bos">Bu dönemde kayıt yok.<br>Sağ alttaki + ile ekleyin.</div>'; return; }
   el.innerHTML="";
   hs.forEach(h=>{
-    let d=document.createElement("div"); d.className="satir";
+    // <div> degil <button>: klavyeyle odaklanip Enter/Space ile silinebilsin.
+    let d=document.createElement("button"); d.type="button"; d.className="satir";
     let renk = h.tur==="gelir"?"var(--gelir)":"var(--gider)";
     d.innerHTML=`<span class="nokta" style="background:${renk}"></span>
-      <div class="orta"><div class="kat">${h.kategori||"—"}</div>
-      <div class="alt">${tarihGoster(h.tarih)}${h.aciklama?" · "+h.aciklama:""}</div></div>
-      <div class="tut" style="color:${renk}">${h.tur==="gider"?"−":""}${para(h.tutar)}</div>`;
+      <span class="orta"><span class="kat">${kacir(h.kategori)||"—"}</span>
+      <span class="alt">${kacir(tarihGoster(h.tarih))}${h.aciklama?" · "+kacir(h.aciklama):""}</span></span>
+      <span class="tut" style="color:${renk}">${h.tur==="gider"?"−":""}${para(h.tutar)}</span>`;
+    // Ekran okuyucuya tek parca halinde: yon + kategori + tutar + tarih + ne olacagi.
+    d.setAttribute("aria-label",
+      `${h.tur==="gelir"?"Gelir":"Gider"}, ${h.kategori||"kategorisiz"}, `+
+      `${para(h.tutar)}, ${tarihGoster(h.tarih)}. Silmek için etkinleştirin.`);
     d.onclick=()=>{ if(confirm((h.kategori||"Kayıt")+" — "+para(h.tutar)+"\n\nSilinsin mi?")){
-      db.hareketler=db.hareketler.filter(x=>x.id!==h.id); kaydet(); ciz(); } };
+      db.hareketler=db.hareketler.filter(x=>x.id!==h.id); kaydet(); ciz();
+      duyur(`Kayıt silindi: ${h.kategori||"kategorisiz"}, ${para(h.tutar)}. `+ozetMetni()); } };
     el.appendChild(d);
   });
 }
@@ -343,12 +451,18 @@ function carileriCiz(){
   el.innerHTML="";
   db.cariler.forEach(c=>{
     let b=cariBakiye(c), renk=b>0?"var(--gelir)":b<0?"var(--gider)":"var(--yazi3)";
-    let d=document.createElement("div"); d.className="satir";
-    d.innerHTML=`<div class="orta"><div class="kat">${c.ad}</div>
-      <div class="alt">${c.tur==="musteri"?"Müşteri":"Tedarikçi"} · ${b>0?"bize borçlu":b<0?"biz borçluyuz":"—"}</div></div>
-      <div class="tut" style="color:${renk}">${para(b)}</div>`;
+    // <div> degil <button>: klavyeyle odaklanip Enter/Space ile silinebilsin.
+    let d=document.createElement("button"); d.type="button"; d.className="satir";
+    let durum = b>0?"bize borçlu":b<0?"biz borçluyuz":"—";
+    d.innerHTML=`<span class="orta"><span class="kat">${kacir(c.ad)}</span>
+      <span class="alt">${c.tur==="musteri"?"Müşteri":"Tedarikçi"} · ${durum}</span></span>
+      <span class="tut" style="color:${renk}">${para(b)}</span>`;
+    d.setAttribute("aria-label",
+      `${c.ad}, ${c.tur==="musteri"?"müşteri":"tedarikçi"}, ${para(b)}, ${durum}. `+
+      `Silmek için etkinleştirin.`);
     d.onclick=()=>{ if(confirm(c.ad+"\n\nSilinsin mi?")){
-      db.cariler=db.cariler.filter(x=>x.id!==c.id); kaydet(); ciz(); } };
+      db.cariler=db.cariler.filter(x=>x.id!==c.id); kaydet(); ciz();
+      duyur(`Cari silindi: ${c.ad}.`); } };
     el.appendChild(d);
   });
 }
@@ -367,8 +481,12 @@ document.querySelectorAll(".altmenu button").forEach(b=>{
 });
 document.querySelectorAll("#donem-segment button").forEach(b=>{
   b.onclick=()=>{ donem=b.dataset.d;
-    document.querySelectorAll("#donem-segment button").forEach(x=>x.classList.toggle("aktif",x===b));
-    ozetCiz(); hareketleriCiz(); };
+    document.querySelectorAll("#donem-segment button").forEach(x=>{
+      x.classList.toggle("aktif",x===b);
+      x.setAttribute("aria-pressed", x===b ? "true" : "false");  // renk tek basina yetmez
+    });
+    ozetCiz(); hareketleriCiz();
+    duyur(ozetMetni()); };   // hesap sonucu ekran okuyucuya da soylensin
 });
 
 // ============ Kategori doldur ============
@@ -404,8 +522,12 @@ document.getElementById("f-vaz").onclick=formKapat;
 perde.onclick=(e)=>{ if(e.target===perde) formKapat(); };
 
 function turGorunum(){
-  document.getElementById("t-gelir").className = formTur==="gelir"?"g-aktif":"";
-  document.getElementById("t-gider").className = formTur==="gider"?"x-aktif":"";
+  let g=document.getElementById("t-gelir"), x=document.getElementById("t-gider");
+  g.className = formTur==="gelir"?"g-aktif":"";
+  x.className = formTur==="gider"?"x-aktif":"";
+  // Secili tur ekran okuyucuya da bildirilsin (renk tek basina yetmez).
+  g.setAttribute("aria-pressed", formTur==="gelir" ? "true" : "false");
+  x.setAttribute("aria-pressed", formTur==="gider" ? "true" : "false");
 }
 document.getElementById("t-gelir").onclick=()=>{ formTur="gelir"; turGorunum(); kategoriDoldur(); };
 document.getElementById("t-gider").onclick=()=>{ formTur="gider"; turGorunum(); kategoriDoldur(); };
@@ -416,14 +538,23 @@ document.getElementById("f-kaydet").onclick=()=>{
     if(!ad){ alert("Cari adı girin."); return; }
     let acilis=kurusa(document.getElementById("cf-acilis").value)||0;
     db.cariler.push({id:yeniId(), ad, tur:document.getElementById("cf-tur").value, acilis});
+    ciz(); formKapat();
+    duyur(`Cari kaydedildi: ${ad}, açılış bakiyesi ${para(acilis)}.`);
+    return;
   } else {
     let tutar=kurusa(document.getElementById("f-tutar").value);
     if(tutar==null || tutar<=0){ alert("Geçerli bir tutar girin (örn. 1500 ya da 1.500,50)."); return; }
-    db.hareketler.push({
+    let kayit={
       id:yeniId(), tarih:document.getElementById("f-tarih").value||bugun(),
       tur:formTur, tutar, kategori:document.getElementById("f-kategori").value,
       aciklama:document.getElementById("f-aciklama").value.trim(), cari:null
-    });
+    };
+    db.hareketler.push(kayit);
+    ciz(); formKapat();
+    // Kaydetme onayi + guncel hesap sonucu: goremeyen kullanici da duysun.
+    duyur(`${formTur==="gelir"?"Gelir":"Gider"} kaydedildi: ${para(tutar)}, `+
+          `${kayit.kategori}, ${tarihGoster(kayit.tarih)}. `+ozetMetni());
+    return;
   }
   ciz(); formKapat();
 };
@@ -432,7 +563,7 @@ document.getElementById("f-kaydet").onclick=()=>{
 let ekleOlay=null;
 window.addEventListener("beforeinstallprompt",(e)=>{
   e.preventDefault(); ekleOlay=e;
-  if(!localStorage.getItem("davet_gizli")) document.getElementById("davet").classList.add("acik");
+  if(!Hafiza.oku("davet_gizli")) document.getElementById("davet").classList.add("acik");
 });
 document.getElementById("davet-ekle").onclick=async()=>{
   document.getElementById("davet").classList.remove("acik");
@@ -440,7 +571,7 @@ document.getElementById("davet-ekle").onclick=async()=>{
 };
 document.getElementById("davet-gizle").onclick=()=>{
   document.getElementById("davet").classList.remove("acik");
-  localStorage.setItem("davet_gizli","1");
+  Hafiza.yaz("davet_gizli","1");
 };
 
 // ============ Servis calisani (cevrimdisi) ============
@@ -449,7 +580,17 @@ if("serviceWorker" in navigator){
 }
 
 // ============ Baslat ============
+if(!HAFIZA_VAR) document.getElementById("hafiza-uyari").hidden=false;
 ciz();
+</script>
+<script src="kurulum.js"></script>
+<script>
+/* KURULUM DAVETI -- ortak modul: HESAP MAKINESI\ortak\kurulum.js
+   Anahtar UYGULAMAYA OZEL: ortak anahtar olsaydi bir uygulamada
+   "simdi degil" demek hepsini susturuoludu.
+   Kayit SURELIDIR (7 gun) -- "kur, sil, bir daha indiremedim"
+   hatasi kaydin sonsuz yasamasindan doguyordu. */
+try { new Kurulum({ anahtar: 'muhasebe-kurulum-ertelendi' }); } catch (e) {}
 </script>
 </body>
 </html>
