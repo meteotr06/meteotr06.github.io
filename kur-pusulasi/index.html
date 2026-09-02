@@ -31,14 +31,14 @@
 <meta name="application-name" content="Kur Pusulası" />
 <!-- iPhone'da uygulama açılırken görünen ekran (Safari manifest'i kullanmaz) -->
 <link rel="apple-touch-startup-image" href="acilis-ekrani.png" />
-<link rel="stylesheet" href="stil.css?v=38" />
+<link rel="stylesheet" href="stil.css?v=44" />
 </head>
 <body>
 
 <header class="ust">
     <div class="ust-sol">
         <h1>Kur <span>Pusulası</span></h1>
-        <span id="veriDurumu" class="rozet bekle">yükleniyor…</span>
+        <span id="veriDurumu" role="status" class="rozet bekle">yükleniyor…</span>
     </div>
     <div class="ust-sag">
         <button id="yenileBtn" class="ikincil" title="Verileri yenile">↻</button>
@@ -71,11 +71,11 @@
 <!-- Gezinti: telefonda EKRANIN ALTINDA sabit durur (başparmak oraya rahat uzanır),
      büyük ekranda üstte hap şeklinde görünür. Simge + yazı ayrı ki alt çubukta alt alta dizilsin. -->
 <nav class="sekmeler" role="tablist">
-    <button class="sekme aktif" data-hedef="sPiyasa" role="tab"><span>Piyasa</span></button>
-    <button class="sekme" data-hedef="sTahmin" role="tab"><span>Tahmin</span></button>
-    <button class="sekme" data-hedef="sFaiz" role="tab"><span>Faiz</span></button>
-    <button class="sekme gelismis" data-hedef="sEkonomi" role="tab"><span>Ekonomi</span></button>
-    <button class="sekme gelismis" data-hedef="sPortfoy" role="tab"><span>Portföy</span></button>
+    <button class="sekme aktif" data-hedef="sPiyasa" role="tab" aria-selected="true"><span>Piyasa</span></button>
+    <button class="sekme" data-hedef="sTahmin" role="tab" aria-selected="false"><span>Tahmin</span></button>
+    <button class="sekme" data-hedef="sFaiz" role="tab" aria-selected="false"><span>Faiz</span></button>
+    <button class="sekme gelismis" data-hedef="sEkonomi" role="tab" aria-selected="false"><span>Ekonomi</span></button>
+    <button class="sekme gelismis" data-hedef="sPortfoy" role="tab" aria-selected="false"><span>Portföy</span></button>
 </nav>
 
 <main>
@@ -146,7 +146,7 @@
                     <option value="90">3 ay sonra</option>
                 </select>
             </label>
-            <div id="senaryoSonuc"></div>
+            <div id="senaryoSonuc" aria-live="polite"></div>
         </div>
     </details>
 
@@ -187,7 +187,7 @@
                     </select>
                 </label>
             </div>
-            <div id="olasilikSonuc" class="sonuc-kutu"></div>
+            <div id="olasilikSonuc" aria-live="polite" class="sonuc-kutu"></div>
         </div>
     </details>
 </section>
@@ -206,7 +206,7 @@
             <label class="onay"><input id="mBilesik" type="checkbox" /> Vade sonunda yenile (bileşik)</label>
             <label>Kaç kez yenilensin<input id="mDonem" type="text" value="12" inputmode="numeric" disabled /></label>
         </div>
-        <div id="mevduatSonuc" class="sonuc-kutu"></div>
+        <div id="mevduatSonuc" aria-live="polite" class="sonuc-kutu"></div>
     </div>
 
     <details class="kutu katlanir vurgu" open>
@@ -221,7 +221,7 @@
                 <label>Süre (gün)<input id="bbGun" type="text" value="30" inputmode="numeric" /></label>
                 <label>Stopaj (%)<input id="bbStopaj" type="text" value="15" step="0.1" inputmode="decimal" /></label>
             </div>
-            <div id="basabasSonuc" class="sonuc-kutu"></div>
+            <div id="basabasSonuc" aria-live="polite" class="sonuc-kutu"></div>
         </div>
     </details>
 
@@ -232,7 +232,7 @@
                 <label>Nominal getiri (%)<input id="rNominal" type="text" value="37" step="0.01" inputmode="decimal" /></label>
                 <label>Enflasyon (%)<input id="rEnf" type="text" value="34.88" step="0.01" inputmode="decimal" /></label>
             </div>
-            <div id="reelSonuc" class="sonuc-kutu"></div>
+            <div id="reelSonuc" aria-live="polite" class="sonuc-kutu"></div>
         </div>
     </details>
 
@@ -245,7 +245,7 @@
                 <label>Taksit sayısı<input id="kTaksit" type="text" value="12" inputmode="numeric" /></label>
                 <label class="onay"><input id="kVergi" type="checkbox" checked /> KKDF+BSMV ekle</label>
             </div>
-            <div id="krediSonuc" class="sonuc-kutu"></div>
+            <div id="krediSonuc" aria-live="polite" class="sonuc-kutu"></div>
         </div>
     </details>
 </section>
@@ -278,6 +278,11 @@
     <details class="kutu katlanir">
         <summary><span>Değerli maden ve kripto</span><span class="ipuc">altın, gümüş ve 7 kripto</span></summary>
         <div class="katlanir-ic"><div id="madenTablo"></div></div>
+    </details>
+
+    <details class="kutu katlanir">
+        <summary><span>Veri kaynakları</span><span class="ipuc">hangi sayı nereden geliyor</span></summary>
+        <div class="katlanir-ic" id="veriKaynaklari"></div>
     </details>
 
     <details class="kutu katlanir">
@@ -318,7 +323,7 @@
         </div>
     </details>
 
-    <div id="portfoyOzet"></div>
+    <div id="portfoyOzet" aria-live="polite"></div>
     <div id="portfoyListe"></div>
 
     <details class="kutu katlanir" id="otomatikKutu">
@@ -399,8 +404,8 @@
     </div>
 </footer>
 
-<script src="cekirdek.js?v=38"></script>
-<script src="arayuz.js?v=38"></script>
+<script src="cekirdek.js?v=44"></script>
+<script src="arayuz.js?v=44"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

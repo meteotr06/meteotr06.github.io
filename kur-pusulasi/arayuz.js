@@ -346,9 +346,47 @@ function uyarilariCiz() {
 // Amaç: uygulamayı bilen/bilmeyen herkes tek bakışta kurabilsin.
 // Chrome/Edge tek düğmeyle kurar; Safari (iPhone) kuramaz, ona adım adım anlatırız.
 
+/* KURULU MU -- `display-mode` TEK BASINA YETMEZ.
+   O olcut yalnizca uygulamanin KENDI PENCERESINDE dogrudur. Kullanici
+   uygulamayi kurduktan sonra ayni siteyi tarayicida acarsa `false`
+   doner ve davet "kur" demeye devam eder. Bugun Goz Molasi'nda canlida
+   yasanan hatanin aynisi.
+
+   `getInstalledRelatedApps()` TARAYICIYA sorar; cevabi asenkron geldigi
+   icin sonucu burada saklayip kutuyu yeniden ciziyoruz. Tarayici
+   desteklemiyorsa eski olcut gecerli kalir -- daha kotusu degil. */
+let _tarayiciKuruluDedi = false;
+
 function uygulamaKurulu() {
-    return window.matchMedia("(display-mode: standalone)").matches ||
+    return _tarayiciKuruluDedi ||
+        window.matchMedia("(display-mode: standalone)").matches ||
         window.navigator.standalone === true;
+}
+
+function kuruluMuSor() {
+    if (!navigator.getInstalledRelatedApps) return;
+    navigator.getInstalledRelatedApps().then(function (liste) {
+        if (liste && liste.length) { _tarayiciKuruluDedi = true; kurulumKutusuCiz(); }
+    }).catch(function () { /* desteklemiyorsa eski olcut kalir */ });
+}
+
+/* "SIMDI DEGIL" SURELIDIR -- kayit anlattigi seyden uzun yasamamali.
+   Onceki halde `kurulumGizli = true` diske yaziliyordu ve BIR DAHA
+   silinmiyordu: daveti bir kez kapatan kullanici onu omur boyu bir
+   daha gormuyordu. Oysa "simdi degil" bir ERTELEMEdir, "asla" degil.
+
+   Eski `true` kaydi SURESIZ yazilmisti; ne zaman kapatildigi
+   bilinmiyor. Onlari suresi DOLMUS sayiyoruz -- yani davet bir kez
+   daha cikar. Kullanici yine kapatirsa bu sefer tarihiyle yazilir. */
+const KURULUM_ERTELEME_GUN = 7;
+
+function kurulumErtelendiMi() {
+    const k = durum.ayar.kurulumGizli;
+    if (!k) return false;
+    if (k === true) return false;              /* eski suresiz kayit: dolmus say */
+    const t = Date.parse(k);
+    if (!isFinite(t)) return false;
+    return (Date.now() - t) < KURULUM_ERTELEME_GUN * 86400000;
 }
 
 function cihazBilgisi() {
@@ -367,7 +405,7 @@ function kurulumKutusuCiz() {
     if (!kutu) return;
 
     // Zaten kuruluysa ya da kullanıcı kapattıysa gösterme
-    if (uygulamaKurulu() || durum.ayar.kurulumGizli) { kutu.innerHTML = ""; return; }
+    if (uygulamaKurulu() || kurulumErtelendiMi()) { kutu.innerHTML = ""; return; }
 
     const c = cihazBilgisi();
     let govde;
@@ -410,7 +448,8 @@ function kurulumKutusuCiz() {
 
     const kapat = $("#kurulumKapatBtn");
     if (kapat) kapat.onclick = () => {
-        durum.ayar.kurulumGizli = true; ayarYaz(durum.ayar); kurulumKutusuCiz();
+        durum.ayar.kurulumGizli = new Date().toISOString();   /* tarihli: 7 gun sonra yeniden cikar */
+        ayarYaz(durum.ayar); kurulumKutusuCiz();
     };
 
     const baslat = $("#kurBaslatBtn");
@@ -919,16 +958,46 @@ function faizHesapla() {
             '<p class="kucuk">Ana para ve faiz oranını yazın. ' +
             'Örnek: 100.000 ve 37,5</p>';
     } else {
-    const m = mevduatHesapla(
-        mAna,
-        mFaiz,
-        sayiOku($("#mVade").value) || 1,
-        sayiOku($("#mStopaj").value, "oran") ?? 0,
-        bilesik,
-        sayiOku($("#mDonem").value) || 1
-    );
-    $("#mevduatSonuc").innerHTML = `
+    const mVade = sayiOku($("#mVade").value) || 1;
+    const mStopaj = sayiOku($("#mStopaj").value, "oran") ?? 0;
+
+    /* STOPAJ VADEYE GORE DEGISIR -- kullaniciya SOYLE, ezme.
+       Alanin varsayilani duz %15 idi; en yaygin durum olan 6 aya kadar
+       vadede gercek oran %17,5, yani net getiri OLDUGUNDAN YUKSEK
+       gorunuyordu.
+
+       Neden ezmiyoruz: kullanici kendi hesabinin oranini bilebilir ve
+       karardan ONCE acilmis hesaplarda acilis tarihindeki oran gecerli.
+       Ucuncu yol secildi: hesap ONUN orani ile yapilir, fark soylenir.
+       Sessizce ezmek de sessizce yanlis hesaplamak da dogru degil. */
+    const stopajKademe = mevduatStopajOrani(mVade);
+    const stopajNotu = (stopajKademe !== null && Math.abs(mStopaj - stopajKademe) > 0.01)
+        ? `<div class="kutu uyari-kutu" role="status"><p><b>Stopaj oranını kontrol edin.</b>
+           ${mVade} günlük vadede geçerli oran <b>%${sayi(stopajKademe, 2)}</b>;
+           siz <b>%${sayi(mStopaj, 2)}</b> yazdınız. Aşağıdaki sonuç
+           <b>sizin yazdığınız oranla</b> hesaplandı.</p>
+           <p class="kucuk">Vadeye göre: 183 güne kadar %17,5 · 366 güne kadar
+           %15 · daha uzun %10. Dayanak: 09.07.2025 tarihli Cumhurbaşkanı
+           Kararı; süre 11444 sayılı Karar ile 31.12.2026'ya uzatıldı
+           (R.G. 20.06.2026/33286). Karardan önce açılmış ve vadesi süren
+           hesaplarda açılış tarihindeki oran geçerlidir.</p></div>`
+        : "";
+
+    const m = mevduatHesapla(mAna, mFaiz, mVade, mStopaj, bilesik,
+        sayiOku($("#mDonem").value) || 1);
+
+    /* Gecersiz girdide SAYI GOSTERME. Once sifir donuyordu ve ekranda
+       "Vade sonu toplam 0,00 TL" yaziyordu -- dogru gorunen bir yanlis.
+       Simdi ne oldugu ve neden oldugu yaziliyor. */
+    if (m.gecersiz) {
+        $("#mevduatSonuc").innerHTML =
+            '<p class="kucuk">Bu girdilerle hesap yapılamıyor. ' +
+            'Vade en az 1 gün, ana para sıfırdan büyük ve ' +
+            'stopaj oranı %0 ile %100 arasında olmalı.</p>';
+    } else {
+    $("#mevduatSonuc").innerHTML = stopajNotu + `
         <div class="sonuc-satir"><span>Brüt faiz</span><b>${paraYaz(m.brutFaiz)}</b></div> <div class="sonuc-satir"><span>Stopaj kesintisi</span><b class="asagi">−${paraYaz(m.stopaj)}</b></div> <div class="sonuc-satir"><span>Net faiz (${m.toplamGun} gün)</span><b class="yukari">${paraYaz(m.netFaiz)}</b></div> <div class="sonuc-satir buyuk"><span>Vade sonu toplam</span><b>${paraYaz(m.vadeSonu)}</b></div> <div class="sonuc-satir"><span>Yıllık net getiri oranı</span><b>${yuzdeOn(m.netYillik)}</b></div> <div class="sonuc-satir"><span>Enflasyon %${sayi(durum.ayar.enflasyon, 2)} ise reel getiri</span> <b class="${reelGetiri(m.netYillik, durum.ayar.enflasyon) > 0 ? "yukari" : "asagi"}">${yuzdeOn(reelGetiri(m.netYillik, durum.ayar.enflasyon))}</b></div>`;
+    }
     }
 
     // Başabaş
@@ -1076,6 +1145,61 @@ function ekonomiCiz() {
             (altının kendi dolar fiyatı sabit varsayıldı). Birkaç saniye içinde tazelenir.</p>`}
         ${oran ? `<p class="kucuk">Altın/Gümüş oranı: <b>${sayi(oran, 1)}</b> — 1 ons altın kaç ons gümüş eder.
         Tarihsel ortalama 60-70 civarındadır; yüksek değerler gümüşün altına göre ucuz olduğuna işaret sayılır.</p>` : ""}`;
+
+    /* VERI KAYNAKLARI — Turkiye ve yabanci AYRI basliklar altinda.
+       Kullanicinin istegi: "her verinin ciktigi kaynagi ayri ayri
+       yazmaliyiz, Turkiye'ye gore ayri yabanci kaynaklari ayri."
+
+       Sira bilerek boyle: once uygulamanin GERCEKTEN cektigi veri,
+       sonra Turkiye kaynaklari. Turkiye basligini one alsaydik,
+       uygulama oradan veri cekiyormus izlenimi verirdi. */
+    {
+        const satir = (x) => `<div class="analiz-bolum">
+            <h4>${x.veri}</h4>
+            <p><b>Kaynak:</b> ${x.kaynak}</p>
+            <p class="kucuk"><b>Tazelik:</b> ${x.tazelik}</p>
+            ${x.uyari ? `<p class="kucuk">${x.uyari}</p>` : ""}
+            ${x.adres ? `<p class="kucuk"><a href="${x.adres}" target="_blank" rel="noopener"
+                style="color:var(--vurgu2)">kaynağa git</a></p>` : ""}
+        </div>`;
+
+        const bakilacak = (yerliMi) => IZLENECEKLER.filter(x => x.yerli === yerliMi)
+            .map(x => `<div class="analiz-bolum">
+                <h4>${x.ad}</h4>
+                <p>${x.neden}</p>
+                <p class="kucuk">${x.nereden} — <a href="${x.adres}" target="_blank"
+                    rel="noopener" style="color:var(--vurgu2)">bağlantı</a></p>
+            </div>`).join("");
+
+        const yabanci = VERI_KAYNAKLARI.filter(x => x.yerli === false);
+        const kendi = VERI_KAYNAKLARI.filter(x => x.yerli === null);
+
+        $("#veriKaynaklari").innerHTML =
+            `<h3>Yabancı kaynaklar — uygulamanın otomatik çektiği veri</h3>` +
+            `<p class="kucuk">Ekrandaki sayıların hepsi buradan geliyor.
+             Bir sayı iki kaynağın çarpımıysa ikisi de yazılı.</p>` +
+            yabanci.map(satir).join("") +
+            `<h3>Sizin girdiğiniz veri</h3>` +
+            kendi.map(satir).join("") +
+            `<h3>Türkiye kaynakları — kendiniz bakmanız gerekenler</h3>` +
+            `<p class="kucuk">${TURKIYE_KAYNAKLARI_NOTU}</p>` +
+            bakilacak(true) +
+            `<h3>Yabancı kaynaklar — kendiniz bakmanız gerekenler</h3>` +
+            `<p class="kucuk">Bunlar da otomatik çekilmiyor ama kuru doğrudan
+             etkiliyor.</p>` +
+            bakilacak(false);
+
+        /* PAYDA DENETIMI: hicbir madde gruplarin disinda kalmamali.
+           Ilk halde regex ile ayrilmisti ve 8 maddenin 2'si hicbir
+           basligin altina girmemisti -- ekranda eksik olan sey cokme
+           uretmez, sadece YOKTUR. O yuzden sayilar karsilastiriliyor. */
+        const gruplanan = IZLENECEKLER.filter(x => x.yerli === true || x.yerli === false).length;
+        if (gruplanan !== IZLENECEKLER.length) {
+            $("#veriKaynaklari").insertAdjacentHTML("beforeend",
+                `<p class="kucuk" style="color:var(--kotu)">Not: ${IZLENECEKLER.length - gruplanan}
+                 gösterge etiketsiz kaldığı için listelenemedi.</p>`);
+        }
+    }
 
     // İzlenecekler: ücretsiz çekemediğimiz ama profesyonellerin izlediği göstergeler
     $("#izlenecekler").innerHTML = `<p class="kucuk">Bunları ücretsiz ve otomatik çekemiyoruz
@@ -1277,7 +1401,16 @@ const CIPALAR = { sPiyasa: "piyasa", sTahmin: "tahmin", sFaiz: "faiz", sEkonomi:
 
 function sekmeAc(hedef, cipaYazma) {
     $$(".sayfa").forEach(s => s.classList.toggle("aktif", s.id === hedef));
-    $$(".sekme").forEach(b => b.classList.toggle("aktif", b.dataset.hedef === hedef));
+    $$(".sekme").forEach(b => {
+        const secili = b.dataset.hedef === hedef;
+        b.classList.toggle("aktif", secili);
+        /* GOREMEYEN KULLANICI HANGI SEKMEDE OLDUGUNU BILMIYORDU.
+           `role="tab"` yaziliydi ama `aria-selected` HIC yazilmiyordu;
+           bes sekmenin besinde de yoktu (olculdu). Gorsel "aktif"
+           sinifi yalniz goze hitap ediyor. Ayni hata Arsa'da bulunup
+           duzeltilmisti, buraya tasinmamisti (K-69). */
+        b.setAttribute("aria-selected", secili ? "true" : "false");
+    });
     if (!cipaYazma && CIPALAR[hedef]) {
         try { history.replaceState(null, "", "#" + CIPALAR[hedef]); } catch (e) { }
     }
@@ -1304,7 +1437,10 @@ function gecmisOnbellekOku(ad) {
         const t = JSON.parse(localStorage.getItem(GECMIS_ONBELLEK) || "{}");
         const k = t[ad];
         if (!k) return null;
-        const bugun = new Date().toISOString().slice(0, 10);
+        /* Gun anahtari YEREL: `toISOString()` gece 00:00-03:00 arasi
+           bir gun geriye duserdi, yani gunluk tazelik siniri saat
+           03:00'e kayardi. `isoTarih` artik yerel gunu veriyor. */
+        const bugun = isoTarih(new Date());
         return k.tarih === bugun ? k.veri : null;      // gunde bir tazelenir
     } catch (e) { return null; }
 }
@@ -1312,7 +1448,7 @@ function gecmisOnbellekOku(ad) {
 function gecmisOnbellekYaz(ad, veri) {
     try {
         const t = JSON.parse(localStorage.getItem(GECMIS_ONBELLEK) || "{}");
-        t[ad] = { tarih: new Date().toISOString().slice(0, 10), veri: veri };
+        t[ad] = { tarih: isoTarih(new Date()), veri: veri };   /* yerel gun */
         localStorage.setItem(GECMIS_ONBELLEK, JSON.stringify(t));
     } catch (e) { /* depo doluysa sessizce gec */ }
 }
@@ -1336,6 +1472,14 @@ async function dolarGecmisiCek(coingeckoAdi, tarihler, anlikFiyat) {
 // Fetch'ten ayrildi ki onbellekten gelen veri de ayni yoldan gecsin.
 function dolarSerisiHizala(hamFiyatlar, tarihler, anlikFiyat) {
     const harita = {};
+    /* BURASI BILEREK UTC -- `isoTarih` ile YEREL gune cevirmeyin.
+       Iki taraf da API kaynakli: CoinGecko epoch damgasi ve asagida
+       eslesecek `tarihler` ekseni (Frankfurter/ECB'nin kendi tarih
+       dizeleri). Ikisi de UTC tabanli oldugu icin anahtarlar UTC
+       uretilmeli. Yerele cevirmek kripto fiyatlarini FX eksenine gore
+       bir gun kaydirir -- yani buradaki "duzeltme" kusur URETIR.
+       (1 Eylul 2026: projedeki oteki `toISOString` cagrilari yerele
+       cevrildi, bu bilerek disarida birakildi.) */
     hamFiyatlar.forEach(p => { harita[new Date(p[0]).toISOString().slice(0, 10)] = p[1]; });
 
     // Bizim iş günü eksenimize oturt (o gün yoksa bir öncekini taşı)
@@ -1488,13 +1632,54 @@ function ekraniTazele() {
 // ---------- BAŞLANGIÇ ----------
 
 function baslat() {
-    // Tema
-    document.documentElement.dataset.tema = durum.ayar.tema;
-    $("#temaBtn").textContent = durum.ayar.tema === "koyu" ? "◑" : "◐";
+    // Tema — uc durum: otomatik (telefonu dinler) / acik / koyu
+    const koyuSorgu = window.matchMedia
+        ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+    /* BIR KEZLIK GOC: eski surumlerde varsayilan "acik" diye kaydedilmisti,
+       ama kullanici acik SECMEMISTI -- bizim varsayilanimizdi. Telefonu
+       karanlik kipte olan herkes beyaz sayfa goruyordu. */
+    if (durum.ayar.tema === "acik" && !durum.ayar.temaSecildi) {
+        durum.ayar.tema = "otomatik";
+        ayarYaz(durum.ayar);
+    }
+
+    function temayiCoz() {
+        if (durum.ayar.tema !== "otomatik") return durum.ayar.tema;
+        return (koyuSorgu && koyuSorgu.matches) ? "koyu" : "acik";
+    }
+
+    function temayiUygula() {
+        const t = temayiCoz();
+        document.documentElement.dataset.tema = t;
+        /* Uc durum uc SIMGE. Ilk yazisimda iki dal da ayni simgeyi
+           veriyordu -- kullanici hangi durumda oldugunu goremezdi. */
+        $("#temaBtn").textContent =
+            durum.ayar.tema === "otomatik" ? "◐"
+          : durum.ayar.tema === "koyu" ? "●" : "○";
+        $("#temaBtn").title = durum.ayar.tema === "otomatik"
+            ? "Tema: telefonun ayarına uyuyor" : "Tema: " + durum.ayar.tema;
+        const m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute("content", t === "koyu" ? "#0f1620" : "#ffffff");
+    }
+    temayiUygula();
+
+    /* Sayfa ACIKKEN telefon kip degistirirse takip et -- ama yalniz
+       kullanicinin kendi secimi yokken. */
+    if (koyuSorgu) {
+        const dinle = () => { if (durum.ayar.tema === "otomatik") temayiUygula(); };
+        if (koyuSorgu.addEventListener) koyuSorgu.addEventListener("change", dinle);
+        else if (koyuSorgu.addListener) koyuSorgu.addListener(dinle);
+    }
+
     $("#temaBtn").onclick = () => {
-        durum.ayar.tema = durum.ayar.tema === "koyu" ? "acik" : "koyu";
-        document.documentElement.dataset.tema = durum.ayar.tema;
-        $("#temaBtn").textContent = durum.ayar.tema === "koyu" ? "◑" : "◐";
+        /* Dugme uc durumu gezer: otomatik -> acik -> koyu -> otomatik.
+           Kullanici bir kez elle sectiyse artik telefonu dinlemeyiz;
+           `temaSecildi` bunu isaretler ki goc onu ezmesin. */
+        durum.ayar.tema = durum.ayar.tema === "otomatik" ? "acik"
+                        : durum.ayar.tema === "acik" ? "koyu" : "otomatik";
+        durum.ayar.temaSecildi = durum.ayar.tema !== "otomatik";
+        temayiUygula();
         ayarYaz(durum.ayar);
         gorunumUygula();
         ekraniTazele();
@@ -1681,6 +1866,8 @@ function baslat() {
     });
 
     // Kurulum bitince kutuyu kaldır
+    kuruluMuSor();          /* tarayiciya sor: zaten kurulu mu */
+
     window.addEventListener("appinstalled", () => {
         durum.kurulumOlayi = null;
         $("#kurBtn").hidden = true;

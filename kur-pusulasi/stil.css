@@ -15,6 +15,18 @@
     --yazi: #0f172a;
     --yazi2: #6b7382;
     --vurgu: #1c5fd6;          /* kurumsal mavi */
+    /* VURGU ZEMINI UZERINE YAZI RENGI -- sabit #fff YAZILMAZ.
+       Olculdu (1 Eylul 2026): koyu temada vurgu rengi, koyu zemin
+       uzerinde METIN olarak okunabilsin diye aciklastiriliyor
+       (#6b9bff). Ama ayni renk DUGME ZEMINI olarak da kullaniliyordu
+       ve uzerine sabit beyaz yazi konuyordu:
+           acik tema: #1c5fd6 zemin + beyaz yazi -> 5,74  iyi
+           koyu tema: #6b9bff zemin + beyaz yazi -> 2,71  OKUNMUYOR
+       Alti renk temasinin ALTISINDA da koyu tarafta esik altiydi
+       (1,48 - 2,71). Bir rengin hem metin hem zemin olarak
+       kullanilmasi, iki ayri kisitlamayi tek degiskene yuklemektir.
+       Cozum: zeminin uzerine gelen yazi ayri degisken. */
+    --vurgu-yazi: #fff;
     --vurgu2: #123f96;
     --artis: #067647;
     --azalis: #b42318;
@@ -31,6 +43,7 @@ html[data-tema="koyu"] {
     --yazi: #eef1f6;
     --yazi2: #939cab;
     --vurgu: #6b9bff;
+    --vurgu-yazi: #0c0e13;   /* acik vurgu zemininde koyu yazi */
     --vurgu2: #a5c2ff;
     --artis: #34c77b;
     --azalis: #f4685c;
@@ -94,7 +107,7 @@ button {
     transition: background .12s;
 }
 button:active { background: var(--kart-ust); }
-button.birincil { background: var(--vurgu); color: #fff; border-color: var(--vurgu); font-weight: 600; }
+button.birincil { background: var(--vurgu); color: var(--vurgu-yazi); border-color: var(--vurgu); font-weight: 600; }
 /* DOKUNMA HEDEFI 44 px — GENISLIK DE.
    Olculdu (30.08.2026, telefon 375x812): min-height 44 yapildiktan
    sonra bu dugmeler 42x44 kaldi; esik iki YONDE de gecerli.
@@ -349,7 +362,7 @@ label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex:
 /* ---------- Analiz ---------- */
 .analiz-btn {
     width: 100%; min-height: 50px; font-size: 15px; font-weight: 600;
-    background: var(--vurgu); color: #fff; border: 1px solid var(--vurgu);
+    background: var(--vurgu); color: var(--vurgu-yazi); border: 1px solid var(--vurgu);
     border-radius: var(--yuvarlak); margin-bottom: 12px;
 }
 .analiz-bolum { padding: 14px 0; border-bottom: 1px solid var(--cizgi); }
@@ -427,7 +440,7 @@ label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex:
 
 .aralik-dugmeler { display: flex; gap: 6px; margin-bottom: 12px; }
 .aralik-dugmeler button { flex: 1; min-height: 36px; font-size: 13px; padding: 0; }
-.aralik-dugmeler button.aktif { background: var(--vurgu); color: #fff; border-color: var(--vurgu); font-weight: 600; }
+.aralik-dugmeler button.aktif { background: var(--vurgu); color: var(--vurgu-yazi); border-color: var(--vurgu); font-weight: 600; }
 
 .veri-izgara {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 0;

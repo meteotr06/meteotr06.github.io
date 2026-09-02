@@ -85,7 +85,19 @@ const VARSAYILAN_AYAR = {
     mevduatFaiz: 37.0,          // bankaların verdiği ortalama mevduat faizi (kullanıcı düzenler)
     enflasyon: 34.88,           // yıllık TÜFE (Dünya Bankası 2025)
     pariteAgirlik: 60,          // tahminde faiz paritesinin ağırlığı (%)
-    tema: "acik",   // yeni tasarim acik zeminde kuruldu; koyu tema  ile acilir
+    /* TEMA — varsayilan "otomatik": TELEFONUN kip ayarini dinler.
+
+       Kullanici bildirdi (31.08.2026): "ana renkler acik oluyordu".
+       Eskiden burada sabit "acik" yaziyordu; koyu tema VARDI ve ◐ ile
+       aciliyordu, ama telefonun ayarina HIC bakilmiyordu. Karanlik kipli
+       telefonda uygulama bembeyaz aciliyordu.
+
+       "acik" BIR SECIM DEGILDI, bizim varsayilanimizdi -- ama ayar nesnesi
+       kaydedilince secilmis gibi diske yaziliyordu. Kaydin, anlattigi
+       seyden uzun yasamasi. Bu yuzden asagida BIR KEZ goc var: eski
+       "acik" degeri "otomatik"e cevriliyor. Kullanici ◐ ile ACIKCA acik
+       secerse o secim yazilir ve bir daha dokunulmaz. */
+    tema: "otomatik",
     // Görünüm ayarı CİHAZA GÖRE AYRI tutulur: bilgisayarda geniş ekran var, her şey sığar;
     // telefonda sade olması daha rahat. Biri değişince diğeri etkilenmez.
     gorunum: {
@@ -101,8 +113,41 @@ const VARSAYILAN_AYAR = {
 // ---------- 2) KÜÇÜK YARDIMCILAR ----------
 
 // Türkçe sayı biçimi: 47.775,32 gibi
+/* YAZICILARIN SOZLESMESI: SAYI ISTERLER.
+   Metin gelirse bu bir CAGRI HATASIDIR ve ekranda "—" gorunur.
+
+   Neden `isFinite` yetmiyordu (31 Agustos 2026, acik sayfada olculdu):
+   `isFinite("1305.61")` TRUE doner -- metni sayiya cevirip bakar.
+   Ama `String.prototype.toLocaleString` bicim seceneklerini YOK SAYAR
+   ve metni AYNEN geri verir. Sonuc:
+
+       sayi(1305.61)   -> "1.305,61"   dogru
+       sayi("1305.61") -> "1305.61"    BICIMLENMEMIS
+
+   Turkce okuyan biri noktayi BINLIK AYRACI sanar; ekranda "1305.61"
+   yazan kur 130.561 diye okunur. Yuz kat hata, hicbir sey cokmeden.
+   Ayni kapidan `sayi(true)` -> "true" ve `sayi("")` -> "" geciyordu.
+
+   NIYE CEVIRMIYORUZ DA REDDEDIYORUZ: "1.500" metnini cevirmek
+   belirsizdir -- Turkce yazimda 1500, Ingilizce yazimda 1,5. Ekranda
+   uydurulmus bir sayi gostermektense "—" gostermek dogrudur.
+   Cagiran taraf sayiyi `sayiOku()` ile okumali.
+
+   TEK KAPI: dort yazici da bu denetimi kullanir. Onceki halde
+   `yuzdeOn` metni `Math.abs` ile sessizce sayiya ceviriyordu -- o
+   ornekte cikti dogruydu, ama tutarsizlik sinifin ta kendisidir:
+   bir yerde cevirip baska yerde cevirmemek, hangi yoldan gelirse
+   dogru cikacagini kestirilemez yapar.
+
+   Olculdu: 175 cagri yerinden hicbiri bugun metin gecirmiyor. Yani bu
+   canli bir hatanin duzeltmesi degil, ACIK BIR KAPININ kapatilmasi.
+   `sinama-yazma.js` kapinin kapali kaldigini olcuyor. */
+function sayiMi(deger) {
+    return typeof deger === "number" && isFinite(deger);
+}
+
 function sayi(deger, basamak) {
-    if (deger === null || deger === undefined || !isFinite(deger)) return "—";
+    if (!sayiMi(deger)) return "—";
     if (basamak === undefined) {
         const m = Math.abs(deger);
         basamak = m >= 1000 ? 2 : m >= 10 ? 3 : m >= 1 ? 4 : 6;
@@ -111,16 +156,19 @@ function sayi(deger, basamak) {
 }
 
 // Para her zaman 2 haneli kuruşla yazılır: "486,58 ₺" (otomatik hane sayısı "486,575"veriyordu)
-function paraYaz(deger, basamak) { return sayi(deger, basamak === undefined ? 2 : basamak) + " ₺"; }
+function paraYaz(deger, basamak) {
+    if (!sayiMi(deger)) return "—";          /* "— ₺" degil, duz "—" */
+    return sayi(deger, basamak === undefined ? 2 : basamak) + " ₺";
+}
 
 // Önde % işaretli yüzde: "%31,45" / "-%2,54"  ("%-2,54"yerine, Türkçe okunuşa uygun)
 function yuzdeOn(deger, basamak) {
-    if (deger === null || deger === undefined || !isFinite(deger)) return "—";
+    if (!sayiMi(deger)) return "—";
     return (deger < 0 ? "-" : "") + "%" + sayi(Math.abs(deger), basamak === undefined ? 2 : basamak);
 }
 
 function yuzde(deger, basamak) {
-    if (deger === null || deger === undefined || !isFinite(deger)) return "—";
+    if (!sayiMi(deger)) return "—";
     const b = basamak === undefined ? 2 : basamak;
     return (deger >= 0 ? "+" : "") + deger.toLocaleString("tr-TR", { minimumFractionDigits: b, maximumFractionDigits: b }) + "%";
 }
@@ -132,7 +180,31 @@ function tarihYaz(iso) {
     return `${parseInt(g, 10)} ${aylar[parseInt(a, 10) - 1]} ${y}`;
 }
 
-function isoTarih(d) { return d.toISOString().slice(0, 10); }
+/* YEREL GUN SINIRI -- `toISOString()` KULLANILMAZ.
+   Turkiye UTC+3; `toISOString()` yereli UTC'ye cevirdigi icin gece
+   00:00-03:00 arasi tarih BIR GUN GERIYE duser. Olculdu: 1 Eylul 2026
+   saat 01:00'de "2026-08-31", yilbasi gecesi 00:30'da "2025-12-31".
+
+   Bu islev on yerden cagriliyor ve ikisi tehlikeli:
+     - `gunEkle(isoTarih(new Date()), -1100)` modele beslenen gecmisin
+       BASLANGIC SINIRI; kayarsa cipaladigimiz PENCERE sabiti dogru
+       kalir ama veri yanlis gunden baslar.
+     - 14 gunluk bayatlik karsilastirmalari, alarm tetik tarihi, faiz
+       guncelleme tarihi -- hepsi gun anahtari.
+
+   Ayni sinif Muhasebe'de olculerek dogrulanmisti: ayin 30'unda girilen
+   gelir kar kartina hic girmiyordu.
+
+   NOT: her `toISOString()` kusur DEGILDIR. `arayuz.js` icindeki kripto
+   harita anahtari UTC kalmali -- orada iki taraf da API kaynakli
+   (CoinGecko damgasi ve ECB tarih ekseni); yerele cevirmek fiyatlari
+   bir gun kaydirir, yani duzeltmek BOZAR. Oraya gerekcesi yazildi. */
+function isoTarih(d) {
+    const y = d.getFullYear();
+    const a = String(d.getMonth() + 1).padStart(2, "0");
+    const g = String(d.getDate()).padStart(2, "0");
+    return y + "-" + a + "-" + g;
+}
 
 function gunEkle(iso, gun) {
     const d = new Date(iso + "T00:00:00Z");
@@ -417,8 +489,27 @@ async function madenFiyatCek() {
 }
 
 // Ons doları + USD/TRY'den varlığın TL fiyatını üretir
+/* Fiyat girdileri POZITIF olmali. `!onsUsd` yalnizca 0/null/undefined'i
+   eliyordu; NEGATIF deger geciyordu ve sonuc ekrana cikiyordu.
+
+   Olculdu (31 Agustos 2026):
+       madenFiyatiHesapla(gram, -2650, 48.26) -> -4.111,73 TL
+       madenFiyatiHesapla(gram, -2650, -48.26) -> +4.111,73 TL   <-- en kotusu
+
+   Ikincisinde iki isaret sadelesiyor ve TAMAMEN INANDIRICI, tamamen
+   yanlis bir altin fiyati cikiyor. Negatif ons fiyati ya da negatif
+   dolar kuru diye bir sey yok; API bir gun eksi gonderirse (ya da bir
+   isaret hatasi olursa) kullanici bunu goremez.
+
+   Metin de reddediliyor: "2.650" Turkce yazimda 2650, Ingilizce
+   yazimda 2,65. API hangi yazimi gonderdigini SOYLEMEZ, o yuzden
+   metinden sonuc uretmiyoruz -- "—" gostermek uydurmaktan iyidir. */
+function artiSayiMi(x) {
+    return typeof x === "number" && isFinite(x) && x > 0;
+}
+
 function madenFiyatiHesapla(maden, onsUsd, usdTry) {
-    if (!onsUsd || !usdTry) return null;
+    if (!artiSayiMi(onsUsd) || !artiSayiMi(usdTry)) return null;
     switch (maden.tur) {
         case "gram": return onsUsd / ONS_GRAM * usdTry;
         case "ceyrek": return (onsUsd / ONS_GRAM * usdTry) * 1.75 * AYAR_22;   // çeyrek ≈ 1,75 gr, 22 ayar
@@ -461,6 +552,44 @@ async function makroCek() {
 }
 
 // ---------- 5) TAHMİN MOTORU ----------
+
+/* KARSI TARAF FAIZI -- TEK KAPI.
+   `faiz: null` "bu bir DOLAR varligidir" demek (altin, gumus, kripto);
+   faiz paritesinde karsi taraf faizi DOLAR faizidir.
+
+   BULUNAN KUSUR (31 Agustos 2026): uc analiz islevi bu kurali
+   atliyordu ve soyle yaziyordu:
+
+       const yFaiz = ... : (v.faiz || 0);
+
+   `null || 0` SIFIRDIR. Yani altin, gumus ve butun kripto -- 12 varlik
+   -- icin karsi taraf faizi 4 yerine 0 aliniyordu. Bu, dosyanin kendi
+   yorumunun yasakladigi sey: "Sifir yazsaydik, TL faizinin tamamini
+   altina bindirip fiyati sisirirdik -- olctuk, model naive'den kotu
+   cikiyordu."
+
+   Gorunurlugu somuttu: ekonomist analizi ekrana "Gram Altin tarafinin
+   faizi %0,00" yaziyor, olay senaryolari tahmini yanlis faizle
+   kuruyordu. Olculdu: ayni seride merkez 43,0957 yerine 43,1806.
+   Hicbir sey cokmuyor; yalnizca sayi yanlis.
+
+   Etkilenen islevler: olaySenaryolari, ekonomistAnalizi, surucuAnalizi.
+   Ucu de artik buradan geciyor; dorduncusu yazilirsa da buradan
+   gecmeli. `arayuz.js` icindeki `yabanciFaizAl` ayni kurali
+   uyguluyordu -- cekirdek onu atliyordu, artik atlamiyor. */
+function varlikYabanciFaizi(varlik, ayar, kod) {
+    const a = ayar || {};
+    if (a.yabanciFaiz && a.yabanciFaiz[kod] !== undefined) return a.yabanciFaiz[kod];
+    if (!varlik) return 0;
+    if (varlik.faiz === null) {
+        /* Dolar varligi: dolarin faizi. Kullanici dolar faizini elle
+           girdiyse o gecerli. */
+        if (a.yabanciFaiz && a.yabanciFaiz.USD !== undefined) return a.yabanciFaiz.USD;
+        const usd = varlikBul("USD");
+        return usd ? usd.faiz : 0;
+    }
+    return varlik.faiz;
+}
 
 // Faiz paritesi (vadeli/forward kur):
 // Yüksek faizli para, düşük faizli paraya karşı vadede DEĞER KAYBEDER varsayılır.
@@ -710,7 +839,7 @@ function olaySenaryolari(seri, kod, ayar, takvimGun) {
     if (temiz.length < 60) return [];
     const spot = temiz[temiz.length - 1];
     const v = varlikBul(kod);
-    const yFaiz = (ayar.yabanciFaiz && ayar.yabanciFaiz[kod] !== undefined) ? ayar.yabanciFaiz[kod] : (v.faiz || 0);
+    const yFaiz = varlikYabanciFaizi(v, ayar, kod);
     const temel = tahminYap(temiz, takvimGun, { tlFaiz: ayar.tlFaiz, yabanciFaiz: yFaiz, pariteAgirlik: ayar.pariteAgirlik });
     if (!temel) return [];
 
@@ -882,8 +1011,70 @@ function varlikOzeti(kod, tarihler, seri) {
 
 // ---------- 8) FAİZ VE GETİRİ HESAPLARI ----------
 
+/* MEVDUAT STOPAJI VADEYE GORE DEGISIR -- tek oran degildir.
+   Kur'da hem `mevduatHesapla` cagrisinda hem alanin varsayilaninda duz
+   %15 vardi. En yaygin durum olan 6 aya kadar vadede gercek oran
+   %17,5; yani net getiri OLDUGUNDAN YUKSEK gosteriliyordu. Para hatasi.
+
+   AYNI HATA 09 HESAP ARACLARI'NDA BULUNUP DUZELTILMISTI ve buraya hic
+   tasinmamisti. Cozum oradan alindi, sifirdan yazilmadi (K-69: bir
+   uygulamada duzeltilen, kardesine tasinmiyor).
+
+   Kaynak: 09.07.2025 tarihli Cumhurbaskani Karari ile belirlenen
+   oranlar; 20.06.2026 tarih ve 33286 sayili R.G.'de yayimlanan 11444
+   sayili Cumhurbaskani Karari ile 31.12.2026'ya uzatildi.
+
+   SINIRI: karar tarihinden ONCE acilmis ve vadesi devam eden
+   hesaplarda ACILIS TARIHINDEKI oran gecerlidir; bu hesap yeni acilan
+   ya da yenilenen hesabi varsayar. Onun icin kullanicinin girdigi oran
+   EZILMIYOR -- kendi hesabinin oranini bilebilir; yalnizca vadesine
+   dusen kademeden farkliysa uyari cikiyor. */
+const MEVDUAT_STOPAJ_KADEME = [
+    { enCokGun: 183, oran: 17.5 },      // 6 aya kadar (183 gun dahil)
+    { enCokGun: 366, oran: 15 },        // 1 yila kadar (366 gun dahil)
+    { enCokGun: Infinity, oran: 10 }    // 1 yildan uzun
+];
+
+/* Vadeye dusen stopaj oranini yuzde olarak dondurur.
+   Gecersiz vade sessizce bir orana DUSMEZ, null doner: uydurulmus bir
+   oranla hesap yapmaktansa "bilmiyorum" demek dogrudur. */
+function mevduatStopajOrani(vadeGun) {
+    const g = Number(vadeGun);
+    if (!isFinite(g) || g <= 0) return null;
+    const k = MEVDUAT_STOPAJ_KADEME.find(function (x) { return g <= x.enCokGun; });
+    return k ? k.oran : null;
+}
+
 // Vadeli mevduat. Türkiye'de faiz gelirinden stopaj kesilir.
 function mevduatHesapla(anapara, yillikFaiz, vadeGun, stopajYuzde, bilesikMi, donemSayisi) {
+    /* SINIR DEGERLER -- gecersiz girdi sessizce garip sayi uretmemeli.
+       Olculdu (1 Eylul 2026, kendi taramamda; eksik tarayicisi bunlari
+       bilmiyor cunku bilinen bir kalibba uymuyorlar):
+
+         vade 0     -> netYillik = NaN   (sifira bolme)
+         stopaj 150 -> netFaiz NEGATIF   ekranda "mevduattan zarar
+                       ediyorsunuz" gibi gorunur. Oran alani serbest
+                       metin; 15 yerine 150 yazmak bir tus hatasi
+                       kadar yakin.
+
+       Kardes uygulamada (09 Hesap Araclari) bu koruma zaten vardi ve
+       buraya tasinmamisti -- K-69, bugun ucuncu kez ayni sinif.
+
+       `gecersiz: true` DONER, sifir donmez: sifir "hesap sonucu sifir"
+       demektir, gecersizlik ise "bu girdiyle hesap YAPILAMAZ" demek.
+       Ikisini ayni sayiyla anlatmak sessiz yanlisin ta kendisi. */
+    const g = (x) => typeof x === "number" && isFinite(x);
+    const st = g(stopajYuzde) ? stopajYuzde : 0;
+    if (!g(anapara) || anapara <= 0 || !g(vadeGun) || vadeGun <= 0 ||
+        !g(yillikFaiz) || st < 0 || st > 100) {
+        return {
+            gecersiz: true,
+            brutFaiz: 0, stopaj: 0, netFaiz: 0,
+            vadeSonu: g(anapara) && anapara > 0 ? anapara : 0,
+            netYillik: 0, donem: 1, toplamGun: g(vadeGun) && vadeGun > 0 ? vadeGun : 0
+        };
+    }
+
     const oran = yillikFaiz / 100 * vadeGun / 365;
     if (!bilesikMi) {
         const brut = anapara * oran;
@@ -1007,7 +1198,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
     });
 
     // 4) Faiz penceresi
-    const yFaiz = (ayar.yabanciFaiz && ayar.yabanciFaiz[kod] !== undefined) ? ayar.yabanciFaiz[kod] : (v.faiz || 0);
+    const yFaiz = varlikYabanciFaizi(v, ayar, kod);
     const faizFarki = ayar.tlFaiz - yFaiz;
     const aylikParite = (pariteTahmini(ozet.son, ayar.tlFaiz, yFaiz, 30) / ozet.son - 1) * 100;
     bolumler.push({
@@ -1105,7 +1296,7 @@ function ekonomistAnalizi(kod, ozet, tahminler, karne, ayar, ekBilgi) {
 // Buradakileri ücretsiz veriden HESAPLIYORUZ; hesaplanamayanlar aşağıdaki IZLENECEKLER listesinde.
 function surucuAnalizi(kod, ozet, ayar, veri, makro) {
     const v = varlikBul(kod);
-    const yFaiz = (ayar.yabanciFaiz && ayar.yabanciFaiz[kod] !== undefined) ? ayar.yabanciFaiz[kod] : (v.faiz || 0);
+    const yFaiz = varlikYabanciFaizi(v, ayar, kod);
     const liste = [];
 
     // 1) Faiz farkı (carry) — yüksek faiz TL'yi kısa vadede destekler, vadeli kuru yukarı iter
@@ -1186,39 +1377,134 @@ function surucuAnalizi(kod, ozet, ayar, veri, makro) {
     return liste;
 }
 
+/* EKRANDAKI HER SAYININ KAYNAGI — ayri ayri yazilir.
+   Kullanicinin istegi (31 Agustos 2026): "her verinin ciktigi kaynagi
+   ayri ayri yazmaliyiz, Turkiye'ye gore ayri yabanci kaynaklari ayri."
+
+   NIYE ONEMLI: kullanici dolar kurunu gorunce TCMB sanabilir. Sanmasin
+   diye yaziyoruz -- kur ECB'nin gunluk referans kurudur, TCMB'nin alis
+   satis kuru DEGILDIR ve gun icinde bankalarin verdigi kurdan farklidir.
+
+   IKI KAYNAKTAN CIKAN SAYI AYRICA BELIRTILIR: gram altin tek bir
+   yerden gelmiyor; ons fiyati bir kaynaktan, dolar kuru BASKA bir
+   kaynaktan geliyor ve carpiliyor. Biri bayatsa sonuc da bayattir,
+   ama ekranda tek bir sayi olarak gorunur. */
+const VERI_KAYNAKLARI = [
+    {
+        veri: "Dolar, Euro, Sterlin ve öteki kurlar",
+        kaynak: "Avrupa Merkez Bankası (ECB) günlük referans kurları",
+        yerli: false,
+        arac: "Frankfurter API",
+        tazelik: "Her iş günü, TSİ ~17:15 civarı. Hafta sonu ve tatilde yayınlanmaz.",
+        adres: "https://api.frankfurter.dev",
+        uyari: "Bu <b>TCMB kuru değildir</b> ve bankaların alış/satış kuru da değildir. " +
+               "ECB referans kuru, gün ortasında tek bir ölçümdür; bankadan alacağınız " +
+               "kur makas payı yüzünden farklı olur."
+    },
+    {
+        veri: "Ons altın ve ons gümüş (dolar cinsinden)",
+        kaynak: "gold-api.com anlık maden fiyatları",
+        yerli: false,
+        arac: "gold-api",
+        tazelik: "Anlık — sayfayı her yenilediğinizde yeniden çekilir.",
+        adres: "https://api.gold-api.com",
+        uyari: null
+    },
+    {
+        veri: "Gram altın, çeyrek, 22 ayar bilezik, gram gümüş",
+        kaynak: "İKİ KAYNAĞIN ÇARPIMI: ons fiyatı (gold-api) × dolar kuru (ECB)",
+        yerli: false,
+        arac: "gold-api + Frankfurter",
+        tazelik: "Ons anlık, kur günlük. Yani gram fiyatı en fazla kur kadar tazedir.",
+        adres: "https://api.gold-api.com",
+        uyari: "Bu <b>kuyumcu fiyatı değildir</b>. Kuyumcuda işçilik ve kâr payı eklenir; " +
+               "burada saf metal karşılığı hesaplanır. İki ayrı kaynak çarpıldığı için " +
+               "biri bayatsa sonuç da bayat olur."
+    },
+    {
+        veri: "Bitcoin, Ethereum ve öteki kripto paralar",
+        kaynak: "CoinGecko (dolar fiyatı) × dolar kuru (ECB)",
+        yerli: false,
+        arac: "CoinGecko API",
+        tazelik: "Anlık; geçmiş seri günlük.",
+        adres: "https://www.coingecko.com",
+        uyari: null
+    },
+    {
+        veri: "Enflasyon, büyüme, işsizlik ve öteki ekonomi göstergeleri",
+        kaynak: "Dünya Bankası — Türkiye göstergeleri",
+        yerli: false,
+        arac: "World Bank API",
+        tazelik: "YILLIK. Yani en güncel veri geçen yıla ait olabilir.",
+        adres: "https://data.worldbank.org/country/turkiye",
+        uyari: "Yıllık ortalamadır; <b>TÜİK'in aylık TÜFE rakamından farklıdır</b>. " +
+               "Aylık enflasyon için TÜİK'e bakın (aşağıda)."
+    },
+    {
+        veri: "TL faizi ve yabancı para faizleri",
+        kaynak: "SİZ GİRERSİNİZ — uygulama otomatik çekmez",
+        yerli: null,
+        arac: "Faiz sekmesi",
+        tazelik: "Siz güncelleyene kadar değişmez.",
+        adres: null,
+        uyari: "Tahminin en çok etkilendiği sayı budur. Varsayılan değerler " +
+               "eskimiş olabilir; TCMB kararından sonra elle güncelleyin."
+    }
+];
+
+/* Turkiye kaynaklari AYRI TUTULUYOR ve dogrusu soyleniyor: uygulama
+   bunlardan OTOMATIK VERI CEKMIYOR. Cekiyormus gibi gostermek, olmayan
+   bir resmiyet izlenimi verirdi. Nereye bakilacagi `IZLENECEKLER`
+   listesinde zaten yaziyor; burada sebebi duruyor. */
+const TURKIYE_KAYNAKLARI_NOTU =
+    "Uygulama Türkiye kurumlarından (TCMB, TÜİK) <b>otomatik veri çekmiyor</b>. " +
+    "Bu kurumların ücretsiz ve açık bir veri servisi yok; ekrandaki sayıları " +
+    "oradan aldığımızı söylemek yanlış olurdu. Türkiye kaynaklarına kendiniz " +
+    "bakmanız gereken yerler aşağıda, bağlantılarıyla birlikte.";
+
 // Ücretsiz+açık veriyle çekemediğimiz ama profesyonellerin mutlaka baktığı göstergeler.
 // Uydurmak yerine nereye bakılacağını söylüyoruz.
+/* `yerli` YAYINCIYA gore etiketlenir, verinin KONUSUNA gore degil.
+   Turkiye CDS'i Turkiye hakkindadir ama yayinci Investing.com'dur;
+   "Turkiye kaynagi" demek yanlis olurdu. Kullanicinin sordugu sey
+   verinin nereden CIKTIGI.
+
+   Etiket ELLE ve ACIK yaziliyor, adres/metin uzerinden tahmin
+   EDILMIYOR: ilk halde regex ile ayrilmisti ve sekiz maddeden
+   IKISI hicbir gruba girmemisti (Fed/ECB ve Brent), CDS de yanlis
+   tarafa dusmustu. Ekranda bir sey eksik olunca kimse cokme
+   gormez -- sadece o satir yoktur. */
 const IZLENECEKLER = [
     {
-        ad: "CDS primi (5 yıllık)", neden: "Türkiye'ye borç vermenin risk fiyatı. Yükselirse döviz çıkışı ve kur baskısı gelir. 300 baz puan altı iyi, 400 üstü riskli sayılır.",
+        ad: "CDS primi (5 yıllık)", yerli: false, neden: "Türkiye'ye borç vermenin risk fiyatı. Yükselirse döviz çıkışı ve kur baskısı gelir. 300 baz puan altı iyi, 400 üstü riskli sayılır.",
         nereden: "Investing.com → Türkiye 5Y CDS", adres: "https://tr.investing.com/rates-bonds/turkey-cds-5-years"
     },
     {
-        ad: "TCMB rezervleri (net/brüt)", neden: "Merkez Bankası'nın kuru savunma gücü. Rezerv artışı TL'yi destekler.",
+        ad: "TCMB rezervleri (net/brüt)", yerli: true, neden: "Merkez Bankası'nın kuru savunma gücü. Rezerv artışı TL'yi destekler.",
         nereden: "TCMB haftalık para ve banka istatistikleri (her perşembe)", adres: "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Istatistikler"
     },
     {
-        ad: "Cari işlemler dengesi", neden: "Açık büyüdükçe döviz talebi artar, kur yukarı baskılanır. Enerji fiyatı ve turizm en büyük kalemler.",
+        ad: "Cari işlemler dengesi", yerli: true, neden: "Açık büyüdükçe döviz talebi artar, kur yukarı baskılanır. Enerji fiyatı ve turizm en büyük kalemler.",
         nereden: "TCMB ödemeler dengesi (her ayın ~11'i)", adres: "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Istatistikler/Odemeler+Dengesi+ve+Ilgili+Istatistikler"
     },
     {
-        ad: "TÜİK enflasyonu (aylık TÜFE)", neden: "Reel faizi ve TCMB'nin bir sonraki kararını belirler. Kurun uzun vadeli çıpası budur.",
+        ad: "TÜİK enflasyonu (aylık TÜFE)", yerli: true, neden: "Reel faizi ve TCMB'nin bir sonraki kararını belirler. Kurun uzun vadeli çıpası budur.",
         nereden: "TÜİK — her ayın 3'ü saat 10:00", adres: "https://data.tuik.gov.tr"
     },
     {
-        ad: "TCMB Para Politikası Kurulu", neden: "Faiz kararı, bu uygulamadaki faiz paritesi tahminini doğrudan değiştirir.",
+        ad: "TCMB Para Politikası Kurulu", yerli: true, neden: "Faiz kararı, bu uygulamadaki faiz paritesi tahminini doğrudan değiştirir.",
         nereden: "TCMB PPK takvimi ve kararları", adres: "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Para+Politikasi/PPK"
     },
     {
-        ad: "Fed ve ECB kararları", neden: "Dolar ve euro tarafının faizi. Fed faizi yükselirse dolar küresel olarak güçlenir.",
+        ad: "Fed ve ECB kararları", yerli: false, neden: "Dolar ve euro tarafının faizi. Fed faizi yükselirse dolar küresel olarak güçlenir.",
         nereden: "Fed FOMC takvimi · ECB toplantı takvimi", adres: "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     },
     {
-        ad: "Kredi notu (Moody's, S&P, Fitch)", neden: "Not artışı yabancı sermaye girişini hızlandırır, kuru aşağı çeker.",
+        ad: "Kredi notu (Moody's, S&P, Fitch)", yerli: false, neden: "Not artışı yabancı sermaye girişini hızlandırır, kuru aşağı çeker.",
         nereden: "Kuruluşların Türkiye takvimi", adres: "https://www.tcmb.gov.tr"
     },
     {
-        ad: "Brent petrol fiyatı", neden: "Türkiye net enerji ithalatçısı. Petrol yükselince ithalat faturası ve cari açık büyür, kur baskılanır.",
+        ad: "Brent petrol fiyatı", yerli: false, neden: "Türkiye net enerji ithalatçısı. Petrol yükselince ithalat faturası ve cari açık büyür, kur baskılanır.",
         nereden: "Investing.com → Brent petrol", adres: "https://tr.investing.com/commodities/brent-oil"
     }
 ];

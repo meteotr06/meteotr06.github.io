@@ -2,11 +2,11 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v38";
+const SURUM = "kur-pusulasi-v44";
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
-// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v38"ye
-// cikarilmis ama asagidaki liste "?v=36" kalmisti. Sayfa "?v=38"
-// istiyor, on-bellege alinan "?v=36" -- FARKLI ANAHTAR, hic eslesmiyor.
+// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v44"ye
+// cikarilmis ama asagidaki liste "?v=44" kalmisti. Sayfa "?v=44"
+// istiyor, on-bellege alinan "?v=44" -- FARKLI ANAHTAR, hic eslesmiyor.
 // Sonuc: cevrimdisi acilista CSS/JS bulunamiyor, uygulama yarim aciliyor.
 // Cevrimiciyken hicbir sey bozulmadigi icin kimse fark etmiyor.
 // Ayni hata 09 Hesap Araclari'nda da vardi; cozum orada da bu:
@@ -49,11 +49,27 @@ self.addEventListener("activate", (olay) => {
 self.addEventListener("fetch", (olay) => {
     const adres = olay.request.url;
 
-    // Kur/fiyat verisi ASLA önbellekten verilmez — eski fiyat göstermek yanlış olur.
-    // İnternet yoksa uygulama zaten kendi önbelleğindeki son veriyi kullanır.
-    if (adres.includes("frankfurter") || adres.includes("gold-api") ||
-        adres.includes("worldbank") || adres.includes("stooq")) {
-        return;   // tarayıcı normal şekilde ağdan alsın
+    /* BASKA KAYNAKTAN gelen hicbir sey onbellege alinmaz.
+       Kur/fiyat verisi onbellekten verilirse ESKI FIYAT TAZE sanilir.
+
+       BURADA ELLE TUTULAN BIR ALAN ADI LISTESI VARDI VE CURUMUSTU
+       (1 Eylul 2026'da olculdu):
+         - `coingecko` listede YOKTU. Ag koptugunda kripto istegine
+           onbellekten cevap geliyor, `y.ok` DOGRU donuyor ve uygulama
+           eski fiyati taze sayiyordu. Ustelik tazelik rozeti DOVIZ
+           verisine bakiyor, o yuzden ekranda "canli" yaziyordu:
+           kullanici dunku kripto fiyatini bugunku saniyordu.
+         - `stooq` listede VARDI ama projede hic kullanilmiyordu.
+           Liste hem eksik hem fazlaydi.
+
+       Liste yerine KURAL: uygulamanin butun varliklari ayni kaynaktan
+       geliyor (olculdu: index.html'de disaridan tek bir font/betik bile
+       yok). Dolayisiyla "kaynak disi ise atla" hem bugunku dort API'yi
+       hem YARIN EKLENECEK besincisini kapsar. Liste curur, kural
+       curumez. */
+    const istek = new URL(adres);
+    if (istek.origin !== self.location.origin) {
+        return;   // tarayici normal sekilde agdan alsin
     }
 
     if (olay.request.method !== "GET") return;
