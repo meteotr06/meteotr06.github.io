@@ -6,6 +6,45 @@
 <title>Ücretsiz Türkçe Uygulamalar — Hava Durumu, Hesap Araçları, Kur ve Altın</title>
 <meta name="description" content="Kurulum gerektirmeyen ücretsiz Türkçe uygulamalar: hava durumu, 53 hesaplama aracı, döviz ve altın takibi, haftalık planlayıcı, muhasebe, kahve kavurma hesabı, arsa rehberi ve göz molası. Kayıt yok, telefonda ve bilgisayarda çalışır." />
 <meta name="theme-color" content="#ffffff" />
+<meta name="color-scheme" content="light dark" />
+<script>
+/* TELEFONUN KARANLIK KIPINI DINLE.
+   Olculdu (02.09.2026): koyu tema stil dosyasinda ZATEN VARDI
+   (html[data-tema="koyu"], yedi ayri blok) ama portal o ozniteligi
+   HIC KURMUYORDU. Sonuc: telefonu karanlik kipteki kullanici icin
+   ON KAPI bembeyaz aciliyor, icerideki uygulamalar koyu. Gece
+   uygulama listesine bakan biri once beyaz bir patlamayla
+   karsilasiyordu.
+
+   YANLIS TESHISTEN DONDUM: once `prefers-color-scheme` arayip
+   "koyu tema yok" sanmistim. Tema `data-tema` uzerinden kurulu;
+   aradigin ipucunun yoklugu, seyin yoklugu degildir.
+
+   DISKE YAZILMIYOR. Telefondan turetilen tema kaydedilirse ilk
+   acilista DONAR: kullanici sonra telefonunu acik kipe alsa bile
+   sayfa koyu kalirdi -- kaydin, anlattigi seyden uzun yasamasi.
+   Portalda kullaniciya ait bir tema SECIMI yok, o yuzden okunacak
+   bir kayit da yok; dogrudan telefon dinleniyor.
+
+   <head> icinde ve stil dosyasindan ONCE: sonra calissaydi sayfa
+   once beyaz cizilir, sonra koyuya atlardi. */
+(function () {
+    var kok = document.documentElement;
+    function uygula() {
+        var koyu = window.matchMedia &&
+                   window.matchMedia('(prefers-color-scheme: dark)').matches;
+        kok.setAttribute('data-tema', koyu ? 'koyu' : 'acik');
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', koyu ? '#0f1423' : '#ffffff');
+    }
+    uygula();
+    try {
+        var s = window.matchMedia('(prefers-color-scheme: dark)');
+        if (s.addEventListener) s.addEventListener('change', uygula);
+        else if (s.addListener) s.addListener(uygula);
+    } catch (e) {}
+})();
+</script>
 <link rel="manifest" href="/manifest.json" />
 <!-- SIMGE — TEK YERDEN.
      Olculdu (02.09.2026): burada IKI TAKIM simge bildirimi vardi.
@@ -43,12 +82,45 @@
   main { max-width: 900px; margin: 0 auto; }
   .vitrin-basi { margin-bottom: 22px; }
   .uyg-kart b { display: block; }
-  /* Rozet once opacity:.75 idi; olctum, karsitlik 2.99 cikti (AA icin 4.5
+  /* KART KIMLIGI — portal simgesindeki dort renkli karo dili.
+     Sekiz kart birbirinin ayniydi; goz hangisinin hangisi oldugunu
+     ancak OKUYARAK anliyordu. Vitrinde tanima isaretle olur. */
+  .uyg-kart { display: flex; flex-direction: column; }
+  .uyg-kart::before {
+      content: attr(data-harf);
+      width: 34px; height: 34px; border-radius: 10px;
+      display: grid; place-items: center;
+      margin-bottom: 10px;
+      font-weight: 700; font-size: .95rem; line-height: 1;
+      color: #fff;
+      background: linear-gradient(180deg, var(--u1), var(--u2));
+      /* Hafif ic golge: duz renk yassi durur, simgede de ayni karar. */
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+  }
+  .uyg-kart[data-uyg="mavi"]    { --u1:#60a5fa; --u2:#2563eb; }
+  .uyg-kart[data-uyg="yesil"]   { --u1:#34d399; --u2:#059669; }
+  .uyg-kart[data-uyg="amber"]   { --u1:#fbbf72; --u2:#d97706; }
+  .uyg-kart[data-uyg="menekse"] { --u1:#a78bfa; --u2:#6d28d9; }
+
+  /* ROZET — TEK KURAL.
+     Once opacity:.75 idi; olctum, karsitlik 2.99 cikti (AA icin 4.5
      gerekiyor). Saydamlik yerine temanin kendi vurgu rengi kullaniliyor --
-     hem okunuyor hem koyu temada da dogru renge doner. */
+     hem okunuyor hem koyu temada da dogru renge doner.
+
+     `margin-top: auto`: aciklama uzunlugu kartlara gore degisiyordu ve
+     rozet kimi kartta kendi satirinda, kimi kartta metnin devaminda
+     kaliyordu (Arsa'da tam boyle). Otomatik ust bosluk rozeti kartin
+     ALTINA iter, satir sayisi ne olursa olsun hiza bozulmaz.
+
+     ONEMLI: bu kurali IKINCI bir `.uyg-kart .rozet` blogu olarak
+     yazmistim; ayni ozgulluk, SONRA gelen kazanir ve eski bloktaki
+     `margin-top: 7px` benim `auto`mu eziyordu -- hiza duzelmeyecekti.
+     Ayni seciciyi iki kez yazmak, ikisini de okumak zorunda birakir. */
   .uyg-kart .rozet {
-      display: inline-block; margin-top: 7px; font-size: .78rem;
-      color: var(--vurgu); font-weight: 600; letter-spacing: .01em;
+      display: inline-block; align-self: flex-start;
+      margin-top: auto; padding-top: 7px;
+      font-size: .78rem; color: var(--vurgu);
+      font-weight: 600; letter-spacing: .01em;
   }
 </style>
 <style>
@@ -73,42 +145,42 @@ footer a, .alt-bilgi a, .site-alt a {
     <!-- Kartlar HTML icinde SABIT duruyor, JavaScript ile uretilmiyor:
          arama motorlari ve JavaScript kapali tarayicilar da gorsun. -->
     <div class="arac-izgara">
-        <a class="arac-kart uyg-kart" href="/mobil/">
+        <a class="arac-kart uyg-kart" href="/mobil/" data-uyg="mavi" data-harf="H">
             <b>Hava Durumu</b>
             <span>Saatlik ve 7 günlük tahmin, yağış ve rüzgâr</span>
             <span class="rozet">Türkiye'nin her ilçesi</span>
         </a>
-        <a class="arac-kart uyg-kart" href="/hesap/">
+        <a class="arac-kart uyg-kart" href="/hesap/" data-uyg="menekse" data-harf="₺">
             <b>Hesap Araçları</b>
             <span>Net maaş, kredi taksiti, kira artışı, KDV ve daha fazlası</span>
             <span class="rozet">53 araç + rehberler</span>
         </a>
-        <a class="arac-kart uyg-kart" href="/kur-pusulasi/">
+        <a class="arac-kart uyg-kart" href="/kur-pusulasi/" data-uyg="amber" data-harf="$">
             <b>Kur Pusulası</b>
             <span>Dolar, euro, altın ve kripto; geçmiş grafikleri ve tahmin</span>
             <span class="rozet">Günlük güncellenir</span>
         </a>
-        <a class="arac-kart uyg-kart" href="/planlayici/">
+        <a class="arac-kart uyg-kart" href="/planlayici/" data-uyg="yesil" data-harf="P">
             <b>Haftalık Planlayıcı</b>
             <span>Ders ve iş programı, tekrarlayan görevler, kategoriler</span>
             <span class="rozet">Her hafta sıfırdan</span>
         </a>
-        <a class="arac-kart uyg-kart" href="/muhasebe/">
+        <a class="arac-kart uyg-kart" href="/muhasebe/" data-uyg="menekse" data-harf="M">
             <b>Muhasebe</b>
             <span>Gelir, gider, kasa ve cari takibi; raporlar ve bütçe</span>
             <span class="rozet">Küçük işletme ve esnaf</span>
         </a>
-        <a class="arac-kart uyg-kart" href="/kahve/">
+        <a class="arac-kart uyg-kart" href="/kahve/" data-uyg="amber" data-harf="K">
             <b>Kahve Kavurma Hesabı</b>
             <span>Fire, kilo maliyeti, harman oranı ve kavurma defteri</span>
             <span class="rozet">Kavurmacılar için</span>
         </a>
-        <a class="arac-kart uyg-kart" href="/arsa/">
+        <a class="arac-kart uyg-kart" href="/arsa/" data-uyg="yesil" data-harf="A">
             <b>Arsa Rehberi</b>
             <span>İmar durumu, emsal, rayiç bedel ve alım öncesi risk kontrolü</span>
             <span class="rozet">Arsa alacaklar için</span>
         </a>
-        <a class="arac-kart uyg-kart" href="/goz-molasi/">
+        <a class="arac-kart uyg-kart" href="/goz-molasi/" data-uyg="mavi" data-harf="G">
             <b>Göz Molası</b>
             <span>Ekran başında göz yorgunluğuna karşı 20-20-20 hatırlatıcısı</span>
             <span class="rozet">Bilgisayar ve web</span>
