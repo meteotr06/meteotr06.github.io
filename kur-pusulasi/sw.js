@@ -2,11 +2,11 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v44";
+const SURUM = "kur-pusulasi-v45";
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
-// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v44"ye
-// cikarilmis ama asagidaki liste "?v=44" kalmisti. Sayfa "?v=44"
-// istiyor, on-bellege alinan "?v=44" -- FARKLI ANAHTAR, hic eslesmiyor.
+// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v45"ye
+// cikarilmis ama asagidaki liste "?v=45" kalmisti. Sayfa "?v=45"
+// istiyor, on-bellege alinan "?v=45" -- FARKLI ANAHTAR, hic eslesmiyor.
 // Sonuc: cevrimdisi acilista CSS/JS bulunamiyor, uygulama yarim aciliyor.
 // Cevrimiciyken hicbir sey bozulmadigi icin kimse fark etmiyor.
 // Ayni hata 09 Hesap Araclari'nda da vardi; cozum orada da bu:

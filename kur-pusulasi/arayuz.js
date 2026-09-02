@@ -867,6 +867,27 @@ function tahminCiz() {
         `</tbody></table></div> <p class="kucuk"><b>Faiz paritesi:</b> TL faizi %${sayi(durum.ayar.tlFaiz, 2)} · ${varlikBul(kod).ad} tarafı %${sayi(yabanciFaizAl(kod), 2)}.
  <b>Sapma düzeltmesi:</b> model geçmişte hep aynı yöne kaçıyorsa merkez o kadar geri çekilir —
         ölçtük, bu düzeltme dolarda hatayı neredeyse yarıya indirdi.</p>` +
+        /* SUZGEC ARTIK SUSMUYOR -- ekranda da.
+           `hamTahmin` bozuk/eksik noktalari eleyip kac tanesini
+           dustugunu `atlananNokta` olarak DONDURUYORDU, ama arayuz onu
+           HIC GOSTERMIYORDU (olculdu: 0 gecis). Yani cekirdegin
+           "susan bir suzgec olmaktan ciksin" amaci ekrana ulasmiyordu.
+
+           Niye onemli: veri kotulestikce model daha az noktayla calisir
+           ve bant DARALABILIR -- yani uygulama tam da guvenilmemesi
+           gereken anda DAHA EMIN gorunur. Kullanici bunu bilmeli.
+
+           Esik yok, bir nokta bile dusse yaziliyor: "kac gun eksik"
+           sorusunun cevabi kullanicinin kendi karari icin gerekli. */
+        (() => {
+            const atlanan = Math.max(...tahminler.map(x => x.atlananNokta || 0));
+            const kullanilan = tahminler.length ? (tahminler[0].kullanilanNokta || null) : null;
+            if (!atlanan) return "";
+            return `<p class="kucuk"style="color:var(--uyari)"><b>Eksik veri:</b>
+                geçmiş seride <b>${atlanan}</b> gün okunamadı ve hesaba katılmadı${
+                kullanilan ? ` (kalan ${kullanilan} gün kullanıldı)` : ""}.
+                Az veriyle üretilen aralık olduğundan dar görünebilir.</p>`;
+        })() +
         (naiveVar
             ? `<p class="kucuk"style="color:var(--uyari)"><b> Dikkat:</b> Bu varlıkta model, geçmişte
                <i>"fiyat değişmez"</i> varsayımını geçemedi (beceri %${sayi(tahminler.find(t => t.naiveModu).beceri, 0)}).

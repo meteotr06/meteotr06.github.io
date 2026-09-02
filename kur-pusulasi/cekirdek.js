@@ -653,6 +653,7 @@ function hamTahmin(seri, takvimGun, secenek) {
     return {
         gun: takvimGun,
         atlananNokta: atlanan,          /* suzgecin dustugu nokta sayisi */
+        kullanilanNokta: temiz.length,  /* PAYDA: kac noktayla hesaplandi */
         kullanilanNokta: temiz.length,
         spot: spot,
         merkez: merkez,
