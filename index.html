@@ -6,6 +6,11 @@
 <title>Ücretsiz Türkçe Uygulamalar — Hava Durumu, Hesap Araçları, Kur ve Altın</title>
 <meta name="description" content="Kurulum gerektirmeyen ücretsiz Türkçe uygulamalar: hava durumu, 53 hesaplama aracı, döviz ve altın takibi, haftalık planlayıcı, muhasebe ve göz molası. Kayıt yok, telefonda ve bilgisayarda çalışır." />
 <meta name="theme-color" content="#ffffff" />
+<link rel="manifest" href="/manifest.json" />
+<link rel="icon" type="image/png" href="/portal-192.png" />
+<link rel="apple-touch-icon" href="/portal-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Uygulamalar" />
 <meta name="google-adsense-account" content="ca-pub-4471538043632173" />
 <link rel="canonical" href="https://meteotr06.github.io/" />
 <link rel="icon" href="/hesap/simge.svg" type="image/svg+xml" />
@@ -84,6 +89,11 @@ footer a, .alt-bilgi a, .site-alt a {
             <b>Muhasebe</b>
             <span>Gelir, gider, kasa ve cari takibi; raporlar ve bütçe</span>
             <span class="rozet">Küçük işletme ve esnaf</span>
+        </a>
+        <a class="arac-kart uyg-kart" href="/kahve/">
+            <b>Kahve Kavurma Hesabı</b>
+            <span>Fire, kilo maliyeti, harman oranı ve kavurma defteri</span>
+            <span class="rozet">Kavurmacılar için</span>
         </a>
         <a class="arac-kart uyg-kart" href="/goz-molasi/">
             <b>Göz Molası</b>
@@ -208,6 +218,25 @@ footer a, .alt-bilgi a, .site-alt a {
     girdi.addEventListener("input", ciz);
     temizle.addEventListener("click", () => { girdi.value = ""; ciz(); girdi.focus(); });
 })();
+</script>
+<script src="/kurulum.js?v=1"></script>
+<script>
+/* PORTAL KURULUMU. Anahtar portala OZEL. */
+try { new Kurulum({
+    anahtar: 'portal-kurulum-ertelendi',
+    baslik: 'Uygulamaları ana ekranına ekle',
+    metin: 'Yedi uygulama tek yerden, internetsiz de açılır'
+}); } catch (e) {}
+
+/* Servis iscisi -- ALT UYGULAMALARA KARISMIYOR (sw.js icinde acikca
+   reddediliyor). Kayit "load" olayindan SONRA: ilk acilisi yavaslatmasin. */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function (e) {
+            console.warn('Portal servis iscisi kaydedilemedi:', e && e.message);
+        });
+    });
+}
 </script>
 </body>
 </html>

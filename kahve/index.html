@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="tr" data-tema="koyu">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Kahve Kavurma Hesabı — fire, maliyet, harman, defter</title>
+<meta name="description" content="Kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri. Yeşil kahveden kaç kilo çıkar, kaça mal olur? Ücretsiz, çevrimdışı çalışır." />
+<meta name="theme-color" content="#0d0b09" />
+<meta name="color-scheme" content="dark light" />
+<script>
+/* TEMA VE RENK, STİL DOSYASINDAN ÖNCE KURULUR.
+   Sonra kurulsaydı sayfa önce yanlış renkte çizilir, sonra atlardı.
+
+   Varsayılan KOYU: kavurmahane loştur. Ama telefonun ayarı AÇIK ise
+   ona uyulur. Kullanıcının kendi seçimi her ikisini de yener.
+
+   TÜRETİLEN DEĞER DİSKE YAZILMAZ -- yalnız kullanıcının SEÇİMİ yazılır.
+   Yazsaydık ilk açılışta donardı ve telefon ayarı bir daha dinlenmezdi. */
+(function () {
+    var kok = document.documentElement;
+    function secili(a) { try { return localStorage.getItem(a); } catch (e) { return null; } }
+    function uygula() {
+        var t = secili('kahve-tema');
+        if (!t) {
+            t = (window.matchMedia &&
+                 window.matchMedia('(prefers-color-scheme: light)').matches)
+                ? 'acik' : 'koyu';
+        }
+        kok.setAttribute('data-tema', t);
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', t === 'koyu' ? '#0d0b09' : '#f5f6f8');
+    }
+    uygula();
+    var r = secili('kahve-renk');
+    if (r && r !== 'varsayilan') kok.setAttribute('data-renk', r);
+    try {
+        var s = window.matchMedia('(prefers-color-scheme: light)');
+        var d = function () { if (!secili('kahve-tema')) uygula(); };
+        if (s.addEventListener) s.addEventListener('change', d);
+        else if (s.addListener) s.addListener(d);
+    } catch (e) {}
+})();
+</script>
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" href="favicon.png" />
+<link rel="apple-touch-icon" href="ikon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Kahve" />
+<link rel="stylesheet" href="stil.css?v=2" />
+</head>
+<body>
+<div class="sarmal">
+
+<header class="ust">
+    <h1>☕ Kahve <span>Kavurma</span></h1>
+    <div class="ust-sag">
+        <button id="temaBtn" title="Açık / koyu tema" aria-label="Tema değiştir">◐</button>
+        <button id="renkBtn" title="Renk seç" aria-label="Renk seç"
+                aria-expanded="false">🎨</button>
+    </div>
+</header>
+
+<div id="renkPanel" class="kart" hidden>
+    <h2>Renk</h2>
+    <div id="renkListe" class="renk-liste"></div>
+</div>
+
+<div class="sekmeler" role="tablist" aria-label="Bölümler">
+    <button class="sekme" role="tab" id="tFire" aria-controls="sFire"
+            aria-selected="true" data-hedef="sFire">Fire</button>
+    <button class="sekme" role="tab" id="tMaliyet" aria-controls="sMaliyet"
+            aria-selected="false" data-hedef="sMaliyet">Maliyet</button>
+    <button class="sekme" role="tab" id="tHarman" aria-controls="sHarman"
+            aria-selected="false" data-hedef="sHarman">Harman</button>
+    <button class="sekme" role="tab" id="tDemleme" aria-controls="sDemleme"
+            aria-selected="false" data-hedef="sDemleme">Demleme</button>
+    <button class="sekme" role="tab" id="tDefter" aria-controls="sDefter"
+            aria-selected="false" data-hedef="sDefter">Defter</button>
+</div>
+
+<!-- Sonuçlar ekran okuyucuya DUYURULUR. Bu olmadan göremeyen kullanıcı
+     hesabın değiştiğini bilmez. -->
+<div id="duyuru" role="status" aria-live="polite" class="gizli-metin"></div>
+
+<!-- ==================== FİRE ==================== -->
+<section class="sayfa aktif" id="sFire" role="tabpanel" aria-labelledby="tFire">
+
+    <div class="kart">
+        <h2>Firemi ölç</h2>
+        <p class="aciklama">Tarttınız: kaç kilo koydunuz, kaç kilo çıktı?
+        <strong>Kendi makinenizin gerçek firesini</strong> buradan öğrenirsiniz —
+        tahminle çalışmayı bırakırsınız.</p>
+
+        <div class="satir ikili">
+            <div>
+                <label for="fGiris">Giren yeşil <small>kg</small></label>
+                <input id="fGiris" inputmode="decimal" placeholder="örn. 10" />
+            </div>
+            <div>
+                <label for="fCikis">Çıkan kavrulmuş <small>kg</small></label>
+                <input id="fCikis" inputmode="decimal" placeholder="örn. 8,5" />
+            </div>
+        </div>
+
+        <div class="sonuc" id="fireSonuc" hidden>
+            <div class="buyuk" id="fireBuyuk">—</div>
+            <div class="alt" id="fireAlt"></div>
+
+            <div class="gorsel">
+                <div class="cubuk-kap">
+                    <div class="cubuk-yesil"></div>
+                    <div class="cubuk-kavrulmus" id="fireCubuk" style="width:100%"></div>
+                    <div class="cubuk-etiket">
+                        <span id="fireSol">giren</span>
+                        <span id="fireSag">çıkan</span>
+                    </div>
+                </div>
+                <div class="cekirdek-sira" id="fireCekirdek" aria-hidden="true"></div>
+            </div>
+        </div>
+        <div class="uyari-kutu" id="fireUyari" hidden></div>
+        <button class="birincil" id="fireKaydet" style="margin-top:14px" hidden>
+            Deftere kaydet
+        </button>
+    </div>
+
+    <div class="kart">
+        <h2>Ne kadar çıkar / ne kadar koymalıyım?</h2>
+        <p class="aciklama">Fire oranınızı biliyorsanız iki yönde de hesaplar.</p>
+        <div class="satir">
+            <label for="hFire">Fire oranı <small>%</small></label>
+            <input id="hFire" inputmode="decimal" placeholder="örn. 15" />
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="hYesil">Yeşil koyacağım <small>kg → kaç kg çıkar</small></label>
+                <input id="hYesil" inputmode="decimal" placeholder="örn. 10" />
+            </div>
+            <div>
+                <label for="hHedef">Kavrulmuş istiyorum <small>kg → kaç kg yeşil</small></label>
+                <input id="hHedef" inputmode="decimal" placeholder="örn. 5" />
+            </div>
+        </div>
+        <div class="sonuc" id="cevirSonuc" hidden>
+            <div class="buyuk" id="cevirBuyuk">—</div>
+            <div class="alt" id="cevirAlt"></div>
+        </div>
+        <div class="uyari-kutu" id="cevirUyari" hidden></div>
+    </div>
+</section>
+
+<!-- ==================== MALİYET ==================== -->
+<section class="sayfa" id="sMaliyet" role="tabpanel" aria-labelledby="tMaliyet" hidden>
+    <div class="kart">
+        <h2>Kilo maliyeti</h2>
+        <p class="aciklama">Yeşil kahvenin kilo fiyatı, kavrulmuşun maliyeti
+        <strong>değildir</strong>. Fire yüzünden 1 kilo kavrulmuş için daha fazla
+        yeşil gerekir. Bu farkı atlayan zararına satar.</p>
+
+        <div class="satir ikili">
+            <div>
+                <label for="mFiyat">Yeşil kahve <small>TL / kg</small></label>
+                <input id="mFiyat" inputmode="decimal" placeholder="örn. 500" />
+            </div>
+            <div>
+                <label for="mFire">Fire <small>%</small></label>
+                <input id="mFire" inputmode="decimal" placeholder="örn. 15" />
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="mParti">Parti büyüklüğü <small>kg — isteğe bağlı</small></label>
+                <input id="mParti" inputmode="decimal" placeholder="örn. 10" />
+            </div>
+            <div>
+                <label for="mEnerji">Enerji <small>TL / parti</small></label>
+                <input id="mEnerji" inputmode="decimal" placeholder="örn. 60" />
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="mIscilik">İşçilik <small>TL / parti</small></label>
+                <input id="mIscilik" inputmode="decimal" placeholder="örn. 100" />
+            </div>
+            <div>
+                <label for="mPaket">Paket <small>gram</small></label>
+                <input id="mPaket" inputmode="decimal" placeholder="örn. 250" />
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="mAmbalaj">Ambalaj <small>TL / paket</small></label>
+                <input id="mAmbalaj" inputmode="decimal" placeholder="örn. 12" />
+            </div>
+            <div>
+                <label for="mFincan">Fincan <small>gram</small></label>
+                <input id="mFincan" inputmode="decimal" placeholder="örn. 7" />
+            </div>
+        </div>
+
+        <div class="sonuc" id="maliyetSonuc" hidden>
+            <div class="buyuk" id="maliyetBuyuk">—</div>
+            <div class="alt">kavrulmuş kahvenin kilo maliyeti</div>
+            <dl id="maliyetDetay"></dl>
+        </div>
+        <div class="bilgi-kutu" id="maliyetFark" hidden></div>
+        <div class="uyari-kutu" id="maliyetUyari" hidden></div>
+    </div>
+</section>
+
+<!-- ==================== HARMAN ==================== -->
+<section class="sayfa" id="sHarman" role="tabpanel" aria-labelledby="tHarman" hidden>
+    <div class="kart">
+        <h2>Harman</h2>
+        <p class="aciklama">Oranları girin; her çekirdekten kaç kilo
+        <strong>yeşil</strong> koymanız gerektiğini fire dahil hesaplar.</p>
+
+        <div class="satir ikili">
+            <div>
+                <label for="bHedef">Hedef kavrulmuş <small>kg</small></label>
+                <input id="bHedef" inputmode="decimal" placeholder="örn. 12" />
+            </div>
+            <div>
+                <label for="bFire">Fire <small>%</small></label>
+                <input id="bFire" inputmode="decimal" placeholder="örn. 15" />
+            </div>
+        </div>
+
+        <div id="bilesenler"></div>
+        <button id="bEkle" style="margin-bottom:12px">+ Çekirdek ekle</button>
+
+        <div class="sonuc" id="harmanSonuc" hidden>
+            <div class="buyuk" id="harmanBuyuk">—</div>
+            <div class="alt">toplam yeşil kahve</div>
+            <dl id="harmanDetay"></dl>
+        </div>
+        <div class="uyari-kutu" id="harmanUyari" hidden></div>
+    </div>
+</section>
+
+
+<!-- ==================== DEMLEME ==================== -->
+<section class="sayfa" id="sDemleme" role="tabpanel" aria-labelledby="tDemleme" hidden>
+    <div class="kart">
+        <h2>Demleme oranı</h2>
+        <p class="aciklama">Kaç kişilik demleyeceksiniz? Kaç gram kahve,
+        kaç ml su? <strong>Oranlar tariftir, ölçüm değildir</strong> —
+        kendi zevkinize göre değiştirin.</p>
+
+        <div class="satir">
+            <label for="dYontem">Yöntem</label>
+            <select id="dYontem"></select>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="dSu">Su <small>ml</small></label>
+                <input id="dSu" inputmode="decimal" placeholder="örn. 500" />
+            </div>
+            <div>
+                <label for="dOran">Oran <small>1 : ?</small></label>
+                <input id="dOran" inputmode="decimal" placeholder="16" />
+            </div>
+        </div>
+
+        <div class="sonuc" id="demlemeSonuc" hidden>
+            <div class="buyuk" id="demlemeBuyuk">—</div>
+            <div class="alt" id="demlemeAlt"></div>
+        </div>
+        <div class="uyari-kutu" id="demlemeUyari" hidden></div>
+    </div>
+</section>
+
+<!-- ==================== DEFTER ==================== -->
+<section class="sayfa" id="sDefter" role="tabpanel" aria-labelledby="tDefter" hidden>
+    <div class="kart">
+        <h2>Kavurma defteri</h2>
+        <p class="aciklama">Her parti kaydedilir. Uygulama zamanla
+        <strong>sizin firenizi</strong> öğrenir — ortalamanızı ve
+        partiler arası oynamayı gösterir.</p>
+        <div id="defterOzet"></div>
+    </div>
+
+    <details class="kart" id="partiFormKap">
+        <summary style="cursor:pointer;font-weight:700">Parti ayrıntısı ekle</summary>
+        <p class="aciklama" style="margin-top:10px">Fire sekmesinden gelen
+        parti burada zenginleşir. <strong>Hiçbiri zorunlu değil</strong> —
+        bilmediğiniz alanı boş bırakın, uygulama uydurmaz.</p>
+
+        <div class="satir ikili">
+            <div>
+                <label for="pMense">Menşe</label>
+                <select id="pMense"></select>
+            </div>
+            <div>
+                <label for="pIsleme">İşleme</label>
+                <select id="pIsleme"></select>
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="pVaryete">Varyete</label>
+                <select id="pVaryete"></select>
+            </div>
+            <div>
+                <label for="pDerece">Kavurma derecesi</label>
+                <select id="pDerece"></select>
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="pToplam">Toplam süre <small>dakika:saniye — örn. 10:30</small></label>
+                <input id="pToplam" inputmode="numeric" placeholder="10:30" />
+            </div>
+            <div>
+                <label for="pCatlak">İlk çatlak <small>dakika:saniye</small></label>
+                <input id="pCatlak" inputmode="numeric" placeholder="8:00" />
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="pSarj">Şarj sıcaklığı <small>°C</small></label>
+                <input id="pSarj" inputmode="decimal" placeholder="örn. 195" />
+            </div>
+            <div>
+                <label for="pCikisIsi">Çıkış sıcaklığı <small>°C</small></label>
+                <input id="pCikisIsi" inputmode="decimal" placeholder="örn. 212" />
+            </div>
+        </div>
+        <div class="satir">
+            <label for="pNot">Not <small>tat, koku, gözlem</small></label>
+            <input id="pNot" placeholder="örn. çikolata, fındık; ikinci çatlak duyulmadı" />
+        </div>
+
+        <div class="bilgi-kutu" id="dtrKutu" hidden></div>
+    </details>
+
+    <div class="kart">
+        <div id="defterListe"></div>
+    </div>
+</section>
+
+</div><!-- /sarmal -->
+
+<script src="cekirdek.js?v=2"></script>
+<script src="veri.js?v=2"></script>
+<script src="kurulum.js?v=2"></script>
+<script src="arayuz.js?v=2"></script>
+<script>
+/* Kurulum daveti. Anahtar UYGULAMAYA OZEL -- ortak anahtar kullanilsaydi
+   bir uygulamada 'simdi degil' demek hepsini susturuoludu. */
+new Kurulum({ anahtar: 'kahve-kurulum-ertelendi' });
+</script>
+<script>
+/* SERVİS İŞÇİSİ — çevrimdışı katman.
+   `load` olayından SONRA kaydediliyor: sayfanın ilk açılışını
+   yavaşlatmasın. Hata sessizce yutulmuyor, konsola yazılıyor --
+   sessizce başarısız olan bir çevrimdışı katman, olmayan bir
+   çevrimdışı katmandır ama VAR sanılır. */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function (e) {
+            console.warn('Servis işçisi kaydedilemedi:', e && e.message);
+        });
+    });
+}
+</script>
+</body>
+</html>

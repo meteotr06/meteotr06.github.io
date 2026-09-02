@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "Ücretsiz Türkçe Uygulamalar",
+  "short_name": "Uygulamalar",
+  "description": "Hava durumu, hesap araçları, kur ve altın, muhasebe, arsa rehberi, göz molası ve haftalık planlayıcı — hepsi ücretsiz, hepsi çevrimdışı çalışır.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111623",
+  "theme_color": "#111623",
+  "lang": "tr",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "portal-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "portal-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "portal-maskeli.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "related_applications": [
+    { "platform": "webapp", "url": "/manifest.json" }
+  ],
+  "_not_kimlik": "id ve start_url BUGUN KONDU ve DONDURULDU (K-67). Bu manifest YENI oldugu icin id'yi simdi koymak dogru; tehlike, YAYINDA olan bir manifeste id'yi SONRADAN eklemektir -- o zaman tarayici kurulu uygulamayi tanimaz ve ana ekrana ikinci kopya iner. Goz Molasi'nda tam bu yasandi.",
+  "_not_kapsam": "scope '/' -- portal butun siteyi kapsiyor. Alt uygulamalarin kendi manifestleri DAHA DAR kapsamda (/arsa/, /hesap/ ...) ve tarayici en dar eslesmeyi secer; yani /arsa/ sayfasi Arsa olarak kurulur, portal olarak degil.",
+  "_not_ikon": "Ikon bilerek NOTR ve IZGARA: portal bir uygulama degil, uygulamalarin listesi. Alt uygulamalarin ikonlari konularinin rengini tasiyor; portal onlarla karismamali."
+}

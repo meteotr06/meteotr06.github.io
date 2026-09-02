@@ -1,0 +1,25 @@
+{
+  "id": "/kahve/",
+  "name": "Kahve Kavurma Hesabı",
+  "short_name": "Kahve",
+  "description": "Kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri. Yeşil kahveden kaç kilo çıkar, kaça mal olur?",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0b09",
+  "theme_color": "#0d0b09",
+  "lang": "tr",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities", "food"],
+  "icons": [
+    { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "ikon-maskeli.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "related_applications": [
+    { "platform": "webapp", "url": "./manifest.json" }
+  ],
+  "_not_kimlik": "id ve start_url DONDURULMUSTUR (K-67). Yayina ciktiktan sonra degistirilirse tarayici kurulu uygulamayi TANIMAZ ve kullanicinin ana ekranina IKINCI BIR KOPYA iner; birlestirilemez. Goz Molasi'nda tam bu yasandi, kullanicinin telefonunda iki ikon cikti.",
+  "_not_renk": "background_color ve theme_color KOYU secildi. Manifest renkleri duragandir, telefonun kipini takip edemez; tek deger secmek zorunlu. Zarar simetrik degil: karanlik odada beyaz acilis ekrani can yakar, gunduz koyu bir an fark edilmez."
+}
