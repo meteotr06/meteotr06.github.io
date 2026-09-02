@@ -232,6 +232,44 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', baslat);
         } else { baslat(); }
+
+        /* ---- ELLE ACILABILIR KAPI ----
+           Kullanicinin istegi (03.09.2026): "onu da ayri butonlardan
+           linklerden acilsin".
+
+           Kendiliginden cikan bir davet, kullanicinin ISTEDIGI anda
+           erisemedigi bir davettir. Serit kacirilirsa ya da "simdi
+           degil" denirse yedi gun beklemek gerekiyordu. Bu uygulamada
+           daha once yasanmis iki sikayet de tam buradan doguyor:
+           "kurdum ama hala install diyor" ve "kur'a bastim, sildim,
+           bir daha indiremedim".
+
+           `ac()` erteleme kaydini DA temizler: kullanici dugmeye
+           basmissa "simdi degil" demis sayilamaz. */
+        A.ac = function () {
+            try { localStorage.removeItem(A.anahtar); } catch (e) {}
+            if (serit && serit.isConnected) {
+                serit.scrollIntoView({ block: 'nearest' });
+                return true;
+            }
+            serit = null;
+            goster(!!olay);
+            return true;
+        };
+
+        A.durum = function () {
+            return kuruluMu().then(function (k) {
+                if (k) return 'kurulu';
+                if (olay) return 'kurulabilir';
+                return iOS ? 'ios-elle' : 'tarayici-hazir-degil';
+            });
+        };
+
+        /* Son olusturulan ornek disaridan cagrilabilsin: sayfadaki bir
+           dugme `Kurulum.ac()` diyebilsin diye. Birden cok ornek
+           kurulmasi beklenmiyor; kurulursa sonuncusu gecerli olur. */
+        Kurulum.ac = A.ac;
+        Kurulum.durum = A.durum;
     }
 
     global.Kurulum = Kurulum;
