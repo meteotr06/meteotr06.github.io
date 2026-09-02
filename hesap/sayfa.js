@@ -2027,7 +2027,38 @@ function cevrimdisiKur() {
     if (location.protocol !== "https:" && location.hostname !== "localhost") return;
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("sw.js").catch(() => { });
+        teslimatKur();
     });
+}
+
+// ---------- Teslimat: duzeltme KURULU kullaniciya iniyor mu? ----------
+// Olculdu (5 · Goz Molasi, 02.09.2026): kurulu uygulamada tarayici yeni
+// surumu KENDILIGINDEN sormaz -- gezinme olmadigi icin. Dokuz uygulamanin
+// sekizinde bu eksikti. Sonuc: yayin dogru, TESLIMAT yok; kullanici
+// suresiz eski surumde kalir ve kimsenin haberi olmaz, cunku yayin
+// tarafindaki her olcum "yayinlandi" der.
+//
+// Modul BURADAN yukleniyor, index.html'den degil: bu uygulamada 60 sayfa
+// var ve her birine etiket eklemek 60 yerde tutulan bir deger demek.
+// `sayfa.js` zaten hepsinde yuklu.
+function teslimatKur() {
+    if (window.Guncelle) { try { new Guncelle(); } catch (e) { } return; }
+    // DAMGA KENDI ADRESINDEN TURETILIYOR. Elle yazsaydim, damga
+    // yukseldiginde biri guncellenip oteki geride kalirdi -- ve
+    // duzeltmenin kullaniciya ulasmamasinin sebebi, tam da teslimati
+    // saglamak icin yazilmis bu kod olurdu.
+    let damga = "";
+    const kendi = document.querySelector('script[src*="sayfa.js"]');
+    if (kendi) {
+        const s = kendi.getAttribute("src") || "";
+        const i = s.indexOf("?");
+        if (i >= 0) damga = s.slice(i);
+    }
+    const betik = document.createElement("script");
+    betik.src = "guncelle.js" + damga;
+    betik.onload = () => { try { new Guncelle(); } catch (e) { } };
+    betik.onerror = () => { };   // modul gelmezse uygulama normal calisir
+    document.head.appendChild(betik);
 }
 
 cevrimdisiKur();

@@ -9,7 +9,7 @@
 //   3) Sayfa yerine geçen yedek yalnızca "navigate" isteğine döner.
 //      (Eskiden .js isteğine index.html dönüyordu ve site komple çöküyordu.)
 
-const SURUM = "hesap-v90";
+const SURUM = "hesap-v91";
 
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
 // Sebep (27 Agustos 2026, olculdu): SURUM "hesap-v54"e cikarilmis ama bu
@@ -26,6 +26,7 @@ const CEKIRDEK = [
     "./stil.css?" + DAMGA,
     "./hesap.js?" + DAMGA,
     "./sayfa.js?" + DAMGA,
+    "./guncelle.js?" + DAMGA,
     "./simge.svg",
     "./ikon-192.png",
     "./manifest.json"
