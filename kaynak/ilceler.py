@@ -964,4 +964,26 @@ ILCELER = [
     ('Gökçebey', 'Zonguldak', 41.3079, 32.1416),
     ('Karadenizereğli', 'Zonguldak', 41.2894, 31.4181),
     ('Zonguldak', 'Zonguldak', 41.4564, 31.7987),
+
+    # --- 03.09.2026'da eklendi -------------------------------------
+    # Mobil surumde (mobil/yerler.js) VARDI, burada YOKTU. Olculdu:
+    # mobilde 970, burada 957 kayit; ortak 947 kaydin koordinati
+    # birebir ayni (0 ayrisma). Asagidakiler 2012-2018 arasinda
+    # kurulan ilceler; koordinatlari mobil dosyadan alindi.
+    # Bu dosyanin basligindaki 'otomatik uretildi' notu ile
+    # yerler.js'in basligindaki 'masaustu surumuyle ayni veri' notu
+    # IKISI DE dogru degildi -- ayrinti: BULGULAR-HAVA-03-09-2026.md
+    ('Sultanhanı', 'Aksaray', 38.2471, 33.5496),
+    ('Kemalpaşa', 'Artvin', 41.4834, 41.5275),
+    ('Merkezefendi', 'Denizli', 37.8054, 29.0424),
+    ('Pamukkale', 'Denizli', 37.7912, 29.1014),
+    ('Derecik', 'Hakkari', 37.0836, 44.3095),
+    ('Arsuz', 'Hatay', 36.413, 35.8903),
+    ('Payas', 'Hatay', 36.756, 36.2143),
+    ('Menteşe', 'Muğla', 37.1167, 28.2667),
+    ('Altınordu', 'Ordu', 40.984, 37.8735),
+    ('Kapaklı', 'Tekirdağ', 41.3291, 27.9806),
+    ('Kilimli', 'Zonguldak', 41.4911, 31.8386),
+    ('Kozlu', 'Zonguldak', 41.4319, 31.7458),
+    ('Karaköprü', 'Şanlıurfa', 37.2036, 38.7994),
 ]
