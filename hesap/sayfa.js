@@ -1816,7 +1816,11 @@ window.addEventListener("appinstalled", () => {
     kurulumOlayi = null;
     const b = document.getElementById("kurBtn");
     if (b) b.hidden = true;
-    try { localStorage.setItem("hesapKurulu", "1"); } catch (e) { }
+    /* "hesapKurulu" ARTIK YAZILMIYOR (01.09.2026).
+       Okuyan taraf kaldirildi; yazan tarafi birakmak, kimsenin
+       okumadigi bir kayit uretmek olurdu. Kurulu olup olmadigi
+       artik tarayiciya soruluyor (getInstalledRelatedApps), cunku
+       diske yazilan cevap uygulamadan UZUN YASIYORDU. */
 });
 
 /* KULLANICI BU SAYFADA BIR SEY YAPTI MI?
@@ -1855,13 +1859,31 @@ function baglantiDegerTasiyorMu() {
 /* Kullanici "simdi degil" dediyse bir daha sorulmaz. */
 const KURULUM_KAPATILDI = "hesapKurulumKapatildi";
 function kurulumKapatildiMi() {
-    try { return localStorage.getItem(KURULUM_KAPATILDI) === "1"; } catch (e) { return false; }
+    /* "SIMDI DEGIL" SONSUZ DEGIL -- 7 GUN.
+
+       Eskiden "1" yaziliyordu ve bir daha hic sorulmuyordu. Bir kez
+       "simdi degil" demek, "asla" demek degildir. Ayni sinif: kaydin
+       anlattigi seyden uzun yasamasi. */
+    try {
+        var t = parseInt(localStorage.getItem(KURULUM_KAPATILDI), 10);
+        if (!t) return false;
+        return (Date.now() - t) < 7 * 86400000;
+    } catch (e) { return false; }
 }
 
 function uygulamaKurulu() {
     if (window.matchMedia("(display-mode: standalone)").matches) return true;
     if (window.navigator.standalone) return true;   // iOS
-    try { return localStorage.getItem("hesapKurulu") === "1"; } catch (e) { return false; }
+    /* DISKTEKI "hesapKurulu" BAYRAGI KALDIRILDI (01.09.2026).
+
+       O bayrak, anlattigi seyden UZUN YASIYORDU: kullanici uygulamayi
+       kurunca "1" yaziliyor, sonra uygulamayi SILSE BILE kayit duruyor
+       ve davet BIR DAHA CIKMIYORDU. Kullanici bunu 5 numarali uygulamada
+       bizzat bildirdi: "indirdigim seyi sildim, tekrar indiremedim".
+
+       Dogrusu tarayiciya SORMAKTIR (getInstalledRelatedApps) ve cevabi
+       SAKLAMAMAKTIR. Ortak modul (kurulum.js) bunu yapiyor. */
+    return false;
 }
 
 // Alt bilgiye "Uygulama olarak kur" düğmesi ekler.
@@ -1876,10 +1898,43 @@ function uygulamaKurulu() {
 
    ISARET SECIMI icin yukaridaki `kullaniciDokundu` notuna bakin: iki
    makul gorunen isaret olculdukten sonra elendi. */
+/* ZATEN KURULU MU? -- TARAYICIYA SOR, CEVABI SAKLAMA.
+
+   `uygulamaKurulu()` yalnizca "su an uygulama penceresinde miyim"
+   sorusunu cevaplar. O olcut uygulamanin KENDI PENCERESINDE dogru;
+   kullanici ayni siteyi TARAYICIDA acinca kurulu olsa bile false doner
+   ve davet yine cikar.
+
+   Bu islev eksigi kapatiyor. `getInstalledRelatedApps` yalnizca
+   manifest `related_applications` ile kendini bildiren uygulamalarda
+   cevap verir; bu projede o alan var.
+
+   CEVAP DISKE YAZILMAZ. Yazsaydik kullanici uygulamayi silince kayit
+   kalir ve davet bir daha cikmazdi -- kaldirdigimiz "hesapKurulu"
+   bayraginin yaptigi tam buydu. */
+function kuruluMuSor() {
+    if (uygulamaKurulu()) return Promise.resolve(true);
+    if (!navigator.getInstalledRelatedApps) return Promise.resolve(false);
+    try {
+        return navigator.getInstalledRelatedApps()
+            .then((l) => (l || []).some((u) => u.platform === "webapp"))
+            .catch(() => false);          /* bilemiyorsak GOSTER */
+    } catch (e) { return Promise.resolve(false); }
+}
+
 function kurulumDugmesi() {
     const alt = document.querySelector("footer");
     if (!alt || alt.querySelector(".kurulum-serit")) return;
     if (uygulamaKurulu() || kurulumKapatildiMi()) return;
+
+    /* Asenkron denetim: kurulu cikarsa hicbir sey gosterme.
+       Bunu YAZMADAN once yorumda "tarayiciya sormak lazim" diye
+       yazmistim ama kodu koymamistim -- yorum kurali soyluyor, kod
+       uygulamiyordu (K-66). Kendi adini koydugum sinifa dustum. */
+    kuruluMuSor().then((kurulu) => { if (!kurulu) kurulumSeridiCiz(alt); });
+}
+
+function kurulumSeridiCiz(alt) {
 
     /* Arac sayfasiysa sonucu bekle. Rehber/dizin sayfalarinda bekleyecek
        bir "is" yok, dogrudan gosteriliyor. */
@@ -1915,9 +1970,14 @@ function kurulumDugmesi() {
         if (!kurulumOlayi) return;
         kurulumOlayi.prompt();
         const sonuc = await kurulumOlayi.userChoice;
-        if (sonuc.outcome === "accepted") {
-            try { localStorage.setItem("hesapKurulu", "1"); } catch (e) { }
-        }
+        /* KURULUM DISKE HICBIR SEY YAZMAZ.
+
+           Eskiden burada "hesapKurulu = 1" yaziliyordu. Kullanici
+           uygulamayi SILSE BILE o kayit kaliyor ve davet bir daha
+           cikmiyordu. Kullanici bunu 5 numarali uygulamada bizzat
+           bildirdi: "indirdigim seyi sildim, tekrar indiremedim".
+
+           Kurulu olup olmadigi artik SORULUYOR, saklanmiyor. */
         kurulumOlayi = null;
         document.getElementById("kurBtn").hidden = true;
     });
@@ -1925,7 +1985,7 @@ function kurulumDugmesi() {
     /* KAPATAN BIR DAHA GORMEZ. Onceki halde kapatma yolu HIC YOKTU:
        ilgilenmeyen kullaniciya her sayfada ayni sey gosteriliyordu. */
     document.getElementById("kurKapat").addEventListener("click", () => {
-        try { localStorage.setItem(KURULUM_KAPATILDI, "1"); } catch (e) { }
+        try { localStorage.setItem(KURULUM_KAPATILDI, String(Date.now())); } catch (e) { }
         s.remove();
     });
 
