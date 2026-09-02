@@ -31,7 +31,7 @@
 <meta name="application-name" content="Kur Pusulası" />
 <!-- iPhone'da uygulama açılırken görünen ekran (Safari manifest'i kullanmaz) -->
 <link rel="apple-touch-startup-image" href="acilis-ekrani.png" />
-<link rel="stylesheet" href="stil.css?v=45" />
+<link rel="stylesheet" href="stil.css?v=46" />
 </head>
 <body>
 
@@ -404,8 +404,25 @@
     </div>
 </footer>
 
-<script src="cekirdek.js?v=45"></script>
-<script src="arayuz.js?v=45"></script>
+<script src="cekirdek.js?v=46"></script>
+<script src="arayuz.js?v=46"></script>
+<script src="guncelle.js?v=46"></script>
+<script>
+/* TESLIMAT: duzeltme KURULU kullaniciya iniyor mu?
+   Olculdu (2 Eylul 2026): Kur'da `registration.update()` hic
+   cagrilmiyordu ve `controllerchange` dinlenmiyordu. `sw.js`
+   icinde `skipWaiting` + `clients.claim` VARDI -- yani yeni
+   surum devralinca hemen devraliyordu, ama TARAYICI YENI
+   SURUMU HIC SORMUYORDU. Ana ekrandan acilan uygulamada
+   gezinme neredeyse hic olmaz; kullanici uygulamayi kapatmaz,
+   arka plana atar. Sonuc: yayin dogru, TESLIMAT yok.
+
+   KENDILIGINDEN TAZELEMIYOR (`otomatik: false`): Kur'da
+   portfoy ve faiz formlari var; habersiz `reload()` yazilmakta
+   olan veriyi siler. Kullaniciyi korumak diye yapilan tazeleme
+   kullaniciya zarar verir. Serit cikar, karar onun. */
+try { new Guncelle({ dakika: 30, otomatik: false }); } catch (e) {}
+</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
