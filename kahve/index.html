@@ -46,7 +46,7 @@
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Kahve" />
-<link rel="stylesheet" href="stil.css?v=2" />
+<link rel="stylesheet" href="stil.css?v=3" />
 </head>
 <body>
 <div class="sarmal">
@@ -74,6 +74,8 @@
             aria-selected="false" data-hedef="sHarman">Harman</button>
     <button class="sekme" role="tab" id="tDemleme" aria-controls="sDemleme"
             aria-selected="false" data-hedef="sDemleme">Demleme</button>
+    <button class="sekme" role="tab" id="tEnvanter" aria-controls="sEnvanter"
+            aria-selected="false" tabindex="-1" data-hedef="sEnvanter">Envanter</button>
     <button class="sekme" role="tab" id="tDefter" aria-controls="sDefter"
             aria-selected="false" data-hedef="sDefter">Defter</button>
 </div>
@@ -270,6 +272,81 @@
     </div>
 </section>
 
+<!-- ==================== ENVANTER ==================== -->
+<section class="sayfa" id="sEnvanter" role="tabpanel" aria-labelledby="tEnvanter" hidden>
+    <div class="kart">
+        <h2>Depoda ne var?</h2>
+        <p class="aciklama"><strong>Yeşil ve kavrulmuş ayrı depodur.</strong>
+        Aralarındaki tek köprü fire: 10 kg yeşil düşer, %15 fireyle 8,5 kg
+        kavrulmuş artar. Yarım kilo buharlaşır — hiçbir depoda yoktur.
+        Kavrulmuşun kilo maliyeti bu yüzden yeşilinkinden yüksektir.</p>
+
+        <div class="sonuc" id="envanterSonuc" hidden>
+            <div class="buyuk" id="envanterBuyuk">—</div>
+            <div class="alt" id="envanterAlt"></div>
+        </div>
+        <div class="uyari-kutu" id="envanterUyari" hidden></div>
+        <div id="envanterDepo"></div>
+    </div>
+
+    <details class="kart" id="hareketFormKap">
+        <summary><strong>+ Hareket ekle</strong></summary>
+
+        <div class="satir">
+            <label for="nTur">Ne oldu?</label>
+            <select id="nTur">
+                <option value="alim">Yeşil kahve aldım</option>
+                <option value="kavurma">Kavurdum</option>
+                <option value="satis">Sattım</option>
+                <option value="zayi">Zayi / ıskarta</option>
+            </select>
+        </div>
+
+        <div class="satir">
+            <label for="nCesit">Çeşit</label>
+            <input id="nCesit" list="menseListe" autocomplete="off"
+                   placeholder="örn. Brezilya — ya da kendi parti adınız" />
+            <datalist id="menseListe"></datalist>
+        </div>
+
+        <div class="satir ikili">
+            <div>
+                <label for="nKg" id="nKgEtiket">Ağırlık <small>kg</small></label>
+                <input id="nKg" inputmode="decimal" placeholder="örn. 10" />
+            </div>
+            <div id="nFiyatKap">
+                <label for="nFiyat">Kilo fiyatı <small>₺</small></label>
+                <input id="nFiyat" inputmode="decimal" placeholder="örn. 500" />
+            </div>
+            <div id="nFireKap" hidden>
+                <label for="nFire">Fire <small>%</small></label>
+                <input id="nFire" inputmode="decimal" placeholder="örn. 15" />
+            </div>
+            <div id="nNeredeKap" hidden>
+                <label for="nNerede">Hangi depodan</label>
+                <select id="nNerede">
+                    <option value="kavrulmus">Kavrulmuş</option>
+                    <option value="yesil">Yeşil</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="satir" id="nCikisKap" hidden>
+            <label for="nCikis">…ya da tarttıysanız: çıkan ağırlık
+                <small>kg — fireyi biz ölçeriz</small></label>
+            <input id="nCikis" inputmode="decimal" placeholder="örn. 8,5" />
+        </div>
+
+        <div class="uyari-kutu" id="hareketUyari" hidden></div>
+        <button class="birincil" id="nEkle">Deftere işle</button>
+    </details>
+
+    <div class="kart">
+        <h2>Hareketler</h2>
+        <div id="hareketListe"></div>
+    </div>
+</section>
+
 <!-- ==================== DEFTER ==================== -->
 <section class="sayfa" id="sDefter" role="tabpanel" aria-labelledby="tDefter" hidden>
     <div class="kart">
@@ -341,10 +418,10 @@
 
 </div><!-- /sarmal -->
 
-<script src="cekirdek.js?v=2"></script>
-<script src="veri.js?v=2"></script>
-<script src="kurulum.js?v=2"></script>
-<script src="arayuz.js?v=2"></script>
+<script src="cekirdek.js?v=3"></script>
+<script src="veri.js?v=3"></script>
+<script src="kurulum.js?v=3"></script>
+<script src="arayuz.js?v=3"></script>
 <script>
 /* Kurulum daveti. Anahtar UYGULAMAYA OZEL -- ortak anahtar kullanilsaydi
    bir uygulamada 'simdi degil' demek hepsini susturuoludu. */

@@ -24,7 +24,7 @@
       hatayı kalıcı hâle getirir.
    ================================================================== */
 
-const SURUM = 'kahve-v2';
+const SURUM = 'kahve-v3';
 const ETIKET = '?v=' + SURUM.replace(/^kahve-v/, '');
 
 const CEKIRDEK = [

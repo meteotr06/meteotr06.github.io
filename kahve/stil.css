@@ -220,3 +220,41 @@ input, select {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
     overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
+
+/* ---- ENVANTER ---- */
+.depo {
+    border-top: 1px solid var(--cizgi);
+    padding: 12px 0;
+}
+.depo:last-child { padding-bottom: 0; }
+.depo .ad { font-weight: 700; margin-bottom: 8px; }
+.depo .ikili-depo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .depo .ikili-depo { grid-template-columns: 1fr; } }
+.depo .kutu {
+    background: var(--kart-ust); border-radius: 8px; padding: 10px 12px;
+}
+.depo .kutu .etiket {
+    display: block; font-size: .75rem; color: var(--yazi2);
+    text-transform: uppercase; letter-spacing: .4px;
+}
+.depo .kutu .miktar {
+    display: block;
+    font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.depo .kutu .fiyat { display: block; font-size: .85rem; color: var(--yazi2); }
+.depo .fire-not {
+    margin-top: 8px; font-size: .8rem; color: var(--yazi2);
+}
+.hareket {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 10px;
+    align-items: center; padding: 10px 0;
+    border-bottom: 1px solid var(--cizgi);
+}
+.hareket:last-child { border-bottom: 0; }
+.hareket .ne { font-weight: 700; }
+.hareket .detay { grid-column: 1; color: var(--yazi2); font-size: .82rem; }
+.hareket .sil {
+    background: none; border: 1px solid var(--cizgi); color: var(--yazi2);
+    border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: .8rem;
+}
+.hareket .sil:hover { border-color: var(--uyari); color: var(--uyari); }

@@ -251,6 +251,205 @@
         return { gecerli: true, dtr: (t - c) / t * 100, gelisimSn: t - c };
     }
 
+
+    /* ---------------------------------------------------------------
+       ENVANTER — YEŞİL STOK ve KAVRULMUŞ STOK
+
+       İKİSİ AYRI DEPODUR. Aralarındaki tek köprü FİRE:
+       10 kg yeşil düşer, %15 fireyle 8,5 kg kavrulmuş artar.
+       Yarım kilo buharlaşmıştır; hiçbir depoda yoktur.
+
+       Bu köprü BURADA kurulu, ekranda değil. Ekran yalnız gösterir.
+
+       MALİYET NASIL TAŞINIYOR (yöntem açıkça yazılıyor, çünkü
+       "kahvenin kilosu kaça?" sorusunun cevabı yönteme göre değişir):
+       AĞIRLIKLI ORTALAMA. 500 TL'lik 10 kg ile 600 TL'lik 10 kg
+       karışınca depodaki yeşilin kilosu 550 TL olur.
+
+       Kavurmada para BUHARLAŞMAZ, ağırlık buharlaşır: 10 kg yeşilin
+       tuttuğu 5.500 TL, 8,5 kg kavrulmuşa geçer -> kavrulmuşun kilosu
+       647,06 TL. Kavurmacının zararına satmasının sebebi tam da bu
+       farkı görmemesidir.
+       --------------------------------------------------------------- */
+
+    /* ÇIPA (K-65): kilo karşılaştırmalarında yarım gramlık tolerans.
+       Niye var: kullanıcı 10 kg alıp 10 kg kavurunca kayan nokta
+       yüzünden "stokta 10 kg yok, 9,999999 kg var" deyip
+       reddedebiliriz. Niye YARIM GRAM: ekran kiloyu üç haneyle
+       gösteriyor (0,001 kg = 1 g), yani bu toleransın altındaki fark
+       zaten görünmüyor. Büyütülürse gerçek eksik stok gizlenir.
+       Bozununca düşen sınama: "tolerans YARIM GRAMDIR". */
+    var TOLERANS_KG = 0.0005;
+
+    function bosDepo() {
+        return {
+            yesilKg: 0, yesilDeger: 0,
+            kavrulmusKg: 0, kavrulmusDeger: 0,
+            fireler: []
+        };
+    }
+
+    function ortalama(deger, kg) {
+        /* Stok yoksa "0 ₺" DEMİYORUZ — sıfır da bir yalandır.
+           Kilo fiyatı bilinmiyor demek için null döner. */
+        return kg > TOLERANS_KG ? deger / kg : null;
+    }
+
+    /* Hata cümlesinde kilo göstermek için. Ekranın biçimlendirmesi
+       burada YOK, ama hata cümlesi sayısız kalırsa kullanıcı neyin
+       yetmediğini bilemez. */
+    function bicim(d) {
+        return (Math.round(d * 1000) / 1000).toString().replace('.', ',');
+    }
+
+    function birHareket(h, depo, i) {
+        var sn = 'Satır ' + (i + 1) + ': ';
+        var d = depo(h.cesit);
+        if (!d) return red('cesit_yok', sn + 'Çeşit adı boş olamaz.');
+
+        var kg = sayi_oku(h.kg);
+        if (kg === null) return red('sayi_okunamadi', sn + 'Ağırlık okunamadı.');
+        if (kg <= 0) {
+            return red('kg_sifir', sn + 'Ağırlık sıfırdan büyük olmalı. ' +
+                'Stok düşürmek için hareketin türünü değiştirin, eksi ' +
+                'ağırlık yazmayın.');
+        }
+
+        if (h.tur === 'alim') {
+            var f = sayi_oku(h.kgFiyat);
+            if (f === null) {
+                return red('fiyat_yok', sn + 'Alım fiyatı okunamadı. ' +
+                    'Fiyatsız alım girilirse depodaki kahvenin kilosu ' +
+                    'hesaplanamaz; sıfır saymıyoruz.');
+            }
+            if (f < 0) return red('fiyat_eksi', sn + 'Fiyat eksi olamaz.');
+            d.yesilKg += kg;
+            d.yesilDeger += kg * f;
+            return { gecerli: true };
+        }
+
+        if (h.tur === 'kavurma') {
+            /* Fire iki yoldan gelir; UYDURULMAZ.
+               a) kullanıcı fire yüzdesini biliyor
+               b) tartmış: çıkan ağırlığı yazar, fireyi BİZ ölçeriz */
+            var fire = null;
+            if (h.cikisKg !== undefined && h.cikisKg !== null &&
+                String(h.cikisKg).trim() !== '') {
+                var o = fire_olc(kg, h.cikisKg);
+                if (!o.gecerli) return red(o.kod, sn + o.mesaj);
+                fire = o.fire;
+            } else if (h.fire !== undefined && h.fire !== null &&
+                       String(h.fire).trim() !== '') {
+                var fy = sayi_oku(h.fire);
+                if (fy === null) return red('sayi_okunamadi', sn + 'Fire okunamadı.');
+                /* DİKKAT: `fire_gecerli` GEÇERLİYSE null döner,
+                   hatada nesne döner. Ters okumak %150 fireyi sessizce
+                   kabul ettirirdi — sınama bunu kırmızı yakaladı. */
+                var g = fire_gecerli(fy);
+                if (g) return red(g.kod, sn + g.mesaj);
+                fire = fy;
+            } else {
+                return red('fire_yok', sn + 'Kavurma için fire yüzdesi ya ' +
+                    'da çıkan ağırlık gerekli. Fireyi biz uyduramayız — ' +
+                    'makineye ve çekirdeğe göre değişir.');
+            }
+
+            if (kg > d.yesilKg + TOLERANS_KG) {
+                return red('yesil_yetmez', sn + 'Depoda ' +
+                    bicim(d.yesilKg) + ' kg yeşil ' + h.cesit + ' var, ' +
+                    bicim(kg) + ' kg kavrulamaz. Eksi stok bir sayı ' +
+                    'değil, bir hatadır.');
+            }
+
+            var birim = ortalama(d.yesilDeger, d.yesilKg);
+            var tasinan = birim === null ? 0 : birim * kg;
+            d.yesilKg -= kg;
+            d.yesilDeger -= tasinan;
+            if (d.yesilKg <= TOLERANS_KG) { d.yesilKg = 0; d.yesilDeger = 0; }
+
+            d.kavrulmusKg += kg * (1 - fire / 100);
+            d.kavrulmusDeger += tasinan;      /* para buharlaşmaz */
+            d.fireler.push(fire);
+            return { gecerli: true };
+        }
+
+        if (h.tur === 'satis' || h.tur === 'zayi') {
+            var yesilMi = h.nerede === 'yesil';
+            var varKg = yesilMi ? d.yesilKg : d.kavrulmusKg;
+            var ad = yesilMi ? 'yeşil' : 'kavrulmuş';
+            if (kg > varKg + TOLERANS_KG) {
+                return red('stok_yetmez', sn + 'Depoda ' + bicim(varKg) +
+                    ' kg ' + ad + ' ' + h.cesit + ' var, ' + bicim(kg) +
+                    ' kg çıkışı yapılamaz. Eksi stok bir sayı değil, ' +
+                    'bir hatadır.');
+            }
+            var b = yesilMi ? ortalama(d.yesilDeger, d.yesilKg)
+                            : ortalama(d.kavrulmusDeger, d.kavrulmusKg);
+            var dus = b === null ? 0 : b * kg;
+            if (yesilMi) {
+                d.yesilKg -= kg; d.yesilDeger -= dus;
+                if (d.yesilKg <= TOLERANS_KG) { d.yesilKg = 0; d.yesilDeger = 0; }
+            } else {
+                d.kavrulmusKg -= kg; d.kavrulmusDeger -= dus;
+                if (d.kavrulmusKg <= TOLERANS_KG) {
+                    d.kavrulmusKg = 0; d.kavrulmusDeger = 0;
+                }
+            }
+            return { gecerli: true };
+        }
+
+        return red('tur_bilinmiyor', sn + 'Bilinmeyen hareket türü: ' +
+            String(h.tur) + '.');
+    }
+
+    /* Hareket dizisini baştan oynatır, depoların son hâlini verir.
+       Tek bir hareket geçersizse HEPSİ reddedilir — yarım işlenmiş
+       bir defter, yanlış bir defterden beterdir. */
+    function stok_hesap(hareketler) {
+        if (!hareketler || !hareketler.length) {
+            return {
+                gecerli: true, bos: true, cesitler: {}, sira: [],
+                toplam: { yesilKg: 0, yesilDeger: 0, kavrulmusKg: 0,
+                          kavrulmusDeger: 0, yesilKgFiyat: null,
+                          kavrulmusKgFiyat: null }
+            };
+        }
+
+        var cesitler = {}, sira = [];
+
+        function depo(ad) {
+            var a = String(ad === undefined || ad === null ? '' : ad).trim();
+            if (!a) return null;
+            if (!cesitler[a]) { cesitler[a] = bosDepo(); sira.push(a); }
+            return cesitler[a];
+        }
+
+        for (var i = 0; i < hareketler.length; i++) {
+            var sonuc = birHareket(hareketler[i] || {}, depo, i);
+            if (!sonuc.gecerli) return sonuc;
+        }
+
+        var t = { yesilKg: 0, yesilDeger: 0, kavrulmusKg: 0, kavrulmusDeger: 0 };
+        sira.forEach(function (ad) {
+            var d = cesitler[ad];
+            t.yesilKg += d.yesilKg;         t.yesilDeger += d.yesilDeger;
+            t.kavrulmusKg += d.kavrulmusKg; t.kavrulmusDeger += d.kavrulmusDeger;
+            d.yesilKgFiyat = ortalama(d.yesilDeger, d.yesilKg);
+            d.kavrulmusKgFiyat = ortalama(d.kavrulmusDeger, d.kavrulmusKg);
+            /* Hangi fireyle hesaplandığı SÖYLENİR: tek fire varsa
+               onu, birden çoksa aralığı yazarız. Ortalama fire
+               UYDURMUYORUZ — partiler farklı ağırlıkta. */
+            d.fireEnDusuk = d.fireler.length ? Math.min.apply(null, d.fireler) : null;
+            d.fireEnYuksek = d.fireler.length ? Math.max.apply(null, d.fireler) : null;
+            d.fireSayisi = d.fireler.length;
+        });
+        t.yesilKgFiyat = ortalama(t.yesilDeger, t.yesilKg);
+        t.kavrulmusKgFiyat = ortalama(t.kavrulmusDeger, t.kavrulmusKg);
+
+        return { gecerli: true, bos: false, cesitler: cesitler,
+                 sira: sira, toplam: t };
+    }
+
     function red(kod, mesaj) {
         return {
             gecerli: false,
@@ -266,6 +465,8 @@
         yesil_gereken: yesil_gereken,
         maliyet: maliyet,
         harman: harman,
-        gelisim_orani: gelisim_orani
+        gelisim_orani: gelisim_orani,
+        stok_hesap: stok_hesap,
+        TOLERANS_KG: TOLERANS_KG
     };
 })(typeof window !== 'undefined' ? window : this);

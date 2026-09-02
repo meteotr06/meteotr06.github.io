@@ -10,6 +10,7 @@
     var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
 
     var DEFTER_ANAHTAR = 'kahve-defter';
+    var ENVANTER_ANAHTAR = 'kahve-envanter';
     var TEMA_ANAHTAR = 'kahve-tema';
     var RENK_ANAHTAR = 'kahve-renk';
 
@@ -294,6 +295,210 @@
                 '<dd>' + kg(b.yesilKg) + '</dd></div>');
         });
         duyur('Toplam ' + kg(s.toplamYesil) + ' yeşil kahve gerekiyor.');
+    }
+
+
+    /* ================= ENVANTER =================
+       Hesap YOK burada. Depoların son hâlini `C.stok_hesap` veriyor;
+       buranın işi göstermek ve yeni hareketi ona sormak.
+
+       Bir hareket eklenirken tek doğrulama yolu var: yeni hareketi
+       listenin sonuna koyup HEPSİNİ yeniden hesaplatmak. Böylece ekran
+       kendi başına "bu geçerli galiba" demiyor -- kural tek yerde. */
+
+    var TUR_ADI = {
+        alim: 'Alım', kavurma: 'Kavurma', satis: 'Satış', zayi: 'Zayi'
+    };
+
+    function hareketOku() {
+        var h = oku(ENVANTER_ANAHTAR, []);
+        return Object.prototype.toString.call(h) === '[object Array]' ? h : [];
+    }
+
+    /* Kilo fiyatı bilinmiyorsa "0,00 ₺" YAZMIYORUZ -- sıfır da bir
+       yalandır. Boş depo "bilinmiyor" der. */
+    function paraVarsa(d) { return d === null ? 'bilinmiyor' : para(d); }
+
+    function turAlanlari() {
+        var t = $('#nTur').value;
+        goster($('#nFiyatKap'), t === 'alim');
+        goster($('#nFireKap'), t === 'kavurma');
+        goster($('#nCikisKap'), t === 'kavurma');
+        goster($('#nNeredeKap'), t === 'satis' || t === 'zayi');
+        $('#nKgEtiket').innerHTML = t === 'kavurma'
+            ? 'Kavurmaya giren <small>kg yeşil</small>'
+            : 'Ağırlık <small>kg</small>';
+    }
+
+    function hareketTopla() {
+        var t = $('#nTur').value;
+        var h = { tur: t, cesit: $('#nCesit').value, kg: $('#nKg').value };
+        if (t === 'alim') h.kgFiyat = $('#nFiyat').value;
+        if (t === 'kavurma') {
+            h.fire = $('#nFire').value;
+            h.cikisKg = $('#nCikis').value;
+        }
+        if (t === 'satis' || t === 'zayi') h.nerede = $('#nNerede').value;
+        return h;
+    }
+
+    function hareketEkle() {
+        var uyari = $('#hareketUyari');
+        var liste = hareketOku().concat([hareketTopla()]);
+
+        /* Kural motorda; ekran yalnız soruyor. */
+        var s = C.stok_hesap(liste);
+        if (!s.gecerli) {
+            /* Motor 'Satır 3' der; kullanıcının listesinde 2 satır
+               vardır ve üçüncüyü daha yeni yazıyordur. O numarayı
+               göstermek 'hangi satır?' diye aratır. Hata eklemekte
+               olduğu satırdaysa numarayı düşürüyoruz; eski bir satırsa
+               numara KALIYOR, çünkü orada gerçekten aranacak bir satır var. */
+            var m = s.mesaj.replace(new RegExp("^Satır " + liste.length + ": "), "");
+            uyari.textContent = m;
+            goster(uyari, true);
+            duyur('Hareket işlenmedi: ' + m);
+            return;
+        }
+        goster(uyari, false);
+
+        if (!yaz(ENVANTER_ANAHTAR, liste)) {
+            uyari.textContent = 'Kaydedilemedi — tarayıcı site verilerini ' +
+                'engelliyor olabilir. Hesap ekranda duruyor ama ' +
+                'KAYDEDİLMEDİ; kapatırsanız kaybolur.';
+            goster(uyari, true);
+            return;
+        }
+        ['#nKg', '#nFiyat', '#nFire', '#nCikis'].forEach(function (x) {
+            $(x).value = '';
+        });
+        $('#hareketFormKap').open = false;
+        envanterCiz();
+        duyur('Hareket işlendi.');
+    }
+
+    function envanterCiz() {
+        var liste = hareketOku();
+        var s = C.stok_hesap(liste);
+        var kutu = $('#envanterSonuc'), uyari = $('#envanterUyari');
+        var depo = $('#envanterDepo');
+
+        if (!s.gecerli) {
+            /* Buraya normalde düşülmez; ama kayıt bozulursa SESSİZ
+               kalmıyoruz -- yanlış bir stok, stok olmamasından kötüdür. */
+            goster(kutu, false);
+            depo.innerHTML = '';
+            uyari.textContent = 'Kayıtlı hareketler hesaplanamadı: ' + s.mesaj;
+            goster(uyari, true);
+            hareketListesiCiz(liste);
+            return;
+        }
+        goster(uyari, false);
+
+        if (s.bos) {
+            goster(kutu, false);
+            depo.innerHTML = '<div class="bos-defter">Depo boş. ' +
+                'İlk hareketi ekleyin — yeşil kahve alımı iyi bir başlangıç.</div>';
+            hareketListesiCiz(liste);
+            return;
+        }
+
+        goster(kutu, true);
+        $('#envanterBuyuk').textContent = kg(s.toplam.kavrulmusKg) + ' kavrulmuş';
+        $('#envanterAlt').textContent =
+            kg(s.toplam.yesilKg) + ' yeşil bekliyor · depodaki para ' +
+            paraVarsa(s.toplam.yesilDeger + s.toplam.kavrulmusDeger === 0 &&
+                      s.toplam.yesilKg + s.toplam.kavrulmusKg === 0
+                      ? null : s.toplam.yesilDeger + s.toplam.kavrulmusDeger);
+
+        depo.innerHTML = '';
+        s.sira.forEach(function (ad) {
+            var d = s.cesitler[ad];
+            var fireNot = '';
+            if (d.fireSayisi === 1) {
+                fireNot = 'Kavrulmuş stok %' + sayi(d.fireEnDusuk, 1) +
+                          ' fireyle hesaplandı.';
+            } else if (d.fireSayisi > 1) {
+                fireNot = d.fireSayisi + ' kavurma · fire %' +
+                    sayi(d.fireEnDusuk, 1) + ' – %' + sayi(d.fireEnYuksek, 1) +
+                    ' arasında. Ortalama fire yazmıyoruz; partiler ' +
+                    'farklı ağırlıkta.';
+            }
+            var p = document.createElement('div');
+            p.className = 'depo';
+            p.innerHTML =
+                '<div class="ad"></div>' +
+                '<div class="ikili-depo">' +
+                  '<div class="kutu"><span class="etiket">yeşil</span>' +
+                    '<span class="miktar">' + kg(d.yesilKg) + '</span>' +
+                    '<span class="fiyat">kilosu ' + paraVarsa(d.yesilKgFiyat) +
+                  '</span></div>' +
+                  '<div class="kutu"><span class="etiket">kavrulmuş</span>' +
+                    '<span class="miktar">' + kg(d.kavrulmusKg) + '</span>' +
+                    '<span class="fiyat">kilosu ' +
+                    paraVarsa(d.kavrulmusKgFiyat) +
+                  '</span></div>' +
+                '</div>' +
+                (fireNot ? '<div class="fire-not"></div>' : '');
+            /* Çeşit adı ve fire notu METİN olarak konuyor: kullanıcının
+               yazdığı ad HTML'e karışmasın. */
+            p.querySelector('.ad').textContent = ad;
+            if (fireNot) p.querySelector('.fire-not').textContent = fireNot;
+            depo.appendChild(p);
+        });
+
+        hareketListesiCiz(liste);
+    }
+
+    function hareketListesiCiz(liste) {
+        var k = $('#hareketListe');
+        k.innerHTML = '';
+        if (!liste.length) {
+            k.innerHTML = '<div class="bos-defter">Henüz hareket yok.</div>';
+            return;
+        }
+        liste.forEach(function (h, i) {
+            var d = document.createElement('div');
+            d.className = 'hareket';
+            var detay = '';
+            if (h.tur === 'alim') {
+                detay = 'kilosu ' + h.kgFiyat + ' ₺';
+            } else if (h.tur === 'kavurma') {
+                detay = String(h.cikisKg || '').trim()
+                    ? 'çıkan ' + h.cikisKg + ' kg (fire ölçüldü)'
+                    : 'fire %' + h.fire;
+            } else {
+                detay = (h.nerede === 'yesil' ? 'yeşil' : 'kavrulmuş') + ' depodan';
+            }
+            d.innerHTML = '<div class="ne"></div><div class="miktar"></div>' +
+                '<button class="sil" type="button">sil</button>' +
+                '<div class="detay"></div>';
+            d.querySelector('.ne').textContent =
+                (TUR_ADI[h.tur] || h.tur) + ' · ' + h.cesit;
+            d.querySelector('.miktar').textContent = h.kg + ' kg';
+            d.querySelector('.detay').textContent = detay;
+            d.querySelector('.sil').addEventListener('click', function () {
+                var l = hareketOku();
+                l.splice(i, 1);
+                yaz(ENVANTER_ANAHTAR, l);
+                envanterCiz();
+                duyur('Hareket silindi.');
+            });
+            k.appendChild(d);
+        });
+    }
+
+    function envanterKur() {
+        var dl = $('#menseListe');
+        V.MENSE_SIRALI.forEach(function (m) {
+            var o = document.createElement('option');
+            o.value = m;
+            dl.appendChild(o);
+        });
+        $('#nTur').addEventListener('change', turAlanlari);
+        $('#nEkle').addEventListener('click', hareketEkle);
+        turAlanlari();
+        envanterCiz();
     }
 
     /* ================= DEFTER ================= */
@@ -611,6 +816,8 @@
         ['#bHedef', '#bFire'].forEach(function (s) {
             $(s).addEventListener('input', harmanHesapla);
         });
+
+        envanterKur();
 
         if (!HAFIZA_VAR) {
             var u = document.createElement('div');
