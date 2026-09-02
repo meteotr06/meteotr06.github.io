@@ -285,7 +285,18 @@ footer a, .alt-bilgi a, .site-alt a {
         if (!sorgu) { liste.innerHTML = ""; durum.textContent = ""; return; }
         // Kelime kelime puanla: ad'da gecmek aciklamada gecmekten agir bassin.
         const kelimeler = sorgu.split(/\s+/).filter(k => k.length > 2);
-        if (!kelimeler.length) { liste.innerHTML = ""; durum.textContent = ""; return; }
+        if (!kelimeler.length) {
+            /* SESSIZ KALMASIN. Olculdu (03.09.2026): "ma" yazan
+               kullanici NE sonuc NE aciklama goruyordu -- kutu bos,
+               durum satiri bos. Aracin bozuk mu oldugunu, yoksa az
+               mi yazdigini anlamasinin hicbir yolu yoktu.
+               Ust taraftaki soz "Aradiginizi yazin, dogrudan aracina
+               goturelim" idi; sonra susmak o sozu bozuyor.
+               aria-live="polite" oldugu icin ekran okuyucu da duyar. */
+            liste.innerHTML = "";
+            durum.textContent = "En az üç harf yazın.";
+            return;
+        }
         const bulunan = hepsi().map(a => {
             const t = sadelestir(a.ad + " " + a.aciklama + " " + (a.grup || "") + " " + (a.anahtar || ""));
             const ad = sadelestir(a.ad);
