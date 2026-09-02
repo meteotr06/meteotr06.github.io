@@ -21,8 +21,18 @@ from PIL import Image, ImageDraw, ImageFilter
 BUYUK = 1024   # yuksek cozunurluk; sonra kucultuyoruz
 
 # --- renkler ---
-GOK_UST = (124, 194, 255)   # acik gok mavisi (ust)
-GOK_ALT = (36, 116, 220)    # koyu gok mavisi (alt)
+# GOK DERINLESTIRILDI (02.09.2026). Onceki degerler:
+#     GOK_UST = (124, 194, 255)
+#     GOK_ALT = (36, 116, 220)
+# Olculdu: BEYAZ BULUT ile gogun ustu arasindaki karsitlik 1.89 idi.
+# Erisilebilirlik esigi buyuk gorsel ogeler icin 3.0; yani simgenin
+# en buyuk parcasi (bulut) zemininden AYIRT EDILEMIYORDU. Kucuk
+# boyutta -- ki simgenin asil yasadigi yer 32-48 pikseldir -- bulut
+# gokyuzune karisip tek bir mavi-beyaz leke olusturuyordu.
+# Yeni ust ton ile karsitlik 3.23. Renk ailesi ayni kaldi: hala
+# gokyuzu mavisi, yalnizca bir ton derin.
+GOK_UST = (64, 145, 232)    # gok mavisi (ust)  -- bulutla karsitlik 3.23
+GOK_ALT = (22, 86, 186)     # derin gok mavisi (alt)
 GUNES = (255, 196, 46)
 GUNES_CEKIRDEK = (255, 232, 150)
 GUNES_ISIK = (255, 214, 92)
