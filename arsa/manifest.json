@@ -94,5 +94,12 @@
       ]
     }
   ],
-  "_not_renk": "30.08.2026: ikisi de #ffffff idi -- kurulu uygulamanin acilis ekrani bembeyaz patliyordu. Manifest renkleri DURAGANDIR, telefonun kipini takip edemez; tek deger secmek zorundayiz. Koyu secildi cunku zarar SIMETRIK DEGIL: karanlik odada beyaz parlama can yakar, gunduz koyu bir an fark edilmez."
+  "_not_renk": "30.08.2026: ikisi de #ffffff idi -- kurulu uygulamanin acilis ekrani bembeyaz patliyordu. Manifest renkleri DURAGANDIR, telefonun kipini takip edemez; tek deger secmek zorundayiz. Koyu secildi cunku zarar SIMETRIK DEGIL: karanlik odada beyaz parlama can yakar, gunduz koyu bir an fark edilmez.",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "./manifest.json"
+    }
+  ],
+  "_not_related": "getInstalledRelatedApps() ancak uygulama kendini boyle bildirirse cevap verir. Bu alan olmadan kurulum daveti kurulu uygulamada bile 'install' demeye devam eder. id ve start_url'e DOKUNULMADI (K-67)."
 }
