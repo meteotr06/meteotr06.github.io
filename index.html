@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Ücretsiz Türkçe Uygulamalar — Hava Durumu, Hesap Araçları, Kur ve Altın</title>
-<meta name="description" content="Kurulum gerektirmeyen ücretsiz Türkçe uygulamalar: hava durumu, 53 hesaplama aracı, döviz ve altın takibi, haftalık planlayıcı, muhasebe ve göz molası. Kayıt yok, telefonda ve bilgisayarda çalışır." />
+<meta name="description" content="Kurulum gerektirmeyen ücretsiz Türkçe uygulamalar: hava durumu, 53 hesaplama aracı, döviz ve altın takibi, haftalık planlayıcı, muhasebe, kahve kavurma hesabı, arsa rehberi ve göz molası. Kayıt yok, telefonda ve bilgisayarda çalışır." />
 <meta name="theme-color" content="#ffffff" />
 <link rel="manifest" href="/manifest.json" />
 <link rel="icon" type="image/png" href="/portal-192.png" />
@@ -19,12 +19,12 @@
 <meta property="og:site_name" content="meteotr06 uygulamaları" />
 <meta property="og:locale" content="tr_TR" />
 <meta property="og:title" content="Ücretsiz Türkçe Uygulamalar — Hava Durumu, Hesap Araçları, Kur ve Altın" />
-<meta property="og:description" content="Altı ücretsiz uygulama, tek adreste. Kurulum yok, kayıt yok. Telefonda ve bilgisayarda çalışır." />
+<meta property="og:description" content="Sekiz ücretsiz uygulama, tek adreste. Kurulum yok, kayıt yok. Telefonda ve bilgisayarda çalışır." />
 <meta property="og:url" content="https://meteotr06.github.io/" />
 <meta property="og:image" content="https://meteotr06.github.io/onizleme.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Hava Durumu, Hesap Araçları, Kur Pusulası, Haftalık Planlayıcı, Muhasebe ve Göz Molası" />
+<meta property="og:image:alt" content="Hava Durumu, Hesap Araçları, Kur Pusulası, Haftalık Planlayıcı, Muhasebe, Kahve Kavurma, Arsa Rehberi ve Göz Molası" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/onizleme.png" />
 <link rel="stylesheet" href="/hesap/stil.css?v=42" />
@@ -58,7 +58,7 @@ footer a, .alt-bilgi a, .site-alt a {
 <main>
     <div class="vitrin-basi">
         <h1>Ücretsiz Türkçe uygulamalar</h1>
-        <p class="ozet">Altı uygulama, tek adreste. Kurulum yok, üyelik yok, ücretsiz.
+        <p class="ozet">Sekiz uygulama, tek adreste. Kurulum yok, üyelik yok, ücretsiz.
         Telefonda da bilgisayarda da açılır.</p>
     </div>
 
@@ -94,6 +94,11 @@ footer a, .alt-bilgi a, .site-alt a {
             <b>Kahve Kavurma Hesabı</b>
             <span>Fire, kilo maliyeti, harman oranı ve kavurma defteri</span>
             <span class="rozet">Kavurmacılar için</span>
+        </a>
+        <a class="arac-kart uyg-kart" href="/arsa/">
+            <b>Arsa Rehberi</b>
+            <span>İmar durumu, emsal, rayiç bedel ve alım öncesi risk kontrolü</span>
+            <span class="rozet">Arsa alacaklar için</span>
         </a>
         <a class="arac-kart uyg-kart" href="/goz-molasi/">
             <b>Göz Molası</b>
@@ -136,7 +141,9 @@ footer a, .alt-bilgi a, .site-alt a {
         Ayrıntılar için uygulamaların gizlilik sayfalarına bakabilirsiniz:
         <a href="/hesap/gizlilik.html">Hesap Araçları</a>,
         <a href="/kur-pusulasi/gizlilik.html">Kur Pusulası</a>,
-        <a href="/muhasebe/gizlilik.html">Muhasebe</a>.</p>
+        <a href="/muhasebe/gizlilik.html">Muhasebe</a>,
+        <a href="/arsa/gizlilik.html">Arsa Rehberi</a>,
+        <a href="/mobil/gizlilik.html">Hava Durumu</a>.</p>
 
         <h2>Ücretsiz mi, ne zamana kadar?</h2>
         <p>Ücretsiz ve öyle kalacak. Uygulamaların masrafı yok; tek gelir kaynağı
@@ -222,10 +229,21 @@ footer a, .alt-bilgi a, .site-alt a {
 <script src="/kurulum.js?v=1"></script>
 <script>
 /* PORTAL KURULUMU. Anahtar portala OZEL. */
+    /* Kartlari SAY -- yeni uygulama eklendiginde metin kendiliginden
+       dogru kalsin diye. */
+    function uygulamaSayisi() {
+        var n = document.querySelectorAll('a.uyg-kart').length;
+        var yazi = {6:'Altı',7:'Yedi',8:'Sekiz',9:'Dokuz',10:'On'};
+        return yazi[n] || n;
+    }
+
 try { new Kurulum({
     anahtar: 'portal-kurulum-ertelendi',
     baslik: 'Uygulamaları ana ekranına ekle',
-    metin: 'Yedi uygulama tek yerden, internetsiz de açılır'
+    /* SAYI ELLE YAZILMAZ: kart sayisindan turetilir. Once "Alti"
+       yaziyordu, sonra yedi oldu, sonra sekiz -- metin geride
+       kaldi. Kaydin anlattigi seyden uzun yasamasi (K-74). */
+    metin: uygulamaSayisi() + ' uygulama tek yerden, internetsiz de açılır'
 }); } catch (e) {}
 
 /* Servis iscisi -- ALT UYGULAMALARA KARISMIYOR (sw.js icinde acikca

@@ -67,8 +67,11 @@ self.addEventListener('fetch', (e) => {
     if (adres.origin !== self.location.origin) return;
 
     /* ALT UYGULAMALARA DOKUNMA. Kapsam kuralı zaten koruyor ama
-       açıkça reddetmek, bir gün kapsam yanlış kurulursa yedi
-       uygulamanın çevrimdışı davranışını kurtarır. */
+       açıkça reddetmek, bir gün kapsam yanlış kurulursa
+       ALT_UYGULAMALAR listesindeki her uygulamanın çevrimdışı
+       davranışını kurtarır. (Önce "yedi uygulama" yazıyordu; liste
+       sekize çıktı, yorum geride kaldı. Yoruma SAYI yazmak, sayının
+       değişeceğini unutmaktır.) */
     for (const yol of ALT_UYGULAMALAR) {
         if (adres.pathname.indexOf(yol) === 0) return;
     }
