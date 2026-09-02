@@ -1937,10 +1937,40 @@ function uyar(metin) {
     yardim_ac('Bilgi', '<p>' + metin + '</p>');
 }
 
+/* Katmani ACAN oge burada saklanir: kapaninca odak ORAYA doner.
+   Unutulursa odak <body>'ye duser ve kullanici sayfanin basina firlar --
+   "kapattim ama nerede kaldigimi kaybettim". */
+var yardim_donus = null;
+
 function yardim_ac(baslik, metin) {
     $('yardimBaslik').textContent = baslik;
     $('yardimMetin').innerHTML = metin;
-    $('yardimKatman').hidden = false;
+    var k = $('yardimKatman');
+    k.hidden = false;
+
+    /* KLAVYE ICIN UC SART (olculdu 02.09.2026):
+       Once katman yalnizca FAREYLE kapaniyordu -- "Kapat" dugmesine ya
+       da disina tiklayarak. Esc tanimli degildi ve acilista odak iceri
+       tasinmiyordu. Yani yardimi acan klavye kullanicisi, "Kapat"a
+       ulasmak icin arkadaki butun sayfayi Tab'layarak gecmek
+       zorundaydi; bu uygulamada onlarca alan var.
+       Hicbir sinama kirmizi vermiyordu, hicbir sayi yanlis degildi --
+       yalniz bir kullanici grubu iceride mahsur kaliyordu. */
+    yardim_donus = document.activeElement;
+    try { $('yardimKapat').focus(); } catch (e) {}
+}
+
+function yardim_kapat() {
+    var k = $('yardimKatman');
+    if (k.hidden) return;
+    k.hidden = true;
+    /* Odagi geri ver. Oge bu arada silinmis olabilir (rapor yeniden
+       cizildiyse); `isConnected` sormadan focus() cagirmak sessizce
+       hicbir sey yapar ve odak yine kaybolur. */
+    if (yardim_donus && yardim_donus.isConnected) {
+        try { yardim_donus.focus(); } catch (e) {}
+    }
+    yardim_donus = null;
 }
 
 function tema_uygula(t) {
@@ -2062,9 +2092,20 @@ function baglantilari_kur() {
         };
     });
 
-    $('yardimKapat').onclick = function () { $('yardimKatman').hidden = true; };
+    /* ESC KAPATIR. Dinleyici BELGEYE baglanir, katmana degil:
+       odak katmanin icinde olmayabilir (kullanici Tab ile disari
+       cikmis olabilir) ve o durumda katmana bagli dinleyici Esc'i
+       hic gormezdi. */
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !$('yardimKatman').hidden) {
+            e.preventDefault();
+            yardim_kapat();
+        }
+    });
+
+    $('yardimKapat').onclick = yardim_kapat;
     $('yardimKatman').onclick = function (e) {
-        if (e.target === $('yardimKatman')) $('yardimKatman').hidden = true;
+        if (e.target === $('yardimKatman')) yardim_kapat();
     };
 }
 
