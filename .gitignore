@@ -24,3 +24,13 @@ planlayici/
 hesap/sinama*
 hesap/test-*
 arsa/test*.html
+
+# IC ONIZLEME SAYFALARI -- yayina cikmaz.
+# 1 Eylul 2026'da olculdu: kur-pusulasi/_onizleme.html yayin
+# klasorunde duruyordu ve canlida 404 idi -- ama sebebi bir KARAR
+# degildi: dosya yalnizca 'izlenmiyordu'. Onu koruyan sey kimsenin
+# `git add -A` yapmamis olmasiydi. Tesadufi koruma, korumadir
+# denemez; bugun ayni depoda baska bir oturumun eklemesi
+# kuyruktaki dosyalari goturmustu. Artik bilerek eleniyor.
+*/_onizleme.html
+_onizleme.html
