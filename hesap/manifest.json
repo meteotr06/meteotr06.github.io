@@ -1,53 +1,105 @@
 {
-    "id": "/hesap/",
-    "name": "Hesap Araçları — Maaş, Kredi, Kira, Vergi ve Günlük Hesaplar",
-    "short_name": "Hesap Araçları",
-    "description": "30 hesaplama aracı tek yerde: net maaş, kıdem tazminatı, kredi taksiti, kira artışı, KDV, birikim, kalori, birim çevirme, alan-hacim ve daha fazlası. Resmî 2026 oranlarıyla, adım adım açıklamalı, ücretsiz.",
-    "lang": "tr",
-    "dir": "ltr",
-    "start_url": "./?kaynak=uygulama",
-    "scope": "./",
-    "display": "standalone",
-    "display_override": ["standalone", "minimal-ui"],
-    "orientation": "any",
-    "background_color": "#ffffff",
-    "theme_color": "#ffffff",
-    "categories": ["finance", "productivity", "utilities", "education"],
-    "prefer_related_applications": false,
-    "launch_handler": { "client_mode": "navigate-existing" },
-    "icons": [
-        { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-        { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-        { "src": "ikon-maskeli.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-    ],
-    "shortcuts": [
+  "id": "/hesap/",
+  "name": "Hesap Araçları — Maaş, Kredi, Kira, Vergi ve Günlük Hesaplar",
+  "short_name": "Hesap Araçları",
+  "description": "30 hesaplama aracı tek yerde: net maaş, kıdem tazminatı, kredi taksiti, kira artışı, KDV, birikim, kalori, birim çevirme, alan-hacim ve daha fazlası. Resmî 2026 oranlarıyla, adım adım açıklamalı, ücretsiz.",
+  "lang": "tr",
+  "dir": "ltr",
+  "start_url": "./?kaynak=uygulama",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "categories": [
+    "finance",
+    "productivity",
+    "utilities",
+    "education"
+  ],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "icons": [
+    {
+      "src": "ikon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "ikon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "ikon-maskeli.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Net Maaş Hesapla",
+      "short_name": "Net Maaş",
+      "description": "Brütten nete, 12 ayın tamamı",
+      "url": "./net-maas-hesaplama.html",
+      "icons": [
         {
-            "name": "Net Maaş Hesapla",
-            "short_name": "Net Maaş",
-            "description": "Brütten nete, 12 ayın tamamı",
-            "url": "./net-maas-hesaplama.html",
-            "icons": [{ "src": "ikon-192.png", "sizes": "192x192" }]
-        },
-        {
-            "name": "Kredi Taksiti",
-            "short_name": "Kredi",
-            "description": "Aylık taksit ve ödeme planı",
-            "url": "./kredi-hesaplama.html",
-            "icons": [{ "src": "ikon-192.png", "sizes": "192x192" }]
-        },
-        {
-            "name": "Kira Artışı",
-            "short_name": "Kira",
-            "description": "Yasal üst sınır (TÜFE ortalaması)",
-            "url": "./kira-artisi-hesaplama.html",
-            "icons": [{ "src": "ikon-192.png", "sizes": "192x192" }]
-        },
-        {
-            "name": "KDV Hesapla",
-            "short_name": "KDV",
-            "description": "Dahil / hariç ayırma",
-            "url": "./kdv-hesaplama.html",
-            "icons": [{ "src": "ikon-192.png", "sizes": "192x192" }]
+          "src": "ikon-192.png",
+          "sizes": "192x192"
         }
-    ]
+      ]
+    },
+    {
+      "name": "Kredi Taksiti",
+      "short_name": "Kredi",
+      "description": "Aylık taksit ve ödeme planı",
+      "url": "./kredi-hesaplama.html",
+      "icons": [
+        {
+          "src": "ikon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Kira Artışı",
+      "short_name": "Kira",
+      "description": "Yasal üst sınır (TÜFE ortalaması)",
+      "url": "./kira-artisi-hesaplama.html",
+      "icons": [
+        {
+          "src": "ikon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "KDV Hesapla",
+      "short_name": "KDV",
+      "description": "Dahil / hariç ayırma",
+      "url": "./kdv-hesaplama.html",
+      "icons": [
+        {
+          "src": "ikon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "./manifest.json"
+    }
+  ],
+  "_not_related": "getInstalledRelatedApps() ancak uygulama kendini boyle bildirirse cevap verir. Bu alan olmadan kurulum daveti KURULU uygulamada bile 'install' demeye devam eder. id ve start_url'e DOKUNULMADI: sonradan degistirmek kurulu uygulamayi iki ayri simgeye boler."
 }
