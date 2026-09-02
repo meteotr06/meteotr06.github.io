@@ -478,6 +478,13 @@
             d.querySelector('.miktar').textContent = h.kg + ' kg';
             d.querySelector('.detay').textContent = detay;
             d.querySelector('.sil').addEventListener('click', function () {
+                /* Defterde silme onay soruyor, envanterde sormuyordu.
+                   Aynı uygulamada iki farklı davranış, kullanıcının
+                   öğrendiğini boşa çıkarır -- üstelik bir stok hareketi
+                   parti kaydından ucuz değildir, para taşır. Silinen
+                   hareket geri alınamaz; sonrasındaki bütün depo
+                   yeniden hesaplanır. */
+                if (!confirm('Bu hareket silinsin mi? Depo yeniden hesaplanacak.')) return;
                 var l = hareketOku();
                 l.splice(i, 1);
                 yaz(ENVANTER_ANAHTAR, l);
@@ -822,8 +829,13 @@
         if (!HAFIZA_VAR) {
             var u = document.createElement('div');
             u.className = 'uyari-kutu';
+            /* İKİ defter de sayılır. Envanter eklenince bu cümle
+               eksik kaldı: yalnız 'kavurma defteri' diyordu, oysa
+               stok hareketleri de kaydedilemiyor. Eksik uyarı,
+               kullanıcıya 'envanterim duruyor' dedirtir. */
             u.textContent = 'Tarayıcınız site verilerini engelliyor — ' +
-                'kavurma defteri KAYDEDİLEMEZ. Hesaplar çalışmaya devam eder.';
+                'kavurma defteri ve envanter KAYDEDİLEMEZ. Hesaplar ' +
+                'çalışmaya devam eder, ama kapatınca kaybolur.';
             $('.sarmal').insertBefore(u, $('.sekmeler'));
         }
         demlemeKur();
