@@ -226,7 +226,8 @@ footer a, .alt-bilgi a, .site-alt a {
     temizle.addEventListener("click", () => { girdi.value = ""; ciz(); girdi.focus(); });
 })();
 </script>
-<script src="/kurulum.js?v=1"></script>
+<script src="/kurulum.js?v=2"></script>
+<script src="/guncelle.js?v=2"></script>
 <script>
 /* PORTAL KURULUMU. Anahtar portala OZEL. */
     /* Kartlari SAY -- yeni uygulama eklendiginde metin kendiliginden
@@ -245,6 +246,13 @@ try { new Kurulum({
        kaldi. Kaydin anlattigi seyden uzun yasamasi (K-74). */
     metin: uygulamaSayisi() + ' uygulama tek yerden, internetsiz de açılır'
 }); } catch (e) {}
+
+/* TESLIMAT (5 · Goz Molasi'nin olcumu): kurulu uygulamada tarayici
+   kendi basina yeni surumu SORMAZ -- gezinme olmadigi icin. Bu modul
+   acilista ve uygulamaya geri donuldugunde sorar, yeni surum devralinca
+   kullaniciya soyler. KENDILIGINDEN TAZELEMEZ: portalda arama kutusu
+   var, habersiz reload yazilani siler. */
+try { new Guncelle(); } catch (e) {}
 
 /* Servis iscisi -- ALT UYGULAMALARA KARISMIYOR (sw.js icinde acikca
    reddediliyor). Kayit "load" olayindan SONRA: ilk acilisi yavaslatmasin. */

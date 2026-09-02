@@ -95,7 +95,7 @@
 <meta name="twitter:title" content="Arsa Rehberi — arsa almadan önce kontrol edin" />
 <meta name="twitter:description" content="Tapuda arsa mı arazi mi, ne yapılabilir, kaça mal olur? Resmî cetvele dayalı taban değer." />
 <meta name="twitter:image" content="https://meteotr06.github.io/arsa/onizleme/paylasim-karti.png" />
-<link rel="stylesheet" href="stil.css?v=142" />
+<link rel="stylesheet" href="stil.css?v=143" />
 </head>
 <body>
 
@@ -585,13 +585,14 @@
     <p class="kucuk"><a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> — parsel bilgileriniz ve defteriniz cihazınızda kalır; yalnızca haritayı açtığınızda seçtiğiniz yerin adı harita servisine gider.</p>
 </footer>
 
-<script src="degisiklikler.js?v=142" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
-<script src="cekirdek.js?v=142" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
-<script src="mevzuat.js?v=142" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
-<script src="rayic.js?v=142" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
-<script src="parsel.js?v=142" onerror="(window.__betikHata=window.__betikHata||[]).push('parsel.js')"></script>
-    <script src="arayuz.js?v=142" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
-<script src="kurulum.js?v=142" onerror="(window.__betikHata=window.__betikHata||[]).push('kurulum.js')"></script>
+<script src="degisiklikler.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('degisiklikler.js')"></script>
+<script src="cekirdek.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('cekirdek.js')"></script>
+<script src="mevzuat.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('mevzuat.js')"></script>
+<script src="rayic.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('rayic.js')"></script>
+<script src="parsel.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('parsel.js')"></script>
+    <script src="arayuz.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('arayuz.js')"></script>
+<script src="kurulum.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('kurulum.js')"></script>
+<script src="guncelle.js?v=143" onerror="(window.__betikHata=window.__betikHata||[]).push('guncelle.js')"></script>
 <script>
 /* KURULUM DAVETI. Ortak modul: HESAP MAKINESI\ortak\kurulum.js
    Anahtar UYGULAMAYA OZEL -- ortak anahtar kullanilsaydi bir uygulamada
@@ -599,6 +600,14 @@
    Kayit SURELIDIR (7 gun): "kur, sil, bir daha indiremedim" hatasi
    tam bu kaydin sonsuz yasamasindan doguyordu. */
 try { new Kurulum({ anahtar: 'arsa-kurulum-ertelendi' }); } catch (e) {}
+
+/* TESLIMAT. Ortak modul: HESAP MAKINESI\ortak\guncelle.js
+   Olculdu (5 · Goz Molasi, 02.09.2026): kurulu uygulamada tarayici yeni
+   surumu KENDILIGINDEN sormaz -- gezinme olmadigi icin. Dokuz
+   uygulamanin SEKIZINDE bu eksikti: yayin dogru, TESLIMAT yok.
+   KENDILIGINDEN TAZELEMIYOR -- bu sayfada form var, habersiz reload
+   kullanicinin yazdigini siler. Karar kullanicida. */
+try { new Guncelle(); } catch (e) {}
 </script>
 <script>
 /* Çevrimdışı çalışma. Kayıt başarısız olursa uygulama yine çalışır —
