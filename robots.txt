@@ -19,6 +19,7 @@ Disallow: /kur-pusulasi/BENIOKU.md
 Disallow: /mobil/damga_denetle.py
 
 # Genel desen: ileride eklenecek arac/belge de kendiliginden kapansin.
+Disallow: /planlayici/sinama.html
 Disallow: /*.py$
 Disallow: /*.bat$
 Disallow: /*.md$
