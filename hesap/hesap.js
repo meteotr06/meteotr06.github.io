@@ -1385,7 +1385,29 @@ function fayansHesap(alanM2, karoEnCm, karoBoyCm, firePayiYuzde) {
     const karoAlan = (karoEnCm / 100) * (karoBoyCm / 100);
     if (karoAlan <= 0) return null;
     const adetHam = alanM2 / karoAlan;
-    const adet = Math.ceil(adetHam * (1 + (firePayiYuzde || 10) / 100));
+    /* YAZILAN SIFIR YUTULMUYOR (03.09.2026, olculdu).
+       Onceki hali `(firePayiYuzde || 10)` idi. JavaScriptte 0 YANLIS
+       sayildigi icin fire payina 0 yazan kullanici sessizce %10 aliyordu.
+       OLCULDU (calisan uygulama, 4x5 m oda, 60x60 karo):
+           fire 10 -> 62 karo (6 fire)
+           fire  0 -> 62 karo (6 fire)   <- kullanici 0 istedi, 10 aldi
+           fire bos -> 62 karo (6 fire)
+       Ucu de ayni. Fire istemeyen -- kendi kesimini yapan, elinde artan
+       karo olan, ya da sadece net alan merak eden -- kullanici fazla
+       karo siparis ediyordu. Cokme yok, uyari yok; yalnizca fazladan
+       para.
+
+       BOS ile SIFIR AYRI SEYLERDIR:
+         bos/verilmemis -> %10 mesru varsayilan (sayfa boyle anlatiyor)
+         yazilmis 0     -> kullanicinin karari, aynen uygulanir
+         negatif/okunamaz -> varsayilana duser (fire eksi olamaz)
+
+       Ayni kalip bugun 07 Kur'da (vade/donem/gun) ve 06 Planlayici'da
+       (deneme dogru sayisi) kapatildi -- K-69, bu dosyada da vardi. */
+    const fireGecerli = typeof firePayiYuzde === "number" &&
+                        isFinite(firePayiYuzde) && firePayiYuzde >= 0;
+    const fire = fireGecerli ? firePayiYuzde : 10;
+    const adet = Math.ceil(adetHam * (1 + fire / 100));
     return { karoAlan: karoAlan, adetHam: adetHam, adet: adet,
              fireAdet: adet - Math.ceil(adetHam), kutuM2: adet * karoAlan };
 }

@@ -12,6 +12,12 @@
 (function (global) {
     'use strict';
 
+    /* ETKIN DIL. Sayi OKUMA ve YAZMA buna gore degisir; motorun
+       kendisi diller arasi tek gercektir, yalnizca bicim degisir. */
+    var DIL = 'tr';
+    function dilAyarla(d) { DIL = (d === 'en') ? 'en' : 'tr'; return DIL; }
+    function dilOku() { return DIL; }
+
     /* ---------------------------------------------------------------
        TÜRKÇE SAYI OKUMA
 
@@ -48,21 +54,55 @@
         var nokta = (s.match(/\./g) || []).length;
         var virgul = (s.match(/,/g) || []).length;
 
-        if (virgul > 1) return null;                 /* "1,2,3" belirsiz */
+        /* ---------------------------------------------------------------
+           IKI YAZIM BICIMI
 
-        if (virgul === 1) {
-            /* Virgül varsa ONDALIK ayracıdır; nokta binliktir. */
-            s = s.replace(/\./g, '').replace(',', '.');
-        } else if (nokta === 1) {
-            /* Tek nokta: binlik mi ondalık mı?
-               "1.500" (üç hane) -> binlik.  "1500.50" -> ondalık. */
-            var son = s.split('.')[1];
-            if (son.length === 3 && s.split('.')[0].length <= 3) {
-                s = s.replace('.', '');              /* binlik */
+           Uygulama Ingilizce'ye acilinca burasi degismek ZORUNDAYDI.
+           Olculdu (03.09.2026, eski surum):
+               "1,500.50"  -> 1,5005      (dogrusu 1500,50)
+               "12,345.67" -> 12,34567    (dogrusu 12345,67)
+               "1,500"     -> 1,5         (Ingilizce'de 1500)
+           Ucu de BIN KAT hata, uyarisiz. Muhasebe'de bu gece ayni sinif
+           bulundu; oradaki kanitlanmis kural buraya tasindi.
+
+           KURALLAR
+           1. IKI AYRAC DA VARSA: SONDAKI ondaliktir. Bu kural DILDEN
+              BAGIMSIZ dogrudur -- "1.500,50" da "1,500.50" da tek bir
+              sekilde okunur.
+           2. TEK AYRAC VARSA dil gerekir, cunku "1,500" gercekten
+              belirsizdir: Turkce'de 1,5 · Ingilizce'de 1500.
+              Dilin ONDALIK ayraci ise ondalik sayilir.
+              Degilse binlik sayilir -- ama YALNIZCA duzgun binlik
+              kaliba uyuyorsa ("1.500", "1.234.567"). Uymuyorsa
+              ondalik kabul edilir; boylece Turkce'de "1.5" yine 1,5
+              olur, "15" olmaz.
+           --------------------------------------------------------------- */
+        var ondalikAyrac = DIL === 'en' ? '.' : ',';
+        var binlikAyrac = DIL === 'en' ? ',' : '.';
+
+        if (nokta > 0 && virgul > 0) {
+            /* 1. kural: sondaki ondaliktir */
+            var sonNokta = s.lastIndexOf('.'), sonVirgul = s.lastIndexOf(',');
+            if (sonVirgul > sonNokta) s = s.replace(/\./g, '').replace(/,/g, '.');
+            else                      s = s.replace(/,/g, '');
+        } else if (ondalikAyrac === ',' ? virgul > 0 : nokta > 0) {
+            /* dilin ONDALIK ayraci */
+            if ((ondalikAyrac === ',' ? virgul : nokta) > 1) return null;  /* "1,2,3" */
+            s = s.replace(ondalikAyrac, '.');
+        } else if (ondalikAyrac === ',' ? nokta > 0 : virgul > 0) {
+            /* dilin BINLIK ayraci */
+            var kacar = ondalikAyrac === ',' ? nokta : virgul;
+            var kacip = binlikAyrac === '.' ? '\\.' : ',';
+            var binlikKalip = new RegExp('^\\d{1,3}(' + kacip + '\\d{3})+$');
+            if (binlikKalip.test(s)) {
+                s = s.split(binlikAyrac).join('');
+            } else if (kacar === 1) {
+                /* Duzgun binlik degil -> ondalik say. Turkce'de "1.5"
+                   boylece 1,5 kalir; "15" olmaz. */
+                s = s.replace(binlikAyrac, '.');
+            } else {
+                return null;                        /* "1.23.4" belirsiz */
             }
-            /* değilse ondalık; olduğu gibi kalır */
-        } else if (nokta > 1) {
-            s = s.replace(/\./g, '');                /* "1.234.567" */
         }
 
         if (!/^\d*\.?\d+$/.test(s)) return null;
@@ -490,6 +530,8 @@
 
     global.C = {
         sayi_oku: sayi_oku,
+        dilAyarla: dilAyarla,
+        dilOku: dilOku,
         fire_olc: fire_olc,
         kavrulmus_agirlik: kavrulmus_agirlik,
         yesil_gereken: yesil_gereken,
