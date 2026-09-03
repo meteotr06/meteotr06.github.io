@@ -151,20 +151,16 @@
   .gizli-okur { position:absolute; width:1px; height:1px; margin:-1px; padding:0;
     overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
 
-  /* "ana ekrana ekle" daveti - cogu kullanici bunu bilmez, uygulama kendisi soyler */
-  .kur-serit {
-    position:fixed; left:12px; right:12px; bottom:12px; z-index:100;
-    background:var(--panel); border-radius:16px; padding:12px 14px;
-    display:none; align-items:center; gap:10px;
-    box-shadow:0 10px 34px rgba(0,0,0,.4);
-    animation:belir 400ms ease both;
-  }
-  .kur-serit.acik { display:flex; }
-  /* Serit acikken sayfanin alti erisilebilir kalsin (bkz. seritGoster) */
+  /* `.kur-serit` KURALLARI SILINDI (03.09.2026): kendi kurulum seridimiz
+     kaldirildi, yerini ortak modul aldi. Kullanilmayan CSS zararsizdir
+     ama yaniltir -- birisi kurali gorup ogenin hala var oldugunu sanir.
+
+     AMA ASAGIDAKI KURAL DURUYOR ve DURMALI: serit hangi modulden gelirse
+     gelsin `position:fixed` ile sayfanin altini ortuyor. Olculdu
+     (30.08.2026, telefon 375x812): "Gizlilik Politikasi" baglantisi
+     y=762-778'de kaliyor ve TIKLANAMIYORDU. Sinifi artik ortak modulun
+     seridini gozleyen kod veriyor (asagida, `new Kurulum`in yaninda). */
   body.serit-acik { padding-bottom:calc(110px + env(safe-area-inset-bottom)); }
-  .kur-serit .metin { flex:1; font-size:13px; line-height:1.35; }
-  .kur-serit .metin small { color:var(--yazi3); font-size:11px; }
-  .kur-serit .kapat { color:var(--yazi3); font-size:18px; padding:8px; cursor:pointer; }
 
   /* reklam alani: kod yapistirilinca gorunur, bos oldugunda hic yer kaplamaz */
   .reklam { margin:14px 0 4px; min-height:0; text-align:center; overflow:hidden; }
@@ -251,16 +247,9 @@
   </p>
 </div>
 
-<!-- "ana ekrana ekle" daveti: kullanici bilmese de uygulama kendisi anlatir -->
-<div class="kur-serit" id="kurSerit">
-  <div class="metin">
-    <b>📲 Sürekli kullanmak ister misiniz?</b><br>
-    <small>Ana ekranınıza ekleyin — link aramadan, <b>uygulama gibi</b> tek
-    dokunuşla açılsın. İnternetsiz bile çalışır.</small>
-  </div>
-  <button class="dugme ana" id="kurBtn">Ekle</button>
-  <span class="kapat" id="kurKapat">✕</span>
-</div>
+<!-- ESKI "ana ekrana ekle" seridi KALDIRILDI (03.09.2026).
+     Yerini ortak modul aldi: HESAP MAKINESI\ortak\kurulum.js
+     Ikisi birden acikken ust uste biniyorlardi -- asagida anlatildi. -->
 
 <div class="ara-ekran" id="araEkran">
   <div class="ara-ust">
@@ -958,70 +947,30 @@ function acilis(){
 }
 acilis();
 
-/* ---- "Ana ekrana ekle" daveti ----
-   Cogu kullanici bu ozelligi bilmez. Android/Chrome bize "kurulabilir" sinyali
-   (beforeinstallprompt) verir; biz de kendi seridimizi gosterip TEK TIKLA
-   kurulumu baslatiriz. iPhone/Safari bu sinyali vermez, orada talimat gosteririz. */
-let kurulumOlayi = null;
-const serit = document.getElementById("kurSerit");
-const zatenKurulu = () =>
-  window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+/* ESKI KURULUM DAVETI KALDIRILDI -- IKI SERIT UST USTE BINIYORDU.
 
-function seritGoster(){
-  if (zatenKurulu()) return;                       // zaten eklemis
-  if (Hafiza.oku("kurulumGizle")) return; // kullanici kapatmis
-  serit.classList.add("acik");
-  /* SERIT SAYFANIN ALTINI ORTUYORDU.
-     Olculdu (30.08.2026, telefon 375x812): serit position:fixed ve
-     y=706-800 arasini kapliyor; "Gizlilik Politikasi" baglantisi
-     y=762-778'de kaliyor ve TIKLANAMIYOR -- elementFromPoint baglanti
-     yerine seridin kendisini donduruyor. Kaynak yazisi da (Open-Meteo,
-     RainViewer) ayni sekilde ortuluyor.
-     body'nin alt bosugu 0 idi; serit acikken serit kadar bosluk
-     veriliyor ki altindaki icerik erisilebilir kalsin. */
-  document.body.classList.add("serit-acik");
-}
+   Olculdu (03.09.2026, yayin oncesi denetimde -- ama ne yazik ki
+   YAYINDAN SONRA okundu; 375x812 telefon, temiz depo):
+       eski serit  .kur-serit      z-index 100  top 704.9  bottom 800
+       yeni serit  .kurulum-serit  z-index 900  top 657    bottom 800
+       ortusen yukseklik = 95,1 px = eski seridin BOYUNUN TAMAMI
+   Alti noktada `elementFromPoint` denendi; hepsi yeni seridi dondurdu.
+   Yani kullanici ne "Ekle"ye ne kapatma "X"ine basabiliyordu.
 
-window.addEventListener("beforeinstallprompt", olay => {
-  olay.preventDefault();          // tarayicinin kendi cirkin cubugunu engelle
-  kurulumOlayi = olay;            // sakla, kendi dugmemizle kullanacagiz
-  setTimeout(seritGoster, 2500);  // once uygulamayi gorsun, sonra davet
-});
+   Ve bu bipe (`beforeinstallprompt`) BAGLI DEGILDI: bip hic gelmese
+   bile eskiyi 4 sn'lik telefon yedegi, yeniyi modulun 3 sn'lik yedegi
+   aciyordu. Ayrica iki ayri dinleyici AYNI olayda `prompt()` cagiriyor;
+   ikinci cagri Chrome'da hata atar.
 
-document.getElementById("kurBtn").onclick = async () => {
-  if (kurulumOlayi){
-    kurulumOlayi.prompt();                       // gercek kurulum penceresi
-    await kurulumOlayi.userChoice;
-    kurulumOlayi = null;
-    serit.classList.remove("acik");
-    document.body.classList.remove("serit-acik");
-    return;
-  }
-  // Sinyal yoksa cihaza gore DOGRU talimati goster
-  const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  alert(iOS
-    ? "iPhone'da ana ekrana ekleme:\n\n" +
-      "1) Alttaki Paylaş düğmesine dokunun  ⬆️\n" +
-      "2) Aşağı kaydırıp \"Ana Ekrana Ekle\" seçin\n" +
-      "3) \"Ekle\" deyin"
-    : "Ana ekrana ekleme:\n\n" +
-      "1) Sağ üstteki menüye dokunun  ⋮\n" +
-      "2) \"Ana ekrana ekle\" (veya \"Uygulamayı yükle\") seçin\n" +
-      "3) \"Ekle\" deyin");
-};
-document.getElementById("kurKapat").onclick = () => {
-  serit.classList.remove("acik");
-    document.body.classList.remove("serit-acik");
-  Hafiza.yaz("kurulumGizle", "1");   // bir daha rahatsiz etme
-};
+   Gerilemeyi bu depoya ben getirdim (2e96532): ortak modulu eklerken
+   var olan seridi kaldirmayi unuttum. Yeni bir sey eklerken "ayni isi
+   yapan eski bir sey var mi" diye sormamak, bu ailedeki en pahali
+   aliskanlik.
 
-/* GUVENLIK AGI: bazi tarayicilar (iPhone/Safari, gomulu tarayicilar, bazi
-   Android tarayicilari) "kurulabilir" sinyalini HIC gondermez. O zaman
-   kullanici oneriyi hic gormez. Bu yuzden: telefon/tablet ise, sinyal
-   gelmese bile 4 saniye sonra daveti gosteriyoruz (talimatli olarak). */
-const TELEFON = /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent)
-                || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
-if (TELEFON) setTimeout(seritGoster, 4000);
+   Ortak modul kaldi cunku daha iyisi: kurulu uygulamayi taniyor
+   (related_applications), erteleme SURELI (7 gun -- eskisi "bir daha
+   rahatsiz etme" diye KALICI yaziyordu ve "kur, sil, bir daha
+   indiremedim" hatasi tam ondan doguyordu), ve dokuz uygulamada ayni. */
 
 if("serviceWorker" in navigator)
   navigator.serviceWorker.register("sw.js").catch(()=>{});
@@ -1034,6 +983,27 @@ if("serviceWorker" in navigator)
    Kayit SURELIDIR (7 gun) -- "kur, sil, bir daha indiremedim"
    hatasi kaydin sonsuz yasamasindan doguyordu. */
 try { new Kurulum({ anahtar: 'hava-kurulum-ertelendi' }); } catch (e) {}
+
+/* SERIT SAYFANIN ALTINI ORTUYOR -- eski koddaki OLCULMUS duzeltme,
+   yeni module tasindi (K-69: bir sinif kardesine tasinmadan kapanmaz).
+
+   Olculdu (30.08.2026, telefon 375x812): serit `position:fixed` ve
+   y=706-800 arasini kapliyordu; "Gizlilik Politikasi" baglantisi
+   y=762-778'de kaliyor ve TIKLANAMIYORDU -- `elementFromPoint`
+   baglanti yerine seridin kendisini donduruyordu. Kaynak yazisi
+   (Open-Meteo, RainViewer) da ayni sekilde ortuluyordu.
+
+   Ortak modul kendi bosluguu ayarlamiyor (dokuz uygulamada ortak, her
+   sayfanin duzeni ayri). Bu yuzden burada gozlenip `body`ye sinif
+   veriliyor: serit varken alt bosluk aciliyor, gidince kapaniyor. */
+try {
+  var _bosluk = function () {
+    var s = document.querySelector('.kurulum-serit');
+    document.body.classList.toggle('serit-acik', !!(s && s.isConnected));
+  };
+  new MutationObserver(_bosluk).observe(document.body, { childList: true });
+  _bosluk();
+} catch (e) {}
 </script>
 <script src="guncelle.js"></script>
 <script>
