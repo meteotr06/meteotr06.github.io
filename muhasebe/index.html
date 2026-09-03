@@ -174,8 +174,30 @@ h1{font-size:20px; margin:6px 0 12px; display:flex; align-items:center; gap:8px;
   color:#fff; font-size:30px; box-shadow:0 6px 18px rgba(0,0,0,.35); cursor:pointer; z-index:25;}
 
 /* ==== Modal form ==== */
+/* KURULUM SERIDI, KAYIT FORMUNU ORTUYORDU — OLCULDU (03.09.2026).
+
+   Ortak `kurulum.js` seridi `z-index:900` ile ekranin altina sabitliyor
+   (yukseklik 143px). Kayit formu 40'taydi, yani ALTINDA kaliyordu:
+     Kaydet dugmesi   : y 776-826
+     serit            : y 689-832
+     tiklama nereye gidiyor -> "Uygulama olarak kur"
+   Kullanici tutari yaziyor, Kaydet'e basiyor, kayit OLMUYOR ve yazdigi
+   sayi kayboluyor. Muhasebede bu veri kaybidir.
+
+   Form bir MODAL: acikken ekranin sahibi odur, bir tanitim seridi onun
+   dugmesini kapamamali. O yuzden seridin ustune cikariliyor. */
 .perde{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
-  align-items:flex-end; z-index:40;}
+  align-items:flex-end; z-index:950;}
+
+/* "+" DUGMESI DE ORTULUYORDU (fab: y 702-760, serit: 689-832).
+   Burada z-index ile ustune cikmak yanlis olurdu — o zaman dugme
+   seridin uzerine biner ve seridin kendi dugmelerini kapatir. Dogrusu
+   dugmeyi seridin BOYU KADAR yukari almak; serit kapaninca eski yerine
+   donuyor. Yukseklik JS'ten olculuyor, sabit sayi yazilmiyor: serit
+   metni dile ve ekran genisligine gore uzuyor. */
+body.serit-var .fab{
+  bottom: calc(84px + var(--serit-yuksek, 0px) + 12px + env(safe-area-inset-bottom));
+}
 .perde.acik{display:flex;}
 .form{background:var(--panel); width:100%; max-width:640px; margin:0 auto;
   border-radius:18px 18px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); max-height:92vh; overflow-y:auto;}
@@ -432,16 +454,57 @@ const SAYI_KALIBI = /^(\d+(\.\d+)?|\.\d+)$/;
 function kurusa(m){
   if(m==null) return null;
   if(typeof m === "number") return isFinite(m) ? Math.round(m*100) : null;
-  let s=(""+m).trim().replace(/\s/g,"").replace(/₺/g,"").replace(/TL/gi,"");
+  /* BICIM ONCE DOGRULANIR, SONRA DONUSTURULUR.
+
+     Eski sira tersti: once `\s` HER YERDEN, `TL` HER YERDEN siliniyor,
+     sonra ayraclar donusturuluyor, EN SONDA `SAYI_KALIBI` bakiliyordu.
+     Kalip artik bozulmus metni gorduğu icin gecersiz girdiler gecerli
+     sayiya donusuyordu. Uc yol da olculdu (03.09.2026, gercek formdan,
+     her biri UYARISIZ deftere yazildi):
+
+       "250 75"  -> 25.075,00 TL   (bosluk silindi, 100 kat)
+       "15TL00"  -> 1.500,00 TL    ("TL" govdeden silindi)
+       "12..50"  -> 1.250,00 TL    (tekrarli nokta binlik sayildi)
+       "1.2345"  -> 12.345,00 TL   (gecersiz gruplama, 10.000 kat)
+
+     Simdi once BICIM sinaniyor; tanidik bir yazim degilse reddediliyor.
+     Para birimi yalniz BASTA ya da SONDA kabul ediliyor, govdede degil.
+
+     "1,500" BILEREK 1,50 TL kaliyor: uygulama Turkce ve Turkcede virgul
+     ONDALIK ayracidir. Ingilizce binlik okumasi ancak ikirciksizken
+     kabul ediliyor ("1,234,567" ya da "1,500.50"). */
+  let s=(""+m).trim()
+    .replace(/^\s*(?:₺|TL)\s*/i,"")
+    .replace(/\s*(?:₺|TL)\s*$/i,"")
+    .trim();
   if(!s) return null;
   const eksi = s[0]==="-";
-  s = s.replace(/^[+-]+/,"");
+  s = s.replace(/^[+-]+/,"").trim();
+  const BICIMLER = [
+    /^\d+$/,                                   // 1500
+    /^[.,]\d+$/,                               // ,5   .5
+    /^\d+,\d+$/,                               // 1500,50   1,500 (TR ondalik)
+    /^\d+\.\d{1,2}$/,                          // 1500.50  (nokta ondalik, en cok 2)
+    /^\d{1,3}(?:\.\d{3})+(?:,\d+)?$/,          // 1.500   1.234.567,89
+    /^\d{1,3}(?:,\d{3}){2,}$/,                 // 1,234,567 (ikirciksiz EN binlik)
+    /^\d{1,3}(?:,\d{3})+\.\d{1,2}$/,           // 1,500.50
+    /^\d{1,3}(?:[  ]\d{3})+(?:,\d+)?$/    // 1 500  (bosluk YALNIZ binlik grubu)
+  ];
+  if(!BICIMLER.some(r=>r.test(s))) return null;
+  s = s.replace(/[  ]/g,"");   // dogrulanmis binlik bosluklari
   const sonNokta=s.lastIndexOf("."), sonVirgul=s.lastIndexOf(",");
   if(sonNokta!==-1 && sonVirgul!==-1){
     if(sonVirgul>sonNokta) s=s.replace(/\./g,"").replace(/,/g,".");
     else                   s=s.replace(/,/g,"");
   } else if(sonVirgul!==-1){
-    s=s.replace(/,/g,".");
+    /* IKI VE USTU VIRGUL = binlik gruplama, ondalik degil.
+       "1,234,567" ikirciksiz Ingilizce yazim; virgulu ondalik sayarsak
+       "1.234.567" cikar ve kalip bunu reddeder. Ust taraftaki bicim
+       kurali bunu gecerli sayiyordu ama burasi dusuruyordu - yani kural
+       OLU kaliyordu. TEK virgul Turkce ondalik olarak kaliyor
+       ("1,500" = 1,50 TL). */
+    if((s.match(/,/g) || []).length >= 2) s=s.replace(/,/g,"");
+    else s=s.replace(/,/g,".");
   } else if(sonNokta!==-1){
     const p=s.split(".");
     if(!(p.length===2 && p[1].length>=1 && p[1].length<=2)) s=s.replace(/\./g,"");
@@ -602,6 +665,64 @@ function carileriCiz(){
 }
 
 function ciz(){ kaydet(); ozetCiz(); hareketleriCiz(); carileriCiz(); }
+
+/* SEKMELER BIRBIRINI DUYSUN — YOKSA SON KAYDEDEN OTEKINI SILIYOR.
+
+   OLCULDU (03.09.2026, gercek formdan, iki sekme ayni tarayicida):
+     A sekmesi 1 kayit girdi        -> [100 TL]
+     B sekmesi 2 kayit ekledi       -> [100, 200, 300]
+     A sekmesi 1 kayit daha girdi   -> [100, 400]      <-- B'NIN IKISI YOK
+
+   Sebep: `db` sayfa acilirken BIR KEZ okunuyor, `kaydet()` ise
+   bellektekinin TAMAMINI diske yaziyor. A'nin belleginde B'nin
+   kayitlari hic olmadigi icin A'nin ikinci yazisi onlari siliyor.
+   Muhasebe defterinde bu sessiz veri kaybi - kullanici kaydi girdi,
+   ekranda gordu, sonra yok oldu.
+
+   COZUM: baska bir sekme yazdiginda `storage` olayi geliyor; burada
+   diskteki hali yeniden okuyup ekrani tazeliyoruz. Boylece bu sekmenin
+   bellegi bir daha ESKI kalmiyor ve sonraki yazisi otekini ezmiyor.
+
+   `ciz()` DEGIL alt cizimler cagriliyor: `ciz()` ilk is olarak
+   `kaydet()` yapiyor, yani okudugumuz seyi hemen geri yazardik -
+   yaris penceresini kapatmak yerine buyuturdu.
+
+   BU TAM COZUM DEGIL, ACIKCA YAZIYORUM: iki sekme AYNI ANDA (olay
+   ulasmadan once) yazarsa son yazan yine kazanir. Gercek birlestirme
+   silinen kayitlar icin mezar tasi ister; bu depoda silme VAR
+   (`filter(x=>x.id!==h.id)`), yani korlemesine birlestirme silinmis
+   kaydi DIRILTIRDI. Dar yarisi kapatmak icin dogru yol o; bu duzeltme
+   olculen ve siradan olan yolu kapatiyor. */
+/* Kurulum seridi gelince "+" dugmesini yukari al, gidince geri indir.
+   Serit ortak modulden (`kurulum.js`) 3 saniye sonra DOM'a ekleniyor;
+   o yuzden sabit bir zamanlamaya degil, ogenin kendisine bakiliyor. */
+(function(){
+  const govde = document.body;
+  const tazele = ()=>{
+    const s = document.querySelector(".kurulum-serit");
+    const gorunur = !!s && s.getBoundingClientRect().height > 0;
+    govde.classList.toggle("serit-var", gorunur);
+    if(gorunur){
+      govde.style.setProperty("--serit-yuksek",
+        Math.round(s.getBoundingClientRect().height) + "px");
+    } else {
+      govde.style.removeProperty("--serit-yuksek");
+    }
+  };
+  new MutationObserver(tazele).observe(govde, {childList:true, subtree:true});
+  window.addEventListener("resize", tazele);
+  tazele();
+})();
+
+window.addEventListener("storage", (e)=>{
+  if(e.key !== "muhasebe_mobil") return;
+  try{
+    const taze = JSON.parse(e.newValue || "null");
+    if(!taze || !Array.isArray(taze.hareketler)) return;
+    db = taze;
+  }catch(err){ return; }   // bozuk JSON gelirse ekrandakini bozma
+  ozetCiz(); hareketleriCiz(); carileriCiz();
+});
 
 // ============ Sekme gecisi ============
 let aktifSayfa="kasa";
