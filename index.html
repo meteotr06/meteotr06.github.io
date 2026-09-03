@@ -74,7 +74,7 @@
 <meta property="og:image:alt" content="Hava Durumu, Hesap Araçları, Kur Pusulası, Haftalık Planlayıcı, Muhasebe, Kahve Kavurma, Arsa Rehberi ve Göz Molası" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/onizleme.png" />
-<link rel="stylesheet" href="/hesap/stil.css?v=42" />
+<link rel="stylesheet" href="/hesap/stil.css?v=93" />
 <style>
   /* Kok sayfa: hesap sitesinin tasarimini kullaniyoruz ama ust bar yok --
      burasi bir arac sayfasi degil, uygulamalarin vitrini. */
@@ -145,6 +145,84 @@
    buyuyor. Cumle ICINDEKI baglantiya dokunulmuyor. */
 footer a, .alt-bilgi a, .site-alt a {
   display: inline-block; padding: 12px 6px; margin: -12px -6px;
+}
+</style>
+
+<style>
+/* ===== HAREKET =====================================================
+   Kurallar, sirasiyla onemli:
+
+   1. VARSAYILAN HAL DAIMA GORUNUR. Giris animasyonunu `opacity:0`dan
+      baslatip animasyona guvenmek, animasyon kosmazsa BOS SAYFA
+      birakir -- ve hicbir hata gorunmez. Bu yuzden gorunurluk
+      varsayilan, hareket yalnizca USTUNE ekleniyor. Hareketi kapatan
+      kullanicinin ekrani eksik degil, sadece durgun olur.
+
+   2. `prefers-reduced-motion` bir tercih degil ERISILEBILIRLIK
+      ayaridir. Vestibuler rahatsizligi olan kullanicida kayan/zipla-
+      yan arayuz bas donmesi ve mide bulantisi yapar. Bu yuzden butun
+      hareket `no-preference` icinde; disarida tek piksel oynamiyor.
+
+   3. KLAVYE, FAREYLE AYNI GERI BILDIRIMI ALIR. `:hover` yazip
+      `:focus-visible` yazmamak, klavyeyle gezen kullaniciyi karanlikta
+      birakir. Ikisi ayni kuralda.
+
+   4. Hareket RENK ya da ANLAM tasimiyor -- yalnizca dokunulabilirligi
+      belli ediyor. Animasyon gormeyen kullanici hicbir bilgiyi
+      kacirmiyor.
+   =============================================================== */
+
+/* Butun hareket bu blogun icinde. Disarida hicbir sey oynamaz. */
+@media (prefers-reduced-motion: no-preference) {
+
+  /* -- Kart: dokunulabilir oldugunu soyleyen kucuk bir kalkis -------
+     2px. Daha fazlasi izgarayi oynatiyor, daha azi fark edilmiyor. */
+  .arac-kart {
+      transition: transform .18s ease, box-shadow .18s ease,
+                  border-color .18s ease;
+      will-change: transform;
+  }
+  .arac-kart:hover,
+  .arac-kart:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(0,0,0,.13);
+  }
+  /* Basildigi an geri oturur -- dokunusun karsilik verdigi hissi. */
+  .arac-kart:active { transform: translateY(0); transition-duration: .06s; }
+
+  /* -- Kart simgesi: kartla birlikte hafifce buyur ------------------ */
+  .uyg-kart::before { transition: transform .18s ease; }
+  .uyg-kart:hover::before,
+  .uyg-kart:focus-visible::before { transform: scale(1.06); }
+
+  /* -- Giris: kartlar sirayla yerine otursun ------------------------
+     `backwards` DEGIL: gecikme boyunca kart GORUNUR kalir (kural 1).
+     Sadece son hali yumusakca gelir. */
+  @keyframes kartGel {
+      from { opacity: .001; transform: translateY(8px); }
+      to   { opacity: 1;    transform: none; }
+  }
+  .arac-izgara > .uyg-kart {
+      animation: kartGel .34s ease both;
+  }
+  .arac-izgara > .uyg-kart:nth-child(1) { animation-delay: .00s; }
+  .arac-izgara > .uyg-kart:nth-child(2) { animation-delay: .04s; }
+  .arac-izgara > .uyg-kart:nth-child(3) { animation-delay: .08s; }
+  .arac-izgara > .uyg-kart:nth-child(4) { animation-delay: .12s; }
+  .arac-izgara > .uyg-kart:nth-child(5) { animation-delay: .16s; }
+  .arac-izgara > .uyg-kart:nth-child(6) { animation-delay: .20s; }
+  .arac-izgara > .uyg-kart:nth-child(7) { animation-delay: .24s; }
+  .arac-izgara > .uyg-kart:nth-child(8) { animation-delay: .28s; }
+  /* Sekizden sonrasi beklemez -- arama sonuclari uzun olabilir ve
+     kullanici sonuca bakarken kart beklemesin. */
+  .arac-izgara > .uyg-kart:nth-child(n+9) { animation-delay: .30s; }
+
+  /* -- Dugmeler ve baglantilar -------------------------------------- */
+  button, .dugme { transition: background-color .15s ease, transform .1s ease; }
+  button:active, .dugme:active { transform: scale(.985); }
+
+  /* -- Arama sonucu degisince liste sicramasin ---------------------- */
+  #sonuc { transition: opacity .15s ease; }
 }
 </style>
 </head>
