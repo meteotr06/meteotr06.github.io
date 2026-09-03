@@ -53,17 +53,57 @@
 
         if (!('serviceWorker' in navigator)) return;
 
-        /* İLK KURULUMDA `controllerchange` DE ATEŞLENİR.
-           O an "yeni sürüm geldi" değildir — uygulama ilk kez kontrol
-           altına giriyordur. Ayırt etmezsek kullanıcı, uygulamayı ilk
-           açtığı anda "yeni sürüm hazır" şeridi görür ve şerit yalan
-           söylemiş olur. Ölçüt: BAŞLANGIÇTA bir denetleyici var mıydı? */
-        var ilkKurulum = !navigator.serviceWorker.controller;
+        /* `controllerchange` ÜÇ ayrı durumda ateşlenir ve yalnız BİRİ
+           "yeni sürüm geldi" demektir:
+
+             1. İLK KURULUM — sayfada hiç denetleyici yokken biri geldi.
+             2. DEVİR — sayfayı BAŞKA bir uygulamanın işçisi kontrol
+                ediyordu, şimdi bizimki devraldı.
+             3. GERÇEK GÜNCELLEME — aynı işçinin yeni sürümü geçti.
+
+           2 numara ÖLÇÜLEREK bulundu (03.09.2026, portal → Hava). Portal
+           kökte durduğu için işçisinin kapsamı `/` — yani BÜTÜN
+           uygulamaları kapsıyor. Kullanıcı portalı açıp bir uygulamaya
+           geçtiğinde sayfa portalın işçisi altında açılıyor, sonra
+           uygulama kendi işçisini kurup devralıyor.
+
+           Eski kalkan yalnız 1'i eliyordu. Sonuç: kullanıcı uygulamayı
+           İLK kez açtığı anda "Yeni sürüm hazır" yalanını görüyordu.
+           Üstelik portal tam da bu yol için var — yani en sık yol,
+           yalanı tetikleyen yoldu.
+
+           İki yönde de ölçüldü:
+             tertemiz → doğrudan uygulama   : şerit YOK
+             tertemiz → portal → uygulama   : şerit VARDI (kusur)
+
+           AYIRT EDİCİ: gerçek güncellemede işçinin ADRESİ AYNI KALIR —
+           aynı dosyanın yeni sürümü geçer. Devirde adres DEĞİŞİR. */
+        var oncekiBetik = navigator.serviceWorker.controller
+                        ? navigator.serviceWorker.controller.scriptURL
+                        : null;
         var tazelendi = false;
         var serit = null;
 
         navigator.serviceWorker.addEventListener('controllerchange', function () {
-            if (ilkKurulum) return;
+            var yeniBetik = navigator.serviceWorker.controller
+                          ? navigator.serviceWorker.controller.scriptURL
+                          : null;
+
+            /* 1 (ilk kurulum) ve 2 (devir) AYNI muameleyi görür:
+               şerit çıkmaz, ama adres MUTLAKA yazılır.
+
+               Adresi yazmayı atlarsak modül o sayfa oturumu boyunca
+               SAĞIR kalır: ilk ziyarette denetleyici yoktur, `null`
+               okunur, ve bir daha hiç güncellenmezse aynı oturumda
+               gelen GERÇEK bir güncelleme de sessizce elenir.
+               (Bulan: 04/12 oturumu, 03.09.2026 — benim birkaç dakika
+               önce yazdığım yamadaki açık. Dar ama gerçek: sonraki
+               ziyarette kendini toparlıyordu.) */
+            if (!oncekiBetik || oncekiBetik !== yeniBetik) {
+                oncekiBetik = yeniBetik;
+                return;
+            }
+                                              /* 3: gerçek güncelleme */
             if (tazelendi) return;            /* döngü kalkanı */
             if (A.otomatik) {
                 tazelendi = true;

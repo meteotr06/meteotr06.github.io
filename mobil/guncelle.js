@@ -89,11 +89,17 @@
                           ? navigator.serviceWorker.controller.scriptURL
                           : null;
 
-            if (!oncekiBetik) return;         /* 1: ilk kurulum */
+            /* 1 (ilk kurulum) ve 2 (devir) AYNI muameleyi görür:
+               şerit çıkmaz, ama adres MUTLAKA yazılır.
 
-            if (oncekiBetik !== yeniBetik) {  /* 2: başka işçiden devir */
-                /* Adresi güncelle ki BİZİM işçimizin bundan sonraki
-                   gerçek güncellemesi yakalanabilsin. */
+               Adresi yazmayı atlarsak modül o sayfa oturumu boyunca
+               SAĞIR kalır: ilk ziyarette denetleyici yoktur, `null`
+               okunur, ve bir daha hiç güncellenmezse aynı oturumda
+               gelen GERÇEK bir güncelleme de sessizce elenir.
+               (Bulan: 04/12 oturumu, 03.09.2026 — benim birkaç dakika
+               önce yazdığım yamadaki açık. Dar ama gerçek: sonraki
+               ziyarette kendini toparlıyordu.) */
+            if (!oncekiBetik || oncekiBetik !== yeniBetik) {
                 oncekiBetik = yeniBetik;
                 return;
             }
