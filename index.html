@@ -196,11 +196,25 @@ footer a, .alt-bilgi a, .site-alt a {
   .uyg-kart:focus-visible::before { transform: scale(1.06); }
 
   /* -- Giris: kartlar sirayla yerine otursun ------------------------
-     `backwards` DEGIL: gecikme boyunca kart GORUNUR kalir (kural 1).
-     Sadece son hali yumusakca gelir. */
+     SAYDAMLIK HIC OYNAMIYOR, YALNIZ KONUM.
+
+     Ilk yazdigimda `opacity: .001`ten baslayip `both` kullanmistim ve
+     yorumuma "`backwards` DEGIL" diye yazmistim. IKISI CELISIYORDU:
+     `both` = backwards + forwards, yani gecikme boyunca kart `from`
+     halinde -- gorunmez -- bekliyordu. Kendi 1. kuralimi, herkesin
+     kopyaladigi ORNEK kalipta cignemisim. (Bulan: 06 Planlayici
+     oturumu, 03.09.2026.)
+
+     Risk kucuktu (en cok 0,30 sn) ama mesele risk degil: bir kuralin
+     referans uygulamasi o kurali cignerse, kural degil susleme olur.
+
+     Cozum en saglami: saydamligi hic canlandirma. Kart her an
+     GORUNUR; yalnizca 8px asagidan yerine kayar. Animasyon hic
+     kosmasa da ekranda eksik hicbir sey olmaz -- kural 1 artik
+     ihlal edilemez, cunku ihlal edecek ozellik kullanilmiyor. */
   @keyframes kartGel {
-      from { opacity: .001; transform: translateY(8px); }
-      to   { opacity: 1;    transform: none; }
+      from { transform: translateY(8px); }
+      to   { transform: none; }
   }
   .arac-izgara > .uyg-kart {
       animation: kartGel .34s ease both;
