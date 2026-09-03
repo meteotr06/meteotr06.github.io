@@ -1026,5 +1026,26 @@ if (TELEFON) setTimeout(seritGoster, 4000);
 if("serviceWorker" in navigator)
   navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
+<script src="kurulum.js"></script>
+<script>
+/* KURULUM DAVETI -- ortak modul: HESAP MAKINESI\ortak\kurulum.js
+   Anahtar UYGULAMAYA OZEL: ortak anahtar olsaydi bir uygulamada
+   "simdi degil" demek hepsini susturuoludu.
+   Kayit SURELIDIR (7 gun) -- "kur, sil, bir daha indiremedim"
+   hatasi kaydin sonsuz yasamasindan doguyordu. */
+try { new Kurulum({ anahtar: 'hava-kurulum-ertelendi' }); } catch (e) {}
+</script>
+<script src="guncelle.js"></script>
+<script>
+/* TESLIMAT. Ortak modul: HESAP MAKINESI\ortak\guncelle.js
+   Olculdu (5 - Goz Molasi, 02.09.2026): KURULU uygulamada tarayici yeni
+   surumu kendiliginden SORMAZ, cunku gezinme olmuyor. Dokuz uygulamanin
+   sekizinde bu eksikti: yayin dogru, TESLIMAT yok. Hava dokuzuncusuydu.
+
+   KENDILIGINDEN TAZELEMIYOR (`otomatik` varsayilani false). Bu sayfada
+   arama kutusu ve secili yer var; habersiz reload kullanicinin yazdigini
+   siler. Serit cikar, karar kullanicida. */
+try { new Guncelle(); } catch (e) {}
+</script>
 </body>
 </html>

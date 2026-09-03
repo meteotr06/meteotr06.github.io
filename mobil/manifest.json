@@ -10,8 +10,28 @@
   "background_color": "#0f1620",
   "theme_color": "#0f1620",
   "icons": [
-    { "src": "simge-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "simge-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "simge-maskeli-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ]
+    {
+      "src": "simge-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "simge-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "simge-maskeli-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "./manifest.json"
+    }
+  ],
+  "_not_related": "getInstalledRelatedApps() ancak uygulama kendini boyle bildirirse cevap verir. Bu alan olmadan kurulum daveti kurulu uygulamada bile 'install' demeye devam eder. id ve start_url'e DOKUNULMADI (K-67)."
 }
