@@ -46,7 +46,7 @@
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Kahve" />
-<link rel="stylesheet" href="stil.css?v=4" />
+<link rel="stylesheet" href="stil.css?v=7" />
 </head>
 <body>
 <div class="sarmal">
@@ -303,6 +303,11 @@
         </div>
 
         <div class="satir">
+            <label for="nTarih">Tarih</label>
+            <input id="nTarih" type="date" />
+        </div>
+
+        <div class="satir">
             <label for="nCesit">Çeşit</label>
             <input id="nCesit" list="menseListe" autocomplete="off"
                    placeholder="örn. Brezilya — ya da kendi parti adınız" />
@@ -418,10 +423,21 @@
 
 </div><!-- /sarmal -->
 
-<script src="cekirdek.js?v=4"></script>
-<script src="veri.js?v=4"></script>
-<script src="kurulum.js?v=4"></script>
-<script src="arayuz.js?v=4"></script>
+<script src="cekirdek.js?v=7"></script>
+<script src="veri.js?v=7"></script>
+<script src="kurulum.js?v=7"></script>
+<script src="arayuz.js?v=7"></script>
+<script src="guncelle.js?v=7"></script>
+<script>
+/* TESLIMAT. Ortak modul: HESAP MAKİNESİ\ortak\guncelle.js
+   Degisiklik ONCE orada yapilir, sonra kopyalar tazelenir (K-69).
+
+   `otomatik: false` BILEREK: kavurma defteri yazilirken habersiz
+   reload() girilen veriyi siler. Serit cikar, "Yenile"ye kullanici
+   basar. Modulun varsayilani da false; acikca yaziliyor ki ileride
+   varsayilan degisirse bu uygulama sessizce otomatige gecmesin. */
+try { new Guncelle({ otomatik: false }); } catch (e) {}
+</script>
 <script>
 /* Kurulum daveti. Anahtar UYGULAMAYA OZEL -- ortak anahtar kullanilsaydi
    bir uygulamada 'simdi degil' demek hepsini susturuoludu. */

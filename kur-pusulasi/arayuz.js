@@ -962,6 +962,43 @@ function olasilikHesapla() {
 
 // ---------- FAİZ SEKMESİ ----------
 
+/* ISTEGE BAGLI POZITIF SAYI -- "bos" ile "0 yazdim" ayri seylerdir.
+
+   OLCULDU (03.09.2026): mevduat vadesine 0 yazildi. Ekranda su cikti:
+       Net faiz (1 gun) 83,63 TL   Vade sonu toplam 100.083,63 TL
+   Kullanici 0 yazdi, uygulama 1 varsaydi ve HESAP YAPTI. Uyari yok.
+   Kucuk "(1 gun)" etiketi tek iz; buyuk toplami okuyan gormez.
+   Negatif vade yakalaniyordu, SIFIR kaciyordu -- cunku kod
+   `sayiOku(...) || 1` yaziyordu ve JavaScript'te 0 yanlis sayilir.
+
+   Bu, dosyanin ustunde zaten yazili olan `|| 0` tuzaginin ayni sinifi:
+   orada bos anapara sessizce 0 oluyordu, burada yazilmis 0 sessizce 1
+   oluyor. Kalip ayni: `||` ile varsayilan vermek, KULLANICININ YAZDIGI
+   gecerli-gorunmeyen degeri de yutar.
+
+   UC YERDE VARDI: mVade (|| 1), mDonem (|| 1), bbGun (|| 30).
+   Ucu de bu kapidan geciyor -- yoksa dorduncusu eklenir.
+
+   NEDEN `null` DONDURUP BORUYA VERMIYORUZ: `mevduatHesapla` vadeyi
+   koruyor ama `donemSayisi` korumuyor (null olursa dongu hic donmez,
+   toplamGun 0 cikar) ve `basabasKuru` da korumuyor (gun null olunca
+   basabas kuru sessizce SPOT'a esitlenir). Yani null'i asagi
+   akitmak yeni bir sessiz yanlis uretirdi. Cagiran taraf kendi
+   kontrolunu yapar.
+
+   UST DUZEYDE DURUYOR -- ilk yazdigimda baslatma islevinin ICINE
+   koymustum ve `faizHesapla` onu goremedi: `istegeBagliPozitif is
+   not defined`. Ekran bombos kaldi. Ayni dosyada `alisFiyatiOku`
+   ic kapsamda kalabiliyor cunku yalniz orada kullaniliyor; bu ise
+   iki ayri ust duzey islevden cagriliyor. */
+function istegeBagliPozitif(alan, varsayilan) {
+    const ham = String(alan.value || "").trim();
+    if (ham === "") return varsayilan;              // bos: varsayilan mesru
+    const v = sayiOku(ham);
+    if (v === null || !isFinite(v) || v <= 0) return null;   // yazdi ama gecersiz
+    return v;
+}
+
 function faizHesapla() {
     // Mevduat
     const bilesik = $("#mBilesik").checked;
@@ -979,7 +1016,7 @@ function faizHesapla() {
             '<p class="kucuk">Ana para ve faiz oranını yazın. ' +
             'Örnek: 100.000 ve 37,5</p>';
     } else {
-    const mVade = sayiOku($("#mVade").value) || 1;
+    const mVade = istegeBagliPozitif($("#mVade"), 1);
     const mStopaj = sayiOku($("#mStopaj").value, "oran") ?? 0;
 
     /* STOPAJ VADEYE GORE DEGISIR -- kullaniciya SOYLE, ezme.
@@ -1005,7 +1042,7 @@ function faizHesapla() {
         : "";
 
     const m = mevduatHesapla(mAna, mFaiz, mVade, mStopaj, bilesik,
-        sayiOku($("#mDonem").value) || 1);
+        istegeBagliPozitif($("#mDonem"), 1));
 
     /* Gecersiz girdide SAYI GOSTERME. Once sifir donuyordu ve ekranda
        "Vade sonu toplam 0,00 TL" yaziyordu -- dogru gorunen bir yanlis.
@@ -1026,15 +1063,21 @@ function faizHesapla() {
     const s = seriAl(kod);
     if (s) {
         const spot = guncelFiyat(kod);
-        const gun = sayiOku($("#bbGun").value) || 30;
+        const gun = istegeBagliPozitif($("#bbGun"), 30);
         const bbTl = sayiOku($("#bbTlFaiz").value, "oran");
         const bbDv = sayiOku($("#bbDvFaiz").value, "oran");
         // return KULLANILMIYOR: bu blok faizHesapla() icinde ve
         // return altindaki "reel getiri" ile "kredi" bolumlerini de
         // atlardi. Once yazip sonra fark ettim.
-        if (bbTl === null || bbDv === null) {
-            $("#basabasSonuc").innerHTML =
-                '<p class="kucuk">TL ve döviz faiz oranlarını yazın.</p>';
+        if (bbTl === null || bbDv === null || gun === null) {
+            /* `gun === null` = kullanici gun alanina 0/negatif/okunamaz
+               bir sey yazdi. Eskiden `|| 30` ile sessizce 30 gune
+               donuyordu; daha kotusu, null asagi aksaydi `gun/365` sifir
+               olur ve basabas kuru SPOT'a esitlenirdi -- yani "kur hic
+               artmasa da basabas" gibi tamamen yanlis bir sonuc. */
+            $("#basabasSonuc").innerHTML = (gun === null)
+                ? '<p class="kucuk">Vade gün sayısı sıfırdan büyük olmalı.</p>'
+                : '<p class="kucuk">TL ve döviz faiz oranlarını yazın.</p>';
         } else {
         const bb = basabasKuru(spot, bbTl, bbDv,
             gun, sayiOku($("#bbStopaj").value, "oran") ?? 0);
@@ -1737,6 +1780,64 @@ function baslat() {
     });
 
     // Alarm ekle
+/* ISTEGE BAGLI ALIS FIYATI -- TEK KAPI.
+   OLCULDU (03.09.2026, uygulamayi kullanarak): portfoye "5 adet, alis
+   -42" girildi ve KABUL EDILDI. Ekranda su cikti:
+       5,0000 x 48,29 TL = 241,47 TL   -214,99%
+   Kullanici KAZANIYOR ama ekran %215 ZARAR yaziyor. Cokme yok, uyari
+   yok -- yalnizca isareti ters sayi. Takimin en tehlikeli saydigi
+   sinif tam olarak bu.
+
+   KOK SEBEP: bu formlarda ZORUNLU alanlar korunuyordu
+   (`if (!miktar || miktar <= 0)`), ama ISTEGE BAGLI alis fiyati
+   yalnizca `isFinite(alis)` ile suzuluyordu. `isFinite(-42)` dogrudur;
+   yani suzgec calisiyordu, YANLIS SORUYU soruyordu.
+
+   ZINCIR TEK SATIRDA KALMIYOR: `alis` iki yerde kullaniliyor --
+     satir ~1305  kazanc = (fiyat / alis - 1) * 100   -> isaret doner
+     satir ~1280  toplamMaliyet += alis * miktar      -> TOPLAM maliyet
+                  duser, butun portfoyun karliligi sisar
+   Yani tek hatali satir ozet rakami da bozuyor.
+
+   NEDEN AYRI ISLEV: ayni kusur `pEkleBtn` ve `fEkleBtn` icinde
+   AYNEN iki kez vardi. Iki yeri ayri ayri yamamak, ucuncu form
+   eklendiginde kusuru geri getirir. Kapi tek olsun.
+
+   SIFIR DA KABUL EDILMEZ: 0 alis, `k.alis ? ...` kontrolunde yanlis
+   sayildigi icin yuzdeyi gizler ama maliyeti de 0 yapar; kullanici
+   "bedava aldim" demek istemiyorsa bu da sessiz bir yanlistir.
+   Bos birakmak ZATEN "bilmiyorum" demektir ve desteklenir. */
+function alisFiyatiOku(alan) {
+    /* UC DURUM AYRI: bos / okunamadi / gecersiz.
+
+       ILK YAZDIGIMDA BUNU KARISTIRDIM ve calisan bir yolu kirdim.
+       `if (!isFinite(v))` yazmistim; `sayiOku("")` null doner ve
+       JAVASCRIPT'TE `isFinite(null)` TRUE'DUR -- cunku `Number(null)`
+       sifirdir. Yani bos alan `!isFinite` suzgecine takilmadan gecip
+       alttaki `v <= 0` kuralina dusuyordu ve "alis fiyatini
+       bilmiyorum" diyen kullanici artik HICBIR SEY EKLEYEMIYORDU.
+       Kusuru duzeltirken saglam bir yolu kirmisim; akisi bastan sona
+       kullanarak olcunce cikti.
+
+       Eski kod (`isFinite(alis) ? alis : null`) ayni tuzagin icinden
+       KAZARA dogru cikiyordu: `isFinite(null)` true oldugu icin `alis`
+       yani null saklaniyordu. Dogru sonuc, yanlis gerekce.
+
+       Simdi ayrim acik:
+         bos          -> "bilmiyorum", kabul, null saklanir
+         okunamadi    -> "12abc" gibi; SESSIZCE null saklamak yerine
+                         reddedilir. Eski hali bunu da "bilmiyorum"
+                         sayiyordu: kullanici bir sey yazmisti, uygulama
+                         yazmamis gibi davraniyordu.
+         0 / negatif  -> reddedilir (asagidaki gerekce) */
+    const ham = String(alan.value || "").trim();
+    if (ham === "") return { deger: null, gecerli: true };      // bos: bilmiyorum
+    const v = sayiOku(ham);
+    if (v === null || !isFinite(v)) return { deger: null, gecerli: false };  // okunamadi
+    if (v <= 0) return { deger: null, gecerli: false };         // 0/negatif
+    return { deger: v, gecerli: true };
+}
+
     $("#aEkleBtn").onclick = async () => {
         const kod = $("#aVarlik").value;
         const seviye = sayiOku($("#aSeviye").value);
@@ -1760,14 +1861,15 @@ function baslat() {
         const ad = ($("#fAd").value || "").trim();
         const miktar = sayiOku($("#fMiktar").value);
         const fiyat = sayiOku($("#fFiyat").value);
-        const alis = sayiOku($("#fAlis").value);
+        const alisOku = alisFiyatiOku($("#fAlis"));
         if (!ad) { $("#fAd").focus(); return; }
         if (!miktar || miktar <= 0) { $("#fMiktar").focus(); return; }
         if (!fiyat || fiyat <= 0) { $("#fFiyat").focus(); return; }
+        if (!alisOku.gecerli) { $("#fAlis").focus(); $("#fAlis").select(); return; }
         durum.ayar.fonlar = durum.ayar.fonlar || [];
         durum.ayar.fonlar.push({
             id: "f" + Date.now(), ad: ad, miktar: miktar, fiyat: fiyat,
-            alis: isFinite(alis) ? alis : null, guncelleme: isoTarih(new Date())
+            alis: alisOku.deger, guncelleme: isoTarih(new Date())
         });
         ayarYaz(durum.ayar);
         $("#fAd").value = ""; $("#fMiktar").value = ""; $("#fFiyat").value = ""; $("#fAlis").value = "";
@@ -1846,10 +1948,11 @@ function baslat() {
     $("#pEkleBtn").onclick = () => {
         const kod = $("#pVarlik").value;
         const miktar = sayiOku($("#pMiktar").value);
-        const alis = sayiOku($("#pAlis").value);
+        const alisOku = alisFiyatiOku($("#pAlis"));
         if (!miktar || miktar <= 0) { $("#pMiktar").focus(); return; }
+        if (!alisOku.gecerli) { $("#pAlis").focus(); $("#pAlis").select(); return; }
         durum.ayar.portfoy = durum.ayar.portfoy || [];
-        durum.ayar.portfoy.push({ kod: kod, miktar: miktar, alis: isFinite(alis) ? alis : null });
+        durum.ayar.portfoy.push({ kod: kod, miktar: miktar, alis: alisOku.deger });
         ayarYaz(durum.ayar);
         $("#pMiktar").value = ""; $("#pAlis").value = "";
         portfoyCiz();

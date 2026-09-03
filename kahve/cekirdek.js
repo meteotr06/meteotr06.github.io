@@ -415,6 +415,30 @@
             };
         }
 
+        /* TARIH SIRASIYLA OYNAT.
+           Hareketin `tarih` alani "YYYY-AA-GG" bicimindedir ve metin
+           siralamasi bu bicimde tarih siralamasiyla aynidir.
+
+           NIYE SIRALIYORUZ: onceden sira "ne zaman YAZILDIGI"ydi. Yanlisla
+           silinen bir alimi geri eklemek ise yaramiyordu -- yeni kayit
+           sona gidiyor, kavurma yine dayanaksiz kaliyordu. Kullanici
+           defterini kurtaramiyordu.
+
+           TARIHSIZ KAYITLAR ONCE gelir ve KENDI ARALARINDA eski sirasini
+           korur. Boylece bu alan eklenmeden once yazilmis defterler
+           birebir ayni sonucu verir -- veri donusturmeye gerek yok.
+
+           Siralama KARARLIDIR (index ikincil anahtar): ayni gun icindeki
+           hareketler yazilma sirasini korur, yoksa ayni defter iki kez
+           hesaplaninca farkli sonuc verebilirdi. */
+        var siralanmis = hareketler.map(function (h, i) {
+            return { h: h || {}, i: i };
+        }).sort(function (a, b) {
+            var ta = String(a.h.tarih || ''), tb = String(b.h.tarih || '');
+            if (ta !== tb) return ta < tb ? -1 : 1;
+            return a.i - b.i;
+        });
+
         var cesitler = {}, sira = [];
 
         function depo(ad) {
@@ -424,8 +448,10 @@
             return cesitler[a];
         }
 
-        for (var i = 0; i < hareketler.length; i++) {
-            var sonuc = birHareket(hareketler[i] || {}, depo, i);
+        for (var i = 0; i < siralanmis.length; i++) {
+            /* Satir numarasi KULLANICIYA GORUNEN sirayi gostermeli;
+               ekran da bu sirayla ciziliyor. */
+            var sonuc = birHareket(siralanmis[i].h, depo, i);
             if (!sonuc.gecerli) return sonuc;
         }
 
@@ -447,7 +473,11 @@
         t.kavrulmusKgFiyat = ortalama(t.kavrulmusDeger, t.kavrulmusKg);
 
         return { gecerli: true, bos: false, cesitler: cesitler,
-                 sira: sira, toplam: t };
+                 sira: sira, toplam: t,
+                 /* Ekran listeyi BU sirayla cizmeli; motorun oynattigi
+                    sira ile gosterilen sira ayrisirsa "Satir 3" ibaresi
+                    yanlis satiri isaret eder. */
+                 sirali: siralanmis.map(function (x) { return x.h; }) };
     }
 
     function red(kod, mesaj) {
@@ -467,6 +497,15 @@
         harman: harman,
         gelisim_orani: gelisim_orani,
         stok_hesap: stok_hesap,
+        tarihSirala: function (liste) {
+            return (liste || []).map(function (h, i) { return { h: h, i: i }; })
+                .sort(function (a, b) {
+                    var ta = String((a.h || {}).tarih || ''),
+                        tb = String((b.h || {}).tarih || '');
+                    if (ta !== tb) return ta < tb ? -1 : 1;
+                    return a.i - b.i;
+                }).map(function (x) { return x.h; });
+        },
         TOLERANS_KG: TOLERANS_KG
     };
 })(typeof window !== 'undefined' ? window : this);

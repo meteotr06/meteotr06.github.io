@@ -1066,8 +1066,16 @@ function mevduatHesapla(anapara, yillikFaiz, vadeGun, stopajYuzde, bilesikMi, do
        Ikisini ayni sayiyla anlatmak sessiz yanlisin ta kendisi. */
     const g = (x) => typeof x === "number" && isFinite(x);
     const st = g(stopajYuzde) ? stopajYuzde : 0;
+    /* DONEM SAYISI DA KORUNUYOR (eklendi 03.09.2026).
+       Eskiden korunmuyordu ve asagida `for (i = 0; i < donemSayisi; i++)`
+       ile `vadeGun * donemSayisi` kullaniliyor: donemSayisi null/0 olursa
+       dongu HIC donmez, toplamGun 0 cikar ve fonksiyon "gecersiz" degil
+       "sonuc" doner. Yani gecersiz girdi, hesaplanmis gibi gorunen bir
+       sayiya donusurdu -- korumanin var oldugu bir fonksiyonda, sadece
+       bir parametre atlandigi icin. */
     if (!g(anapara) || anapara <= 0 || !g(vadeGun) || vadeGun <= 0 ||
-        !g(yillikFaiz) || st < 0 || st > 100) {
+        !g(yillikFaiz) || st < 0 || st > 100 ||
+        !g(donemSayisi) || donemSayisi <= 0) {
         return {
             gecersiz: true,
             brutFaiz: 0, stopaj: 0, netFaiz: 0,

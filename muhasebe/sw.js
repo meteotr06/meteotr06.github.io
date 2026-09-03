@@ -21,12 +21,13 @@
      4) Yedek sayfa yalnızca gerçek sayfa (navigate) isteğine döner.
 */
 
-const SURUM = "muhasebe-v10";
+const SURUM = "muhasebe-v14";
 const DOSYALAR = [
   "./",
   "index.html",
   "gizlilik.html",
   "kurulum.js",
+  "guncelle.js",
   "manifest.json",
   "simge-192.png",
   "simge-512.png",
@@ -62,6 +63,31 @@ self.addEventListener("fetch", (e) => {
   const sayfaMi = istek.mode === "navigate" ||
                   (istek.headers.get("accept") || "").indexOf("text/html") >= 0;
 
+  /* SAYFA ANAHTARINDAN SORGUYU DUS.
+     Ölçüldü (03.09.2026, canlı): sayfa TAM ADRESLE anahtarlanıyordu.
+     Üç farklı sorguyla girildi --
+       /muhasebe/?utm_source=whatsapp
+       /muhasebe/?kampanya=eylul
+       /muhasebe/?x=3
+     -- ve önbellek 8 girdiden 11'e çıktı: 8 eşsiz yol, 11 kopya.
+     Her biri sayfanın TAM kopyası (52 KB) ve KALICI.
+
+     Kritik olan şu: bu bağlantıları uygulama üretmiyor. WhatsApp,
+     Facebook ve reklam araçları paylaşılan adrese kendileri
+     `?fbclid=`, `?utm_source=` ekler. Yani uygulamada paylaşım
+     özelliği olmasa bile büyüme yaşanır -- paylaşılması yeter.
+
+     Telefonda kota dolunca tarayıcı önbelleğe yazmayı reddeder ve
+     ÇEVRİMDIŞI KATMAN SESSİZCE ÖLÜR; ekranda hiçbir şey değişmez.
+
+     VARLIKTA AYNISI YAPILMAZ: `?v=NN` damgası sürümlemenin kendisidir,
+     düşürülseydi eski ve yeni dosya aynı anahtara yazılırdı. */
+  const sayfaAnahtari = (istek) => {
+    const u = new URL(istek.url);
+    u.search = "";
+    return u.href;
+  };
+
   if (sayfaMi) {
     // KURAL 2: sayfada önce ağ. Düzeltme yayınlandığı gün görünsün.
     e.respondWith(
@@ -69,11 +95,12 @@ self.addEventListener("fetch", (e) => {
         .then((cevap) => {
           if (cevap && cevap.ok) {
             const kopya = cevap.clone();
-            caches.open(SURUM).then((c) => c.put(istek, kopya)).catch(() => {});
+            caches.open(SURUM).then((c) => c.put(sayfaAnahtari(istek), kopya))
+              .catch(() => {});
           }
           return cevap;
         })
-        .catch(() => caches.match(istek).then((bulunan) => {
+        .catch(() => caches.match(sayfaAnahtari(istek)).then((bulunan) => {
           if (bulunan) return bulunan;
           // KURAL 4: yedek sayfa yalnızca gerçek sayfa isteğine
           if (istek.mode === "navigate") return caches.match("index.html");

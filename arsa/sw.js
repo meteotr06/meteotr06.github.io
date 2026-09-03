@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v145";
+const SURUM = "arsa-v149";
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"
@@ -80,16 +80,45 @@ self.addEventListener("fetch", (olay) => {
                      (istek.headers.get("accept") || "").includes("text/html");
 
     if (sayfa_mi) {
+        /* SAYFA ANAHTARI SORGUSUZ.
+           Olculdu (03.09.2026): sayfa TAM ADRESLE anahtarlaniyordu ve
+           her farkli sorgu KALICI YENI BIR KOPYA uretiyordu:
+               baslangic                 19 girdi / 19 essiz yol
+               ?sekme=... ?ornek=1       24 girdi / 19 essiz yol
+               ?fbclid=... ?utm_source=  28 girdi / 19 essiz yol
+           Ana sayfanin 10 kopyasi birikmisti.
+
+           Ic baglantilardan gelen buyume sinirliydi (`?sekme=` dort
+           deger alir). Ama paylasim baglantilari `?fbclid=`,
+           `?utm_source=`, `?ref=` gibi RASTGELE ek tasir: WhatsApp'ta
+           paylasilan her baglanti yeni bir kopya birakir. Pratikte
+           sinirsiz -- olcumde de oyle cikti.
+
+           Zarar sessizdir: telefonda kota dolunca tarayici onbellege
+           yazmayi reddeder ve CEVRIMDISI KATMAN OLUR. Ekranda hicbir
+           sey degismez; kullanici internetsiz kalinca uygulamanin
+           acilmadigini gorur, sebebini bilemez.
+
+           Desen 09 Hesap Araclari oturumundan geldi; oradaki olcum
+           63 essiz yola karsi 177 girdiydi.
+
+           VARLIK DAMGASINA DOKUNULMUYOR: `?v=NN` tam da adresi
+           degistirmek icin var. Sayfa ile varlığı ayni kuralla ele
+           almak surumlemeyi cokertirdi. */
+        const sayfa_anahtari = new Request(adres.origin + adres.pathname,
+                                           { method: "GET" });
         // KURAL 2: sayfada önce ağ. Güncel içerik hemen görünsün.
         olay.respondWith(
             fetch(istek)
                 .then(y => {
                     const kopya = y.clone();
-                    caches.open(SURUM).then(k => k.put(istek, kopya)).catch(() => {});
+                    caches.open(SURUM)
+                          .then(k => k.put(sayfa_anahtari, kopya))
+                          .catch(() => {});
                     return y;
                 })
                 .catch(() =>
-                    caches.match(istek).then(y =>
+                    caches.match(sayfa_anahtari).then(y =>
                         // KURAL 3: yedek yalnızca gezinme isteğine döner
                         y || caches.match("./index.html")
                     )

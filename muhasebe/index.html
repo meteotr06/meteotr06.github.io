@@ -28,6 +28,15 @@
   --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#5a6b7d;
   --vurgu:#1f8fff; --gelir:#33c07a; --gider:#ff6b6b; --uyari:#ffcf5c;
 }
+/* ==== Vurgu rengi secenekleri ====
+   Kullanici istedi (03.09.2026). Yalniz `--vurgu` degisiyor; gelir/
+   gider renkleri SABIT kaliyor cunku onlar ANLAM tasiyor.
+   Kirmizi ve yesil vurgu YOK: ikisi de burada gelir/gider demek. */
+html[data-renk="mor"]     :root, html[data-renk="mor"]     { --vurgu:#7b3fe4; }
+html[data-renk="turuncu"] :root, html[data-renk="turuncu"] { --vurgu:#d2691e; }
+html[data-renk="turkuaz"] :root, html[data-renk="turkuaz"] { --vurgu:#0e9594; }
+html[data-renk="lacivert"]:root, html[data-renk="lacivert"]{ --vurgu:#2c3e8f; }
+
 @media (prefers-color-scheme: light){
   :root{
     --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
@@ -35,6 +44,54 @@
     --vurgu:#1f8fff; --gelir:#1e9e60; --gider:#d64545; --uyari:#b8860b;
   }
 }
+/* ===== HAREKET ====================================================
+   1. VARSAYILAN HAL DAIMA GORUNUR. Butun hareket asagidaki medya
+      sorgusunun ICINDE; sorgu tutmazsa tek piksel oynamaz ve icerik
+      oldugu gibi durur. Animasyona guvenip `opacity:0` ile baslamak,
+      animasyon kosmazsa BOS SAYFA birakir ve hata da gorunmez.
+   2. `prefers-reduced-motion` bir zevk degil ERISILEBILIRLIK ayari:
+      vestibuler rahatsizligi olanda kayan arayuz bas donmesi yapar.
+   3. `:hover` yazilan her yere `:focus-visible` de yazildi - yoksa
+      klavyeyle gezen kullanici karanlikta kalir.
+   4. Hareket renk ya da ANLAM tasimiyor; gormeyen kullanici hicbir
+      bilgi kacirmiyor.
+   ================================================================ */
+@media (prefers-reduced-motion: no-preference){
+  .kart, .satir{
+    transition: transform .18s ease, box-shadow .18s ease,
+                border-color .18s ease;
+  }
+  .satir:hover, .satir:focus-visible,
+  .kart:hover,  .kart:focus-visible{
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,.16);
+  }
+  /* Basildigi an geri oturur - dokunusun karsilik verdigi his. */
+  .satir:active, .kart:active{ transform: translateY(0); transition-duration:.06s; }
+
+  .segment button{ transition: background .15s ease, color .15s ease; }
+
+  /* FAB: en cok basilan dugme. Buyume 1.06 - daha fazlasi zipliyor. */
+  #fab{ transition: transform .16s ease, box-shadow .16s ease; }
+  #fab:hover, #fab:focus-visible{ transform: scale(1.06); }
+  #fab:active{ transform: scale(.98); transition-duration:.06s; }
+
+  /* Giris: kartlar sirayla yerine otursun. Gecikmeler kisa (<=.12s)
+     ve `opacity` sifir DEGIL .001 - tam gorunmezlik hic olmuyor. */
+  @keyframes muhKartGel{
+    from{ opacity:.001; transform: translateY(8px); }
+    to  { opacity:1;    transform:none; }
+  }
+  /* ETKIN SAYFAYA SINIRLI. Kapsam genis olsaydi gizli sayfanin
+     kartlari `both` yuzunden `from` halinde (opaklik .001) bekler,
+     yani depoda gorunmez icerik dururdu. Olculdu: kapsam genisken
+     en dusuk opaklik .001 idi. */
+  .sayfa.aktif .kartlar > .kart{ animation: muhKartGel .30s ease both; }
+  .sayfa.aktif .kartlar > .kart:nth-child(1){ animation-delay:.00s; }
+  .sayfa.aktif .kartlar > .kart:nth-child(2){ animation-delay:.05s; }
+  .sayfa.aktif .kartlar > .kart:nth-child(3){ animation-delay:.10s; }
+}
+
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{margin:0; padding:0; overflow-x:hidden;}
 body{
@@ -190,6 +247,20 @@ select{appearance:none;}
       <button type="button" data-d="ay" class="aktif" aria-pressed="true">Bu Ay</button>
       <button type="button" data-d="yil" aria-pressed="false">Bu Yıl</button>
       <button type="button" data-d="tum" aria-pressed="false">Tümü</button>
+      <!-- Vurgu rengi. `aria-expanded` ile durumu ekran okuyucuya da
+           bildiriliyor; panel yalniz renk degistiriyor, KAYITLARA
+           dokunmuyor. -->
+      <button type="button" id="renk-btn" title="Renk seç"
+              aria-label="Vurgu rengi seç" aria-expanded="false"
+              style="margin-left:auto; min-width:44px">🎨</button>
+    </div>
+    <div id="renk-panel" class="kart" hidden
+         style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+      <button type="button" data-renk=""         title="Mavi (varsayılan)" aria-label="Mavi">🔵</button>
+      <button type="button" data-renk="mor"      title="Mor"      aria-label="Mor">🟣</button>
+      <button type="button" data-renk="turuncu"  title="Turuncu"  aria-label="Turuncu">🟠</button>
+      <button type="button" data-renk="turkuaz"  title="Turkuaz"  aria-label="Turkuaz">🩵</button>
+      <button type="button" data-renk="lacivert" title="Lacivert" aria-label="Lacivert">🔷</button>
     </div>
     <div class="liste" id="hareket-liste"></div>
   </div>
@@ -303,28 +374,91 @@ const VARSAYILAN = {hareketler:[], cariler:[], sayac:1};
 let db;
 try{ db = JSON.parse(Hafiza.oku("muhasebe_mobil") || "null") || VARSAYILAN; }
 catch(e){ db = VARSAYILAN; }   // bozuk/yarim JSON de sayfayi coldurmesin
-function kaydet(){ Hafiza.yaz("muhasebe_mobil", JSON.stringify(db)); }
+/* YAZMA BAŞARISIZ OLURSA SUSMUYORUZ. `Hafiza.yaz` false dönüyordu ve
+   burada yok sayılıyordu: depolama dolu ya da engelliyken kullanıcı
+   kaydı ekranda GÖRÜYOR, kapatınca kaybediyordu. Muhasebede sessiz
+   kayıp, çökmekten kötüdür — çünkü fark edilmez. */
+let yazmaUyarildi = false;
+function kaydet(){
+  const oldu = Hafiza.yaz("muhasebe_mobil", JSON.stringify(db));
+  if(!oldu && !yazmaUyarildi){
+    yazmaUyarildi = true;
+    const serit = document.getElementById("hafiza-uyari");
+    if(serit){
+      serit.textContent = "\u26a0\ufe0f Kayıt DİSKE YAZILAMADI \u2014 depolama dolu ya da "+
+        "engellenmiş olabilir. Ekranda gördüğünüz kayıtlar sayfayı "+
+        "kapatınca KAYBOLUR.";
+      serit.hidden = false;
+    }
+    duyur("Uyarı: kayıt diske yazılamadı, sayfayı kapatınca kaybolur.");
+  }
+  return oldu;
+}
 function yeniId(){ return db.sayac++; }
 
 const GELIR_KAT = ["Satış","Hizmet","Faiz Geliri","Kira Geliri","Diğer Gelir"];
 const GIDER_KAT = ["Alış","Kira","Maaş","Elektrik/Su/Doğalgaz","Telefon/İnternet","Vergi","Nakliye","Bakım/Onarım","Diğer Gider"];
 
-// ============ Para (kurus <-> metin) — masaustuyle ayni mantik ============
+// ============ Para (kurus <-> metin) ============
+/* MASAUSTUYLE AYNI MANTIK -- artik gercekten. 03.09.2026'da olculdu:
+   bu dosyadaki surum masaustunun `muhasebe_veri.sayi_oku` kuralini
+   TASIMIYORDU, yalnizca oyle yaziyordu. Ayni girdi iki yuzeyde farkli
+   tutar veriyordu (canli uygulamada olculdu):
+
+     girdi         telefon (eski)   masaustu      dogrusu
+     "1,500.50"    1,50 TL          1.500,50 TL   1.500,50   <- BIN KAT
+     "1,250,00"    1,25 TL          RED           belirsiz, reddedilmeli
+     "1500 x 2"    1.500,00 TL      RED           reddedilmeli
+     "12abc"       12,00 TL         RED           reddedilmeli
+     "1e3"         1.000,00 TL      RED           reddedilmeli
+     "1_000"       1,00 TL          RED           reddedilmeli
+     "Infinity"    kabul, diske     RED           reddedilmeli
+                   null yaziyordu
+     "--5"         +5,00 TL         -5,00 TL      isaret ters donuyordu
+
+   Sebep tekti: `parseFloat` COMERT. "12abc"i 12 yapar, "1e3"u 1000 yapar,
+   "Infinity"yi Infinity yapar. Masaustu bu yuzden float()'a vermeden ONCE
+   bicimi dogruluyor; burada o denetim yoktu.
+
+   Kural (masaustunden birebir):
+     - Iki ayrac birden varsa SONDAKI ondaliktir ("1,500.50" Ingilizce yazim)
+     - Yalniz virgul : ondalik ("2,5")
+     - Yalniz nokta  : tek nokta + 1-2 hane ondalik ("10.5"), aksi binlik
+     - Sonra BICIM DOGRULANIR; nan/inf/us/alt cizgi/harf elenir
+   Ek olarak burada: guvenli tam sayi siniri. Kurusa cevrilen deger
+   Number.MAX_SAFE_INTEGER'i asarsa sayi ZATEN yanlistir (9007199254740993
+   -> ...992 oluyordu); sessizce yanlis yazmaktansa reddediyoruz. */
+const SAYI_KALIBI = /^(\d+(\.\d+)?|\.\d+)$/;
 function kurusa(m){
   if(m==null) return null;
-  let s=(""+m).trim().replace(/\s/g,"").replace("₺","").replace("TL","");
+  if(typeof m === "number") return isFinite(m) ? Math.round(m*100) : null;
+  let s=(""+m).trim().replace(/\s/g,"").replace(/₺/g,"").replace(/TL/gi,"");
   if(!s) return null;
-  let eksi = s[0]==="-"; s=s.replace(/^[+-]/,"");
-  if(s.includes(",")) s=s.replace(/\./g,"").replace(",",".");
-  else if(s.includes(".")){
-    let p=s.split(".");
+  const eksi = s[0]==="-";
+  s = s.replace(/^[+-]+/,"");
+  const sonNokta=s.lastIndexOf("."), sonVirgul=s.lastIndexOf(",");
+  if(sonNokta!==-1 && sonVirgul!==-1){
+    if(sonVirgul>sonNokta) s=s.replace(/\./g,"").replace(/,/g,".");
+    else                   s=s.replace(/,/g,"");
+  } else if(sonVirgul!==-1){
+    s=s.replace(/,/g,".");
+  } else if(sonNokta!==-1){
+    const p=s.split(".");
     if(!(p.length===2 && p[1].length>=1 && p[1].length<=2)) s=s.replace(/\./g,"");
   }
-  let sayi=parseFloat(s); if(isNaN(sayi)) return null;
-  let k=Math.round(sayi*100); return eksi?-k:k;
+  if(!SAYI_KALIBI.test(s)) return null;          // <- eksik olan satir buydu
+  const sayi=parseFloat(s);
+  if(!isFinite(sayi)) return null;
+  const k=Math.round(sayi*100);
+  if(!Number.isSafeInteger(k)) return null;
+  return eksi?-k:k;
 }
 function para(k, simge=true){
-  if(k==null) k=0; k=Math.round(k);
+  /* Bozuk kayit SAYI GIBI GORUNMESIN. Eski surumde `tutar:null` olan bir
+     kayit "0,00 TL" diye ciziliyordu -- kullanici sifir tutarli gecerli
+     bir kayit sandi. Infinity ise "Infinity,NaN TL" yaziyordu. */
+  if(k==null || typeof k!=="number" || !isFinite(k)) return simge? "— ₺" : "—";
+  k=Math.round(k);
   let isaret = k<0?"-":""; let mutlak=Math.abs(k);
   let tam=Math.floor(mutlak/100), kr=mutlak%100;
   let ts=tam.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
@@ -536,7 +670,17 @@ document.getElementById("f-kaydet").onclick=()=>{
   if(aktifSayfa==="cari"){
     let ad=document.getElementById("cf-ad").value.trim();
     if(!ad){ alert("Cari adı girin."); return; }
-    let acilis=kurusa(document.getElementById("cf-acilis").value)||0;
+    /* `kurusa(...)||0` idi: cozulemeyen her sey SESSIZCE 0 oluyordu.
+       "abc" -> 0,00 TL; "12abc" -> 12,00 TL. Cari acilis bakiyesi
+       yanlis olursa butun borc/alacak yanlis olur. Bos birakmak
+       serbest (0 demek), ama YAZILMIS ve cozulememis deger reddedilir. */
+    const acilisHam=document.getElementById("cf-acilis").value.trim();
+    let acilis=0;
+    if(acilisHam){
+      const c=kurusa(acilisHam);
+      if(c==null){ alert("Açılış bakiyesi okunamadı (örn. 1500 ya da 1.500,50). Boş bırakırsanız 0 sayılır."); return; }
+      acilis=c;
+    }
     db.cariler.push({id:yeniId(), ad, tur:document.getElementById("cf-tur").value, acilis});
     ciz(); formKapat();
     duyur(`Cari kaydedildi: ${ad}, açılış bakiyesi ${para(acilis)}.`);
@@ -574,6 +718,38 @@ document.getElementById("davet-gizle").onclick=()=>{
   Hafiza.yaz("davet_gizli","1");
 };
 
+// ============ Vurgu rengi ============
+// Secim `localStorage`da; KAYITLARA dokunmuyor. Depo engelliyse
+// (gizli sekme) sessizce varsayilanla devam eder - renk yuzunden
+// uygulama acilmamazlik etmemeli.
+(function(){
+  var ANAHTAR = "muhasebe-renk";
+  function uygula(r){
+    if(r) document.documentElement.setAttribute("data-renk", r);
+    else  document.documentElement.removeAttribute("data-renk");
+  }
+  try { uygula(localStorage.getItem(ANAHTAR) || ""); } catch(e){}
+  var btn = document.getElementById("renk-btn");
+  var panel = document.getElementById("renk-panel");
+  if(!btn || !panel) return;
+  btn.onclick = function(){
+    var acik = panel.hidden;
+    panel.hidden = !acik;
+    btn.setAttribute("aria-expanded", acik ? "true" : "false");
+  };
+  panel.querySelectorAll("button").forEach(function(b){
+    b.onclick = function(){
+      var r = b.getAttribute("data-renk") || "";
+      uygula(r);
+      try { r ? localStorage.setItem(ANAHTAR, r) : localStorage.removeItem(ANAHTAR); } catch(e){}
+      panel.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+      var d = document.getElementById("duyuru");
+      if(d) d.textContent = "Renk değişti: " + (b.title || "varsayılan");
+    };
+  });
+})();
+
 // ============ Servis calisani (cevrimdisi) ============
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=> navigator.serviceWorker.register("sw.js").catch(()=>{}));
@@ -584,6 +760,17 @@ if(!HAFIZA_VAR) document.getElementById("hafiza-uyari").hidden=false;
 ciz();
 </script>
 <script src="kurulum.js"></script>
+<script src="guncelle.js"></script>
+<script>
+/* TESLIMAT. Ortak modul: HESAP MAKİNESİ\ortak\guncelle.js
+   Degisiklik ONCE orada yapilir, sonra kopyalar tazelenir (K-69).
+
+   `otomatik: false` BILEREK: fis yazilirken habersiz reload() girilen
+   veriyi siler. Serit cikar, "Yenile"ye kullanici basar. Modulun
+   varsayilani da false; acikca yaziliyor ki ileride varsayilan
+   degisirse bu uygulama sessizce otomatige gecmesin. */
+try { new Guncelle({ otomatik: false }); } catch (e) {}
+</script>
 <script>
 /* KURULUM DAVETI -- ortak modul: HESAP MAKINESI\ortak\kurulum.js
    Anahtar UYGULAMAYA OZEL: ortak anahtar olsaydi bir uygulamada

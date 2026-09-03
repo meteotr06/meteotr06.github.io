@@ -64,8 +64,34 @@ const PARAMETRE = {
     // KDV oranları
     kdvOranlari: [1, 10, 20],
 
-    // Kıdem tazminatı tavanı — 6 ayda bir değişir, çıkış tarihine göre uygulanır
-    // Kaynak: resmî tebliğler (Verginet/PwC duyuruları ile teyit edildi)
+    /* KIDEM TAZMINATI TAVANI -- 6 ayda bir degisir, CIKIS TARIHINE gore uygulanir.
+
+       DAYANAK YAZILDI, "duyuruyla teyit edildi" DEGIL (K-61, dogrulandi 03.09.2026).
+       Onceki aciklama "resmi tebligler (Verginet/PwC duyurulari ile teyit edildi)"
+       diyordu. Bu, dogrulanabilir bir kayit degil: hangi genelge, hangi tarih,
+       hangi sayi belli degil. Ozet siteler ayni belge icin farkli sayi verebiliyor
+       (bu depoda emlak tavani carpaninda olculdu: tek belge, uc ozet, uc sayi).
+       Artik sayinin cikardigi yer tek tek yazili:
+
+       01.01.2026 - 30.06.2026 -> 64.948,77 TL
+           Hazine ve Maliye Bakanligi, 06.01.2026 tarihli
+           27998389-010.06.02-4481518 sayili Genelge (Mali ve Sosyal Haklar)
+
+       01.07.2026 - 31.12.2026 -> 73.729,87 TL
+           Hazine ve Maliye Bakanligi, 02.07.2026 tarihli
+           27998389-010.06.02-4870801 sayili 5 No.lu Genelge
+           Dayanak: 2025/1 sayili Kamu Gorevlileri Hakem Kurulu Karari
+           (26.08.2025; R.G. 27.08.2025 / 32999)
+           Genelge metni: "1/7/2026 tarihinden itibaren iscilere odenecek
+           kidem tazminatinin yillik tavan tutari 73.729,87 TL'dir"
+
+       IKI SAYI BIRBIRINE KARSI DA DENETLENDI: kaynaklar artisi bagimsiz
+       olarak %13,52 diye veriyor; 73.729,87 / 64.948,77 = %13,5200. Biri
+       yanlis olsa bu oran tutmazdi. Sayiyi tek kaynaktan almak yerine
+       aralarindaki iliskiyi de olcmek, kopyalama hatasini yakalar.
+
+       GECMIS YILLAR ICIN SATIR YOK -- bilerek. Asagidaki `kidemTavani()`
+       tablo disi tarihte "bilinmiyor" der, son satiri dondurmez. */
     kidemTavanlari: [
         { baslangic: "2026-01-01", bitis: "2026-06-30", tutar: 64948.77 },
         { baslangic: "2026-07-01", bitis: "2026-12-31", tutar: 73729.87 }

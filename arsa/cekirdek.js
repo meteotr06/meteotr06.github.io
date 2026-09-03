@@ -1222,10 +1222,57 @@ function deger_nominal(emsal, hedef) {
   if (pe.puan <= 0) {
     return { hata: 'Emsal parselin nominal puanı sıfır; oran kurulamaz.' };
   }
+  /* HEDEF PUANI SIFIRSA DA ORAN KURULAMAZ — simetrik denetim.
+     Ölçüldü (03.09.2026, uygulama kullanılarak): 500 m² / 4.000 TL
+     girilip başka hiçbir şey doldurulmayınca hedef puanı 0 çıkıyordu ve
+     yöntem hatasız bir şekilde `0 TL/m²` döndürüyordu.
+
+     Sıfır bir tahmin değil, tahminin yokluğudur. Hiçbir arsanın
+     metrekaresi 0 TL değildir.
+
+     ZARARI GÖRÜNENDEN BÜYÜKTÜ: o sıfır sonuca dönüşüyordu.
+         ortalama = (4000 + 0) / 2 = 2000
+         ayrışma  = |4000 - 0| / 2000 = %200
+     Yani uygulamanın DÜRÜST görünen uyarısı — "iki yöntem çok uzak,
+     tek aralık vermiyoruz" — hayali bir sıfırdan doğuyordu. Kullanıcı
+     gerçek bir belirsizlik sanıp parseli şüphe altında bırakıyordu.
+
+     Emsal tarafında bu denetim vardı, hedef tarafında yoktu: bir tarafı
+     korurken ötekini unutmak. */
+  if (ph.puan <= 0) {
+    return { hata: 'Bu parsel için nominal puan sıfır çıktı — ' +
+                   'karşılaştırılacak yeterli bilgi girilmemiş. ' +
+                   'Sıfır bir değer tahmini değildir, o yüzden sayı üretmiyoruz.',
+             yetersiz_bilgi: true };
+  }
 
   var puan_orani = ph.puan / pe.puan;
   var kor = kor_nokta_carpani(emsal, hedef);
   var oran = puan_orani * kor.oran;
+
+  /* SONUC SIFIRA YUVARLANIYORSA, O BIR TAHMIN DEGILDIR.
+     Olculdu (03.09.2026, uygulama kullanilarak): 500 m2 / 4.000 TL
+     girilip baska hicbir sey doldurulmayinca nominal yontem
+     `0 TL/m2` donuyordu. Hedef puani sifir DEGILDI -- cok kucuktu,
+     ve `birim * oran` yuvarlanirken sifira dusuyordu.
+
+     Yani ilk denetimim (ph.puan <= 0) bu yolu KACIRIYORDU: puan
+     pozitifti. Denetim SONUCA konmali, ara degere degil.
+
+     ZARARI: o sifir sonuca donusuyordu.
+         ortalama = (4000 + 0) / 2 = 2000
+         ayrisma  = |4000 - 0| / 2000 = %200
+     Uygulamanin DURUST gorunen uyarisi -- "iki yontem cok uzak, tek
+     aralik vermiyoruz" -- hayali bir sifirdan doguyordu. Kullanici
+     gercek bir belirsizlik saniyordu; oysa isaret olculen belirsizlik
+     degil, GIRILMEMIS BILGIydi. */
+  var birim_fiyat_sonuc = yuvarla(birim * oran, 0);
+  if (!(birim_fiyat_sonuc > 0)) {
+    return { hata: 'Nominal yöntem bu parsel için sayı üretemedi — ' +
+                   'karşılaştırmaya yetecek bilgi girilmemiş. ' +
+                   'Sıfır bir değer tahmini değildir, o yüzden göstermiyoruz.',
+             yetersiz_bilgi: true };
+  }
 
   return {
     yontem: 'nominal',
@@ -1237,7 +1284,7 @@ function deger_nominal(emsal, hedef) {
     kor_nokta_eksik: kor.eksik,
     oran: yuvarla(oran, 4),
     net_etki_yuzde: yuvarla((oran - 1) * 100, 1),
-    birim_fiyat: yuvarla(birim * oran, 0),
+    birim_fiyat: birim_fiyat_sonuc,
     kapsam_yuzde: Math.min(pe.kapsam_yuzde, ph.kapsam_yuzde),
     ortak_faktor_sayisi: ortak.length,
     adalet_icin_dislanan: disarida,

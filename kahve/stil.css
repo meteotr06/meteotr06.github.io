@@ -104,6 +104,38 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .sayfa.aktif { display: block; }
 
 /* ---- kart ---- */
+/* ===== HAREKET ====================================================
+   1. VARSAYILAN HAL DAIMA GORUNUR. Butun hareket asagidaki medya
+      sorgusunun ICINDE; sorgu tutmazsa tek piksel oynamaz ve icerik
+      oldugu gibi durur. `opacity:0`dan baslayip animasyona guvenmek,
+      animasyon kosmazsa BOS SAYFA birakir - ustelik hata gorunmez.
+   2. `prefers-reduced-motion` bir zevk degil ERISILEBILIRLIK ayari.
+   3. `:hover` yazilan her yere `:focus-visible` de yazildi.
+   4. Hareket renk ya da ANLAM tasimiyor.
+   ================================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .kart { transition: transform .18s ease, box-shadow .18s ease; }
+
+  .sekme { transition: background .15s ease, color .15s ease; }
+
+  /* Dugmeler: dokunusun karsilik verdigi his. Renk DEGISMIYOR,
+     yalnizca olcek - anlam tasimasin diye. */
+  button { transition: transform .14s ease, box-shadow .14s ease; }
+  button:hover, button:focus-visible { transform: translateY(-1px); }
+  button:active { transform: translateY(0); transition-duration: .06s; }
+
+  /* Giris: kart yumusakca yerine otursun. Gecikme <=.12s ve opaklik
+     sifir DEGIL .001 - tam gorunmezlik hic olmuyor. */
+  @keyframes kahveKartGel {
+    from { opacity: .001; transform: translateY(8px); }
+    to   { opacity: 1;    transform: none; }
+  }
+  .sayfa:not([hidden]) > .kart { animation: kahveKartGel .30s ease both; }
+  .sayfa:not([hidden]) > .kart:nth-child(1) { animation-delay: .00s; }
+  .sayfa:not([hidden]) > .kart:nth-child(2) { animation-delay: .06s; }
+  .sayfa:not([hidden]) > .kart:nth-child(3) { animation-delay: .12s; }
+}
+
 .kart {
     background: var(--kart); border: 1px solid var(--cizgi);
     border-radius: var(--yuvarlak); padding: 16px; margin-bottom: 14px;
@@ -258,3 +290,52 @@ input, select {
     border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: .8rem;
 }
 .hareket .sil:hover { border-color: var(--uyari); color: var(--uyari); }
+
+/* ================== ENVANTER GORSELI ==================
+   FIRE CUBUGUNDAN OGRENILEN KURAL (bu dosyada yukarida yaziyor):
+   gorsel yalan soylerse, o da bir sessiz yanlis bilgidir -- ustelik
+   metinden ONCE okunur. Bu yuzden buradaki cubuk YENI BIR SEY IDDIA
+   ETMEZ: yalnizca ustunde zaten yazili olan iki agirligi olcekli
+   gosterir. Yesil ve kavrulmus AYRI depolardir; cubuk ikisini
+   toplamaz, yan yana koyar.
+   ====================================================== */
+.depo-oran {
+    display: flex; height: 8px; margin-top: 10px;
+    border-radius: 999px; overflow: hidden;
+    background: var(--cizgi);
+}
+.depo-oran span { display: block; height: 100%; }
+.depo-oran .y { background: #6f8f4a; }          /* yesil cekirdek */
+.depo-oran .k { background: var(--vurgu); }     /* kavrulmus */
+.depo-oran-etiket {
+    display: flex; justify-content: space-between;
+    margin-top: 6px; font-size: .75rem; color: var(--yazi2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .depo-oran span { transition: width .5s cubic-bezier(.22,.61,.36,1); }
+
+    /* Depo bloklari sirayla belirir -- kartlarla ayni dil (kahveKartGel). */
+    @keyframes depoGel {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: none; }
+    }
+    .depo { animation: depoGel .26s ease both; }
+    .depo:nth-child(1) { animation-delay: .00s; }
+    .depo:nth-child(2) { animation-delay: .05s; }
+    .depo:nth-child(3) { animation-delay: .10s; }
+    .depo:nth-child(4) { animation-delay: .15s; }
+
+    /* YALNIZ YENI EKLENEN satir belirir. Butun listeyi her cizimde
+       oynatmak, degisen seyi gizler -- goz nereye bakacagini sasirir. */
+    @keyframes hareketGel {
+        from { opacity: 0; transform: translateX(-8px); }
+        to   { opacity: 1; transform: none; }
+    }
+    .hareket.yeni { animation: hareketGel .28s ease both; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .depo, .hareket.yeni { animation: none !important; }
+    .depo-oran span { transition: none !important; }
+}

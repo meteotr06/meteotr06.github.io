@@ -306,6 +306,101 @@
        listenin sonuna koyup HEPSİNİ yeniden hesaplatmak. Böylece ekran
        kendi başına "bu geçerli galiba" demiyor -- kural tek yerde. */
 
+    /* YEREL gun. `toISOString()` once UTC'ye cevirir; Turkiye UTC+3
+       oldugu icin gece 00:00-03:00 arasi girilen hareket BIR GUN GERIYE
+       duserdi. Ayni tuzak Muhasebe'de yasanmis ve orada da boyle
+       cozulmustu. */
+    function bugunYerel() {
+        var d = new Date(), iki = function (n) { return (n < 10 ? '0' : '') + n; };
+        return d.getFullYear() + '-' + iki(d.getMonth() + 1) + '-' + iki(d.getDate());
+    }
+
+    /* YENI ALAN, ESKI SAYFA -- olculdu (03.09.2026).
+       `?v=4` ile `?v=5` AYNI dosyayi sunar; damga yalnizca onbellek
+       kiricidir. Yani tarayicisinda eski index.html duran bir kullanici
+       YENI arayuz.js'i eski isaretle indirir. `$('#nTarih').value = ...`
+       o sayfada null uzerinde calisir, `baslat()` COKER ve uygulama
+       HIC ACILMAZ -- bir sekme bile gorunmez.
+       Bu, yayin sonrasi ilk dakikalarda gercek bir risk. Yeni bir DOM
+       ogesine dogrudan dokunmak yerine hep bu yardimcidan geciyoruz:
+       oge yoksa tarih ozelligi calismaz, uygulamanin geri kalani ayakta
+       kalir. Sessiz kayip degil: tarih bos gider, motor tarihsiz kaydi
+       zaten "once gelir" diye ele alir. */
+    function tarihAlani() { return $('#nTarih'); }
+
+    /* SAYARAK YAZ -- sayi degisince fark edilsin diye.
+       UC KURAL, ucu de bu takimin dersi:
+       1. SON DEGER TAM OLARAK YAZILIR. Ara kareler yuvarlaktir ama
+          bitis her zaman gercek deger; animasyon bir sayiyi asla
+          degistirmez, yalnizca ona giden yolu gosterir.
+       2. `prefers-reduced-motion` acikken hic oynamaz, dogrudan yazar.
+       3. Yeni cagri oncekini IPTAL eder; iki animasyon ayni ogeye
+          yazarsa ekranda zikzak yapan bir sayi kalir. */
+    var sayacIsleri = {};
+    var sayacAglari = {};   /* emniyet agi zamanlayicilari */
+    /* Yalniz YENI eklenen satir belirsin. Butun listeyi her cizimde
+       oynatmak degisen seyi gizler; goz nereye bakacagini sasirir. */
+    var sonEklenenDizin = -1;
+    function sayarakYaz(oge, deger, bicimle) {
+        if (!oge) return;
+        var anahtar = oge.id || (oge.dataset && oge.dataset.sayac) || 'x';
+        if (sayacIsleri[anahtar]) cancelAnimationFrame(sayacIsleri[anahtar]);
+        if (sayacAglari[anahtar]) clearTimeout(sayacAglari[anahtar]);
+
+        var azHareket = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var onceki = parseFloat(oge.dataset.sonDeger);
+        oge.dataset.sonDeger = deger;
+
+        /* ARKA PLANDAKI SEKMEDE ANIMASYON YOK.
+           OLCULDU (03.09.2026): sekme gorunur degilken tarayici
+           `requestAnimationFrame` cagrilarini HIC calistirmiyor. Sayi
+           eski degerinde DONUP KALDI -- motor 25,350 kg derken ekranda
+           15,150 kg yaziyordu. Kullanici geri donunce YANLIS SAYI
+           goruyordu, hicbir uyari olmadan.
+           Bir animasyon ekranda yanlis sayi birakiyorsa, o artik
+           susleme degil sessiz yanlis sayidir. */
+        if (azHareket || document.hidden || !isFinite(onceki) ||
+            onceki === deger || typeof requestAnimationFrame !== 'function') {
+            oge.textContent = bicimle(deger);
+            return;
+        }
+
+        var basla = null, sure = 420;
+        function bitir() {
+            if (sayacIsleri[anahtar]) {
+                cancelAnimationFrame(sayacIsleri[anahtar]);
+                delete sayacIsleri[anahtar];
+            }
+            if (sayacAglari[anahtar]) {
+                clearTimeout(sayacAglari[anahtar]);
+                delete sayacAglari[anahtar];
+            }
+            oge.textContent = bicimle(deger);          /* TAM deger */
+        }
+        function adim(zaman) {
+            if (basla === null) basla = zaman;
+            var t = Math.min(1, (zaman - basla) / sure);
+            var yumusak = 1 - Math.pow(1 - t, 3);      /* ease-out */
+            if (t < 1) {
+                oge.textContent = bicimle(onceki + (deger - onceki) * yumusak);
+                sayacIsleri[anahtar] = requestAnimationFrame(adim);
+            } else { bitir(); }
+        }
+        sayacIsleri[anahtar] = requestAnimationFrame(adim);
+
+        /* EMNIYET AGI. `setTimeout` arka planda kisilir ama CALISIR;
+           `requestAnimationFrame` hic calismaz. Animasyon yarida kalsa
+           bile son deger buradan yazilir. Bekleme sureden uzun tutuldu
+           ki normal akista bu ag hic devreye girmesin. */
+        sayacAglari[anahtar] = setTimeout(bitir, sure + 250);
+    }
+
+    function tarihGoster(t) {
+        var p = String(t || '').split('-');
+        return p.length === 3 ? p[2] + '.' + p[1] + '.' + p[0] : '';
+    }
+
     var TUR_ADI = {
         alim: 'Alım', kavurma: 'Kavurma', satis: 'Satış', zayi: 'Zayi'
     };
@@ -332,7 +427,8 @@
 
     function hareketTopla() {
         var t = $('#nTur').value;
-        var h = { tur: t, cesit: $('#nCesit').value, kg: $('#nKg').value };
+        var h = { tur: t, cesit: $('#nCesit').value, kg: $('#nKg').value,
+                  tarih: (tarihAlani() && tarihAlani().value) || bugunYerel() };
         if (t === 'alim') h.kgFiyat = $('#nFiyat').value;
         if (t === 'kavurma') {
             h.fire = $('#nFire').value;
@@ -372,8 +468,11 @@
         ['#nKg', '#nFiyat', '#nFire', '#nCikis'].forEach(function (x) {
             $(x).value = '';
         });
+        if (tarihAlani()) tarihAlani().value = bugunYerel();
         $('#hareketFormKap').open = false;
+        sonEklenenDizin = liste.length - 1;   /* depodaki dizin */
         envanterCiz();
+        sonEklenenDizin = -1;                 /* bir kez oynasin */
         duyur('Hareket işlendi.');
     }
 
@@ -404,7 +503,8 @@
         }
 
         goster(kutu, true);
-        $('#envanterBuyuk').textContent = kg(s.toplam.kavrulmusKg) + ' kavrulmuş';
+        sayarakYaz($('#envanterBuyuk'), s.toplam.kavrulmusKg,
+                   function (d) { return kg(d) + ' kavrulmuş'; });
         $('#envanterAlt').textContent =
             kg(s.toplam.yesilKg) + ' yeşil bekliyor · depodaki para ' +
             paraVarsa(s.toplam.yesilDeger + s.toplam.kavrulmusDeger === 0 &&
@@ -439,6 +539,7 @@
                     paraVarsa(d.kavrulmusKgFiyat) +
                   '</span></div>' +
                 '</div>' +
+                oranCubugu(d) +
                 (fireNot ? '<div class="fire-not"></div>' : '');
             /* Çeşit adı ve fire notu METİN olarak konuyor: kullanıcının
                yazdığı ad HTML'e karışmasın. */
@@ -450,6 +551,21 @@
         hareketListesiCiz(liste);
     }
 
+    /* Iki deponun agirligini OLCEKLI gosterir. Toplam sifirsa cubuk
+       hic cizilmez -- bos depoyu "yarim yarim" gostermek yalan olurdu. */
+    function oranCubugu(d) {
+        var toplam = d.yesilKg + d.kavrulmusKg;
+        if (!(toplam > 0)) return '';
+        var y = d.yesilKg / toplam * 100;
+        return '<div class="depo-oran" role="img" aria-label="Depoda ' +
+               kg(d.yesilKg) + ' yeşil, ' + kg(d.kavrulmusKg) + ' kavrulmuş">' +
+               '<span class="y" style="width:' + y + '%"></span>' +
+               '<span class="k" style="width:' + (100 - y) + '%"></span>' +
+               '</div>' +
+               '<div class="depo-oran-etiket" aria-hidden="true">' +
+               '<span>yeşil</span><span>kavrulmuş</span></div>';
+    }
+
     function hareketListesiCiz(liste) {
         var k = $('#hareketListe');
         k.innerHTML = '';
@@ -457,9 +573,22 @@
             k.innerHTML = '<div class="bos-defter">Henüz hareket yok.</div>';
             return;
         }
-        liste.forEach(function (h, i) {
+        /* SIRALAMA ile SILME AYRI SEYLER.
+           Liste artik TARIH sirasiyla ciziliyor ama depoda yazilma
+           sirasiyla duruyor. Silerken gorunen sirayi kullanmak YANLIS
+           KAYDI siler; bu yuzden ozgun dizin (`ozgunSira`) tasiniyor. */
+        var ozgunSira = liste.map(function (h, i) { return { h: h, i: i }; })
+            .sort(function (x, y) {
+                var tx = String((x.h || {}).tarih || ''),
+                    ty = String((y.h || {}).tarih || '');
+                if (tx !== ty) return tx < ty ? -1 : 1;
+                return x.i - y.i;
+            });
+
+        ozgunSira.forEach(function (kayit) {
+            var h = kayit.h, i = kayit.i;
             var d = document.createElement('div');
-            d.className = 'hareket';
+            d.className = 'hareket' + (i === sonEklenenDizin ? ' yeni' : '');
             var detay = '';
             if (h.tur === 'alim') {
                 detay = 'kilosu ' + h.kgFiyat + ' ₺';
@@ -476,7 +605,9 @@
             d.querySelector('.ne').textContent =
                 (TUR_ADI[h.tur] || h.tur) + ' · ' + h.cesit;
             d.querySelector('.miktar').textContent = h.kg + ' kg';
-            d.querySelector('.detay').textContent = detay;
+            var t = tarihGoster(h.tarih);
+            d.querySelector('.detay').textContent =
+                (t ? t + ' · ' : '') + detay;
             d.querySelector('.sil').addEventListener('click', function () {
                 /* Defterde silme onay soruyor, envanterde sormuyordu.
                    Aynı uygulamada iki farklı davranış, kullanıcının
@@ -502,6 +633,7 @@
             o.value = m;
             dl.appendChild(o);
         });
+        if (tarihAlani()) tarihAlani().value = bugunYerel();
         $('#nTur').addEventListener('change', turAlanlari);
         $('#nEkle').addEventListener('click', hareketEkle);
         turAlanlari();
