@@ -37,6 +37,25 @@ html { font-size: 100%; }
     --yazi2: #656c7a;   /* ölçüldü: zemine karşı kontrast 4,9 (AA sınırı 4,5) */
     --vurgu: #1c5fd6;          /* kurumsal mavi */
     --vurgu2: #123f96;
+    /* VURGU ZEMINININ UZERINDEKI YAZI -- ayri rol, olculerek (03.09.2026).
+       Alti yerde `background: var(--vurgu); color: #fff` yaziyordu. Acik
+       temada beyaz dogru; KOYU TEMADA DEGIL: koyu temada vurgu, koyu
+       zeminde okunsun diye ACIKLASTIRILIYOR, ustune beyaz yazi konunca
+       karsitlik cokuyor.
+       CALISAN UYGULAMADA OLCULDU -- `button.birincil`, yani 53 aracin
+       HEPSINDEKI ana "Hesapla" dugmesi, koyu temanin ALTI RENGINDE DE
+       esigin altindaydi:
+           gri 1,48 · orman 1,74 · okyanus 2,14 · gunbatimi 2,26
+           lavanta 2,64 · varsayilan 2,71      (esik 4,5)
+       Acik tema saglamdi (5,02-7,58), bu yuzden "renkler olculmustu"
+       hukmu ayakta duruyordu -- ama olculen SADECE vurgunun sayfa zemini
+       uzerindeki hali imis. Ayni renk, ZEMIN rolunde olculmemis.
+       Ayni kusur 07 Kur'da ve 06 Planlayici'da bugun ayri ayri bulundu;
+       buraya tasinmamisti -- K-69, dorduncu kez.
+       Yeni degerler hesaplandi: 6 tema x 2 kip x (normal + uzerine gelme)
+       = 24 bilesim, en dusuk 5,02. */
+    --vurgu-yazi: #ffffff;
+    --uyari-yazi: #ffffff;
     --artis: #067647;
     --azalis: #b42318;
     --uyari: #b54708;
@@ -53,6 +72,8 @@ html[data-tema="koyu"] {
     --yazi2: #939cab;
     --vurgu: #6b9bff;
     --vurgu2: #a5c2ff;
+    --vurgu-yazi: #0c0e13;
+    --uyari-yazi: #0c0e13;
     --artis: #34c77b;
     --azalis: #f4685c;
     --uyari: #e3a008;
@@ -119,7 +140,7 @@ button {
     transition: background .12s;
 }
 button:active { background: var(--kart-ust); }
-button.birincil { background: var(--vurgu); color: #fff; border-color: var(--vurgu); font-weight: 600; }
+button.birincil { background: var(--vurgu); color: var(--vurgu-yazi); border-color: var(--vurgu); font-weight: 600; }
 /* DOKUNMA HEDEFI 44 px — GENISLIK DE.
    Olculdu (30.08.2026, telefon 375x812): min-height 44 yapildiktan
    sonra bu dugmeler 42x44 kaldi; esik iki YONDE de gecerli.
@@ -507,7 +528,7 @@ label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex:
 /* ---------- Analiz ---------- */
 .analiz-btn {
     width: 100%; min-height: 50px; font-size: .9375rem; font-weight: 600;
-    background: var(--vurgu); color: #fff; border: 1px solid var(--vurgu);
+    background: var(--vurgu); color: var(--vurgu-yazi); border: 1px solid var(--vurgu);
     border-radius: var(--yuvarlak); margin-bottom: 12px;
 }
 .analiz-bolum { padding: 14px 0; border-bottom: 1px solid var(--cizgi); }
@@ -585,7 +606,7 @@ label.onay input { width: 20px; height: 20px; min-height: 20px; margin: 0; flex:
 
 .aralik-dugmeler { display: flex; gap: 6px; margin-bottom: 12px; }
 .aralik-dugmeler button { flex: 1; min-height: 36px; font-size: .8125rem; padding: 0; }
-.aralik-dugmeler button.aktif { background: var(--vurgu); color: #fff; border-color: var(--vurgu); font-weight: 600; }
+.aralik-dugmeler button.aktif { background: var(--vurgu); color: var(--vurgu-yazi); border-color: var(--vurgu); font-weight: 600; }
 
 .veri-izgara {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 0;
@@ -896,7 +917,7 @@ h1 { font-size: 1.5rem; margin: 4px 0 8px; font-weight: 700; letter-spacing: -.5
 /* Klavyeyle gezenler menüyü atlayıp içeriğe geçebilsin */
 .atlama-baglantisi {
     position: absolute; left: -9999px; top: 0; z-index: 100;
-    background: var(--vurgu); color: #fff; padding: 12px 18px;
+    background: var(--vurgu); color: var(--vurgu-yazi); padding: 12px 18px;
     border-radius: 0 0 8px 0; font-weight: 600; text-decoration: none;
 }
 .atlama-baglantisi:focus { left: 0; }
@@ -992,7 +1013,7 @@ main:focus { outline: none; }
 
 /* İnternet kesildiğinde en üstte çıkan bilgi şeridi */
 .cevrimdisi-serit {
-    background: var(--uyari); color: #fff; font-size: .875rem; line-height: 1.45;
+    background: var(--uyari); color: var(--uyari-yazi); font-size: .875rem; line-height: 1.45;
     padding: 10px 14px; text-align: center;
 }
 .cevrimdisi-serit b { font-weight: 700; }
@@ -1078,7 +1099,7 @@ main:focus { outline: none; }
 .rehber-cta { margin: 14px 0 26px; }
 .dugme-baglanti {
     display: inline-block; padding: 12px 18px; border-radius: var(--yuvarlak);
-    background: var(--vurgu); color: #fff; text-decoration: none;
+    background: var(--vurgu); color: var(--vurgu-yazi); text-decoration: none;
     font-weight: 600; font-size: .90625rem; min-height: 44px; line-height: 20px;
 }
 .dugme-baglanti:hover { background: var(--vurgu2); }
