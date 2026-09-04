@@ -34,3 +34,24 @@ arsa/test*.html
 # kuyruktaki dosyalari goturmustu. Artik bilerek eleniyor.
 */_onizleme.html
 _onizleme.html
+
+# ---- 04.09.2026: ELLE `git add <klasor>/` DEMENIN BEDELI ----
+# Bugun yayin kopyalarini tazeledikten sonra `git add kur-pusulasi/`
+# dedim. O komut dizindeki IZLENMEYEN dosyalari da alir: uc gelistirme
+# yardimcisi (iki karekod ve bir magaza ikonu) HERKESE ACIK depoya
+# gitti. Ucune de sitede SIFIR basvuru var.
+#
+# Asil ders: `YAYINA-KOPYALA.py` tam bu dosyalari REDDEDIYOR --
+# "index.html ya da sw.js istemiyorsa yayina girmez" kurali var ve
+# calisiyordu. Benim elle eklemem o korumanin ETRAFINDAN dolandi.
+# Bir koruma, ancak atlanamiyorsa korumadir.
+#
+# `git add -A` yasagi (K-27) yalniz `-A` icin degil: bir KLASOR adi
+# vermek de ayni sonucu verir.
+*/KAREKOD-*.png
+KAREKOD-*.png
+*/play-ikon-*.png
+
+# Oturum ayarlari; yerel makinenin klasor yapisini tasiyor ve herkese
+# acik bir depoda isi yok.
+.claude/
