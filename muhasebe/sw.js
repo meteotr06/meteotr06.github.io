@@ -21,7 +21,7 @@
      4) Yedek sayfa yalnızca gerçek sayfa (navigate) isteğine döner.
 */
 
-const SURUM = "muhasebe-v15";
+const SURUM = "muhasebe-v16";
 const DOSYALAR = [
   "./",
   "index.html",

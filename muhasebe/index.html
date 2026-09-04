@@ -25,17 +25,17 @@
 /* ==== Tema (koyu/acik otomatik) ==== */
 :root{
   --arka:#0f1620; --panel:#1c2733; --ickart:#0e1620; --cizgi:#243444;
-  --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#5a6b7d;
-  --vurgu:#1f8fff; --gelir:#33c07a; --gider:#ff6b6b; --uyari:#ffcf5c;
+  --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#8a9db0;
+  --vurgu:#1f8fff; --vurgu-yazi:#0f1620; --gelir:#33c07a; --gider:#ff6b6b; --uyari:#ffcf5c;
 }
 /* ==== Vurgu rengi secenekleri ====
    Kullanici istedi (03.09.2026). Yalniz `--vurgu` degisiyor; gelir/
    gider renkleri SABIT kaliyor cunku onlar ANLAM tasiyor.
    Kirmizi ve yesil vurgu YOK: ikisi de burada gelir/gider demek. */
-html[data-renk="mor"]     :root, html[data-renk="mor"]     { --vurgu:#7b3fe4; }
-html[data-renk="turuncu"] :root, html[data-renk="turuncu"] { --vurgu:#d2691e; }
-html[data-renk="turkuaz"] :root, html[data-renk="turkuaz"] { --vurgu:#0e9594; }
-html[data-renk="lacivert"]:root, html[data-renk="lacivert"]{ --vurgu:#2c3e8f; }
+html[data-renk="mor"]     :root, html[data-renk="mor"]     { --vurgu:#7b3fe4; --vurgu-yazi:#ffffff; }
+html[data-renk="turuncu"] :root, html[data-renk="turuncu"] { --vurgu:#d2691e; --vurgu-yazi:#0f1620; }
+html[data-renk="turkuaz"] :root, html[data-renk="turkuaz"] { --vurgu:#0e9594; --vurgu-yazi:#0f1620; }
+html[data-renk="lacivert"]:root, html[data-renk="lacivert"]{ --vurgu:#2c3e8f; --vurgu-yazi:#ffffff; }
 
 @media (prefers-color-scheme: light){
   :root{
@@ -118,7 +118,7 @@ h1{font-size:20px; margin:6px 0 12px; display:flex; align-items:center; gap:8px;
    altindaydi. */
 .segment button{flex:1; min-height:44px; border:0; border-radius:10px;
   background:var(--panel); color:var(--yazi2); font-weight:700; font-size:13px; cursor:pointer;}
-.segment button.aktif{background:var(--vurgu); color:#fff;}
+.segment button.aktif{background:var(--vurgu); color:var(--vurgu-yazi);}
 
 /* ==== Liste ==== */
 .liste{display:flex; flex-direction:column; gap:8px;}
@@ -171,7 +171,7 @@ h1{font-size:20px; margin:6px 0 12px; display:flex; align-items:center; gap:8px;
 /* ==== Yuzen ekle dugmesi ==== */
 .fab{position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom));
   width:58px; height:58px; border-radius:50%; border:0; background:var(--vurgu);
-  color:#fff; font-size:30px; box-shadow:0 6px 18px rgba(0,0,0,.35); cursor:pointer; z-index:25;}
+  color:var(--vurgu-yazi); font-size:30px; box-shadow:0 6px 18px rgba(0,0,0,.35); cursor:pointer; z-index:25;}
 
 /* ==== Modal form ==== */
 /* KURULUM SERIDI, KAYIT FORMUNU ORTUYORDU — OLCULDU (03.09.2026).
@@ -216,14 +216,14 @@ select{appearance:none;}
 .form-dugmeler button{flex:1; min-height:50px; border:0; border-radius:12px;
   font-weight:800; font-size:16px; cursor:pointer;}
 .btn-vaz{background:var(--ickart); color:var(--yazi2);}
-.btn-kaydet{background:var(--vurgu); color:#fff;}
+.btn-kaydet{background:var(--vurgu); color:var(--vurgu-yazi);}
 
 /* ==== Ana ekrana ekle daveti ==== */
 .davet{position:fixed; left:12px; right:12px; bottom:calc(84px + env(safe-area-inset-bottom));
   background:var(--panel); border:1px solid var(--vurgu); border-radius:14px;
   padding:12px 14px; display:none; align-items:center; gap:10px; z-index:30; font-size:13px;}
 .davet.acik{display:flex;}
-.davet button{margin-left:auto; background:var(--vurgu); color:#fff; border:0;
+.davet button{margin-left:auto; background:var(--vurgu); color:var(--vurgu-yazi); border:0;
   border-radius:10px; min-height:40px; padding:0 14px; font-weight:700; cursor:pointer;}
 .gizle{background:none; margin:0 0 0 6px; color:var(--yazi3); min-height:40px; padding:0 8px;}
 
