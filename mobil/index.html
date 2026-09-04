@@ -42,8 +42,15 @@
      Tek deger kullansaydik acik temayi bozardik. */
   :root {
     --arka:#0f1620; --panel:#1c2733; --ickart:#0e1620; --cizgi:#243444;
-    --secili:#12324f; --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#5a6b7d;
-    --vurgu:#1f8fff; --vurgu-yazi:#0f1620;
+    --secili:#12324f; --yazi:#ffffff; --yazi2:#9fb0c0;
+    /* --yazi3 #5a6b7d idi: koyu zeminlerde en dusuk 2,40 (esik 4,5).
+       'Iyi gunler', tarih, 'Hissedilen', gun dogumu/batimi -- hepsi
+       bu renkti, yani ekranin yarisi. #949fab -> 4,89. */
+    --yazi3:#949fab;
+    /* --vurgu #1f8fff idi: YAZI olarak koyu zeminde 4,03 (esik 4,5).
+       ZEMIN olarak zaten geciyordu (5,56) -- eksik olan yazi roluydu.
+       Bir rengin iki rolu ayri olculur (K-85). #359aff -> 4,53. */
+    --vurgu:#359aff; --vurgu-yazi:#0f1620;
     --nem:#4aa3ff; --ruzgar:#7fd4ff; --yagis:#54c6ff;
     --gunes:#ffd23b; --bulut:#cdd8e4;
   }
@@ -61,9 +68,9 @@
   @media (prefers-color-scheme: light) {
     :root:not([data-tema="koyu"]) {
       --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
-      --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#6b7a8a;
+      --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#5b6875;
       --vurgu:#0b62c4; --vurgu-yazi:#ffffff;
-      --nem:#1f7fe0; --ruzgar:#2a94cc; --yagis:#1f86d0;
+      --nem:#1966b3; --ruzgar:#1d688f; --yagis:#196ba6;
       --gunes:#a8760a; --bulut:#6b7a8a;
     }
     :root:not([data-tema="koyu"])[data-renk="yesil"]   { --vurgu:#04724d; --vurgu-yazi:#ffffff; }
@@ -73,9 +80,9 @@
   }
   :root[data-tema="acik"] {
     --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
-    --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#6b7a8a;
+    --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#5b6875;
     --vurgu:#0b62c4; --vurgu-yazi:#ffffff;
-    --nem:#1f7fe0; --ruzgar:#2a94cc; --yagis:#1f86d0;
+    --nem:#1966b3; --ruzgar:#1d688f; --yagis:#196ba6;
     --gunes:#a8760a; --bulut:#6b7a8a;
   }
   :root[data-tema="acik"][data-renk="yesil"]   { --vurgu:#04724d; --vurgu-yazi:#ffffff; }
@@ -128,7 +135,11 @@
     display:flex; align-items:center; justify-content:center; gap:6px;
   }
   .dugme:active { filter:brightness(1.3); }
-  .dugme.ana { background:var(--vurgu); color:#fff; font-weight:600; }
+  /* SABIT BEYAZ DEGIL. Olculdu (04.09.2026): koyu temada vurgu zemini
+     uzerinde beyaz yazi 2,91 (esik 4,5) -- "Yer degistir" dugmesi,
+     ekranin en cok kullanilan dugmesi. `--vurgu-yazi` her temada
+     zemine gore hesaplanmis degeri tasiyor. */
+  .dugme.ana { background:var(--vurgu); color:var(--vurgu-yazi); font-weight:600; }
   .dugme.genis { width:100%; }
 
   .kart { background:var(--panel); border-radius:18px; padding:18px; margin-bottom:12px; }
@@ -160,6 +171,35 @@
   /* hava kalitesi */
   .aqi-satir { display:flex; align-items:center; gap:12px; margin-top:8px; }
   .aqi-sayi { font-size:30px; font-weight:800; min-width:52px; }
+  /* HAVA KALITESI RENKLERI -- her bandin iki degeri var.
+     Koyu temada parlak (koyu zeminde okunur), acik temada koyu
+     (beyaz uzerinde okunur). Olculdu: acik temada eski parlak
+     renkler 1,64-3,97 kaliyordu; "38" ve "Makul" gorunmuyordu.
+     Renk TEK BASINA anlam tasimiyor -- yanindaki etiket her zaman
+     yazili ("Iyi", "Makul", "Kotu"). */
+  [data-aqi="iyi"]        { color:#4fc978; }
+  [data-aqi="makul"]      { color:#a3d900; }
+  [data-aqi="orta"]       { color:#f4c500; }
+  [data-aqi="kotu"]       { color:#ff8c42; }
+  [data-aqi="cok-kotu"]   { color:#ff4d4f; }
+  [data-aqi="asiri-kotu"] { color:#a05cf0; }
+  [data-aqi="bilinmiyor"] { color:#9fb0c0; }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-tema="koyu"]) [data-aqi="iyi"]        { color:#33834e; }
+    :root:not([data-tema="koyu"]) [data-aqi="makul"]      { color:#5a7700; }
+    :root:not([data-tema="koyu"]) [data-aqi="orta"]       { color:#866c00; }
+    :root:not([data-tema="koyu"]) [data-aqi="kotu"]       { color:#a65b2b; }
+    :root:not([data-tema="koyu"]) [data-aqi="cok-kotu"]   { color:#cc3e3f; }
+    :root:not([data-tema="koyu"]) [data-aqi="asiri-kotu"] { color:#9053d8; }
+    :root:not([data-tema="koyu"]) [data-aqi="bilinmiyor"] { color:#67727d; }
+  }
+  :root[data-tema="acik"] [data-aqi="iyi"]        { color:#33834e; }
+  :root[data-tema="acik"] [data-aqi="makul"]      { color:#5a7700; }
+  :root[data-tema="acik"] [data-aqi="orta"]       { color:#866c00; }
+  :root[data-tema="acik"] [data-aqi="kotu"]       { color:#a65b2b; }
+  :root[data-tema="acik"] [data-aqi="cok-kotu"]   { color:#cc3e3f; }
+  :root[data-tema="acik"] [data-aqi="asiri-kotu"] { color:#9053d8; }
+  :root[data-tema="acik"] [data-aqi="bilinmiyor"] { color:#67727d; }
   .aqi-alt { color:var(--yazi3); font-size:11px; margin-top:2px; }
 
   h2 { font-size:14px; margin:18px 0 8px; display:flex; align-items:baseline; gap:8px; }
@@ -194,7 +234,15 @@
   .sic-ust { display:inline-flex; align-items:center; gap:2px;
              background:rgba(18,26,38,.86); padding:2px 7px 2px 3px; border-radius:11px; }
   .sic-ust b { color:#fff; font-size:12px; font-weight:700; line-height:1; }
-  .sic-ic .ad { display:block; font-size:9px; color:#fff; font-weight:600; margin-top:1px; }
+  /* SEHIR ADI DA KAPSULE ALINDI. Olculdu (04.09.2026): sicaklik koyu
+     bir kapsulun icindeydi ama ad DISARIDAYDI -- beyaz yazi, harita
+     dosemesi uzerinde karsitlik 1,36. Golge okunurluga yardim eder
+     ama olculebilir bir zemin degildir; acik dosemede zaten yetmez.
+     Artik adin da kendi koyu zemini var: her dosemede ayni. */
+  .sic-ic .ad { display:inline-block; font-size:9px; color:#fff;
+                font-weight:600; margin-top:2px;
+                background:rgba(18,26,38,.86); padding:1px 6px;
+                border-radius:9px; }
   .secili-pin { background:transparent !important; border:none !important;
     display:flex; align-items:center; justify-content:center; }
   .secili-nokta { width:16px; height:16px; border-radius:50%; background:var(--vurgu);
@@ -287,8 +335,8 @@
        Secim aninda uygulanir ve diske yazilir. -->
   <section class="tema-panel" id="temaPanel" role="group" aria-label="Renk ve tema">
     <b>Görünüm</b>
-    <button class="kip-sec" data-kip="otomatik" role="radio" aria-checked="true">Cihaza uy</button>
-    <button class="kip-sec" data-kip="acik"     role="radio" aria-checked="false">Açık</button>
+    <button class="kip-sec" data-kip="otomatik" role="radio" aria-checked="false">Cihaza uy</button>
+    <button class="kip-sec" data-kip="acik"     role="radio" aria-checked="true">Açık</button>
     <button class="kip-sec" data-kip="koyu"     role="radio" aria-checked="false">Koyu</button>
     <b>Renk</b>
     <div id="renkler" role="radiogroup" aria-label="Vurgu rengi"
@@ -494,9 +542,44 @@ function ayEvresi(iso){
 }
 
 /* ---- hava kalitesi bantları (Avrupa AQI) ---- */
-const AQI_BANT = [[20,"İyi","#4fc978"],[40,"Makul","#a3d900"],[60,"Orta","#f4c500"],
-                  [80,"Kötü","#ff8c42"],[100,"Çok kötü","#ff4d4f"],[1e9,"Aşırı kötü","#a05cf0"]];
-const aqiCoz = v => AQI_BANT.find(b => v <= b[0]) || ["-","Bilinmiyor","#9fb0c0"];
+/* HAVA KALITESI BANTLARI -- her bandin IKI rengi var.
+
+     Olculdu (04.09.2026): koyu temadaki parlak renkler ACIK temada
+     beyaz uzerinde 1,64 - 3,97 arasi kaliyordu; "38" ve "Makul"
+     neredeyse gorunmuyordu (1,68).
+
+     Renk SIRASI ve ANLAMI degismedi -- yesilden mora giden olcek
+     aynen duruyor. Yalnizca acik zemin icin koyulastirilmis
+     karsiliklari eklendi; hepsi beyaz uzerinde >= 4,67.
+
+     Renk TEK BASINA anlam tasimiyor: yanindaki etiket ("Iyi",
+     "Makul", "Kotu") her zaman yazili. Renk koru kullanici da
+     ayirt eder. */
+  const AQI_BANT = [[20,"İyi","#4fc978","#33834e"],[40,"Makul","#a3d900","#5a7700"],
+                    [60,"Orta","#f4c500","#866c00"],[80,"Kötü","#ff8c42","#a65b2b"],
+                    [100,"Çok kötü","#ff4d4f","#cc3e3f"],[1e9,"Aşırı kötü","#a05cf0","#9053d8"]];
+  const ACIK_TEMA_MI = () => {
+      const t = document.documentElement.getAttribute('data-tema');
+      if (t === 'acik') return true;
+      if (t === 'koyu') return false;
+      return window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches;
+  };
+  /* RENGI JS SECMIYOR, CSS SECIYOR.
+
+     Ilk halinde JS `ACIK_TEMA_MI()` ile karar veriyordu. Olculdu: kart
+     bir kez ciziliyor ve tema degisince YENIDEN CIZILMIYOR -- kullanici
+     koyuya gecince acik temanin rengi ekranda kaliyordu. JS'in "su an
+     hangi tema" bilgisi, DEGISIME tepki vermez.
+
+     Artik oge yalnizca `data-aqi="iyi|makul|..."` tasiyor; rengi asagidaki
+     CSS kurallari veriyor ve tema degisince tarayici KENDILIGINDEN
+     guncelliyor. */
+  const AQI_ANAHTAR = ["iyi","makul","orta","kotu","cok-kotu","asiri-kotu"];
+  const aqiCoz = v => {
+      const i = AQI_BANT.findIndex(x => v <= x[0]);
+      const b = i < 0 ? ["-","Bilinmiyor"] : AQI_BANT[i];
+      return [b[0], b[1], i < 0 ? "bilinmiyor" : AQI_ANAHTAR[i]];
+  };
 const POLEN = { grass_pollen:"Çim", birch_pollen:"Huş ağacı", olive_pollen:"Zeytin",
                 alder_pollen:"Kızılağaç", mugwort_pollen:"Pelin otu", ragweed_pollen:"Kanarya otu" };
 
@@ -682,7 +765,7 @@ function goster(yer, v, hk, modeller){
     aqiHTML = `<div class="kart">
       <h2 style="margin:0 0 4px">Hava Kalitesi</h2>
       <div class="aqi-satir">
-        <span class="aqi-sayi" style="color:${renk}">${sy(hk.aqi)}</span>
+        <span class="aqi-sayi" data-aqi="${renk}">${sy(hk.aqi)}</span>
         <div><b style="color:${renk};font-size:15px">${ad}</b>
           <div class="aqi-alt">PM2.5 ${sy(hk.pm25)} · PM10 ${sy(hk.pm10)} · Polen: ${hk.polen}</div>
         </div>
@@ -1119,11 +1202,23 @@ try { new Guncelle(); } catch (e) {}
   function oku (a, v) { try { return localStorage.getItem(a) || v; } catch (e) { return v; } }
   function yaz (a, d) { try { localStorage.setItem(a, d); } catch (e) {} }
 
-  var kip = oku(KT, 'otomatik'), renk = oku(KR, 'mavi');
+  /* VARSAYILAN ACIK -- kullanici istedi (04.09.2026):
+     "arayuz daha acik renkleri tercih et".
+
+     'otomatik' DEGIL 'acik': otomatik, cihazi koyu olan kullaniciya
+     koyu verir; kullanicinin istedigi ise uygulamanin KENDISININ acik
+     olmasi. Cihaza uyum bir SECENEK olarak duruyor, varsayilan degil.
+
+     Kullanicinin kendi secimi her zaman ustundedir -- `oku` once
+     diski okur, bu deger yalnizca hic secim yapilmamissa gecerlidir. */
+  var kip = oku(KT, 'acik'), renk = oku(KR, 'mavi');
   var kok = document.documentElement;
   function uygula () {
     /* 'otomatik' ve 'mavi' icin NITELIK KONMAZ -- varsayilan CSS zaten
        odur. Bos nitelik koymak seciciler icin gurultudur. */
+    /* 'otomatik'te nitelik KONMAZ -- ortam sorgusu karar verir.
+       Oteki iki kipte nitelik SART: CSS'in koku koyu, acigi nitelikle
+       geliyor. */
     if (kip === 'otomatik') kok.removeAttribute('data-tema'); else kok.setAttribute('data-tema', kip);
     if (renk === 'mavi')    kok.removeAttribute('data-renk'); else kok.setAttribute('data-renk', renk);
     var t = document.querySelector('meta[name="theme-color"]');

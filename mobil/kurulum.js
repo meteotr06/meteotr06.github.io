@@ -227,7 +227,14 @@
             sonra.style.cssText =
                 'min-height:44px;min-width:44px;padding:0 12px;border-radius:10px;' +
                 'font:inherit;cursor:pointer;background:transparent;' +
-                'color:var(--yazi2,#666);border:1px solid var(--cizgi,#ddd);';
+                /* IKINCIL DUGME DE SERIDIN KENDI CIFTINDEN BESLENIR.
+                   Eskiden `var(--yazi2)` kullaniyordu -- yani seridin
+                   zeminine degil SAYFANIN soluk rengine bakiyordu.
+                   Olculdu (04.09.2026, hava koyu tema): karsitlik 2,22.
+                   Serit kendi zeminini hesapliyorsa yazisini da ayni
+                   hesaptan almali; iki ayri kaynak es tutmaz (K-81). */
+                'color:' + _c.yazi + ';opacity:.85;' +
+                'border:1px solid var(--cizgi,rgba(128,128,128,.45));';
             sonra.addEventListener('click', function () { kapat(true); });
             s.appendChild(sonra);
         }
