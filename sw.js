@@ -21,7 +21,7 @@
      · damga TEK yerden türetilir
    ================================================================== */
 
-const SURUM = 'portal-v8';
+const SURUM = 'portal-v9';
 
 /* Alt uygulama klasörleri — bu yollara BAŞLAYAN hiçbir isteğe karışılmaz.
    Yeni uygulama eklenince buraya da eklenmeli; unutulursa portal onun

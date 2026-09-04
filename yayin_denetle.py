@@ -63,6 +63,17 @@ UYGULAMALAR = [
     ("Haftalık Planlayıcı", r"D:\Projeler\06 Programlama",  None,           "/planlayici/"),
     ("Göz Molası",        r"D:\Projeler\05 Ekran koruması", None,    "/goz-molasi/"),
     ("Arsa Rehberi",      r"D:\Projeler\10 Arsa Rehberi",   None,           "/arsa/"),
+    # 04.09.2026 EKLENDİ — ve eklenene kadar KÖR NOKTAYDI.
+    #
+    # /kahve/ aylardır yayındaydı ama bu listede yoktu. Yani nöbetçi
+    # o uygulama için HER ZAMAN "sorun yok" diyordu: çünkü hiç
+    # bakmıyordu. Bugün orada ad değişikliği, yeni bir dosya (dil.js)
+    # ve bir sürüm damgası yayınlandı; nöbetçi tek kelime etmedi.
+    #
+    # En sinsi nöbetçi, susan nöbetçidir: sessizliği "temiz" diye
+    # okunur. Bir listeye dayanan her ölçüm, listenin kendisi de
+    # ölçülmediği sürece eksiktir (K-75, K-83).
+    ("RoastMate",         r"D:\Projeler\12 Kahve Kavurma",  "kahve",        "/kahve/"),
 ]
 
 # Yayına henüz çıkmamış olabilecekler: 404 dönerse HATA değil, "henüz yok"
