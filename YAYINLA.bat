@@ -48,6 +48,36 @@ rem ---------- 2) depo olustur + dosyalari gonder ----------
 echo [2/3] Dosyalar GitHub'a gonderiliyor...
 rem mobil onbellek surumunu otomatik artir (yoksa kullanicilar eski surumde kalir)
 python "kaynak\surum_artir.py" 2>nul
+
+rem ---- NE YAYINLANACAK? ONCE GOSTER, SONRA SOR ----
+rem
+rem Burada eskiden `git add -A` vardi ve HICBIR SEY sormuyordu.
+rem O komut izlenmeyen dosyalari da alir: 04.09.2026'da tam boyle
+rem uc gelistirme yardimcisi (iki karekod, bir magaza ikonu) herkese
+rem acik depoya gitti. Sitede sifir basvurulari vardi.
+rem
+rem Ayni depoda birden fazla oturum calisiyor. Bir dugmeye basip
+rem BASKASININ yarim isini yayinlamak, geri alinmasi zor bir istir --
+rem internete cikan sey, silinse bile cikmis olur.
+echo.
+echo    Su dosyalar yayinlanacak:
+echo    ------------------------------------
+git status --short
+echo    ------------------------------------
+echo.
+echo    Tanimadiginiz bir dosya varsa "H" deyin.
+echo    (Bu depoda baska pencerelerde de calisilmis olabilir.)
+echo.
+set ONAY=
+set /p ONAY="   Yayinlansin mi? (E/H): "
+if /i not "%ONAY%"=="E" (
+    echo.
+    echo    Iptal edildi. Hicbir sey gonderilmedi.
+    echo.
+    pause
+    exit /b 0
+)
+
 git add -A >nul 2>&1
 git commit -q -m "guncelleme" >nul 2>&1
 git branch -M main >nul 2>&1
