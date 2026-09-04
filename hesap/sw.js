@@ -9,7 +9,31 @@
 //   3) Sayfa yerine geçen yedek yalnızca "navigate" isteğine döner.
 //      (Eskiden .js isteğine index.html dönüyordu ve site komple çöküyordu.)
 
-const SURUM = "hesap-v96";
+const SURUM = "hesap-v96"
+/* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
+
+   `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
+   meteotr06.github.io uzerindeki dokuz uygulama ayni onbellek
+   listesini paylasir.
+
+   Buradaki temizlik eskiden "adi SURUM olmayan her onbellegi sil"
+   diyordu -- yani BUTUN KARDES UYGULAMALARIN onbellegini siliyordu:
+   portal, Hesap Araclari, Muhasebe, Kur Pusulasi, Planlayici, Arsa,
+   RoastMate, Hava Durumu, Goz Molasi.
+
+   Kullanicinin gordugu sey: ucakta kurulu bir kardes uygulamayi
+   aciyor, BOS SAYFA geliyor. Simetrik olduğu icin ailenin cevrimdisi
+   vaadi topluca cokuyordu. Hicbir hata mesaji yok; cevrimiciyken her
+   sey kusursuz calistigi icin sebep bulunamiyor.
+
+   Sinifi 05 Goz Molasi oturumu buldu ve olctu (`hesap-v95` ile
+   `portal-v8` onbellekleri kuruldu; ONCE ikisi de siliniyordu, SONRA
+   ikisi de duruyor). Buraya tasindi (K-69).
+
+   ONEK SABITTEN TURETILIR ki ikisi ayrisamasin. Elle yazilsaydi,
+   surum adi degistiginde onek geride kalir ve temizlik SESSIZCE
+   hicbir seyi silmez olurdu -- eski onbellekler birikirdi. */
+const ONEK = SURUM.replace(/v\d+$/, '');;
 
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
 // Sebep (27 Agustos 2026, olculdu): SURUM "hesap-v54"e cikarilmis ama bu
@@ -44,7 +68,7 @@ self.addEventListener("install", (olay) => {
 self.addEventListener("activate", (olay) => {
     olay.waitUntil(
         caches.keys()
-            .then(adlar => Promise.all(adlar.filter(a => a !== SURUM).map(a => caches.delete(a))))
+            .then(adlar => Promise.all(adlar.filter(a => a !== SURUM && a.startsWith(ONEK)).map(a => caches.delete(a))))
             .then(() => self.clients.claim())
     );
 });
