@@ -1,8 +1,8 @@
 {
   "id": "/kahve/",
-  "name": "Kahve Kavurma Hesabı",
-  "short_name": "Kahve",
-  "description": "Kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri. Yeşil kahveden kaç kilo çıkar, kaça mal olur?",
+  "name": "RoastMate — Kahve Kavurma / Coffee Roasting",
+  "short_name": "RoastMate",
+  "description": "Kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri — Türkçe ve İngilizce. Roast loss, cost per kilo, blend ratios and a roast log.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

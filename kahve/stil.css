@@ -205,7 +205,10 @@ input, select {
     transition: width .55s cubic-bezier(.22,.61,.36,1),
                 background-color .55s ease;
 }
-.cubuk-yesil { width: 100%; background: #6f8f4a; }        /* yeşil çekirdek */
+.cubuk-yesil { width: 100%; background: #5d783e; }        /* yeşil çekirdek */
+/* #6f8f4a IDI. Ustunde BEYAZ etiket duruyor ("kayıp 1,500 kg") ve
+   karsitlik 3,68 kaliyordu -- 13 px kalin yazi icin esik 4,5.
+   Koyulastirildi: 4,97. Ton korundu; yesil burada ANLAM tasiyor. */
 .cubuk-kavrulmus { background: var(--vurgu); }
 .cubuk-etiket {
     position: absolute; inset: 0; display: flex; align-items: center;
@@ -305,7 +308,9 @@ input, select {
     background: var(--cizgi);
 }
 .depo-oran span { display: block; height: 100%; }
-.depo-oran .y { background: #6f8f4a; }          /* yesil cekirdek */
+.depo-oran .y { background: #5d783e; }          /* yesil cekirdek */
+/* Ayni tondan besleniyor: envanter cubugu ile fire cubugu ayni
+   "yesil kahve" kavramini gosteriyor, iki farkli yesil olamaz. */
 .depo-oran .k { background: var(--vurgu); }     /* kavrulmus */
 .depo-oran-etiket {
     display: flex; justify-content: space-between;
@@ -338,4 +343,24 @@ input, select {
 @media (prefers-reduced-motion: reduce) {
     .depo, .hareket.yeni { animation: none !important; }
     .depo-oran span { transition: none !important; }
+}
+
+/* ---- DİL VE PARA BİRİMİ SEÇİCİSİ ----
+   `.renk-nokta` yeniden kullanılıyor ama bu düğmelerde renk yuvarlağı
+   yok, YAZI var. `.7rem` bir renk etiketi için yeterliydi; "Türkçe" ya
+   da "₺ TL" için değil -- ölçüldü, 11 px'e düşüyordu. Yazılı olanlara
+   kendi boyutu veriliyor. */
+#dilListe .renk-nokta,
+#paraListe .renk-nokta {
+    font-size: .9rem;
+    padding: 5px 12px;
+    justify-content: center;
+}
+
+/* Dil düğmesi ÜSTÜNDE "EN" / "TR" yazar -- yani GEÇİLECEK dili.
+   İki harf, ortalanmış ve okunur. */
+#dilBtn {
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .04em;
 }

@@ -40,18 +40,40 @@
         catch (e) { return false; }
     }
 
-    /* ---- Türkçe biçimlendirme ----
-       Dil BELİRTİLİR. Belirtilmezse tarayıcının diline göre değişir ve
-       aynı uygulama iki telefonda farklı sayı gösterir. */
+    /* ---- BİÇİMLENDİRME ----
+       Yerel BELİRTİLİR, tarayıcıdan alınmaz. Alınsaydı aynı uygulama
+       iki telefonda farklı sayı gösterirdi.
+
+       Yerel artık ETKİN DİLDEN gelir. Eskiden sabit 'tr-TR' idi;
+       İngilizce arayüzde 1500,5 diye yazardı ve İngilizce okuyan biri
+       bunu "bin beş yüz virgül beş" değil "bir nokta beş" sanabilirdi.
+       Sayı doğru, OKUNUŞU yanlış — sessiz yanlış sayının kılık
+       değiştirmiş hâli. */
+    function yerel() { return (window.Dil && Dil.yerel) ? Dil.yerel() : 'tr-TR'; }
+    function T() { return Dil.T.apply(null, arguments); }
+
     function sayi(d, basamak) {
         if (d === null || d === undefined || !isFinite(d)) return '—';
-        return d.toLocaleString('tr-TR', {
+        return d.toLocaleString(yerel(), {
             minimumFractionDigits: basamak === undefined ? 2 : basamak,
             maximumFractionDigits: basamak === undefined ? 2 : basamak
         });
     }
-    function para(d) { return sayi(d) + ' ₺'; }
+    /* Para simgesi SEÇİLİDİR ve doğru yandan yazılır: "500,00 ₺" ama
+       "$500.00". Simgeyi hep sona koysaydık İngilizce yanlış olurdu. */
+    function para(d) {
+        if (d === null || d === undefined || !isFinite(d)) return '—';
+        return Dil.paraYaz(sayi(d));
+    }
     function kg(d) { return sayi(d, 3) + ' kg'; }
+    /* YUZDE ISARETININ YERI DILE BAGLIDIR: Turkce'de %15,0 · Ingilizce'de
+       15.0%. Sozlukten gecen metinlerde bu ayrim zaten vardi; kodun
+       dogrudan birlestirdigi alti yerde YOKTU ve Ingilizce arayuzde
+       "%15.0" yaziyordu. Tek islev, tek kural. */
+    function yuzde(d, basamak) {
+        var s = sayi(d, basamak);
+        return Dil.oku() === 'en' ? s + '%' : '%' + s;
+    }
 
     function duyur(metin) {
         var d = $('#duyuru');
@@ -119,10 +141,9 @@
         goster($('#fireKaydet'), true);
         sonFire = s;
 
-        $('#fireBuyuk').textContent = '%' + sayi(s.fire, 1);
-        $('#fireAlt').textContent =
-            kg(s.giris) + ' girdi, ' + kg(s.cikis) + ' çıktı — ' +
-            kg(s.giris - s.cikis) + ' kayıp.';
+        $('#fireBuyuk').textContent = yuzde(s.fire, 1);
+        $('#fireAlt').textContent = T('girdiCikti',
+            kg(s.giris), kg(s.cikis), kg(s.giris - s.cikis));
 
         /* ANİMASYON: çubuk kavrulmuş orana iner, çekirdekler koyulaşır.
            Bilgi yalnız harekette değil; yüzde ve kilo yazıyla da var. */
@@ -134,13 +155,82 @@
            kahve, yesil serit ise KAYIP. Yani gorsel, dogrunun tam tersini
            anlatiyordu. Sayilar dogru olsa bile GORSEL YALAN SOYLERSE, o da
            bir sessiz yanlis bilgidir -- ustelik metinden once okunur. */
-        $('#fireSol').textContent = 'kavrulmuş ' + kg(s.cikis);
-        $('#fireSag').textContent = 'kayıp ' + kg(s.giris - s.cikis);
+        $('#fireSol').textContent = T('etiketKavrulmus', kg(s.cikis));
+        $('#fireSag').textContent = T('etiketKayip', kg(s.giris - s.cikis));
         cekirdekCiz(s.fire);
+        etiketRengiTazele();
 
-        duyur('Fire yüzde ' + sayi(s.fire, 1) + '. ' +
-              kg(s.cikis) + ' kavrulmuş kahve çıkar.');
+        duyur(T('duyurFire', sayi(s.fire, 1), kg(s.cikis)));
     }
+
+    /* ---------------------------------------------------------------
+       CUBUK ETIKETLERININ RENGI, USTUNDE DURDUKLARI CUBUKTAN TURETILIR.
+
+       Etiketler cubuklarin UZERINDE duruyor; zeminleri kartin degil,
+       cubugun rengidir. Sol etiket `var(--vurgu)` uzerinde -- ve vurgu
+       BES secenek x IKI tema = on farkli deger alabiliyor.
+
+       Olculdu: koyu temada kahve vurgusu #f0a35a; beyaz yazi 2,08.
+       Acik temada ayni vurgu #9e4f00; beyaz yazi 5,88. Yani tek bir
+       sabit renk on durumun hepsinde dogru olamaz.
+
+       Sabit renk yerine PARLAKLIKTAN turetiyoruz: acik zeminde koyu
+       yazi, koyu zeminde acik yazi. Yarin altinci bir renk eklense de
+       kural tutar -- hesap rengin kendisini okuyor, listesini degil.
+       --------------------------------------------------------------- */
+    function _rgbCoz(renk) {
+        var m = String(renk || '').match(/rgba?\(([^)]+)\)/i);
+        if (m) {
+            var p = m[1].split(',').map(parseFloat);
+            return [p[0], p[1], p[2]];
+        }
+        m = String(renk || '').match(/^#([0-9a-f]{6})$/i);
+        if (m) return [0, 2, 4].map(function (i) { return parseInt(m[1].substr(i, 2), 16); });
+        m = String(renk || '').match(/^#([0-9a-f]{3})$/i);
+        if (m) return m[1].split('').map(function (h) { return parseInt(h + h, 16); });
+        return null;
+    }
+    function _parlaklik(renk) {
+        var r = _rgbCoz(renk);
+        if (!r) return null;
+        var v = r.map(function (x) {
+            x = x / 255;
+            return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+    }
+    /* WCAG esigi 0,179: bundan acik zeminde koyu yazi, koyuda acik yazi
+       en yuksek karsitligi verir. */
+    function _ustYazi(zemin) {
+        var p = _parlaklik(zemin);
+        return (p === null || p > 0.179) ? '#111111' : '#ffffff';
+    }
+    function etiketRengiTazele() {
+        var kav = $('#fireCubuk'), sol = $('#fireSol'), sag = $('#fireSag');
+        var yes = document.querySelector('.cubuk-yesil');
+        if (sol && kav) sol.style.color = _ustYazi(getComputedStyle(kav).backgroundColor);
+        if (sag && yes) sag.style.color = _ustYazi(getComputedStyle(yes).backgroundColor);
+        /* Golge de cevrilir: koyu yazinin altinda koyu golge, harfin
+           kenarini yutar ve yaziyi bulaniklastirir. */
+        var g = $('.cubuk-etiket');
+        if (g && sol) {
+            g.style.textShadow = (sol.style.color === 'rgb(17, 17, 17)' ||
+                                  sol.style.color === '#111111')
+                ? '0 1px 3px rgba(255,255,255,.55)'
+                : '0 1px 3px rgba(0,0,0,.55)';
+        }
+    }
+    /* Tema ya da renk degisince yeniden turetilir. Bir kez hesaplanan
+       turetilmis deger, turetilmis degil KOPYALANMIS olur ve kaynagi
+       degisince bayatlar -- bugun kurulum seridinde tam bunu yasadik. */
+    try {
+        new MutationObserver(function () {
+            /* Gecis 0,55 sn suruyor; bitmeden okursak ARA rengi olcup
+               yanlis yaziya karar veririz. Gecisin sonunu bekliyoruz. */
+            setTimeout(etiketRengiTazele, 600);
+        }).observe(document.documentElement,
+                   { attributes: true, attributeFilter: ['data-tema', 'data-renk'] });
+    } catch (e) {}
 
     /* Çekirdek görseli: fire arttıkça koyulaşır ve küçülür. */
     function cekirdekCiz(fire) {
@@ -150,16 +240,18 @@
             for (var i = 0; i < 5; i++) {
                 kap.insertAdjacentHTML('beforeend',
                     '<svg class="cekirdek" viewBox="0 0 40 40">' +
-                    '<ellipse class="govde" cx="20" cy="20" rx="12" ry="17" fill="#6f8f4a"/>' +
+                    '<ellipse class="govde" cx="20" cy="20" rx="12" ry="17" fill="#5d783e"/>' +
                     '<path d="M20 5 Q16 20 20 35" stroke="rgba(0,0,0,.35)" ' +
                     'stroke-width="2" fill="none"/></svg>');
             }
         }
         /* %0 fire -> yeşil, %25 fire -> koyu kahve. Ara değerler karışım. */
         var t = Math.max(0, Math.min(1, fire / 20));
-        var r = Math.round(111 + (108 - 111) * t);
-        var g = Math.round(143 + (60 - 143) * t);
-        var b = Math.round(74 + (28 - 74) * t);
+        /* Baslangic rengi cubugunkiyle AYNI (#5d783e = 93,120,62).
+           Ayri kalsaydi ayni kartta iki farkli yesil gorunurdu. */
+        var r = Math.round(93 + (108 - 93) * t);
+        var g = Math.round(120 + (60 - 120) * t);
+        var b = Math.round(62 + (28 - 62) * t);
         var renk = 'rgb(' + r + ',' + g + ',' + b + ')';
         var kucul = 1 - t * 0.22;
         $$('#fireCekirdek .cekirdek').forEach(function (s, i) {
@@ -180,13 +272,13 @@
             s = C.kavrulmus_agirlik($('#hYesil').value, fire);
             if (s.gecerli) {
                 metin = kg(s.sonuc);
-                alt = 'kavrulmuş çıkar — ' + kg(s.kayip) + ' kayıp';
+                alt = T('cevirCikar', kg(s.kayip));
             }
         } else if (kaynak === 'hedef' && $('#hHedef').value.trim()) {
             s = C.yesil_gereken($('#hHedef').value, fire);
             if (s.gecerli) {
                 metin = kg(s.sonuc);
-                alt = 'yeşil kahve koymalısınız';
+                alt = T('cevirKoymali');
             }
         } else {
             goster(kutu, false); goster(uyari, false); return;
@@ -231,24 +323,21 @@
             d.insertAdjacentHTML('beforeend',
                 '<div class="cift"><dt>' + ad + '</dt><dd>' + deger + '</dd></div>');
         }
-        cift('yeşil kahve payı', para(s.yesilPayi));
-        if (s.giderPayi > 0) cift('enerji + işçilik payı', para(s.giderPayi));
-        if (s.paketMaliyet !== undefined) cift('paket maliyeti', para(s.paketMaliyet));
-        if (s.fincanMaliyet !== undefined) cift('fincan maliyeti', para(s.fincanMaliyet));
+        cift(T('ciftYesilPayi'), para(s.yesilPayi));
+        if (s.giderPayi > 0) cift(T('ciftGiderPayi'), para(s.giderPayi));
+        if (s.paketMaliyet !== undefined) cift(T('ciftPaket'), para(s.paketMaliyet));
+        if (s.fincanMaliyet !== undefined) cift(T('ciftFincan'), para(s.fincanMaliyet));
 
         /* UYGULAMANIN VAR OLMA SEBEBİ: farkı GÖSTER. */
-        fark.innerHTML = 'Yeşil kahveye <strong>' + para(s.firesizSanilan) +
-            '</strong> veriyorsunuz, ama kavrulmuşun kilosu size <strong>' +
-            para(s.yesilPayi) + '</strong>. Aradaki <strong>' + para(s.fireFarki) +
-            '</strong> fire yüzünden. Bu farkı hesaba katmayan zararına satar.';
+        fark.innerHTML = T('maliyetFark', para(s.firesizSanilan),
+            para(s.yesilPayi), para(s.fireFarki));
         goster(fark, true);
 
         if (s.eksik.length) {
-            uyari.textContent = 'Şunlar girilmedi, hesaba KATILMADI (sıfır sayılmadı): ' +
-                s.eksik.join(', ') + '.';
+            uyari.textContent = T('girilmedi', s.eksik.join(', '));
             goster(uyari, true);
         }
-        duyur('Kilo maliyeti ' + para(s.kgMaliyet));
+        duyur(T('duyurMaliyet', para(s.kgMaliyet)));
     }
 
     /* ================= HARMAN ================= */
@@ -256,14 +345,18 @@
     function bilesenEkle(ad, oran) {
         bilesenSayi++;
         var n = bilesenSayi;
-        var mense = V.MENSE_SIRALI.map(function (m) {
-            return '<option' + (m === ad ? ' selected' : '') + '>' + m + '</option>';
+        var mense = V.menseSirali().map(function (m) {
+            return '<option value="' + m.kod + '"' +
+                   (m.kod === ad ? ' selected' : '') + '>' +
+                   V.ad(V.MENSE, m.kod) + '</option>';
         }).join('');
         $('#bilesenler').insertAdjacentHTML('beforeend',
             '<div class="satir ikili" data-bilesen="' + n + '">' +
-            '<div><label for="bAd' + n + '">Çekirdek</label>' +
-            '<select id="bAd' + n + '"><option value="">— seçin —</option>' + mense + '</select></div>' +
-            '<div><label for="bOran' + n + '">Oran <small>%</small></label>' +
+            '<div><label for="bAd' + n + '">' + T('cekirdekEt') + '</label>' +
+            '<select id="bAd' + n + '"><option value="">' + T('bosSecin') +
+            '</option>' + mense + '</select></div>' +
+            '<div><label for="bOran' + n + '">' + T('oranEt') +
+            ' <small>%</small></label>' +
             '<input id="bOran' + n + '" inputmode="decimal" value="' + (oran || '') + '" /></div>' +
             '</div>');
         $('#bAd' + n).addEventListener('change', harmanHesapla);
@@ -273,7 +366,11 @@
     function harmanHesapla() {
         var liste = $$('#bilesenler [data-bilesen]').map(function (d) {
             var n = d.dataset.bilesen;
-            return { ad: $('#bAd' + n).value || 'Çekirdek ' + n, oran: $('#bOran' + n).value };
+            /* Ekranda GÖRÜNEN adı taşıyoruz, kodu değil: bu ad
+               hesaba girmez, yalnız sonuç listesinde yazılır. */
+            var kod = $('#bAd' + n).value;
+            return { ad: kod ? V.ad(V.MENSE, kod) : T('cekirdekN', n),
+                     oran: $('#bOran' + n).value };
         }).filter(function (b) { return String(b.oran).trim() !== ''; });
 
         var kutu = $('#harmanSonuc'), uyari = $('#harmanUyari');
@@ -291,10 +388,10 @@
         var d = $('#harmanDetay'); d.innerHTML = '';
         s.bilesenler.forEach(function (b) {
             d.insertAdjacentHTML('beforeend',
-                '<div class="cift"><dt>' + b.ad + ' (%' + sayi(b.oran, 0) + ')</dt>' +
+                '<div class="cift"><dt>' + b.ad + ' (' + yuzde(b.oran, 0) + ')</dt>' +
                 '<dd>' + kg(b.yesilKg) + '</dd></div>');
         });
-        duyur('Toplam ' + kg(s.toplamYesil) + ' yeşil kahve gerekiyor.');
+        duyur(T('duyurHarman', kg(s.toplamYesil)));
     }
 
 
@@ -396,14 +493,28 @@
         sayacAglari[anahtar] = setTimeout(bitir, sure + 250);
     }
 
+    /* TARİH BİÇİMİ DİLE BAĞLIDIR: 04.09.2026 · Sep 4, 2026.
+       Sabit gg.aa.yyyy bıraksaydık, "04.09" İngilizce okuyan biri için
+       4 Eylül değil 9 Nisan olurdu -- sessiz yanlış tarih.
+
+       `new Date(dize)` KULLANILMIYOR: "2026-09-04" biçimi UTC olarak
+       ayrıştırılır, saat dilimi eksi olan bir kullanıcıda bir GÜN GERİ
+       kayar. Parçalardan yerel tarih kuruyoruz. */
     function tarihGoster(t) {
         var p = String(t || '').split('-');
-        return p.length === 3 ? p[2] + '.' + p[1] + '.' + p[0] : '';
+        if (p.length !== 3) return '';
+        var g = new Date(+p[0], +p[1] - 1, +p[2]);
+        if (isNaN(g.getTime())) return '';
+        return g.toLocaleDateString(yerel(),
+            { year: 'numeric', month: '2-digit', day: '2-digit' });
     }
 
-    var TUR_ADI = {
-        alim: 'Alım', kavurma: 'Kavurma', satis: 'Satış', zayi: 'Zayi'
-    };
+    /* Hareket TÜRÜ kodla saklanır ('alim'), ekrana çevirisi çıkar.
+       Kaydın diline bağlı olmaması bunun sayesinde. */
+    function turAdi(t) {
+        return T({ alim: 'turAdiAlim', kavurma: 'turAdiKavurma',
+                   satis: 'turAdiSatis', zayi: 'turAdiZayi' }[t] || t);
+    }
 
     function hareketOku() {
         var h = oku(ENVANTER_ANAHTAR, []);
@@ -412,7 +523,7 @@
 
     /* Kilo fiyatı bilinmiyorsa "0,00 ₺" YAZMIYORUZ -- sıfır da bir
        yalandır. Boş depo "bilinmiyor" der. */
-    function paraVarsa(d) { return d === null ? 'bilinmiyor' : para(d); }
+    function paraVarsa(d) { return d === null ? T('bilinmiyor') : para(d); }
 
     function turAlanlari() {
         var t = $('#nTur').value;
@@ -421,8 +532,11 @@
         goster($('#nCikisKap'), t === 'kavurma');
         goster($('#nNeredeKap'), t === 'satis' || t === 'zayi');
         $('#nKgEtiket').innerHTML = t === 'kavurma'
-            ? 'Kavurmaya giren <small>kg yeşil</small>'
-            : 'Ağırlık <small>kg</small>';
+            ? '<span data-i18n="nKgKavurma">' + T('nKgKavurma') +
+              '</span> <small data-i18n="nKgKavurmaAlt">' +
+              T('nKgKavurmaAlt') + '</small>'
+            : '<span data-i18n="nKgEt">' + T('nKgEt') +
+              '</span> <small>kg</small>';
     }
 
     function hareketTopla() {
@@ -453,15 +567,13 @@
             var m = s.mesaj.replace(new RegExp("^Satır " + liste.length + ": "), "");
             uyari.textContent = m;
             goster(uyari, true);
-            duyur('Hareket işlenmedi: ' + m);
+            duyur(T('hareketIslenmedi', m));
             return;
         }
         goster(uyari, false);
 
         if (!yaz(ENVANTER_ANAHTAR, liste)) {
-            uyari.textContent = 'Kaydedilemedi — tarayıcı site verilerini ' +
-                'engelliyor olabilir. Hesap ekranda duruyor ama ' +
-                'KAYDEDİLMEDİ; kapatırsanız kaybolur.';
+            uyari.textContent = T('kaydedilemedi');
             goster(uyari, true);
             return;
         }
@@ -473,7 +585,7 @@
         sonEklenenDizin = liste.length - 1;   /* depodaki dizin */
         envanterCiz();
         sonEklenenDizin = -1;                 /* bir kez oynasin */
-        duyur('Hareket işlendi.');
+        duyur(T('hareketIslendi'));
     }
 
     function envanterCiz() {
@@ -487,7 +599,7 @@
                kalmıyoruz -- yanlış bir stok, stok olmamasından kötüdür. */
             goster(kutu, false);
             depo.innerHTML = '';
-            uyari.textContent = 'Kayıtlı hareketler hesaplanamadı: ' + s.mesaj;
+            uyari.textContent = T('hesaplanamadi', s.mesaj);
             goster(uyari, true);
             hareketListesiCiz(liste);
             return;
@@ -496,47 +608,46 @@
 
         if (s.bos) {
             goster(kutu, false);
-            depo.innerHTML = '<div class="bos-defter">Depo boş. ' +
-                'İlk hareketi ekleyin — yeşil kahve alımı iyi bir başlangıç.</div>';
+            depo.innerHTML = '<div class="bos-defter"></div>';
+            depo.firstChild.textContent = T('depoBos');
             hareketListesiCiz(liste);
             return;
         }
 
         goster(kutu, true);
         sayarakYaz($('#envanterBuyuk'), s.toplam.kavrulmusKg,
-                   function (d) { return kg(d) + ' kavrulmuş'; });
-        $('#envanterAlt').textContent =
-            kg(s.toplam.yesilKg) + ' yeşil bekliyor · depodaki para ' +
+                   function (d) { return T('kavrulmusEk', kg(d)); });
+        $('#envanterAlt').textContent = T('depoOzet',
+            kg(s.toplam.yesilKg),
             paraVarsa(s.toplam.yesilDeger + s.toplam.kavrulmusDeger === 0 &&
                       s.toplam.yesilKg + s.toplam.kavrulmusKg === 0
-                      ? null : s.toplam.yesilDeger + s.toplam.kavrulmusDeger);
+                      ? null : s.toplam.yesilDeger + s.toplam.kavrulmusDeger));
 
         depo.innerHTML = '';
         s.sira.forEach(function (ad) {
             var d = s.cesitler[ad];
             var fireNot = '';
             if (d.fireSayisi === 1) {
-                fireNot = 'Kavrulmuş stok %' + sayi(d.fireEnDusuk, 1) +
-                          ' fireyle hesaplandı.';
+                fireNot = T('fireNotTek', sayi(d.fireEnDusuk, 1));
             } else if (d.fireSayisi > 1) {
-                fireNot = d.fireSayisi + ' kavurma · fire %' +
-                    sayi(d.fireEnDusuk, 1) + ' – %' + sayi(d.fireEnYuksek, 1) +
-                    ' arasında. Ortalama fire yazmıyoruz; partiler ' +
-                    'farklı ağırlıkta.';
+                fireNot = T('fireNotAralik', d.fireSayisi,
+                            sayi(d.fireEnDusuk, 1), sayi(d.fireEnYuksek, 1));
             }
             var p = document.createElement('div');
             p.className = 'depo';
             p.innerHTML =
                 '<div class="ad"></div>' +
                 '<div class="ikili-depo">' +
-                  '<div class="kutu"><span class="etiket">yeşil</span>' +
-                    '<span class="miktar">' + kg(d.yesilKg) + '</span>' +
-                    '<span class="fiyat">kilosu ' + paraVarsa(d.yesilKgFiyat) +
+                  '<div class="kutu"><span class="etiket">' + T('etiketYesil') +
+                    '</span><span class="miktar">' + kg(d.yesilKg) + '</span>' +
+                    '<span class="fiyat">' +
+                    T('kilosu', paraVarsa(d.yesilKgFiyat)) +
                   '</span></div>' +
-                  '<div class="kutu"><span class="etiket">kavrulmuş</span>' +
-                    '<span class="miktar">' + kg(d.kavrulmusKg) + '</span>' +
-                    '<span class="fiyat">kilosu ' +
-                    paraVarsa(d.kavrulmusKgFiyat) +
+                  '<div class="kutu"><span class="etiket">' +
+                    T('etiketKavrulmusKisa') +
+                    '</span><span class="miktar">' + kg(d.kavrulmusKg) + '</span>' +
+                    '<span class="fiyat">' +
+                    T('kilosu', paraVarsa(d.kavrulmusKgFiyat)) +
                   '</span></div>' +
                 '</div>' +
                 oranCubugu(d) +
@@ -557,20 +668,22 @@
         var toplam = d.yesilKg + d.kavrulmusKg;
         if (!(toplam > 0)) return '';
         var y = d.yesilKg / toplam * 100;
-        return '<div class="depo-oran" role="img" aria-label="Depoda ' +
-               kg(d.yesilKg) + ' yeşil, ' + kg(d.kavrulmusKg) + ' kavrulmuş">' +
+        return '<div class="depo-oran" role="img" aria-label="' +
+               T('cesitBaslik', kg(d.yesilKg), kg(d.kavrulmusKg)) + '">' +
                '<span class="y" style="width:' + y + '%"></span>' +
                '<span class="k" style="width:' + (100 - y) + '%"></span>' +
                '</div>' +
                '<div class="depo-oran-etiket" aria-hidden="true">' +
-               '<span>yeşil</span><span>kavrulmuş</span></div>';
+               '<span>' + T('etiketYesil') + '</span><span>' +
+               T('etiketKavrulmusKisa') + '</span></div>';
     }
 
     function hareketListesiCiz(liste) {
         var k = $('#hareketListe');
         k.innerHTML = '';
         if (!liste.length) {
-            k.innerHTML = '<div class="bos-defter">Henüz hareket yok.</div>';
+            k.innerHTML = '<div class="bos-defter"></div>';
+            k.firstChild.textContent = T('hareketYok');
             return;
         }
         /* SIRALAMA ile SILME AYRI SEYLER.
@@ -591,19 +704,22 @@
             d.className = 'hareket' + (i === sonEklenenDizin ? ' yeni' : '');
             var detay = '';
             if (h.tur === 'alim') {
-                detay = 'kilosu ' + h.kgFiyat + ' ₺';
+                /* Kullanıcının YAZDIĞI dizeyi olduğu gibi taşıyoruz --
+                   yeniden biçimlemek, girdiği değeri değiştirmek olur. */
+                detay = T('kilosu', Dil.paraYaz(h.kgFiyat));
             } else if (h.tur === 'kavurma') {
                 detay = String(h.cikisKg || '').trim()
-                    ? 'çıkan ' + h.cikisKg + ' kg (fire ölçüldü)'
-                    : 'fire %' + h.fire;
+                    ? T('cikanKg', h.cikisKg)
+                    : T('fireYuzde', h.fire);
             } else {
-                detay = (h.nerede === 'yesil' ? 'yeşil' : 'kavrulmuş') + ' depodan';
+                detay = T('depodan', h.nerede === 'yesil'
+                    ? T('etiketYesil') : T('etiketKavrulmusKisa'));
             }
             d.innerHTML = '<div class="ne"></div><div class="miktar"></div>' +
-                '<button class="sil" type="button">sil</button>' +
+                '<button class="sil" type="button">' + T('silDugme') + '</button>' +
                 '<div class="detay"></div>';
             d.querySelector('.ne').textContent =
-                (TUR_ADI[h.tur] || h.tur) + ' · ' + h.cesit;
+                turAdi(h.tur) + ' · ' + h.cesit;
             d.querySelector('.miktar').textContent = h.kg + ' kg';
             var t = tarihGoster(h.tarih);
             d.querySelector('.detay').textContent =
@@ -615,22 +731,26 @@
                    parti kaydından ucuz değildir, para taşır. Silinen
                    hareket geri alınamaz; sonrasındaki bütün depo
                    yeniden hesaplanır. */
-                if (!confirm('Bu hareket silinsin mi? Depo yeniden hesaplanacak.')) return;
+                if (!confirm(T('hareketSilOnay'))) return;
                 var l = hareketOku();
                 l.splice(i, 1);
                 yaz(ENVANTER_ANAHTAR, l);
                 envanterCiz();
-                duyur('Hareket silindi.');
+                duyur(T('hareketSilindi'));
             });
             k.appendChild(d);
         });
     }
 
     function envanterKur() {
+        /* Çeşit alanı SERBEST METİNDİR: kullanıcı kendi parti adını
+           yazabilir. Buradaki liste yalnız bir ÖNERİ; o yüzden koda
+           değil, görünen ada dolduruluyor. */
         var dl = $('#menseListe');
-        V.MENSE_SIRALI.forEach(function (m) {
+        dl.innerHTML = '';
+        V.menseSirali().forEach(function (m) {
             var o = document.createElement('option');
-            o.value = m;
+            o.value = V.ad(V.MENSE, m.kod);
             dl.appendChild(o);
         });
         if (tarihAlani()) tarihAlani().value = bugunYerel();
@@ -654,11 +774,11 @@
         Object.keys(ek).forEach(function (k) { kayit[k] = ek[k]; });
         liste.unshift(kayit);
         if (!yaz(DEFTER_ANAHTAR, liste)) {
-            alert('Kaydedilemedi — tarayıcı site verilerini engelliyor olabilir.');
+            alert(T('kaydedilemediKisa'));
             return;
         }
         partiFormuTemizle();
-        duyur('Parti deftere kaydedildi.');
+        duyur(T('partiKaydedildi'));
         sekmeAc('sDefter');
         $$('.sekme').forEach(function (b) {
             b.setAttribute('aria-selected', b.dataset.hedef === 'sDefter' ? 'true' : 'false');
@@ -672,9 +792,7 @@
 
         if (!liste.length) {
             ozet.innerHTML = '';
-            kap.innerHTML = '<p class="bos-defter">Henüz parti yok.<br>' +
-                'Fire ölçüp <strong>Deftere kaydet</strong> deyin — uygulama ' +
-                'zamanla sizin firenizi öğrenir.</p>';
+            kap.innerHTML = '<p class="bos-defter">' + T('partiYok') + '</p>';
             return;
         }
 
@@ -685,35 +803,43 @@
         var ort = f.reduce(function (a, b) { return a + b; }, 0) / f.length;
         var enAz = Math.min.apply(null, f), enCok = Math.max.apply(null, f);
         ozet.innerHTML =
-            '<div class="sonuc"><div class="buyuk">%' + sayi(ort, 1) + '</div>' +
-            '<div class="alt">' + liste.length + ' partide ortalama fireniz</div>' +
-            '<dl><div class="cift"><dt>en düşük</dt><dd>%' + sayi(enAz, 1) + '</dd></div>' +
-            '<div class="cift"><dt>en yüksek</dt><dd>%' + sayi(enCok, 1) + '</dd></div>' +
-            '<div class="cift"><dt>oynama</dt><dd>' + sayi(enCok - enAz, 1) +
-            ' puan</dd></div></dl></div>';
+            '<div class="sonuc"><div class="buyuk">' + yuzde(ort, 1) + '</div>' +
+            '<div class="alt">' + T('ortalamaFire', liste.length) + '</div>' +
+            '<dl><div class="cift"><dt>' + T('enDusuk') + '</dt><dd>' +
+            yuzde(enAz, 1) + '</dd></div>' +
+            '<div class="cift"><dt>' + T('enYuksek') + '</dt><dd>' +
+            yuzde(enCok, 1) + '</dd></div>' +
+            '<div class="cift"><dt>' + T('oynama') + '</dt><dd>' +
+            T('puan', sayi(enCok - enAz, 1)) + '</dd></div></dl></div>';
 
         liste.forEach(function (p, i) {
             var t = new Date(p.t);
-            var tarih = t.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }) +
-                        ' ' + t.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            var tarih = t.toLocaleDateString(yerel(), { day: '2-digit', month: 'short' }) +
+                        ' ' + t.toLocaleTimeString(yerel(), { hour: '2-digit', minute: '2-digit' });
             var b = document.createElement('button');
             b.className = 'kart parti';
             b.type = 'button';
             b.setAttribute('aria-label',
-                tarih + ', fire yüzde ' + sayi(p.fire, 1) + '. Silmek için etkinleştirin.');
+                T('partiDuyur', tarih, sayi(p.fire, 1)));
+            /* KAYIT KOD TUTAR, EKRAN ÇEVİRİ GÖSTERİR.
+               `V.ad()` tanımadığı değeri olduğu gibi verir; eski
+               Türkçe kayıtlar da, kullanıcının kendi yazdığı da
+               kaybolmaz. */
+            var menseAd = p.mense ? V.ad(V.MENSE, V.kodla(V.MENSE, p.mense)) : '';
+            var dereceAd = p.derece ? V.ad(V.DERECE, V.kodla(V.DERECE, p.derece)) : '';
             var ayrinti = [kg(p.giris) + ' → ' + kg(p.cikis)];
-            if (p.mense) ayrinti.push(p.mense);
-            if (p.derece) ayrinti.push(p.derece);
-            if (p.dtr !== undefined) ayrinti.push('gelişim %' + sayi(p.dtr, 1));
+            if (menseAd) ayrinti.push(menseAd);
+            if (dereceAd) ayrinti.push(dereceAd);
+            if (p.dtr !== undefined) ayrinti.push(T('gelisimKisa', sayi(p.dtr, 1)));
             if (p.not) ayrinti.push(p.not);
             b.innerHTML = '<span class="ad">' + tarih +
-                (p.mense ? ' · ' + p.mense : '') + '</span>' +
-                '<span class="fire">%' + sayi(p.fire, 1) + '</span>' +
+                (menseAd ? ' · ' + menseAd : '') + '</span>' +
+                '<span class="fire">' + yuzde(p.fire, 1) + '</span>' +
                 '<span class="detay">' + ayrinti.join(' · ') + '</span>';
             b.addEventListener('click', function () {
-                if (!confirm('Bu parti silinsin mi?')) return;
+                if (!confirm(T('partiSilOnay'))) return;
                 var l = defterOku(); l.splice(i, 1); yaz(DEFTER_ANAHTAR, l);
-                defterCiz(); duyur('Parti silindi.');
+                defterCiz(); duyur(T('partiSilindi'));
             });
             kap.appendChild(b);
         });
@@ -756,16 +882,26 @@
     /* ================= DEMLEME ================= */
     function demlemeKur() {
         var y = $('#dYontem');
+        /* Dil değişince yeniden doldurulur; SEÇİLİ yöntem korunur.
+           Korumasaydık dil düğmesine basmak sessizce Espresso'yu
+           Filtre'ye çevirir, ekrandaki gram sayısı değişirdi. */
+        var onceki = y.value;
+        y.innerHTML = '';
         V.DEMLEME.forEach(function (m, i) {
             var o = document.createElement('option');
-            o.value = String(i); o.textContent = m.ad + '  (1:' + m.oran + ')';
+            o.value = String(i);
+            o.textContent = V.ad(V.DEMLEME, m.kod) + '  (1:' + m.oran + ')';
             y.appendChild(o);
         });
-        y.addEventListener('change', function () {
-            $('#dOran').value = V.DEMLEME[+y.value].oran;
-            demlemeHesapla();
-        });
-        $('#dOran').value = V.DEMLEME[0].oran;
+        if (onceki !== '' && V.DEMLEME[+onceki]) y.value = onceki;
+        if (y.dataset.kurulu !== '1') {
+            y.dataset.kurulu = '1';
+            y.addEventListener('change', function () {
+                $('#dOran').value = V.DEMLEME[+y.value].oran;
+                demlemeHesapla();
+            });
+            $('#dOran').value = V.DEMLEME[0].oran;
+        }
         ['#dSu', '#dOran'].forEach(function (s) {
             $(s).addEventListener('input', demlemeHesapla);
         });
@@ -778,40 +914,46 @@
         if (!$('#dSu').value.trim()) { goster(kutu, false); goster(uyari, false); return; }
         if (su === null || oran === null) {
             goster(kutu, false);
-            uyari.textContent = 'Girilen değer sayı olarak okunamadı.';
+            uyari.textContent = T('okunamadi');
             goster(uyari, true); return;
         }
         if (su <= 0 || oran <= 0) {
             goster(kutu, false);
-            uyari.textContent = 'Su ve oran sıfırdan büyük olmalı.';
+            uyari.textContent = T('suOranPozitif');
             goster(uyari, true); return;
         }
         goster(uyari, false); goster(kutu, true);
         var gram = su / oran;
         $('#demlemeBuyuk').textContent = sayi(gram, 1) + ' g';
         $('#demlemeAlt').textContent =
-            sayi(su, 0) + ' ml su için — 1:' + sayi(oran, 0) + ' oranında';
-        duyur(sayi(gram, 1) + ' gram kahve gerekiyor.');
+            T('demlemeAlt2', sayi(su, 0), sayi(oran, 0));
+        duyur(T('duyurDemleme', sayi(gram, 1)));
     }
 
     /* ================= PARTİ FORMU ================= */
     function secenekDoldur(id, liste, bosMetin) {
         var s = $(id);
         if (!s) return;
-        s.innerHTML = '<option value="">' + (bosMetin || '— belirtilmedi —') + '</option>';
+        /* SEÇİLİ DEĞER KORUNUR. Dil değişince liste yeniden
+           doldurulur; korunmasaydı kullanıcının seçtiği menşe sessizce
+           silinirdi ve kaydederken boş giderdi. */
+        var onceki = s.value;
+        s.innerHTML = '<option value="">' + (bosMetin || T('bosSecim')) + '</option>';
         liste.forEach(function (x) {
-            var ad = typeof x === 'string' ? x : x.ad;
             var o = document.createElement('option');
-            o.value = ad; o.textContent = ad;
-            if (typeof x !== 'string' && x.not) o.title = x.not;
+            o.value = x.kod;
+            o.textContent = V.ad(liste, x.kod);
+            var n = V.not(liste, x.kod);
+            if (n) o.title = n;
             s.appendChild(o);
         });
+        if (onceki) s.value = onceki;
     }
 
     function partiFormKur() {
-        secenekDoldur('#pMense', V.MENSE_SIRALI);
+        secenekDoldur('#pMense', V.menseSirali());
         secenekDoldur('#pIsleme', V.ISLEME);
-        secenekDoldur('#pVaryete', V.VARYETE_SIRALI);
+        secenekDoldur('#pVaryete', V.varyeteSirali());
         secenekDoldur('#pDerece', V.DERECE);
         ['#pToplam', '#pCatlak'].forEach(function (s) {
             $(s).addEventListener('input', dtrGoster);
@@ -831,10 +973,7 @@
         /* "İDEAL ARALIK" YAZMIYORUZ. Tartışmalı bir konu ve makineye
            göre değişir; sayıyı veririz, hüküm vermeyiz. Uygulama
            zamanla KENDİ partilerinizin dağılımını gösterecek. */
-        kutu.innerHTML = 'Gelişim oranı <strong>%' + sayi(s.dtr, 1) +
-            '</strong> — ilk çatlaktan sonra ' + sureYaz(s.gelisimSn) +
-            ' geçmiş. <em>Bu sayı için "doğru" bir aralık yazmıyoruz; ' +
-            'makineye ve çekirdeğe göre değişir.</em>';
+        kutu.innerHTML = T('dtrKutu', sayi(s.dtr, 1), sureYaz(s.gelisimSn));
         goster(kutu, true);
     }
 
@@ -868,12 +1007,15 @@
     }
 
     /* ================= TEMA VE RENK ================= */
+    /* Renk ADLARI çevrilir; renk KODU ('kiraz') sabittir ve diske
+       o yazılır. Ad diske yazılsaydı dil değişince seçili renk
+       kaybolurdu. */
     var RENKLER = [
-        ['varsayilan', 'Kahve', '#9e4f00'],
-        ['kiraz', 'Kiraz', '#b3123c'],
-        ['yesil', 'Yeşil', '#00752b'],
-        ['okyanus', 'Okyanus', '#036e8c'],
-        ['mor', 'Mor', '#7b3fe4']
+        ['varsayilan', 'renkKahve',   '#9e4f00'],
+        ['kiraz',      'renkKiraz',   '#b3123c'],
+        ['yesil',      'renkYesil',   '#00752b'],
+        ['okyanus',    'renkOkyanus', '#036e8c'],
+        ['mor',        'renkMor',     '#7b3fe4']
     ];
 
     function temayiKur() {
@@ -886,7 +1028,7 @@
             try { localStorage.setItem(TEMA_ANAHTAR, yeni); } catch (e) {}
             var m = document.querySelector('meta[name="theme-color"]');
             if (m) m.setAttribute('content', yeni === 'koyu' ? '#0d0b09' : '#f5f6f8');
-            duyur(yeni === 'koyu' ? 'Koyu tema' : 'Açık tema');
+            duyur(T(yeni === 'koyu' ? 'temaKoyu' : 'temaAcik'));
         });
     }
 
@@ -896,12 +1038,14 @@
             var b = document.createElement('button');
             b.type = 'button'; b.className = 'renk-nokta';
             b.dataset.renk = r[0];
-            b.setAttribute('aria-label', r[1] + ' rengi');
+            b.dataset.i18nAd = r[1];
             b.setAttribute('aria-pressed', 'false');
-            b.innerHTML = '<span class="yuvar" style="background:' + r[2] + '"></span>' + r[1];
+            b.innerHTML = '<span class="yuvar" style="background:' + r[2] +
+                          '"></span><span class="renk-ad"></span>';
             b.addEventListener('click', function () { renkUygula(r[0], true); });
             liste.appendChild(b);
         });
+        renkAdlariniYaz();
         btn.addEventListener('click', function () {
             var ac = panel.hidden;
             panel.hidden = !ac;
@@ -917,6 +1061,18 @@
         renkUygula(s || 'varsayilan', false);
     }
 
+    /* Renk adları dil değişince yeniden yazılır. Bir kez yazılıp
+       bırakılsaydı, İngilizce'ye geçince noktaların yanında "Kiraz"
+       yazmaya devam ederdi -- yarım çeviri. */
+    function renkAdlariniYaz() {
+        $$('.renk-nokta').forEach(function (b) {
+            var ad = T(b.dataset.i18nAd);
+            var y = b.querySelector('.renk-ad');
+            if (y) y.textContent = ad;
+            b.setAttribute('aria-label', T('renkEtiket', ad));
+        });
+    }
+
     function renkUygula(r, kaydet) {
         if (r && r !== 'varsayilan') document.documentElement.setAttribute('data-renk', r);
         else { document.documentElement.removeAttribute('data-renk'); r = 'varsayilan'; }
@@ -926,8 +1082,113 @@
         });
     }
 
+    /* ================= DİL ================= */
+    function dilPanelKur() {
+        var btn = $('#dilBtn'), panel = $('#dilPanel');
+        var dl = $('#dilListe'), pl = $('#paraListe');
+        if (!btn || !panel) return;
+
+        [['tr', 'Türkçe'], ['en', 'English']].forEach(function (x) {
+            var b = document.createElement('button');
+            b.type = 'button'; b.className = 'renk-nokta';
+            b.dataset.dil = x[0];
+            b.textContent = x[1];              /* dil adları ÇEVRİLMEZ:
+                                                  kendi dilinde yazılır ki
+                                                  o dili arayan bulsun */
+            b.addEventListener('click', function () { Dil.ayarla(x[0]); });
+            dl.appendChild(b);
+        });
+
+        Object.keys(Dil.PARALAR).forEach(function (kod) {
+            var b = document.createElement('button');
+            b.type = 'button'; b.className = 'renk-nokta';
+            b.dataset.para = kod;
+            b.textContent = Dil.PARALAR[kod].simge + ' ' + kod;
+            b.addEventListener('click', function () {
+                Dil.paraAyarla(kod);
+                paraIsaretle();
+                paraBirimleriniYaz();
+                yenidenCiz();
+            });
+            pl.appendChild(b);
+        });
+
+        btn.addEventListener('click', function () {
+            var ac = panel.hidden;
+            panel.hidden = !ac;
+            btn.setAttribute('aria-expanded', ac ? 'true' : 'false');
+        });
+        panel.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { panel.hidden = true;
+                btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+        });
+        paraIsaretle();
+    }
+
+    function paraIsaretle() {
+        var d = Dil.oku(), p = Dil.paraKodu();
+        $$('#dilListe [data-dil]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b.dataset.dil === d ? 'true' : 'false');
+        });
+        $$('#paraListe [data-para]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b.dataset.para === p ? 'true' : 'false');
+        });
+        /* Düğmenin üstündeki yazı GEÇİLECEK dili gösterir. Etkin dili
+           gösterseydi basınca ne olacağı belirsiz kalırdı. */
+        var btn = $('#dilBtn');
+        if (btn) btn.textContent = d === 'tr' ? 'EN' : 'TR';
+    }
+
+    /* `<small class="para-birim">` kutucukları: etikette geçen para
+       simgesi sabit "TL" değil, SEÇİLEN birimdir. */
+    function paraBirimleriniYaz() {
+        $$('.para-birim').forEach(function (o) {
+            o.textContent = Dil.paraSimge();
+        });
+    }
+
+    /* DİL DEĞİŞİNCE EKRANDAKİ HER ÜRETİLEN METİN YENİDEN ÇİZİLİR.
+       Yalnız duran metinleri çevirseydik, hesaplanmış sonuçlar eski
+       dilde kalırdı: yarısı İngilizce yarısı Türkçe bir ekran. Ve
+       bundan daha kötüsü, SAYILAR eski yerelde kalırdı. */
+    function yenidenCiz() {
+        try { partiFormKur(); } catch (e) {}
+        try { demlemeKur(); } catch (e) {}
+        try { turAlanlari(); } catch (e) {}
+        try { renkAdlariniYaz(); } catch (e) {}
+        try { envanterCiz(); } catch (e) {}
+        try { defterCiz(); } catch (e) {}
+        try { fireHesapla(); } catch (e) {}
+        try { maliyetHesapla(); } catch (e) {}
+        try { harmanHesapla(); } catch (e) {}
+        try { demlemeHesapla(); } catch (e) {}
+        try { dtrGoster(); } catch (e) {}
+        try {
+            cevirHesapla($('#hHedef').value.trim() ? 'hedef' : 'yesil');
+        } catch (e) {}
+        /* Harman bileşen satırlarındaki etiketler ve menşe listesi de
+           dile bağlı; onları da tazeliyoruz. */
+        try {
+            var eski = $$('#bilesenler [data-bilesen]').map(function (o) {
+                var n = o.dataset.bilesen;
+                return { kod: $('#bAd' + n).value, oran: $('#bOran' + n).value };
+            });
+            $('#bilesenler').innerHTML = '';
+            bilesenSayi = 0;
+            eski.forEach(function (b) { bilesenEkle(b.kod, b.oran); });
+            harmanHesapla();
+        } catch (e) {}
+    }
+
     /* ================= BAŞLAT ================= */
     function baslat() {
+        /* DİL EN BAŞTA KURULUR. Sonra kurulsaydı arayüz bir kez Türkçe
+           çizilir, sonra İngilizce'ye atlardı -- ve daha kötüsü, ilk
+           çizimdeki sayılar Türkçe yerelde yazılmış olurdu. */
+        Dil.baslat();
+        dilPanelKur();
+        paraBirimleriniYaz();
+
         sekmeleriKur();
         temayiKur();
         renkleriKur();
@@ -965,14 +1226,42 @@
                eksik kaldı: yalnız 'kavurma defteri' diyordu, oysa
                stok hareketleri de kaydedilemiyor. Eksik uyarı,
                kullanıcıya 'envanterim duruyor' dedirtir. */
-            u.textContent = 'Tarayıcınız site verilerini engelliyor — ' +
-                'kavurma defteri ve envanter KAYDEDİLEMEZ. Hesaplar ' +
-                'çalışmaya devam eder, ama kapatınca kaybolur.';
+            u.id = 'depolamaUyari';
+            u.setAttribute('data-i18n', 'depolamaKapali');
+            u.textContent = T('depolamaKapali');
             $('.sarmal').insertBefore(u, $('.sekmeler'));
         }
         demlemeKur();
         partiFormKur();
         defterCiz();
+
+        /* Dil değişince: duran metinleri `Dil.uygula()` çevirir (dil.js
+           içinde), üretilenleri burası yeniden çizer. İkisi ayrı ayrı
+           yapılmazsa ekranın yarısı eski dilde kalır. */
+        Dil.dinle(function () {
+            paraIsaretle();
+            paraBirimleriniYaz();
+            yenidenCiz();
+            /* KURULUM DAVETI DE CEVRILIR.
+               Serit ve kapi ORTAK modulden gelir ve metinlerini
+               KURULDUKLARI ANDA alirlar. Bildirmezsek, Ingilizce
+               arayuzun altinda "Uygulama olarak kur / Simdi degil"
+               Turkce kalir -- ekranda goruldu, yarim ceviri.
+
+               Modul bir olay dinliyor; dil kavrami burada, modulde
+               degil. Tek dilli sekiz kardes bu olayi hic gondermez. */
+            try {
+                document.dispatchEvent(new CustomEvent('kurulum-metin', {
+                    detail: {
+                        kapiMetni: T('kurKapi'), baslik: T('kurBaslik'),
+                        metin: T('kurMetin'), kurBtn: T('kurBtn'),
+                        sonraBtn: T('kurSonra'), nasilBtn: T('kurNasil'),
+                        iosMetin: T('kurIos'), digerMetin: T('kurDiger')
+                    }
+                }));
+            } catch (e) {}
+            duyur(T('dilDegisti'));
+        });
     }
 
     if (document.readyState === 'loading') {

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Kahve Kavurma Hesabı — fire, maliyet, harman, defter</title>
-<meta name="description" content="Kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri. Yeşil kahveden kaç kilo çıkar, kaça mal olur? Ücretsiz, çevrimdışı çalışır." />
+<title>RoastMate — kavurma firesi, maliyet, harman, defter</title>
+<meta name="description" content="RoastMate — kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri. Türkçe ve İngilizce. Ücretsiz, çevrimdışı çalışır. Roast loss, cost per kilo, blend ratios and a roast log." />
 <meta name="theme-color" content="#0d0b09" />
 <meta name="color-scheme" content="dark light" />
 <script>
@@ -45,39 +45,59 @@
 <link rel="icon" type="image/png" href="favicon.png" />
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-title" content="Kahve" />
-<link rel="stylesheet" href="stil.css?v=8" />
+<meta name="apple-mobile-web-app-title" content="RoastMate" />
+<link rel="stylesheet" href="stil.css?v=16" />
 </head>
 <body>
 <div class="sarmal">
 
 <header class="ust">
-    <h1>☕ Kahve <span>Kavurma</span></h1>
+    <h1>☕ Roast<span>Mate</span></h1>
     <div class="ust-sag">
-        <button id="temaBtn" title="Açık / koyu tema" aria-label="Tema değiştir">◐</button>
-        <button id="renkBtn" title="Renk seç" aria-label="Renk seç"
+        <!-- DIL DUGMESI: etkin dili DEGIL, gecilecek dili yazar.
+             "TR" yazarken Turkce'yseniz basinca ne olacagi belirsiz
+             kalirdi. Ustundeki yazi hep HEDEFI gosterir. -->
+        <button id="dilBtn" data-i18n-baslik="dilBtn"
+                aria-expanded="false">EN</button>
+        <button id="temaBtn" data-i18n-baslik="temaBtn">◐</button>
+        <button id="renkBtn" data-i18n-baslik="renkBtn"
                 aria-expanded="false">🎨</button>
     </div>
 </header>
 
 <div id="renkPanel" class="kart" hidden>
-    <h2>Renk</h2>
+    <h2 data-i18n="renkBaslik">Renk</h2>
     <div id="renkListe" class="renk-liste"></div>
 </div>
 
-<div class="sekmeler" role="tablist" aria-label="Bölümler">
+<!-- DIL VE PARA BIRIMI AYRI SECIMLERDIR.
+     Ingilizce konusan biri de Turk Lirasiyla alisveris yapiyor
+     olabilir. Birbirine baglasaydik, dil degistiren kullanicinin
+     BUTUN MALIYET SAYILARI baska bir paraya gecmis GIBI gorunurdu --
+     sayilar ayni kalir ama simge degisir; sessiz yanlis okuma. -->
+<div id="dilPanel" class="kart" hidden>
+    <h2 data-i18n="dilBaslik">Dil</h2>
+    <div class="renk-liste" id="dilListe" role="radiogroup"
+         data-i18n-baslik="dilBaslik"></div>
+    <h2 data-i18n="paraBaslik" style="margin-top:14px">Para birimi</h2>
+    <div class="renk-liste" id="paraListe" role="radiogroup"
+         data-i18n-baslik="paraBaslik"></div>
+    <p class="aciklama" data-i18n="paraNot" style="margin-top:8px"></p>
+</div>
+
+<div class="sekmeler" role="tablist" data-i18n-baslik="sekmeler">
     <button class="sekme" role="tab" id="tFire" aria-controls="sFire"
-            aria-selected="true" data-hedef="sFire">Fire</button>
+            aria-selected="true" data-hedef="sFire" data-i18n="tFire">Fire</button>
     <button class="sekme" role="tab" id="tMaliyet" aria-controls="sMaliyet"
-            aria-selected="false" data-hedef="sMaliyet">Maliyet</button>
+            aria-selected="false" data-hedef="sMaliyet" data-i18n="tMaliyet">Maliyet</button>
     <button class="sekme" role="tab" id="tHarman" aria-controls="sHarman"
-            aria-selected="false" data-hedef="sHarman">Harman</button>
+            aria-selected="false" data-hedef="sHarman" data-i18n="tHarman">Harman</button>
     <button class="sekme" role="tab" id="tDemleme" aria-controls="sDemleme"
-            aria-selected="false" data-hedef="sDemleme">Demleme</button>
+            aria-selected="false" data-hedef="sDemleme" data-i18n="tDemleme">Demleme</button>
     <button class="sekme" role="tab" id="tEnvanter" aria-controls="sEnvanter"
-            aria-selected="false" tabindex="-1" data-hedef="sEnvanter">Envanter</button>
+            aria-selected="false" tabindex="-1" data-hedef="sEnvanter" data-i18n="tEnvanter">Envanter</button>
     <button class="sekme" role="tab" id="tDefter" aria-controls="sDefter"
-            aria-selected="false" data-hedef="sDefter">Defter</button>
+            aria-selected="false" data-hedef="sDefter" data-i18n="tDefter">Defter</button>
 </div>
 
 <!-- Sonuçlar ekran okuyucuya DUYURULUR. Bu olmadan göremeyen kullanıcı
@@ -88,19 +108,17 @@
 <section class="sayfa aktif" id="sFire" role="tabpanel" aria-labelledby="tFire">
 
     <div class="kart">
-        <h2>Firemi ölç</h2>
-        <p class="aciklama">Tarttınız: kaç kilo koydunuz, kaç kilo çıktı?
-        <strong>Kendi makinenizin gerçek firesini</strong> buradan öğrenirsiniz —
-        tahminle çalışmayı bırakırsınız.</p>
+        <h2 data-i18n="fireBaslik">Firemi ölç</h2>
+        <p class="aciklama" data-i18n-html="fireAciklama"></p>
 
         <div class="satir ikili">
             <div>
-                <label for="fGiris">Giren yeşil <small>kg</small></label>
-                <input id="fGiris" inputmode="decimal" placeholder="örn. 10" />
+                <label for="fGiris"><span data-i18n="fGirisEt">Giren yeşil</span> <small>kg</small></label>
+                <input id="fGiris" inputmode="decimal" data-i18n-yer="yer10" />
             </div>
             <div>
-                <label for="fCikis">Çıkan kavrulmuş <small>kg</small></label>
-                <input id="fCikis" inputmode="decimal" placeholder="örn. 8,5" />
+                <label for="fCikis"><span data-i18n="fCikisEt">Çıkan kavrulmuş</span> <small>kg</small></label>
+                <input id="fCikis" inputmode="decimal" data-i18n-yer="yer85" />
             </div>
         </div>
 
@@ -113,34 +131,33 @@
                     <div class="cubuk-yesil"></div>
                     <div class="cubuk-kavrulmus" id="fireCubuk" style="width:100%"></div>
                     <div class="cubuk-etiket">
-                        <span id="fireSol">giren</span>
-                        <span id="fireSag">çıkan</span>
+                        <span id="fireSol" data-i18n="etiketGiren">giren</span>
+                        <span id="fireSag" data-i18n="etiketCikan">çıkan</span>
                     </div>
                 </div>
                 <div class="cekirdek-sira" id="fireCekirdek" aria-hidden="true"></div>
             </div>
         </div>
         <div class="uyari-kutu" id="fireUyari" hidden></div>
-        <button class="birincil" id="fireKaydet" style="margin-top:14px" hidden>
-            Deftere kaydet
-        </button>
+        <button class="birincil" id="fireKaydet" style="margin-top:14px"
+                data-i18n="fireKaydet" hidden>Deftere kaydet</button>
     </div>
 
     <div class="kart">
-        <h2>Ne kadar çıkar / ne kadar koymalıyım?</h2>
-        <p class="aciklama">Fire oranınızı biliyorsanız iki yönde de hesaplar.</p>
+        <h2 data-i18n="cevirBaslik">Ne kadar çıkar / ne kadar koymalıyım?</h2>
+        <p class="aciklama" data-i18n="cevirAciklama"></p>
         <div class="satir">
-            <label for="hFire">Fire oranı <small>%</small></label>
-            <input id="hFire" inputmode="decimal" placeholder="örn. 15" />
+            <label for="hFire"><span data-i18n="hFireEt">Fire oranı</span> <small>%</small></label>
+            <input id="hFire" inputmode="decimal" data-i18n-yer="yer15" />
         </div>
         <div class="satir ikili">
             <div>
-                <label for="hYesil">Yeşil koyacağım <small>kg → kaç kg çıkar</small></label>
-                <input id="hYesil" inputmode="decimal" placeholder="örn. 10" />
+                <label for="hYesil"><span data-i18n="hYesilEt">Yeşil koyacağım</span> <small data-i18n="hYesilAlt">kg → kaç kg çıkar</small></label>
+                <input id="hYesil" inputmode="decimal" data-i18n-yer="yer10" />
             </div>
             <div>
-                <label for="hHedef">Kavrulmuş istiyorum <small>kg → kaç kg yeşil</small></label>
-                <input id="hHedef" inputmode="decimal" placeholder="örn. 5" />
+                <label for="hHedef"><span data-i18n="hHedefEt">Kavrulmuş istiyorum</span> <small data-i18n="hHedefAlt">kg → kaç kg yeşil</small></label>
+                <input id="hHedef" inputmode="decimal" data-i18n-yer="yer5" />
             </div>
         </div>
         <div class="sonuc" id="cevirSonuc" hidden>
@@ -154,55 +171,53 @@
 <!-- ==================== MALİYET ==================== -->
 <section class="sayfa" id="sMaliyet" role="tabpanel" aria-labelledby="tMaliyet" hidden>
     <div class="kart">
-        <h2>Kilo maliyeti</h2>
-        <p class="aciklama">Yeşil kahvenin kilo fiyatı, kavrulmuşun maliyeti
-        <strong>değildir</strong>. Fire yüzünden 1 kilo kavrulmuş için daha fazla
-        yeşil gerekir. Bu farkı atlayan zararına satar.</p>
+        <h2 data-i18n="maliyetBaslik">Kilo maliyeti</h2>
+        <p class="aciklama" data-i18n-html="maliyetAciklama"></p>
 
         <div class="satir ikili">
             <div>
-                <label for="mFiyat">Yeşil kahve <small>TL / kg</small></label>
-                <input id="mFiyat" inputmode="decimal" placeholder="örn. 500" />
+                <label for="mFiyat"><span data-i18n="mFiyatEt">Yeşil kahve</span> <small><span class="para-birim"></span> <span data-i18n="birimKg">/ kg</span></small></label>
+                <input id="mFiyat" inputmode="decimal" data-i18n-yer="yer500" />
             </div>
             <div>
-                <label for="mFire">Fire <small>%</small></label>
-                <input id="mFire" inputmode="decimal" placeholder="örn. 15" />
-            </div>
-        </div>
-        <div class="satir ikili">
-            <div>
-                <label for="mParti">Parti büyüklüğü <small>kg — isteğe bağlı</small></label>
-                <input id="mParti" inputmode="decimal" placeholder="örn. 10" />
-            </div>
-            <div>
-                <label for="mEnerji">Enerji <small>TL / parti</small></label>
-                <input id="mEnerji" inputmode="decimal" placeholder="örn. 60" />
+                <label for="mFire"><span data-i18n="mFireEt">Fire</span> <small>%</small></label>
+                <input id="mFire" inputmode="decimal" data-i18n-yer="yer15" />
             </div>
         </div>
         <div class="satir ikili">
             <div>
-                <label for="mIscilik">İşçilik <small>TL / parti</small></label>
-                <input id="mIscilik" inputmode="decimal" placeholder="örn. 100" />
+                <label for="mParti"><span data-i18n="mPartiEt">Parti büyüklüğü</span> <small data-i18n="mPartiAlt">kg — isteğe bağlı</small></label>
+                <input id="mParti" inputmode="decimal" data-i18n-yer="yer10" />
             </div>
             <div>
-                <label for="mPaket">Paket <small>gram</small></label>
-                <input id="mPaket" inputmode="decimal" placeholder="örn. 250" />
+                <label for="mEnerji"><span data-i18n="mEnerjiEt">Enerji</span> <small><span class="para-birim"></span> <span data-i18n="birimParti">/ parti</span></small></label>
+                <input id="mEnerji" inputmode="decimal" data-i18n-yer="yer60" />
             </div>
         </div>
         <div class="satir ikili">
             <div>
-                <label for="mAmbalaj">Ambalaj <small>TL / paket</small></label>
-                <input id="mAmbalaj" inputmode="decimal" placeholder="örn. 12" />
+                <label for="mIscilik"><span data-i18n="mIscilikEt">İşçilik</span> <small><span class="para-birim"></span> <span data-i18n="birimParti">/ parti</span></small></label>
+                <input id="mIscilik" inputmode="decimal" data-i18n-yer="yer100" />
             </div>
             <div>
-                <label for="mFincan">Fincan <small>gram</small></label>
-                <input id="mFincan" inputmode="decimal" placeholder="örn. 7" />
+                <label for="mPaket"><span data-i18n="mPaketEt">Paket</span> <small data-i18n="birimGram">gram</small></label>
+                <input id="mPaket" inputmode="decimal" data-i18n-yer="yer250" />
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
+                <label for="mAmbalaj"><span data-i18n="mAmbalajEt">Ambalaj</span> <small><span class="para-birim"></span> <span data-i18n="birimPaket">/ paket</span></small></label>
+                <input id="mAmbalaj" inputmode="decimal" data-i18n-yer="yer12" />
+            </div>
+            <div>
+                <label for="mFincan"><span data-i18n="mFincanEt">Fincan</span> <small data-i18n="birimGram">gram</small></label>
+                <input id="mFincan" inputmode="decimal" data-i18n-yer="yer7" />
             </div>
         </div>
 
         <div class="sonuc" id="maliyetSonuc" hidden>
             <div class="buyuk" id="maliyetBuyuk">—</div>
-            <div class="alt">kavrulmuş kahvenin kilo maliyeti</div>
+            <div class="alt" data-i18n="maliyetAlt">kavrulmuş kahvenin kilo maliyeti</div>
             <dl id="maliyetDetay"></dl>
         </div>
         <div class="bilgi-kutu" id="maliyetFark" hidden></div>
@@ -213,27 +228,26 @@
 <!-- ==================== HARMAN ==================== -->
 <section class="sayfa" id="sHarman" role="tabpanel" aria-labelledby="tHarman" hidden>
     <div class="kart">
-        <h2>Harman</h2>
-        <p class="aciklama">Oranları girin; her çekirdekten kaç kilo
-        <strong>yeşil</strong> koymanız gerektiğini fire dahil hesaplar.</p>
+        <h2 data-i18n="harmanBaslik">Harman</h2>
+        <p class="aciklama" data-i18n-html="harmanAciklama"></p>
 
         <div class="satir ikili">
             <div>
-                <label for="bHedef">Hedef kavrulmuş <small>kg</small></label>
-                <input id="bHedef" inputmode="decimal" placeholder="örn. 12" />
+                <label for="bHedef"><span data-i18n="bHedefEt">Hedef kavrulmuş</span> <small>kg</small></label>
+                <input id="bHedef" inputmode="decimal" data-i18n-yer="yer12" />
             </div>
             <div>
-                <label for="bFire">Fire <small>%</small></label>
-                <input id="bFire" inputmode="decimal" placeholder="örn. 15" />
+                <label for="bFire"><span data-i18n="mFireEt">Fire</span> <small>%</small></label>
+                <input id="bFire" inputmode="decimal" data-i18n-yer="yer15" />
             </div>
         </div>
 
         <div id="bilesenler"></div>
-        <button id="bEkle" style="margin-bottom:12px">+ Çekirdek ekle</button>
+        <button id="bEkle" style="margin-bottom:12px" data-i18n="bEkle">+ Çekirdek ekle</button>
 
         <div class="sonuc" id="harmanSonuc" hidden>
             <div class="buyuk" id="harmanBuyuk">—</div>
-            <div class="alt">toplam yeşil kahve</div>
+            <div class="alt" data-i18n="harmanAlt">toplam yeşil kahve</div>
             <dl id="harmanDetay"></dl>
         </div>
         <div class="uyari-kutu" id="harmanUyari" hidden></div>
@@ -244,22 +258,20 @@
 <!-- ==================== DEMLEME ==================== -->
 <section class="sayfa" id="sDemleme" role="tabpanel" aria-labelledby="tDemleme" hidden>
     <div class="kart">
-        <h2>Demleme oranı</h2>
-        <p class="aciklama">Kaç kişilik demleyeceksiniz? Kaç gram kahve,
-        kaç ml su? <strong>Oranlar tariftir, ölçüm değildir</strong> —
-        kendi zevkinize göre değiştirin.</p>
+        <h2 data-i18n="demlemeBaslik">Demleme oranı</h2>
+        <p class="aciklama" data-i18n-html="demlemeAciklama"></p>
 
         <div class="satir">
-            <label for="dYontem">Yöntem</label>
+            <label for="dYontem" data-i18n="dYontemEt">Yöntem</label>
             <select id="dYontem"></select>
         </div>
         <div class="satir ikili">
             <div>
-                <label for="dSu">Su <small>ml</small></label>
-                <input id="dSu" inputmode="decimal" placeholder="örn. 500" />
+                <label for="dSu"><span data-i18n="dSuEt">Su</span> <small>ml</small></label>
+                <input id="dSu" inputmode="decimal" data-i18n-yer="yer500" />
             </div>
             <div>
-                <label for="dOran">Oran <small>1 : ?</small></label>
+                <label for="dOran"><span data-i18n="dOranEt">Oran</span> <small>1 : ?</small></label>
                 <input id="dOran" inputmode="decimal" placeholder="16" />
             </div>
         </div>
@@ -275,11 +287,8 @@
 <!-- ==================== ENVANTER ==================== -->
 <section class="sayfa" id="sEnvanter" role="tabpanel" aria-labelledby="tEnvanter" hidden>
     <div class="kart">
-        <h2>Depoda ne var?</h2>
-        <p class="aciklama"><strong>Yeşil ve kavrulmuş ayrı depodur.</strong>
-        Aralarındaki tek köprü fire: 10 kg yeşil düşer, %15 fireyle 8,5 kg
-        kavrulmuş artar. Yarım kilo buharlaşır — hiçbir depoda yoktur.
-        Kavrulmuşun kilo maliyeti bu yüzden yeşilinkinden yüksektir.</p>
+        <h2 data-i18n="envanterBaslik">Depoda ne var?</h2>
+        <p class="aciklama" data-i18n-html="envanterAciklama"></p>
 
         <div class="sonuc" id="envanterSonuc" hidden>
             <div class="buyuk" id="envanterBuyuk">—</div>
@@ -290,64 +299,64 @@
     </div>
 
     <details class="kart" id="hareketFormKap">
-        <summary><strong>+ Hareket ekle</strong></summary>
+        <summary><strong data-i18n="hareketEkle">+ Hareket ekle</strong></summary>
 
         <div class="satir">
-            <label for="nTur">Ne oldu?</label>
+            <label for="nTur" data-i18n="nTurEt">Ne oldu?</label>
             <select id="nTur">
-                <option value="alim">Yeşil kahve aldım</option>
-                <option value="kavurma">Kavurdum</option>
-                <option value="satis">Sattım</option>
-                <option value="zayi">Zayi / ıskarta</option>
+                <option value="alim" data-i18n="turAlim">Yeşil kahve aldım</option>
+                <option value="kavurma" data-i18n="turKavurma">Kavurdum</option>
+                <option value="satis" data-i18n="turSatis">Sattım</option>
+                <option value="zayi" data-i18n="turZayi">Zayi / ıskarta</option>
             </select>
         </div>
 
         <div class="satir">
-            <label for="nTarih">Tarih</label>
+            <label for="nTarih" data-i18n="nTarihEt">Tarih</label>
             <input id="nTarih" type="date" />
         </div>
 
         <div class="satir">
-            <label for="nCesit">Çeşit</label>
+            <label for="nCesit" data-i18n="nCesitEt">Çeşit</label>
             <input id="nCesit" list="menseListe" autocomplete="off"
-                   placeholder="örn. Brezilya — ya da kendi parti adınız" />
+                   data-i18n-yer="nCesitYer" />
             <datalist id="menseListe"></datalist>
         </div>
 
         <div class="satir ikili">
             <div>
-                <label for="nKg" id="nKgEtiket">Ağırlık <small>kg</small></label>
-                <input id="nKg" inputmode="decimal" placeholder="örn. 10" />
+                <label for="nKg" id="nKgEtiket"><span data-i18n="nKgEt">Ağırlık</span> <small>kg</small></label>
+                <input id="nKg" inputmode="decimal" data-i18n-yer="yer10" />
             </div>
             <div id="nFiyatKap">
-                <label for="nFiyat">Kilo fiyatı <small>₺</small></label>
-                <input id="nFiyat" inputmode="decimal" placeholder="örn. 500" />
+                <label for="nFiyat"><span data-i18n="nFiyatEt">Kilo fiyatı</span> <small class="para-birim"></small></label>
+                <input id="nFiyat" inputmode="decimal" data-i18n-yer="yer500" />
             </div>
             <div id="nFireKap" hidden>
-                <label for="nFire">Fire <small>%</small></label>
-                <input id="nFire" inputmode="decimal" placeholder="örn. 15" />
+                <label for="nFire"><span data-i18n="nFireEt">Fire</span> <small>%</small></label>
+                <input id="nFire" inputmode="decimal" data-i18n-yer="yer15" />
             </div>
             <div id="nNeredeKap" hidden>
-                <label for="nNerede">Hangi depodan</label>
+                <label for="nNerede" data-i18n="nNeredeEt">Hangi depodan</label>
                 <select id="nNerede">
-                    <option value="kavrulmus">Kavrulmuş</option>
-                    <option value="yesil">Yeşil</option>
+                    <option value="kavrulmus" data-i18n="depoKavrulmus">Kavrulmuş</option>
+                    <option value="yesil" data-i18n="depoYesil">Yeşil</option>
                 </select>
             </div>
         </div>
 
         <div class="satir" id="nCikisKap" hidden>
-            <label for="nCikis">…ya da tarttıysanız: çıkan ağırlık
-                <small>kg — fireyi biz ölçeriz</small></label>
-            <input id="nCikis" inputmode="decimal" placeholder="örn. 8,5" />
+            <label for="nCikis"><span data-i18n="nCikisEt">…ya da tarttıysanız: çıkan ağırlık</span>
+                <small data-i18n="nCikisAlt">kg — fireyi biz ölçeriz</small></label>
+            <input id="nCikis" inputmode="decimal" data-i18n-yer="yer85" />
         </div>
 
         <div class="uyari-kutu" id="hareketUyari" hidden></div>
-        <button class="birincil" id="nEkle">Deftere işle</button>
+        <button class="birincil" id="nEkle" data-i18n="nEkle">Deftere işle</button>
     </details>
 
     <div class="kart">
-        <h2>Hareketler</h2>
+        <h2 data-i18n="hareketlerBaslik">Hareketler</h2>
         <div id="hareketListe"></div>
     </div>
 </section>
@@ -355,62 +364,58 @@
 <!-- ==================== DEFTER ==================== -->
 <section class="sayfa" id="sDefter" role="tabpanel" aria-labelledby="tDefter" hidden>
     <div class="kart">
-        <h2>Kavurma defteri</h2>
-        <p class="aciklama">Her parti kaydedilir. Uygulama zamanla
-        <strong>sizin firenizi</strong> öğrenir — ortalamanızı ve
-        partiler arası oynamayı gösterir.</p>
+        <h2 data-i18n="defterBaslik">Kavurma defteri</h2>
+        <p class="aciklama" data-i18n-html="defterAciklama"></p>
         <div id="defterOzet"></div>
     </div>
 
     <details class="kart" id="partiFormKap">
-        <summary style="cursor:pointer;font-weight:700">Parti ayrıntısı ekle</summary>
-        <p class="aciklama" style="margin-top:10px">Fire sekmesinden gelen
-        parti burada zenginleşir. <strong>Hiçbiri zorunlu değil</strong> —
-        bilmediğiniz alanı boş bırakın, uygulama uydurmaz.</p>
+        <summary style="cursor:pointer;font-weight:700" data-i18n="partiFormBaslik">Parti ayrıntısı ekle</summary>
+        <p class="aciklama" style="margin-top:10px" data-i18n-html="partiFormAciklama"></p>
 
         <div class="satir ikili">
             <div>
-                <label for="pMense">Menşe</label>
+                <label for="pMense" data-i18n="pMenseEt">Menşe</label>
                 <select id="pMense"></select>
             </div>
             <div>
-                <label for="pIsleme">İşleme</label>
+                <label for="pIsleme" data-i18n="pIslemeEt">İşleme</label>
                 <select id="pIsleme"></select>
             </div>
         </div>
         <div class="satir ikili">
             <div>
-                <label for="pVaryete">Varyete</label>
+                <label for="pVaryete" data-i18n="pVaryeteEt">Varyete</label>
                 <select id="pVaryete"></select>
             </div>
             <div>
-                <label for="pDerece">Kavurma derecesi</label>
+                <label for="pDerece" data-i18n="pDereceEt">Kavurma derecesi</label>
                 <select id="pDerece"></select>
             </div>
         </div>
         <div class="satir ikili">
             <div>
-                <label for="pToplam">Toplam süre <small>dakika:saniye — örn. 10:30</small></label>
+                <label for="pToplam"><span data-i18n="pToplamEt">Toplam süre</span> <small data-i18n="pToplamAlt">dakika:saniye — örn. 10:30</small></label>
                 <input id="pToplam" inputmode="numeric" placeholder="10:30" />
             </div>
             <div>
-                <label for="pCatlak">İlk çatlak <small>dakika:saniye</small></label>
+                <label for="pCatlak"><span data-i18n="pCatlakEt">İlk çatlak</span> <small data-i18n="pCatlakAlt">dakika:saniye</small></label>
                 <input id="pCatlak" inputmode="numeric" placeholder="8:00" />
             </div>
         </div>
         <div class="satir ikili">
             <div>
-                <label for="pSarj">Şarj sıcaklığı <small>°C</small></label>
-                <input id="pSarj" inputmode="decimal" placeholder="örn. 195" />
+                <label for="pSarj"><span data-i18n="pSarjEt">Şarj sıcaklığı</span> <small>°C</small></label>
+                <input id="pSarj" inputmode="decimal" data-i18n-yer="yer195" />
             </div>
             <div>
-                <label for="pCikisIsi">Çıkış sıcaklığı <small>°C</small></label>
-                <input id="pCikisIsi" inputmode="decimal" placeholder="örn. 212" />
+                <label for="pCikisIsi"><span data-i18n="pCikisIsiEt">Çıkış sıcaklığı</span> <small>°C</small></label>
+                <input id="pCikisIsi" inputmode="decimal" data-i18n-yer="yer212" />
             </div>
         </div>
         <div class="satir">
-            <label for="pNot">Not <small>tat, koku, gözlem</small></label>
-            <input id="pNot" placeholder="örn. çikolata, fındık; ikinci çatlak duyulmadı" />
+            <label for="pNot"><span data-i18n="pNotEt">Not</span> <small data-i18n="pNotAlt">tat, koku, gözlem</small></label>
+            <input id="pNot" data-i18n-yer="pNotYer" />
         </div>
 
         <div class="bilgi-kutu" id="dtrKutu" hidden></div>
@@ -423,11 +428,12 @@
 
 </div><!-- /sarmal -->
 
-<script src="cekirdek.js?v=8"></script>
-<script src="veri.js?v=8"></script>
-<script src="kurulum.js?v=8"></script>
-<script src="arayuz.js?v=8"></script>
-<script src="guncelle.js?v=8"></script>
+<script src="cekirdek.js?v=16"></script>
+<script src="dil.js?v=16"></script>
+<script src="veri.js?v=16"></script>
+<script src="kurulum.js?v=16"></script>
+<script src="arayuz.js?v=16"></script>
+<script src="guncelle.js?v=16"></script>
 <script>
 /* TESLIMAT. Ortak modul: HESAP MAKİNESİ\ortak\guncelle.js
    Degisiklik ONCE orada yapilir, sonra kopyalar tazelenir (K-69).
@@ -441,7 +447,29 @@ try { new Guncelle({ otomatik: false }); } catch (e) {}
 <script>
 /* Kurulum daveti. Anahtar UYGULAMAYA OZEL -- ortak anahtar kullanilsaydi
    bir uygulamada 'simdi degil' demek hepsini susturuoludu. */
-new Kurulum({ anahtar: 'kahve-kurulum-ertelendi' });
+/* SERIT METINLERI SOZLUKTEN GELIYOR.
+   `kurulum.js` ORTAK bir moduldur, dokuz uygulama kullanir; dili
+   modulun icine gomseydik ya hepsini Ingilizce yapardik ya da
+   modulu her uygulama icin catallardik. Modul metni ZATEN disaridan
+   aliyor -- o kapiyi kullaniyoruz, modul degismiyor.
+
+   BILINEN SINIR: serit KURULDUGU ANDAKI dili tasir. Kullanici serit
+   ekrandayken dili degistirirse serit eski dilde kalir; sayfa
+   yenilenince duzelir. Serit ilk ziyarette, kullanici dil dugmesini
+   daha bulmadan cikar -- bu yuzden ONEMLI olan acilis dilidir ve o
+   dogrudur. Tam cozum ortak modulu degistirmeyi gerektiriyor;
+   dokuz uygulamayi ayni anda riske atmiyoruz. */
+new Kurulum({
+    anahtar: 'kahve-kurulum-ertelendi',
+    kapiMetni: Dil.T('kurKapi'),
+    baslik:    Dil.T('kurBaslik'),
+    metin:     Dil.T('kurMetin'),
+    kurBtn:    Dil.T('kurBtn'),
+    sonraBtn:  Dil.T('kurSonra'),
+    nasilBtn:  Dil.T('kurNasil'),
+    iosMetin:  Dil.T('kurIos'),
+    digerMetin: Dil.T('kurDiger')
+});
 </script>
 <script>
 /* SERVİS İŞÇİSİ — çevrimdışı katman.
