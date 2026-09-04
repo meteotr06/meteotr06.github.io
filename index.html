@@ -94,7 +94,20 @@
   #kurBtn { min-height: 44px; min-width: 44px; padding: 0 18px;
             flex: 0 0 auto; white-space: nowrap;
             border: 0; border-radius: 10px; font: inherit; font-weight: 600;
-            cursor: pointer; background: var(--vurgu); color: #fff; }
+            cursor: pointer; background: var(--vurgu);
+            /* SABIT BEYAZ DEGIL. Olculdu (04.09.2026, canli portal):
+               koyu temada vurgu #6b9bff ve beyaz yazi -> KARSITLIK 2,71
+               (esik 4,5). Yani "Uygulama olarak kur" dugmesinin yazisi
+               okunmuyordu -- portalin en onemli dugmesi.
+
+               Sinsi tarafi: `stil.css` bu dugmeyi ZATEN dogru boyuyordu
+               (`button.birincil { color: var(--vurgu-yazi) }`) ve
+               `--vurgu-yazi` da dogru tanimliydi (#0c0e13). Ama buradaki
+               KIMLIK secicisi (#kurBtn) sinif secicisini eziyordu.
+               Yani kusur "degisken eksik" degil, "dogru degiskenin
+               USTUNU kapatmak"ti -- ve kimlik secicisi bunu sessizce
+               yapar. */
+            color: var(--vurgu-yazi, #0c0e13); }
   #kurNot { color: var(--yazi2); }
   .uyg-kart b { display: block; }
   /* KART KIMLIGI — portal simgesindeki dort renkli karo dili.
