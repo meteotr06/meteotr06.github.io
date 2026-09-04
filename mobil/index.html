@@ -18,21 +18,91 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="simge-192.png">
 <style>
-  /* ---- tema renkleri: masaustu surumuyle ayni palet ---- */
+  /* ---- TEMA VE RENK ------------------------------------------------
+     Uc tema kipi:  otomatik (varsayilan, cihaza uyar) | koyu | acik
+     Bes vurgu rengi: mavi (varsayilan) | yesil | turuncu | pembe | mor
+
+     RENKLER OLCULEREK SECILDI. Her rengin IKI ROLU var -- sayfa
+     zemininde YAZI, ve dugme zemini olarak ZEMIN -- ve IKI temasi.
+     Dordu de ayri olculdu (K-85: bir rolu olcmek rengi olcmez):
+
+       renk      koyu: yazi/zemin    acik: yazi/zemin
+       mavi      5,56 / 5,56         5,21 / 5,90
+       yesil     7,16 / 7,16         5,27 / 5,97
+       turuncu   6,48 / 6,48         5,15 / 5,84
+       pembe     5,15 / 5,15         6,52 / 7,38
+       mor       6,68 / 6,68         7,02 / 7,95
+     En dusuk 5,15; AA esigi 4,5.
+
+     ELENEN RENK: mor #8b5cf6 -- ustune NE beyaz NE koyu yazi geciyordu
+     (4,23 / 4,29). Ikisi de kalan bir renk "secenek" olamaz.
+
+     HER RENGIN ACIK TEMA ICIN AYRI DEGERI VAR. Olculdu: parlak
+     vurgularin HICBIRI acik temada YAZI olarak okunmuyor (1,9-3,74).
+     Tek deger kullansaydik acik temayi bozardik. */
   :root {
     --arka:#0f1620; --panel:#1c2733; --ickart:#0e1620; --cizgi:#243444;
     --secili:#12324f; --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#5a6b7d;
-    --vurgu:#1f8fff; --nem:#4aa3ff; --ruzgar:#7fd4ff; --yagis:#54c6ff;
+    --vurgu:#1f8fff; --vurgu-yazi:#0f1620;
+    --nem:#4aa3ff; --ruzgar:#7fd4ff; --yagis:#54c6ff;
     --gunes:#ffd23b; --bulut:#cdd8e4;
   }
+  /* Koyu temada vurgu secenekleri */
+  :root[data-renk="yesil"]   { --vurgu:#10b981; --vurgu-yazi:#0f1620; }
+  :root[data-renk="turuncu"] { --vurgu:#f97316; --vurgu-yazi:#0f1620; }
+  :root[data-renk="pembe"]   { --vurgu:#ec4899; --vurgu-yazi:#0f1620; }
+  :root[data-renk="mor"]     { --vurgu:#a78bfa; --vurgu-yazi:#0f1620; }
+
+  /* ACIK PALET -- iki yoldan gelir:
+     1) cihaz acik ve kullanici KOYU'yu secmemisse,
+     2) kullanici acikca ACIK sectiyse.
+     Ikisi ayni degerleri kullanir; tekrar yaziliyor cunku CSS'te
+     "ya su ya bu" secici yok ve birini atlarsak sessizce koyu kalir. */
   @media (prefers-color-scheme: light) {
-    :root {
+    :root:not([data-tema="koyu"]) {
       --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
-      --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#8393a3;
-      --vurgu:#1f8fff; --nem:#1f7fe0; --ruzgar:#2a94cc; --yagis:#1f86d0;
-      --gunes:#f4b400; --bulut:#a7b4c3;
+      --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#6b7a8a;
+      --vurgu:#0b62c4; --vurgu-yazi:#ffffff;
+      --nem:#1f7fe0; --ruzgar:#2a94cc; --yagis:#1f86d0;
+      --gunes:#a8760a; --bulut:#6b7a8a;
     }
+    :root:not([data-tema="koyu"])[data-renk="yesil"]   { --vurgu:#04724d; --vurgu-yazi:#ffffff; }
+    :root:not([data-tema="koyu"])[data-renk="turuncu"] { --vurgu:#a8480a; --vurgu-yazi:#ffffff; }
+    :root:not([data-tema="koyu"])[data-renk="pembe"]   { --vurgu:#a3175f; --vurgu-yazi:#ffffff; }
+    :root:not([data-tema="koyu"])[data-renk="mor"]     { --vurgu:#6127c9; --vurgu-yazi:#ffffff; }
   }
+  :root[data-tema="acik"] {
+    --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
+    --secili:#d6e8ff; --yazi:#17212b; --yazi2:#48586a; --yazi3:#6b7a8a;
+    --vurgu:#0b62c4; --vurgu-yazi:#ffffff;
+    --nem:#1f7fe0; --ruzgar:#2a94cc; --yagis:#1f86d0;
+    --gunes:#a8760a; --bulut:#6b7a8a;
+  }
+  :root[data-tema="acik"][data-renk="yesil"]   { --vurgu:#04724d; --vurgu-yazi:#ffffff; }
+  :root[data-tema="acik"][data-renk="turuncu"] { --vurgu:#a8480a; --vurgu-yazi:#ffffff; }
+  :root[data-tema="acik"][data-renk="pembe"]   { --vurgu:#a3175f; --vurgu-yazi:#ffffff; }
+  :root[data-tema="acik"][data-renk="mor"]     { --vurgu:#6127c9; --vurgu-yazi:#ffffff; }
+
+  /* ---- Renk secici seridi ---- */
+  .tema-panel {
+    display:none; gap:10px; align-items:center; flex-wrap:wrap;
+    padding:12px 14px; margin:0 12px 10px; border-radius:14px;
+    background:var(--panel); border:1px solid var(--cizgi);
+  }
+  .tema-panel.acik { display:flex; }
+  .tema-panel b { font-size:13px; color:var(--yazi2); width:100%; }
+  .tema-sec {
+    /* Dokunma hedefi iki boyutta da 44px -- yalniz yukseklik yetmiyor. */
+    min-width:44px; min-height:44px; border-radius:50%; cursor:pointer;
+    border:2px solid transparent; padding:0;
+  }
+  .tema-sec[aria-checked="true"] { border-color:var(--yazi); }
+  .kip-sec {
+    min-height:44px; padding:0 14px; border-radius:10px; font:inherit;
+    background:transparent; color:var(--yazi); border:1px solid var(--cizgi);
+    cursor:pointer;
+  }
+  .kip-sec[aria-checked="true"] { background:var(--vurgu); color:var(--vurgu-yazi); border-color:transparent; }
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body {
@@ -206,9 +276,24 @@
 <div class="kap">
   <header>
     <h1 id="baslik">Yükleniyor…</h1>
+    <button class="dugme" id="temaBtn" title="Renk ve tema"
+            aria-expanded="false" aria-controls="temaPanel">🎨</button>
     <button class="dugme" id="konumBtn" title="Konumumu kullan">📍</button>
     <button class="dugme ana" id="araBtn">Yer değiştir</button>
   </header>
+
+  <!-- RENK VE TEMA -- kullanici istedi (04.09.2026).
+       Panel VARSAYILAN KAPALI: ekranin ustunu surekli kaplamasin.
+       Secim aninda uygulanir ve diske yazilir. -->
+  <section class="tema-panel" id="temaPanel" role="group" aria-label="Renk ve tema">
+    <b>Görünüm</b>
+    <button class="kip-sec" data-kip="otomatik" role="radio" aria-checked="true">Cihaza uy</button>
+    <button class="kip-sec" data-kip="acik"     role="radio" aria-checked="false">Açık</button>
+    <button class="kip-sec" data-kip="koyu"     role="radio" aria-checked="false">Koyu</button>
+    <b>Renk</b>
+    <div id="renkler" role="radiogroup" aria-label="Vurgu rengi"
+         style="display:flex;gap:10px;flex-wrap:wrap"></div>
+  </section>
   <div id="icerik"><div class="yukleniyor">Hava durumu getiriliyor…</div></div>
 
   <!-- ============ REKLAM ALANI ============
@@ -1016,6 +1101,78 @@ try {
    arama kutusu ve secili yer var; habersiz reload kullanicinin yazdigini
    siler. Serit cikar, karar kullanicida. */
 try { new Guncelle(); } catch (e) {}
+</script>
+
+<script>
+/* RENK VE TEMA -- kullanici istedi (04.09.2026).
+   Secim `localStorage`'da tutulur ve sayfa yuklenirken HEMEN uygulanir;
+   yoksa acik temayi secen kullanici her acilista bir an koyu gorurdu. */
+(function temaKur () {
+  var KT = 'hava-tema', KR = 'hava-renk';
+  var RENKLER = [
+    ['mavi',    '#1f8fff', 'Mavi'],
+    ['yesil',   '#10b981', 'Yeşil'],
+    ['turuncu', '#f97316', 'Turuncu'],
+    ['pembe',   '#ec4899', 'Pembe'],
+    ['mor',     '#a78bfa', 'Mor']
+  ];
+  function oku (a, v) { try { return localStorage.getItem(a) || v; } catch (e) { return v; } }
+  function yaz (a, d) { try { localStorage.setItem(a, d); } catch (e) {} }
+
+  var kip = oku(KT, 'otomatik'), renk = oku(KR, 'mavi');
+  var kok = document.documentElement;
+  function uygula () {
+    /* 'otomatik' ve 'mavi' icin NITELIK KONMAZ -- varsayilan CSS zaten
+       odur. Bos nitelik koymak seciciler icin gurultudur. */
+    if (kip === 'otomatik') kok.removeAttribute('data-tema'); else kok.setAttribute('data-tema', kip);
+    if (renk === 'mavi')    kok.removeAttribute('data-renk'); else kok.setAttribute('data-renk', renk);
+    var t = document.querySelector('meta[name="theme-color"]');
+    if (t) t.setAttribute('content', getComputedStyle(kok).getPropertyValue('--arka').trim() || '#0f1620');
+  }
+  uygula();
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('temaBtn');
+    var panel = document.getElementById('temaPanel');
+    var kutu = document.getElementById('renkler');
+    if (!btn || !panel || !kutu) return;
+
+    RENKLER.forEach(function (r) {
+      var b = document.createElement('button');
+      b.className = 'tema-sec';
+      b.type = 'button';
+      b.setAttribute('role', 'radio');
+      b.setAttribute('data-renk', r[0]);
+      b.setAttribute('aria-label', r[2]);
+      b.setAttribute('title', r[2]);
+      b.style.background = r[1];
+      kutu.appendChild(b);
+    });
+
+    function tazele () {
+      kutu.querySelectorAll('.tema-sec').forEach(function (b) {
+        b.setAttribute('aria-checked', b.dataset.renk === renk ? 'true' : 'false');
+      });
+      panel.querySelectorAll('.kip-sec').forEach(function (b) {
+        b.setAttribute('aria-checked', b.dataset.kip === kip ? 'true' : 'false');
+      });
+    }
+    tazele();
+
+    btn.addEventListener('click', function () {
+      var a = panel.classList.toggle('acik');
+      btn.setAttribute('aria-expanded', a ? 'true' : 'false');
+    });
+    kutu.addEventListener('click', function (e) {
+      var b = e.target.closest('.tema-sec'); if (!b) return;
+      renk = b.dataset.renk; yaz(KR, renk); uygula(); tazele();
+    });
+    panel.addEventListener('click', function (e) {
+      var b = e.target.closest('.kip-sec'); if (!b) return;
+      kip = b.dataset.kip; yaz(KT, kip); uygula(); tazele();
+    });
+  });
+})();
 </script>
 </body>
 </html>
