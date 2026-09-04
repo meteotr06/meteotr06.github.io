@@ -13,7 +13,12 @@
     --kart-ust: #f2f4f7;       /* ikinci düzey yüzey */
     --cizgi: #e3e6eb;          /* saç teli ayraç */
     --yazi: #0f172a;
-    --yazi2: #6b7382;
+    --yazi2: #616a78;   /* 04.09.2026: #6b7382 idi, olculdu -- sayfada 4,41
+                        panelde 4,33 (esik 4,5). Dort yerde kil payi
+                        kaliyordu: tarih rozeti, uyari metni, gizlilik
+                        satiri, "Diger uygulamalar" basligi. Simdi
+                        5,06 / 4,96. Koyu temanin karsiligi (#939cab,
+                        6,97) ZATEN geciyordu, ona DOKUNULMADI. */
     --vurgu: #1c5fd6;          /* kurumsal mavi */
     /* VURGU ZEMINI UZERINE YAZI RENGI -- sabit #fff YAZILMAZ.
        Olculdu (1 Eylul 2026): koyu temada vurgu rengi, koyu zemin

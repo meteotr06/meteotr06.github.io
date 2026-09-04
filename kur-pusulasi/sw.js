@@ -2,9 +2,9 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v51";
+const SURUM = "kur-pusulasi-v52";
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
-// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v51"ye
+// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v52"ye
 // cikarilmis ama asagidaki liste "?v=51" kalmisti. Sayfa "?v=51"
 // istiyor, on-bellege alinan "?v=51" -- FARKLI ANAHTAR, hic eslesmiyor.
 // Sonuc: cevrimdisi acilista CSS/JS bulunamiyor, uygulama yarim aciliyor.
