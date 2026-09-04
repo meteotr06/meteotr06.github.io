@@ -2,11 +2,19 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v52";
+const SURUM = "kur-pusulasi-v53";
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
-// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v52"ye
-// cikarilmis ama asagidaki liste "?v=51" kalmisti. Sayfa "?v=51"
-// istiyor, on-bellege alinan "?v=51" -- FARKLI ANAHTAR, hic eslesmiyor.
+// Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v38"e
+// cikarilmis ama asagidaki liste v36 damgasinda kalmisti. Sayfa v38
+// istiyor, on-bellege alinan v36 -- FARKLI ANAHTAR, hic eslesmiyor.
+//
+// BU UC SAYI BILEREK "?v" ISARETI OLMADAN YAZILDI (04.09.2026).
+// surum_artir.py dosyadaki her "v=<sayi>" kalibini tazeliyor ve bu
+// TARIHI ORNEGI de her surumde tazeliyordu: 38/36 zamanla 53/53
+// oldu, yani "FARKLI ANAHTAR" diyen cumle ayni sayiyi iki kez
+// gosterip kendini yalanliyordu. Aracin neden var oldugunu anlatan
+// not, aracin kendisi tarafindan siliniyordu. Isaret dusunce kalip
+// eslesmiyor, anlati yerinde kaliyor.
 // Sonuc: cevrimdisi acilista CSS/JS bulunamiyor, uygulama yarim aciliyor.
 // Cevrimiciyken hicbir sey bozulmadigi icin kimse fark etmiyor.
 // Ayni hata 09 Hesap Araclari'nda da vardi; cozum orada da bu:

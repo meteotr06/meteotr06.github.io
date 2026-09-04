@@ -4,10 +4,14 @@
    (Hava verisi elbette internet ister; o istekler onbelleklenmez ki hep
    guncel veri gelsin.)
 */
-/* DIKKAT: index.html / yerler.js degistiginde bu SURUM NUMARASINI artirin.
+/* DIKKAT: ASAGIDAKI `DOSYALAR` LISTESINDEN HERHANGI BIRI degistiginde bu
+   SURUM NUMARASINI artirin -- sadece index.html / yerler.js degil.
+   (04.09.2026: guncelle.js duzeltildi, damga ayni kalmisti. Bu dosyanin
+   kendisi degismezse tarayici sw guncellemesi oldugunu ANLAMAZ; eski
+   onbellek silinmez, yeni dosyalar hic indirilmez.)
    Yoksa telefona kurmus kullanicilar eski surumu gormeye devam eder
    (onbellekten servis edilir). Numara degisince eski onbellek silinir. */
-const ONBELLEK = "hava-durumu-20260904-134544";
+const ONBELLEK = "hava-durumu-20260904-160643";
 const DOSYALAR = [
   "index.html",
   "yerler.js",

@@ -21,7 +21,7 @@
      · damga TEK yerden türetilir
    ================================================================== */
 
-const SURUM = 'portal-v9';
+const SURUM = 'portal-v11';
 
 /* Alt uygulama klasörleri — bu yollara BAŞLAYAN hiçbir isteğe karışılmaz.
    Yeni uygulama eklenince buraya da eklenmeli; unutulursa portal onun
@@ -31,19 +31,56 @@ const ALT_UYGULAMALAR = [
     '/mobil/', '/planlayici/', '/goz-molasi/', '/kahve/'
 ];
 
+/* PORTALIN ODUNC ALDIGI VARLIKLAR.
+   Portal kendi stilini ve betiklerini /hesap/ altindan aliyor. Bunlar
+   alt uygulamanin SAYFALARI degil; portalin kendi govdesi.
+
+   Asagidaki ALT_UYGULAMALAR kurali `/hesap/` ile baslayan her istegi
+   erken `return` ediyor -- dogru bir kural, alt uygulamalarin kendi
+   servis calisanlarina karismamak icin. Ama bu uc dosyayi da kapsayinca
+   portalin KENDI cevrimdisi vaadini kesiyordu.
+
+   OLCULDU (04.09.2026, tarayicida, portal-v9 onbellegi):
+       onbellekte : / · index.html · manifest.json · 3 ikon
+       istenen    : /hesap/stil.css · /hesap/hesap.js · /hesap/sayfa.js
+   Yani cevrimdisi acilan portal BICIMLENMEMIS bir baglanti listesiydi.
+   Kurulabilir bir uygulama olarak cevrimdisi calismayi vaat ediyordu.
+
+   DAMGA, hesap'in SURUM'uyle ELLE eslesmek zorunda ve kayabilir --
+   bugun v93/v42 ile isteniyordu, hesap v96'daydi. Onbellek anahtari
+   TAM URL oldugu icin (bu sw `ignoreSearch` kullanmiyor) kaymis damga
+   sessizce ISKALAR. Bu yuzden esitligi `ON-ONBELLEK-EKSIGI.py`
+   denetliyor; elle hatirlanacak bir kural degil. */
+const HESAP_DAMGA = '?v=96';
+const ODUNC = [
+    '/hesap/stil.css' + HESAP_DAMGA,
+    '/hesap/hesap.js' + HESAP_DAMGA,
+    '/hesap/sayfa.js' + HESAP_DAMGA
+];
+const ODUNC_YOLLARI = ODUNC.map((u) => u.split('?')[0]);
+
 const CEKIRDEK = [
     '/',
     '/index.html',
     '/manifest.json',
     '/portal-192.png',
     '/portal-512.png',
-    '/portal-maskeli.png'
-];
+    '/portal-maskeli.png',
+    '/kurulum.js?v=3',
+    '/guncelle.js?v=4'
+].concat(ODUNC);
 
 self.addEventListener('install', (e) => {
     e.waitUntil(
         caches.open(SURUM)
-            .then((o) => o.addAll(CEKIRDEK))
+            /* TEK TEK EKLENIR, `addAll` DEGIL. `addAll` hep-ya-hictir:
+               listedeki tek bir dosya inmezse HICBIRI onbellege girmez
+               ve cevrimdisi katman komple duser -- ustelik cevrimiciyken
+               hicbir belirti vermez. Odunc varliklar BASKA bir klasorden
+               geldigi ve damgalari kayabilecegi icin bu risk simdi daha
+               yuksek. (Desen 06 Planlayici'dan geldi, K-69.) */
+            .then((o) => Promise.all(
+                CEKIRDEK.map((u) => o.add(u).catch(() => null))))
             .then(() => self.skipWaiting())
     );
 });
@@ -73,7 +110,11 @@ self.addEventListener('fetch', (e) => {
        sekize çıktı, yorum geride kaldı. Yoruma SAYI yazmak, sayının
        değişeceğini unutmaktır.) */
     for (const yol of ALT_UYGULAMALAR) {
-        if (adres.pathname.indexOf(yol) === 0) return;
+        /* PORTALIN KENDI ODUNC VARLIKLARI HARIC. Onlar alt uygulamanin
+           sayfasi degil, portalin govdesi; buradan gecerlerse portal
+           cevrimdisi acildiginda bicimlenmemis kalir. */
+        if (adres.pathname.indexOf(yol) === 0
+            && ODUNC_YOLLARI.indexOf(adres.pathname) < 0) return;
     }
 
     if (istek.mode === 'navigate') {

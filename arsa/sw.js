@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v149";
+const SURUM = "arsa-v151";
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"
@@ -33,6 +33,15 @@ const CEKIRDEK = [
     "./kurulum.js" + ETIKET,
     "./guncelle.js" + ETIKET,
     "./rayic.js" + ETIKET,
+    /* 04.09.2026 EKLENDI. index.html `parsel.js?v=NN` istiyordu ama
+       bu listede adi HIC GECMIYORDU. Iki zarari vardi:
+         - cevrimdisi ILK acilista bulunmuyordu;
+         - ve daha agiri: `damga_denetle.py` izledigi dosya
+           listesini TAM BU LISTEDEN turetiyor, yani parsel.js
+           degisse damga denetcisi "tutarli" deyip 0 donuyordu --
+           bakmadigi bir dosya icin. Listeye eklemek iki deligi
+           birden kapatiyor. */
+    "./parsel.js" + ETIKET,
     /* Resmi taban veri: 84 KB. Onbellege alinir ki cevrimdisi de calissin --
        ama kullanici bolumu acmadan indirilmez (rayic.js istek uzerine cekiyor).
        Burada olmasi, bir kez indirildikten sonra internetsiz de acilmasini saglar.
