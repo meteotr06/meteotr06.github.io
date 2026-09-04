@@ -59,6 +59,18 @@
         paraNot:     { tr: 'Para birimi dilden ayrıdır — İngilizce arayüzle Türk Lirası da kullanabilirsiniz.',
                        en: 'Currency is separate from language — you can use a Turkish UI with dollars.' },
 
+        /* ---- sayfa basligi ----
+           TARAYICI SEKMESI de cevrilmeli. `<title>` `<head>` icinde
+           oldugu icin gozden kaciyordu: uygulama Ingilizce'ye gecse
+           bile sekmede, gecmiste, yer imlerinde ve gorev
+           degistiricide Turkce yaziyordu. Ustelik `<title>` sayfanin
+           en guclu arama motoru sinyalidir -- Ingilizce kitleye
+           acilmanin amaci tam da bulunabilmekti.
+           `uygula()` zaten `textContent` yaziyor; `<title>` uzerinde
+           bu dogrudan sekme basligini degistirir, yeni kod gerekmez. */
+        sayfaBasligi: { tr: 'RoastMate — kavurma firesi, maliyet, harman, defter',
+                        en: 'RoastMate — roast loss, cost, blend and roast log' },
+
         /* ---- sekmeler ---- */
         sekmeler:    { tr: 'Bölümler',                en: 'Sections' },
         tFire:       { tr: 'Fire',                    en: 'Roast loss' },

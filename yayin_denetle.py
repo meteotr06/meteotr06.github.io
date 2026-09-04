@@ -30,6 +30,7 @@ KULLANIM
 """
 
 import hashlib
+import json
 import io
 import os
 import re
@@ -709,6 +710,64 @@ def sitemap_denetle():
             % (TIK, len(adresler), len(adresler))], 0
 
 
+def assetlinks_denetle():
+    """TWA paketiyle siteyi eşleştiren dosya GERÇEKTEN geçerli mi?
+
+    NEDEN NÖBETÇİYE GİRDİ: dosya aylardır canlıda duruyor ve içinde
+    `BURAYA_PLAY_CONSOLE_PARMAK_IZI_GELECEK` yazan bir YER TUTUCU var.
+    Hiçbir şey uyarmıyordu — dosya 200 dönüyor, JSON geçerli, "var"
+    görünüyor. Ama Android için o dosya YOK hükmünde: parmak izi
+    tutmayınca eşleşme kurulmaz.
+
+    Sonucu şu olur: uygulama açılır, üstte `meteotr06.github.io` yazan
+    bir tarayıcı şeridi durur, ve Play "bu bir web sayfası" diye
+    reddeder. Yani mağaza reddi, buradaki tek satırdan gelir.
+
+    Susan nöbetçi temiz demek değildir (K-89). Artık bakıyor.
+
+    SINIRI: parmak izinin BİÇİMİNİ doğrular, DOĞRULUĞUNU değil.
+    Gerçekten o uygulamaya ait olup olmadığını yalnız Google bilir.
+    """
+    kod, govde = getir(CANLI + "/.well-known/assetlinks.json")
+    if kod != 200:
+        return ["  ✗ assetlinks.json açılmıyor (HTTP %s) — TWA paketi "
+                "adres çubuğunu gizleyemez" % kod], 1
+    try:
+        veri = json.loads(govde)
+    except Exception as e:
+        return ["  ✗ assetlinks.json bozuk JSON: %s" % e], 1
+    if not isinstance(veri, list) or not veri:
+        return ["  ✗ assetlinks.json bir dizi olmalı ve boş olmamalı"], 1
+
+    sorun = []
+    for i, girdi in enumerate(veri):
+        hedef = (girdi or {}).get("target", {})
+        paket = hedef.get("package_name", "(paket adı yok)")
+        izler = hedef.get("sha256_cert_fingerprints") or []
+        if not izler:
+            sorun.append("  ✗ %s: parmak izi listesi BOŞ" % paket)
+            continue
+        for iz in izler:
+            s = str(iz).strip()
+            # Gerçek parmak izi: 32 bayt, iki nokta üst üsteli, onaltılık.
+            gecerli = (len(s.split(":")) == 32 and
+                       all(len(p) == 2 and all(c in "0123456789ABCDEFabcdef" for c in p)
+                           for p in s.split(":")))
+            if not gecerli:
+                sorun.append(
+                    "  ✗ %s: parmak izi HENÜZ YOK — şu an %r yazıyor.\n"
+                    "      Bu hâliyle TWA paketi adres çubuğunu GİZLEYEMEZ ve\n"
+                    "      Play \"bu bir web sayfası\" diye reddedebilir.\n"
+                    "      Değer: Play Console → Test ve yayınlama →\n"
+                    "      Uygulama bütünlüğü → Uygulama imzalama → SHA-256.\n"
+                    "      (Ayrıntı: D:\\Projeler\\10 Arsa Rehberi\\ASSETLINKS.md)"
+                    % (paket, s[:46]))
+    if sorun:
+        return sorun, len(sorun)
+    return ["  ✓ assetlinks: %d paketin parmak izi biçimce geçerli "
+            "(doğruluğunu yalnız Google bilir)" % len(veri)], 0
+
+
 def main():
     ayrinti = "--ayrinti" in sys.argv
     print("YAYIN NÖBETÇİSİ —", CANLI)
@@ -732,6 +791,12 @@ def main():
 
     print()
     satirlar, n = sitemap_denetle()
+    for s in satirlar:
+        print(s)
+    toplam += n
+
+    print()
+    satirlar, n = assetlinks_denetle()
     for s in satirlar:
         print(s)
     toplam += n
