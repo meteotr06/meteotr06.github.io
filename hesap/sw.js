@@ -9,7 +9,7 @@
 //   3) Sayfa yerine geçen yedek yalnızca "navigate" isteğine döner.
 //      (Eskiden .js isteğine index.html dönüyordu ve site komple çöküyordu.)
 
-const SURUM = "hesap-v96"
+const SURUM = "hesap-v97";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -33,7 +33,7 @@ const SURUM = "hesap-v96"
    ONEK SABITTEN TURETILIR ki ikisi ayrisamasin. Elle yazilsaydi,
    surum adi degistiginde onek geride kalir ve temizlik SESSIZCE
    hicbir seyi silmez olurdu -- eski onbellekler birikirdi. */
-const ONEK = SURUM.replace(/v\d+$/, '');;
+const ONEK = SURUM.replace(/v\d+$/, '');
 
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
 // Sebep (27 Agustos 2026, olculdu): SURUM "hesap-v54"e cikarilmis ama bu

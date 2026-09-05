@@ -7,8 +7,39 @@
 <meta name="description" content="Aradığınız sayfa bulunamadı. Buradan uygulamalara ve hesaplama araçlarına ulaşabilirsiniz." />
 <meta name="robots" content="noindex, follow" />
 <meta name="theme-color" content="#ffffff" />
+<meta name="color-scheme" content="light dark" />
+<script>
+/* TEMAYI KUR -- 404 de portalla ayni gorunsun.
+   Buraya kadar 404 temayi HIC kurmuyordu: koyu cihazda portal koyu,
+   404 bembeyaz aciliyordu. 404 unutulan sayfadir; kimse onu aramaz,
+   bu yuzden kimse bakmaz. Damgasi da ayni sebeple 65 surum geride
+   kalmisti.
+
+   Portaldeki betigin AYNISI: once kullanicinin SECIMI, yoksa cihaz.
+   Kayit ortak (`hesapAraclariAyar`), yani portalda ya da araclarda
+   yapilan secim burada da gecerli.
+
+   <head> icinde ve stil dosyasindan SONRA degil ONCE calissaydi
+   sayfa once beyaz cizilir sonra koyuya atlardi -- bu yuzden stil
+   baglantisindan once duruyor. */
+(function () {
+    var kok = document.documentElement;
+    var a = {};
+    try { a = JSON.parse(localStorage.getItem('hesapAraclariAyar')) || {}; }
+    catch (e) {}
+    var s = a.tema === 'koyu' || a.tema === 'acik' ? a.tema : null;
+    var koyu = s ? s === 'koyu'
+                 : !!(window.matchMedia &&
+                      window.matchMedia('(prefers-color-scheme: dark)').matches);
+    kok.setAttribute('data-tema', koyu ? 'koyu' : 'acik');
+    kok.style.colorScheme = koyu ? 'dark' : 'light';
+    if (a.renk) kok.setAttribute('data-renk', a.renk);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', koyu ? '#0f1423' : '#ffffff');
+})();
+</script>
 <link rel="icon" href="/hesap/simge.svg" type="image/svg+xml" />
-<link rel="stylesheet" href="/hesap/stil.css?v=96" />
+<link rel="stylesheet" href="/hesap/stil.css?v=97" />
 <style>
   /* Kok 404: hesap sitesinin stilini kullaniyoruz ama ust bar olmadan */
   body { padding: 18px 16px 40px; }
@@ -38,8 +69,8 @@
     <div id="aracListesi"></div>
 </main>
 
-<script src="/hesap/hesap.js?v=96"></script>
-<script src="/hesap/sayfa.js?v=96"></script>
+<script src="/hesap/hesap.js?v=97"></script>
+<script src="/hesap/sayfa.js?v=97"></script>
 <script>
 const KOK = "/hesap/";
 

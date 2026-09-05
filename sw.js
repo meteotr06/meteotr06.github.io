@@ -21,7 +21,7 @@
      · damga TEK yerden türetilir
    ================================================================== */
 
-const SURUM = 'portal-v11'
+const SURUM = 'portal-v12';
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -45,7 +45,7 @@ const SURUM = 'portal-v11'
    ONEK SABITTEN TURETILIR ki ikisi ayrisamasin. Elle yazilsaydi,
    surum adi degistiginde onek geride kalir ve temizlik SESSIZCE
    hicbir seyi silmez olurdu -- eski onbellekler birikirdi. */
-const ONEK = SURUM.replace(/v\d+$/, '');;
+const ONEK = SURUM.replace(/v\d+$/, '');
 
 /* Alt uygulama klasörleri — bu yollara BAŞLAYAN hiçbir isteğe karışılmaz.
    Yeni uygulama eklenince buraya da eklenmeli; unutulursa portal onun
@@ -75,7 +75,7 @@ const ALT_UYGULAMALAR = [
    TAM URL oldugu icin (bu sw `ignoreSearch` kullanmiyor) kaymis damga
    sessizce ISKALAR. Bu yuzden esitligi `ON-ONBELLEK-EKSIGI.py`
    denetliyor; elle hatirlanacak bir kural degil. */
-const HESAP_DAMGA = '?v=96';
+const HESAP_DAMGA = '?v=97';
 const ODUNC = [
     '/hesap/stil.css' + HESAP_DAMGA,
     '/hesap/hesap.js' + HESAP_DAMGA,

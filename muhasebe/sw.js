@@ -21,7 +21,7 @@
      4) Yedek sayfa yalnızca gerçek sayfa (navigate) isteğine döner.
 */
 
-const SURUM = "muhasebe-v17"
+const SURUM = "muhasebe-v17";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -45,7 +45,7 @@ const SURUM = "muhasebe-v17"
    ONEK SABITTEN TURETILIR ki ikisi ayrisamasin. Elle yazilsaydi,
    surum adi degistiginde onek geride kalir ve temizlik SESSIZCE
    hicbir seyi silmez olurdu -- eski onbellekler birikirdi. */
-const ONEK = SURUM.replace(/v\d+$/, '');;
+const ONEK = SURUM.replace(/v\d+$/, '');
 const DOSYALAR = [
   "./",
   "index.html",

@@ -56,7 +56,13 @@ html[data-tema="koyu"] {
 }
 
 /* ---------- Renk seçenekleri: sadece vurgu rengini değiştirir ---------- */
-html[data-renk="okyanus"] { --vurgu: #0a7ea4; --vurgu2: #075b76; }
+/* OKYANUS ACIK KOYULASTIRILDI (05.09.2026, olculdu).
+   #0a7ea4 kart zemini (#f7f8fa) uzerinde 4,36 veriyordu; esik 4,5.
+   `.genislet` dugmesi ("Tum paralar, altin") tam bu ciftti.
+   Kardes uygulamada (09 Hesap Araclari) ayni renk 28 Agustos'ta ayni
+   sebeple #0a6d8f'e cekilmis; buraya tasinmamisti -- K-69.
+   Yeni deger: kart uzerinde 5,49 · beyaz uzerinde 5,84. */
+html[data-renk="okyanus"] { --vurgu: #0a6d8f; --vurgu2: #075b76; }
 html[data-tema="koyu"][data-renk="okyanus"] { --vurgu: #38bdf8; --vurgu2: #7dd3fc; }
 
 html[data-renk="orman"] { --vurgu: #15803d; --vurgu2: #0f5c2d; }
@@ -592,4 +598,18 @@ body.sade .gelismis { display: none !important; }
     display: inline-block;
     padding: 13px 6px;
     margin: -13px -6px;
+    /* RENK KURALI YOKTU -- tarayicinin VARSAYILAN baglanti mavisine
+       dusuyorlardi (#0000EE). Koyu zeminde okunmuyordu.
+       OLCULDU (05.09.2026, calisan sayfa): "Gizlilik politikasi" ve
+       "Hesap Araclari" baglantilari KOYU TEMADA 2,05 -- ve ALTI RENK
+       TEMASININ HEPSINDE ayni, cunku renk temadan degil TARAYICIDAN
+       geliyordu. Yani hicbir palet secimi bunu duzeltemezdi.
+       Bu sinif grep'le de bulunmaz: aranacak bir renk yok, EKSIK olan
+       kuralin kendisi. Ancak calisan sayfada olculunce cikiyor.
+       `--yazi` secildi (17,05 / 16,13) ve ALTI CIZILDI: baglanti olma
+       bilgisi yalniz RENKLE tasinmasin -- renk koru kullanici da
+       baglantiyi ayirt etsin. */
+    color: var(--yazi);
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }

@@ -11,7 +11,7 @@
    onbellek silinmez, yeni dosyalar hic indirilmez.)
    Yoksa telefona kurmus kullanicilar eski surumu gormeye devam eder
    (onbellekten servis edilir). Numara degisince eski onbellek silinir. */
-const ONBELLEK = "hava-durumu-20260904-160643"
+const ONBELLEK = "hava-durumu-20260904-160643";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -35,7 +35,7 @@ const ONBELLEK = "hava-durumu-20260904-160643"
    ONEK SABITTEN TURETILIR ki ikisi ayrisamasin. Elle yazilsaydi,
    surum adi degistiginde onek geride kalir ve temizlik SESSIZCE
    hicbir seyi silmez olurdu -- eski onbellekler birikirdi. */
-const ONEK = ONBELLEK.replace(/\d{8}-\d+$/, '');;
+const ONEK = ONBELLEK.replace(/\d{8}-\d+$/, '');
 const DOSYALAR = [
   "index.html",
   "yerler.js",

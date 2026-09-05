@@ -28,20 +28,62 @@
 
    <head> icinde ve stil dosyasindan ONCE: sonra calissaydi sayfa
    once beyaz cizilir, sonra koyuya atlardi. */
+/* 04.09.2026 — ARTIK PORTALDA DA TEMA SECIMI VAR.
+   Yukaridaki yorum "Portalda kullaniciya ait bir tema SECIMI yok, o
+   yuzden okunacak bir kayit da yok" diyordu. O gerekce DUSTU: secici
+   eklendi. Gerekce dusunce kodun da dusmesi gerekiyordu, yoksa:
+   kullanici acik secer, aksam telefon otomatik koyuya gecer ve
+   `uygula()` secimi SESSIZCE ezerdi.
+
+   Kayit /hesap/ ile ORTAK (`hesapAraclariAyar`, ayni koken): portalda
+   yapilan secim 53 araca da gecer. Ayri anahtar kullanmak, portaldan
+   bir araca gecerken temanin ATLAMASI demekti.
+
+   TURETILEN DEGER YINE DISKE YAZILMIYOR -- yalniz kullanicinin
+   SECIMI yazilir. Yazsaydik ilk acilista donar ve telefon ayari bir
+   daha dinlenmezdi. */
 (function () {
     var kok = document.documentElement;
+    function secim() {
+        try {
+            var a = JSON.parse(localStorage.getItem('hesapAraclariAyar')) || {};
+            return a.tema === 'koyu' || a.tema === 'acik' ? a.tema : null;
+        } catch (e) { return null; }
+    }
     function uygula() {
-        var koyu = window.matchMedia &&
-                   window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var s = secim();
+        var koyu = s ? s === 'koyu'
+                     : !!(window.matchMedia &&
+                          window.matchMedia('(prefers-color-scheme: dark)').matches);
         kok.setAttribute('data-tema', koyu ? 'koyu' : 'acik');
+        /* `color-scheme` DE YAZILIR, yoksa tarayicinin KENDI
+           varsayilanlari (baglanti rengi, kaydirma cubugu, form
+           denetimleri) isletim sistemine uymaya devam eder.
+
+           Olculdu: isletim sistemi koyu + kullanici "Acik" secmis
+           iken gizlilik baglantilari #9e9eff cikiyordu -- Chrome'un
+           koyu kip varsayilan baglanti rengi -- ve acik zeminde
+           karsitlik 2,21 idi. Alti vurgu renginin HEPSINDE ayniydi,
+           cunku kusur vurgudan degil tarayicidan geliyordu. */
+        kok.style.colorScheme = koyu ? 'dark' : 'light';
         var m = document.querySelector('meta[name="theme-color"]');
         if (m) m.setAttribute('content', koyu ? '#0f1423' : '#ffffff');
     }
+    function renkUygula() {
+        try {
+            var a = JSON.parse(localStorage.getItem('hesapAraclariAyar')) || {};
+            if (a.renk) kok.setAttribute('data-renk', a.renk);
+            else kok.removeAttribute('data-renk');
+        } catch (e) {}
+    }
     uygula();
+    renkUygula();
     try {
         var s = window.matchMedia('(prefers-color-scheme: dark)');
-        if (s.addEventListener) s.addEventListener('change', uygula);
-        else if (s.addListener) s.addListener(uygula);
+        /* Kullanicinin SECIMI varsa isletim sistemi DINLENMEZ. */
+        var d = function () { if (!secim()) uygula(); };
+        if (s.addEventListener) s.addEventListener('change', d);
+        else if (s.addListener) s.addListener(d);
     } catch (e) {}
 })();
 </script>
@@ -74,7 +116,7 @@
 <meta property="og:image:alt" content="Hava Durumu, Hesap Araçları, Kur Pusulası, Haftalık Planlayıcı, Muhasebe, RoastMate, Arsa Rehberi ve Göz Molası" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/onizleme.png" />
-<link rel="stylesheet" href="/hesap/stil.css?v=96" />
+<link rel="stylesheet" href="/hesap/stil.css?v=97" />
 <style>
   /* Kok sayfa: hesap sitesinin tasarimini kullaniyoruz ama ust bar yok --
      burasi bir arac sayfasi degil, uygulamalarin vitrini. */
@@ -91,6 +133,24 @@
      flex:0 0 auto daralmayi durdurur, white-space:nowrap yaziyi tek satirda
      tutar. min-width 44px DOKUNMA ALANI icin duruyor, genislik icin
      degil. */
+  /* GOVDE BAGLANTILARININ KENDI RENGI VAR.
+     Gizlilik bolumundeki bes baglanti hicbir renk kurali tasimiyordu
+     ve tarayicinin varsayilanina dusuyordu. Olculdu: acik temada
+     karsitlik 2,21 -- ve alti vurgu renginin HEPSINDE ayni, cunku
+     renk bizim paletimizden gelmiyordu.
+
+     Tarayici varsayilani bizim zeminimizi bilmez; ona guvenmek,
+     olculmemis bir renk kullanmaktir.
+
+     ALTI CIZILI KALIYOR: renk tek basina "burasi baglanti" bilgisini
+     tasimamali. `--vurgu` alti renk x iki temada olculdu, en dusuk
+     4,64 (orman, acik tema). */
+  main a:not(.arac-kart):not(.birincil):not(.ikincil) {
+      color: var(--vurgu);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+  }
+
   #kurBtn { min-height: 44px; min-width: 44px; padding: 0 18px;
             flex: 0 0 auto; white-space: nowrap;
             border: 0; border-radius: 10px; font: inherit; font-weight: 600;
@@ -256,6 +316,34 @@ footer a, .alt-bilgi a, .site-alt a {
 <body>
 
 <main>
+    <!-- GORUNUM SECICISI — kullanici istedi (04.09.2026):
+         "hepsine Hava'daki gibi secici koy".
+         Isaretleme /hesap/'takiyle AYNI siniflari kullaniyor
+         (.gorunum-kutu/.gorunum-ic/.renk-benek): stil dosyasi zaten
+         paylasiliyor, ikinci bir bicim yazmak ikisinin ayrismasi
+         demekti. Dugmeler `sayfa.js`in GORUNUM_RENKLER listesinden
+         DOLDURULUYOR -- listeyi burada tekrar yazsaydik, renk eklenince
+         biri geride kalirdi. -->
+    <div class="portal-gorunum">
+        <div id="gorunumKutu" class="gorunum-kutu">
+            <button id="gorunumBtn" class="ikincil" type="button"
+                    aria-expanded="false" aria-controls="gorunumPanel"
+                    aria-label="Renk ve tema" title="Renk ve tema">&#9881;</button>
+            <div class="gorunum-ic" id="gorunumPanel" role="group"
+                 aria-label="Renk ve tema" hidden>
+                <p class="gorunum-baslik" id="portalTemaBaslik">Görünüm</p>
+                <div class="gorunum-boylar" role="group" aria-labelledby="portalTemaBaslik">
+                    <button type="button" class="kip-sec" data-kip="otomatik">Cihaza uy</button>
+                    <button type="button" class="kip-sec" data-kip="acik">Açık</button>
+                    <button type="button" class="kip-sec" data-kip="koyu">Koyu</button>
+                </div>
+                <p class="gorunum-baslik" id="portalRenkBaslik">Renk</p>
+                <div class="gorunum-renkler" id="portalRenkler" role="group"
+                     aria-labelledby="portalRenkBaslik"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="vitrin-basi">
         <h1>Ücretsiz Türkçe uygulamalar</h1>
         <p class="ozet">Sekiz uygulama, tek adreste. Kurulum yok, üyelik yok, ücretsiz.
@@ -385,8 +473,8 @@ footer a, .alt-bilgi a, .site-alt a {
 }
 </script>
 
-<script src="/hesap/hesap.js?v=96"></script>
-<script src="/hesap/sayfa.js?v=96"></script>
+<script src="/hesap/hesap.js?v=97"></script>
+<script src="/hesap/sayfa.js?v=97"></script>
 <script>
 // Arac aramasi. Listeler sayfa.js icinde (ARACLAR, REHBERLER) -- burada
 // kopyasi TUTULMUYOR, yoksa iki yer birbirinden kayar.
@@ -446,6 +534,133 @@ footer a, .alt-bilgi a, .site-alt a {
     }
     girdi.addEventListener("input", ciz);
     temizle.addEventListener("click", () => { girdi.value = ""; ciz(); girdi.focus(); });
+})();
+</script>
+<script>
+/* ---------- PORTAL GORUNUM SECICISI ----------
+   sayfa.js'ten SONRA kosar: GORUNUM_RENKLER, gorunumUygula, ayarOku
+   ve ayarYaz oradan gelir. Listeyi burada TEKRAR YAZMIYORUZ -- yeni
+   bir renk eklendiginde biri geride kalirdi ve kullanici portalda
+   olmayan bir secenegi araclarda gorurdu.
+
+   `iskeletKur()` CAGIRILMIYOR: o islev "Hesap Araclari" markasini ve
+   53 aracin gezinti seridini de kurar; portalda ikisi de yanlis
+   olurdu. Parcalari kullaniyoruz.
+
+   KAYIT /hesap/ ILE ORTAK (`hesapAraclariAyar`). Ayni koken oldugu
+   icin portalda yapilan secim 53 araca da geciyor -- istenen davranis
+   bu: ayri anahtar, portaldan bir araca gecerken temanin ATLAMASI
+   demekti. */
+(function portalGorunumKur() {
+    if (typeof GORUNUM_RENKLER === 'undefined' ||
+        typeof gorunumUygula !== 'function' ||
+        typeof ayarOku !== 'function' || typeof ayarYaz !== 'function') {
+        /* SESSIZCE VAZGECMIYORUZ. sayfa.js gelmediyse secici yoktur;
+           bunu konsola yazmak, "dugme neden yok" diye aranan yarim
+           saati onler. Panel da gizleniyor ki calismayan bir dugme
+           kullaniciyi oyalamasin. */
+        var k = document.getElementById('gorunumKutu');
+        if (k) k.hidden = true;
+        console.warn('Portal gorunum secicisi kurulamadi: sayfa.js yuklenmemis.');
+        return;
+    }
+
+    var kok = document.documentElement;
+    var btn = document.getElementById('gorunumBtn');
+    var panel = document.getElementById('gorunumPanel');
+    var renkKap = document.getElementById('portalRenkler');
+    if (!btn || !panel || !renkKap) return;
+
+    /* ---- renk dugmeleri listeden uretilir ---- */
+    GORUNUM_RENKLER.forEach(function (r) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'renk-sec';
+        b.dataset.renkSecim = r.deger;
+        b.innerHTML = '<span class="renk-benek" data-benek="' + r.deger +
+                      '" aria-hidden="true"></span>';
+        b.appendChild(document.createTextNode(r.ad));
+        b.addEventListener('click', function () {
+            var a = ayarOku();
+            a.renk = r.deger;
+            ayarYaz(a);
+            gorunumUygula(a);
+            isaretle();
+        });
+        renkKap.appendChild(b);
+    });
+
+    /* ---- tema kipi ----
+       UC KIP: cihaza uy / acik / koyu. "Cihaza uy" bir DEGER degil,
+       kaydin YOKLUGUDUR: boylece kullanici sonradan telefonunu
+       degistirdiginde sayfa yine takip eder. Kayitli "acik" ile
+       "cihazi acik" ayni ekrani verir ama AYNI SEY DEGILDIR. */
+    function temaUygula(kip) {
+        var koyu = kip === 'koyu' ? true
+                 : kip === 'acik' ? false
+                 : !!(window.matchMedia &&
+                      window.matchMedia('(prefers-color-scheme: dark)').matches);
+        kok.setAttribute('data-tema', koyu ? 'koyu' : 'acik');
+        /* Acilis betigiyle AYNI ikili: tema ve color-scheme birlikte
+           degisir. Biri atlanirsa tarayicinin varsayilan renkleri
+           oteki kipte kalir. */
+        kok.style.colorScheme = koyu ? 'dark' : 'light';
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', koyu ? '#0f1423' : '#ffffff');
+    }
+    Array.prototype.forEach.call(
+        panel.querySelectorAll('[data-kip]'), function (b) {
+            b.addEventListener('click', function () {
+                var a = ayarOku();
+                var kip = b.dataset.kip;
+                if (kip === 'otomatik') delete a.tema; else a.tema = kip;
+                ayarYaz(a);
+                temaUygula(kip);
+                isaretle();
+            });
+        });
+
+    function isaretle() {
+        var a = ayarOku();
+        var kip = a.tema === 'koyu' || a.tema === 'acik' ? a.tema : 'otomatik';
+        Array.prototype.forEach.call(
+            panel.querySelectorAll('[data-kip]'), function (b) {
+                b.setAttribute('aria-pressed', b.dataset.kip === kip ? 'true' : 'false');
+            });
+        Array.prototype.forEach.call(
+            renkKap.querySelectorAll('[data-renk-secim]'), function (b) {
+                b.setAttribute('aria-pressed',
+                    b.dataset.renkSecim === (a.renk || '') ? 'true' : 'false');
+            });
+    }
+
+    btn.addEventListener('click', function () {
+        var ac = panel.hidden;
+        panel.hidden = !ac;
+        btn.setAttribute('aria-expanded', ac ? 'true' : 'false');
+        if (ac) {
+            var ilk = panel.querySelector('button');
+            if (ilk) ilk.focus();
+        }
+    });
+    /* Escape ile kapanir ve odak dugmeye DONER: klavyeyle acan
+       kullanici, panel kapaninca odagi sayfanin basinda bulmasin. */
+    panel.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            panel.hidden = true;
+            btn.setAttribute('aria-expanded', 'false');
+            btn.focus();
+        }
+    });
+    document.addEventListener('click', function (e) {
+        if (panel.hidden) return;
+        if (!panel.contains(e.target) && e.target !== btn) {
+            panel.hidden = true;
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    isaretle();
 })();
 </script>
 <script src="/kurulum.js?v=3"></script>

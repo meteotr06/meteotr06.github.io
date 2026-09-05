@@ -11,7 +11,7 @@
 //
 // SÜRÜM HER YAYINDA ARTMALI. Artmazsa kullanıcı eski sürümde kalır.
 
-const SURUM = "arsa-v151"
+const SURUM = "arsa-v151";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -35,7 +35,7 @@ const SURUM = "arsa-v151"
    ONEK SABITTEN TURETILIR ki ikisi ayrisamasin. Elle yazilsaydi,
    surum adi degistiginde onek geride kalir ve temizlik SESSIZCE
    hicbir seyi silmez olurdu -- eski onbellekler birikirdi. */
-const ONEK = SURUM.replace(/v\d+$/, '');;
+const ONEK = SURUM.replace(/v\d+$/, '');
 
 // SURUM ETIKETI TEK YERDEN TURETILIR.
 // Olculdu (27.08.2026): burada "?v=10" yaziliydi ama index.html "?v=19"

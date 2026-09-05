@@ -2,7 +2,7 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v53"
+const SURUM = "kur-pusulasi-v54";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -26,7 +26,7 @@ const SURUM = "kur-pusulasi-v53"
    ONEK SABITTEN TURETILIR ki ikisi ayrisamasin. Elle yazilsaydi,
    surum adi degistiginde onek geride kalir ve temizlik SESSIZCE
    hicbir seyi silmez olurdu -- eski onbellekler birikirdi. */
-const ONEK = SURUM.replace(/v\d+$/, '');;
+const ONEK = SURUM.replace(/v\d+$/, '');
 // DAMGA SURUM'den TURETILIYOR, elle yazilmiyor.
 // Sebep (29.08.2026, nobetci yakaladi): SURUM "kur-pusulasi-v38"e
 // cikarilmis ama asagidaki liste v36 damgasinda kalmisti. Sayfa v38
