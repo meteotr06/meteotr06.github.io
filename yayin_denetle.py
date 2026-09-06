@@ -490,6 +490,55 @@ def acik_sunucu_denetle(netstat_ciktisi=None, lan_adresi=None):
 
 
 
+
+def guncelleme_tarihi_denetle():
+    """Kodun ilan ettigi "son guncelleme" tarihi gercegi soyluyor mu?
+
+    NEDEN (06.09.2026, olculdu): hesap.js "guncelleme: 2026-09-03" diyordu,
+    ama dosya 06.09'da degismisti -- hem de IKI PARA HATASININ duzeltildigi
+    surumde (tam 15 yil kidemde yillik izin 20 yerine 26 gun; ihbar suresi
+    takvim ayindan olculuyor). Yani tarihe bakan kullanici, kendisini
+    ilgilendiren bir duzeltmenin varligindan haberdar olmuyordu.
+
+    Sayfanin KENDI gerekcesi soyle diyor: "Bir hesap yanlis cikiyorduysa ve
+    duzelttiysek bunu da acikca yaziyoruz -- cunku o hesaba bakarak karar
+    vermis olabilirsiniz." Bayat tarih tam bu sozu bozuyor.
+
+    ELLE TUTULAN HER TARIH ER YA DA GEC BAYATLAR. Cozum tarihi bir kez daha
+    elle duzeltmek degil, NOBETCIYE baglamak: git ne diyorsa o.
+    """
+    import subprocess
+    bulgular = []
+    IZLENEN = [("hesap", ["hesap/hesap.js", "hesap/sayfa.js"])]
+    for ad, yollar in IZLENEN:
+        metin = dosya_oku(KOK, ad, "hesap.js")
+        if not metin:
+            continue
+        Q3 = chr(91) + chr(34) + chr(39) + chr(93)      # ["']
+        kalip = "guncelleme:" + r"\s*" + Q3 + r"(\d{4}-\d{2}-\d{2})" + Q3
+        m = re.search(kalip, metin)
+        if not m:
+            bulgular.append("%s: guncelleme alani okunamadi" % ad)
+            continue
+        ilan = m.group(1)
+        try:
+            g = subprocess.run(["git", "log", "-1", "--format=%ad", "--date=short", "--"] + yollar,
+                               cwd=KOK, capture_output=True, text=True, timeout=20)
+            gercek = (g.stdout or "").strip()
+        except Exception as e:
+            bulgular.append("%s: git okunamadi (%s)" % (ad, str(e)[:30]))
+            continue
+        if not gercek:
+            bulgular.append("%s: git gecmisi bos" % ad)
+        elif gercek > ilan:
+            bulgular.append('%s: "son guncelleme" %s yaziyor ama dosyalar %s tarihinde '
+                            'degismis -- kullanici duzeltmeden habersiz kaliyor' % (ad, ilan, gercek))
+    if not bulgular:
+        return ["  %s \"son guncelleme\" tarihi git ile tutuyor" % TIK], 0
+    return ["  %s %s" % (CARPI, b) for b in bulgular], len(bulgular)
+
+
+
 # ---------- denetimler ----------
 
 def uygulama_denetle(ad, kaynak, depo, yol, ayrinti):
@@ -782,6 +831,12 @@ def main():
             if "karşılaştırılamadı" in s:
                 olculemeyen += 1
         toplam += n
+
+    print()
+    satirlar, n = guncelleme_tarihi_denetle()
+    for s4 in satirlar:
+        print(s4)
+    toplam += n
 
     print()
     satirlar, n = acik_sunucu_denetle()
