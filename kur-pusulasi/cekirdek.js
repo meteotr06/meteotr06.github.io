@@ -339,6 +339,29 @@ function sayiOku(metin, tur) {
     // Rakam ve ayirac disinda ne varsa REDDET (kirpma yok: "12abc" -> null)
     if (!/^[\d.,]+$/.test(s)) return null;
 
+    /* SONDAKI AYRAC REDDEDILIR (05.09.2026, olculdu).
+       Gecerli hicbir sayi ayracla bitmez. Onceden bitiyordu ve
+       SESSIZCE buyuk hata uretiyordu:
+           sayiOku("100.000,50.")        -> 100,0005   (BIN KAT KUCUK)
+           sayiOku("37.5.", "oran")      -> 375        (ON KAT BUYUK)
+       Ikincisi daha kotu: "oran" dali sondaki bos parcayi da birlestirip
+       "37"+"5" = 375 yapiyordu. Faiz alanina %37,5 yazmak isteyip sondaki
+       noktayi silmeyen kullanici %375 ile hesap yapiyordu.
+       Boyle bir metin nereden gelir: banka SMS'inden, mesajdan ya da
+       cumle sonundan kopyalamak ("...tutar 100.000,50.").
+
+       REDDETMIYORUZ, KIRPIYORUZ -- ve bunu ortak standart soyluyor.
+       HESAP MAKINESI/SAYI-SINAMA.md satir 13: `1.` -> 1, aciklamasi
+       "sondaki ayrac yok sayilir". Yani standart ZATEN dogruydu;
+       KOD onu yapmiyordu. Sondaki ayraci "yok saymak" yerine bos bir
+       grup olarak birlestiriyor ve "37"+"5" = 375 uretiyordu.
+       Ilk duzeltmemde bu girdileri reddetmistim; var olan sinama
+       (`sayiOku("1.") -> 1`) haklı olarak dustu ve beni standarda
+       geri gonderdi. Ortak bir karari tek basima degistirmek yerine
+       kodu karara uydurdum. */
+    s = s.replace(/[.,]+$/, "");
+    if (s === "") return null;
+
     const sonNokta = s.lastIndexOf(".");
     const sonVirgul = s.lastIndexOf(",");
 
@@ -346,9 +369,26 @@ function sayiOku(metin, tur) {
         // Ikisi de var -> SONDAKI ondaliktir, oteki binlik.
         //   "1.500,50" (Turkce)    -> virgul sonda -> 1500.50
         //   "1,500.50" (Ingilizce) -> nokta  sonda -> 1500.50
-        s = sonVirgul > sonNokta
-            ? s.replace(/\./g, "").replace(/,(?=[^,]*$)/, ".").replace(/,/g, "")
-            : s.replace(/,/g, "");
+        /* GRUPLAMA DENETLENIYOR (05.09.2026, olculdu).
+           Onceden binlik tarafi HIC denetlenmiyordu; noktalar sorgusuz
+           siliniyordu:
+               sayiOku("100.00,50") -> 10000,5   (ON KAT KUCUK)
+           "100.00" gecerli bir Turkce binlik gruplamasi degil (grup iki
+           hane). Kullanici 100.000,50 yazmak isterken bir sifiri
+           dusurmusse, uygulama sessizce 10.000,50 ile hesap yapiyordu.
+           Kural: tam sayi tarafi ya hic ayrac icermez, ya da
+           1-3 hane + ardindan tam 3'luk gruplar olur. */
+        const ondalikAyrac = sonVirgul > sonNokta ? "," : ".";
+        const binlikAyrac  = ondalikAyrac === "," ? "." : ",";
+        const bolPos = s.lastIndexOf(ondalikAyrac);
+        const tamKisim = s.slice(0, bolPos);
+        const kesirKisim = s.slice(bolPos + 1);
+        if (kesirKisim.indexOf(binlikAyrac) >= 0) return null;   // "1.500,50.25" gibi
+        const gruplu = binlikAyrac === "."
+            ? /^\d{1,3}(\.\d{3})*$/.test(tamKisim)
+            : /^\d{1,3}(,\d{3})*$/.test(tamKisim);
+        if (!gruplu && !/^\d+$/.test(tamKisim)) return null;
+        s = tamKisim.split(binlikAyrac).join("") + "." + kesirKisim;
     } else if (sonVirgul >= 0) {
         // Yalniz virgul. Birden fazlaysa binlik olabilir ("1,234,567")
         // ama GRUPLAR UC HANE OLMALI. Bu denetim nokta icin vardi,
@@ -368,7 +408,14 @@ function sayiOku(metin, tur) {
         const son = parca[parca.length - 1];
         if (tur === "oran") {
             s = parca.slice(0, -1).join("") + "." + son;
-        } else if (son.length === 3 && /^[1-9]\d{0,2}$/.test(parca[0])) {
+        } else if (son.length === 3 && /^[1-9]\d{0,2}$/.test(parca[0])
+                   && parca.slice(1, -1).every(x => /^\d{3}$/.test(x))) {
+            /* ORTA GRUPLAR DA DENETLENIYOR (05.09.2026, olculdu).
+               Onceden yalniz ILK ve SON grup bakiliyordu; aradakiler
+               serbestti:  sayiOku("1.50.000") -> 150000
+               Kullanici 1.500.000 yazmak isterken bir hane dusurmusse
+               uygulama sessizce 150.000 ile hesap yapiyordu -- on kat.
+               Simdi butun ara gruplar tam 3 hane olmak zorunda. */
             s = parca.join("");                          // "1.500" -> 1500
         } else if (parca.length > 2) {
             // "1.500.5" belirsiz: 1500,5 mi yoksa yanlis yazim mi?
@@ -721,9 +768,34 @@ function kalibrasyonAl(anahtar, seri, takvimGun, secenek) {
     // BECERİ ÖLÇÜMÜ: model, "fiyat değişmez"varsayımını gerçekten geçiyor mu?
     // Geçmiyorsa merkez tahmin olarak bugünkü fiyatı kullanmak DAHA DÜRÜST olur.
     // Bunu elle karar vermiyoruz; ölçüp modele kendisi karar verdiriyoruz.
+    /* COZULMEMIS KAYIT EGITIME GIRMEZ -- karneCikar'daki (05.09.2026) ayni
+       sizinti buradaydi ve DAHA AGIRDI: karne yalniz ekrandaki karne
+       sayilarini sisiriyordu, burasi CANLI TAHMINI degistiriyor.
+       `naiveModu` asagida merkezi seciyor (bkz. tahminYap: naiveModu ise
+       hamMerkez = spot), yani model kendi sinavinin cevabini gorup
+       "ben naive'i geciyorum" diyor ve merkezi kendi tahmininde birakiyordu.
+
+       NEDEN SIZINTI: kayitlar `hataKayitlari` icinde i += 2 ile uretiliyor
+       ve bir kaydin sonucu tIs is gunu sonra belli oluyor. i kaydi
+       yapilirken i-1, i-2 ... i-ceil(tIs/2) kayitlarinin sonucu HENUZ
+       BILINMIYOR. Eski `slice(i - PENCERE, i)` bunlari egitime katiyordu.
+
+       OLCULDU (06.09.2026, gercek Frankfurter/ECB serileri, 768 nokta,
+       http sunucu uzerinden tarayicida -- K-95):
+                          sizintili  durust
+         beceri USD 30g     %67,35   %61,92
+         beceri USD 90g     %71,24   %59,13
+         beceri EUR 30g     %17,52   %11,91
+       28 varlik/vade birlesiminin 4'unde `naiveModu` DEGISTI (GBP 7g,
+       JPY 30g, bitcoin 30g, JPY 90g) -- yani o dordunun ekranda gosterilen
+       merkez tahmini yanlis kaynaktan geliyordu. */
+    const cozulmeGecikmesi = Math.ceil(isGunu(takvimGun) / 2);   // kayitlar i += 2 ile uretiliyor
     let toplamModel = 0, toplamNaive = 0, olculen = 0;
     for (let i = 40; i < kayitlar.length; i++) {
-        const egitim = kayitlar.slice(Math.max(0, i - PENCERE), i).map(x => x.hata).sort((a, b) => a - b);
+        const egitimSonu = i - cozulmeGecikmesi;      // yalniz COZULMUS kayitlar
+        if (egitimSonu <= 0) continue;
+        const egitim = kayitlar.slice(Math.max(0, egitimSonu - PENCERE), egitimSonu).map(x => x.hata).sort((a, b) => a - b);
+        if (egitim.length < 20) continue;             // az ornekli medyan beceri sayisini savurur
         toplamModel += Math.abs(Math.exp(kayitlar[i].hata - dilimAl(egitim, 0.5)) - 1);
         toplamNaive += Math.abs(Math.exp(kayitlar[i].naiveHata) - 1);
         olculen++;
@@ -905,12 +977,44 @@ function karneCikar(seri, takvimGun, secenek) {
     // Her gün, sadece o güne kadarki hatalarla ayarlanır — geleceği görmez.
     let hataModel = 0, hataNaive = 0, yonDogru = 0, yonAdet = 0, olculen = 0;
 
-    // Band dürüstlük testi: bandı ilk %70 ile kur, son %30'da SINA.
-    // Aynı veriyle hem kurup hem test etmek kendini kandırmak olurdu.
+    /* COZULMEMIS KAYIT EGITIME GIRMEZ -- geriye donuk sizinti kapatildi
+       (05.09.2026, olculdu).
+
+       ONCEKI HALI: egitim penceresi `kayitlar.slice(i - PENCERE, i)` idi,
+       yani i'den onceki BUTUN kayitlar. Kulaga dogru geliyor ama degil:
+       `hataKayitlari` kayitlari IKI ADIMDA uretiyor (i += 2) ve bir
+       kaydin SONUCU tIs (30 takvim gunu = 21 IS GUNU) sonra belli
+       oluyor. Yani i-1 kaydinin sonucu, i tahmini yapilirken HENUZ
+       BILINMIYOR: 2 adim geride ama 21 is gunu ileride cozuluyor.
+       Pencerenin son ceil(21/2) = 11 kaydi GELECEKTEN geliyordu.
+
+       OLCULDU (gercek USD serisi, 768 nokta, 314 kayit):
+                        sizintili   durust
+         ortalama hata    %0,481    %0,561    -> hata %17 dusuk gorunuyordu
+         %68 bandi        %71,5     %64,2     -> band ASLINDA dar
+         %95 bandi        %92,3     %88,7
+         yon isabeti      %99,3     %99,3     -> etkilenmiyor
+
+       IKINCISI daha onemli: ekranda "bu bandin icinde kalma olasiligi
+       %68" deniyor; gercekte %64,2. Kullanici bandi oldugundan guvenilir
+       saniyordu. Para uygulamasinda bu sessiz yanlis sayidir.
+
+       EKRANDAKI CUMLE DE YANLISTI ve duzeltildi: "ilk %70 ile kurulup
+       son %30'da sinandi" diyordu. Boyle bir bolme HIC YOKTU --
+       `olculen` ile `testAdet` ayni dongude, aralarinda `continue`
+       olmadan artiyordu, yani her zaman ESITTILER. Yontem 70/30 degil
+       YURUYEN PENCERE; o da dogru bir yontem, ama anlatilan bu degildi.
+       Kod da metin de gercege uyduruldu. */
+    const tIsGun = isGunu(takvimGun);
+    const cozulmeGecikmesi = Math.ceil(tIsGun / 2);   // kayitlar i += 2 ile uretiliyor
+
     let band68 = null, band95 = null, testAdet = 0, i68 = 0, i95 = 0;
     for (let i = enAzEgitim; i < adet; i++) {
         const k = kayitlar[i];
-        const egitim = kayitlar.slice(Math.max(0, i - PENCERE), i).map(x => x.hata).sort((a, b) => a - b);
+        const egitimSonu = i - cozulmeGecikmesi;      // yalniz COZULMUS kayitlar
+        if (egitimSonu <= 0) continue;
+        const egitim = kayitlar.slice(Math.max(0, egitimSonu - PENCERE), egitimSonu).map(x => x.hata).sort((a, b) => a - b);
+        if (egitim.length < 20) continue;
         const medyan = dilimAl(egitim, 0.5);
 
         // Düzeltilmiş modelin o günkü hatası

@@ -24,7 +24,7 @@
       hatayı kalıcı hâle getirir.
    ================================================================== */
 
-const SURUM = 'kahve-v17';
+const SURUM = 'kahve-v21';
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.

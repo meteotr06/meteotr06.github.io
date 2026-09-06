@@ -9,7 +9,13 @@
 // ⚠️ Bunlar her yıl (bazıları 6 ayda bir) değişir. Kaynak ve tarih yanlarında yazılı.
 const PARAMETRE = {
     yil: 2026,
-    guncelleme: "2026-08-26",
+    /* Bu tarih ELLE yazilir ve tam da bu yuzden bayatladi: 26 Agustos
+       yaziyordu, oysa bu dosya 1 ve 3 Eylul'de degisti ve degisikliklerden
+       biri hesap SONUCUNU degistiriyordu (e82a6ea -- fire payina 0 yazan
+       kullaniciya sessizce %10 ekleniyordu). Kullanici ekranda "bir
+       haftadir dokunulmamis" diye okuyordu.
+       Nobetci: HESAP MAKINESI/TARIH-BAYAT.py -- git log ile karsilastirir. */
+    guncelleme: "2026-09-03",
 
     // Asgari ücret (1 Ocak 2026'dan itibaren)
     asgariBrut: 33030.00,
@@ -714,6 +720,12 @@ function kidemTazminati(giydirilmisBrut, giris, cikis) {
     if (tavan.bilinmiyor) {
         return {
             toplamGun: toplamGun, yil: yil, artanGun: artanGun,
+        /* TARIHLER DE DONUYOR: ihbar suresi TAKVIMDEN olculuyor,
+           gun sayisindan degil. Cagiran taraf tarihleri zaten
+           biliyor ama buradan gecirmek, iki yerin ayrismasini
+           onluyor -- ayni hesabin iki farkli girdiyle kosmasi
+           bu takimda defalarca sessiz yanlis sayi uretti. */
+        giris: giris, cikis: cikis,
             tavanBilinmiyor: true, tavanEnErken: tavan.enErken, tavanEnGec: tavan.enGec,
             tavan: null, tavanAsildi: null,
             esasUcret: null, giydirilmis: giydirilmisBrut,
@@ -730,6 +742,12 @@ function kidemTazminati(giydirilmisBrut, giris, cikis) {
 
     return {
         toplamGun: toplamGun, yil: yil, artanGun: artanGun,
+        /* TARIHLER DE DONUYOR: ihbar suresi TAKVIMDEN olculuyor,
+           gun sayisindan degil. Cagiran taraf tarihleri zaten
+           biliyor ama buradan gecirmek, iki yerin ayrismasini
+           onluyor -- ayni hesabin iki farkli girdiyle kosmasi
+           bu takimda defalarca sessiz yanlis sayi uretti. */
+        giris: giris, cikis: cikis,
         tavanBilinmiyor: false,
         tavan: tavan.tutar, tavanAsildi: tavanAsildi,
         esasUcret: esasUcret, giydirilmis: giydirilmisBrut,
@@ -738,16 +756,77 @@ function kidemTazminati(giydirilmisBrut, giris, cikis) {
     };
 }
 
-// İhbar süresi kıdeme göre değişir (İş Kanunu md. 17)
-function ihbarSuresi(toplamGun) {
-    if (toplamGun < 182) return 2;        // 6 aydan az → 2 hafta
-    if (toplamGun < 548) return 4;        // 6 ay – 1,5 yıl → 4 hafta
-    if (toplamGun < 1095) return 6;       // 1,5 – 3 yıl → 6 hafta
-    return 8;                             // 3 yıldan fazla → 8 hafta
+/* İKİ TARİH ARASINDAKİ TAM AY SAYISI.
+   Kanun süreyi AY olarak sayar, gün olarak değil — ve takvimde bir ay
+   28 ile 31 gün arasında değişir. Gün sabitiyle ölçmek, ay
+   uzunluklarına göre sınırın yanlış tarafına düşürür (aşağıya bakın).
+
+   AY SONU KURALI: 31 Ocak → 28 Şubat BİR TAM AYDIR; Şubat'ın 31'i
+   yoktur. Bitiş tarihi kendi ayının son günüyse ve başlangıç günü
+   ondan büyükse, ay dolmuş sayılır. Bu kural olmadan Ocak sonunda işe
+   girenler sistematik olarak bir ay eksik görünürdü. */
+function tamAySayisi(giris, cikis) {
+    const a = new Date(giris + "T00:00:00Z"), b = new Date(cikis + "T00:00:00Z");
+    if (isNaN(a) || isNaN(b)) return null;
+    let ay = (b.getUTCFullYear() - a.getUTCFullYear()) * 12
+           + (b.getUTCMonth() - a.getUTCMonth());
+    if (b.getUTCDate() < a.getUTCDate()) {
+        // Bitiş ayının son günü mü? (ertesi gün ayı değiştiriyorsa evet)
+        const ertesi = new Date(b.getTime() + 86400000);
+        const ayinSonGunu = ertesi.getUTCMonth() !== b.getUTCMonth();
+        if (!ayinSonGunu) ay--;
+    }
+    return Math.max(0, ay);
 }
 
-function ihbarTazminati(giydirilmisBrut, toplamGun, gelirVergisiOrani) {
-    const hafta = ihbarSuresi(toplamGun);
+/* İhbar süresi kıdeme göre değişir (İş Kanunu md. 17/b):
+     "altı aydan az sürmüş işçi için iki hafta,
+      altı aydan birbuçuk yıla kadar sürmüş işçi için dört hafta,
+      birbuçuk yıldan üç yıla kadar sürmüş işçi için altı hafta,
+      üç yıldan fazla sürmüş işçi için sekiz hafta"
+
+   KUSUR (06.09.2026'da ölçülerek bulundu): sınırlar GÜN SAYISINA
+   çevrilmişti — 182, 548, 1095. Ama takvimde altı ay 181-184 gün
+   arasında değişir:
+
+     01.01.2026 → 01.07.2026 = 181 gün
+     (Oca 31 + Şub 28 + Mar 31 + Nis 30 + May 31 + Haz 30)
+
+   Altı ay TAM dolmuştur, ama kod `< 182` deyip 2 hafta veriyordu:
+   60.000 TL brütte tazminat 56.000 yerine 28.000 — TAM YARISI.
+
+   Ters yönde de yanlıştı: 01.01.2024 → 31.12.2026 = 1095 gün, kod
+   8 hafta veriyordu; oysa üç yıl DOLMAMIŞTI (2024 artık yıl),
+   doğrusu 6 hafta. Yani bir kullanıcı eksik, öteki fazla talep eder.
+
+   Üçüncü sınır (548) de aynı hatayı taşıyordu: 01.01.2025 →
+   01.07.2026 = 546 gün; birbuçuk yıl tam dolmuşken 4 hafta çıkıyordu.
+
+   Hiçbirinde uyarı yok: ekranda makul bir sayı duruyor ve yanlış.
+
+   TARİH VERİLİRSE takvimden ölçülür. Verilmezse eski gün eşiklerine
+   düşülüyor — o hâl YAKLAŞIKTIR ve `yaklasik: true` ile bildiriliyor;
+   sessizce yaklaşık bir sonuç vermek, yanlış sonucun kendisidir. */
+function ihbarSuresi(toplamGun, giris, cikis) {
+    if (giris && cikis) {
+        const ay = tamAySayisi(giris, cikis);
+        if (ay !== null) {
+            if (ay < 6) return 2;
+            if (ay < 18) return 4;
+            if (ay < 36) return 6;
+            return 8;
+        }
+    }
+    /* Tarih yok: gün yaklaşımı. Sınırlar ortalama ay uzunluğundan
+       (30,44 gün) türetildi; yine de yaklaşıktır. */
+    if (toplamGun < 183) return 2;
+    if (toplamGun < 548) return 4;
+    if (toplamGun < 1096) return 6;
+    return 8;
+}
+
+function ihbarTazminati(giydirilmisBrut, toplamGun, gelirVergisiOrani, giris, cikis) {
+    const hafta = ihbarSuresi(toplamGun, giris, cikis);
     const gunluk = giydirilmisBrut / 30;
     const brut = gunluk * hafta * 7;
     const gv = brut * (gelirVergisiOrani / 100);
@@ -825,10 +904,33 @@ function fazlaMesai(aylikBrut, saatler, gelirVergisiOrani) {
 
 function yillikIzin(hizmetYili, yas) {
     let gun;
+    /* SINIRLARIN HANGİ TARAFA DÜŞTÜĞÜ, KANUNUN KENDİ SÖZCÜKLERİYLE.
+       İş K. md.53:
+         "Bir yıldan beş yıla kadar (BEŞ YIL DAHİL) olanlara ondört
+          günden, beş yıldan fazla onbeş yıldan az olanlara yirmi
+          günden, ONBEŞ YIL (DAHİL) ve daha fazla olanlara yirmialtı
+          günden az olamaz."
+
+       Yani 5 ALT dilime, 15 ÜST dilime dahildir. İkisi aynı yöne
+       yazılamaz.
+
+       KUSUR (06.09.2026'da ölçülerek bulundu): burada
+       `hizmetYili <= 15 → 20` yazıyordu, yani tam 15 yılını dolduran
+       işçi ALT dilime düşüyor ve 26 gün yerine 20 gün görüyordu.
+       Sayfanın kendi anlatım bölümü ("15 yıl ve üzeri → 26 gün") kodu
+       yalanlıyordu ama iki metin ekranda birbirinden uzakta duruyor ve
+       kullanıcı büyük rakama bakıyor.
+
+       ZARARI PARA: 6 gün eksik izin, ve aynı sayfadaki "kullanılmayan
+       izin ücreti" de o 6 günü kapsamıyor. İşverene karşı hak
+       talebinde bu sayıya dayanan biri hakkını EKSİK ister.
+
+       Bu, çökmeyen ve uyarı vermeyen bir hatadır: ekranda makul bir
+       sayı durur ve yanlıştır. */
     if (hizmetYili < 1) gun = 0;
-    else if (hizmetYili <= 5) gun = 14;
-    else if (hizmetYili <= 15) gun = 20;
-    else gun = 26;
+    else if (hizmetYili <= 5) gun = 14;      // 5 DAHİL alt dilimde
+    else if (hizmetYili < 15) gun = 20;      // 15 hariç
+    else gun = 26;                            // 15 DAHİL ve üstü
 
     const yasKurali = (yas > 0 && (yas < 18 || yas > 50));
     if (yasKurali && gun > 0 && gun < 20) gun = 20;
@@ -1241,7 +1343,7 @@ const BIRIM_GRUPLARI = {
     agirlik: { ad: "Ağırlık", temel: "kilogram", birimler: [
         { kod: "mg", ad: "Miligram", kat: 0.000001 }, { kod: "g", ad: "Gram", kat: 0.001 },
         { kod: "kg", ad: "Kilogram", kat: 1 }, { kod: "ton", ad: "Ton", kat: 1000 },
-        { kod: "lb", ad: "Libre (pound)", kat: 0.45359237 }, { kod: "oz", ad: "Ons", kat: 0.028349523 }
+        { kod: "lb", ad: "Libre (pound)", kat: 0.45359237 }, { kod: "oz", ad: "Ons", kat: 0.028349523125 }
     ]},
     alan: { ad: "Alan", temel: "metrekare", birimler: [
         { kod: "cm2", ad: "Santimetrekare", kat: 0.0001 }, { kod: "m2", ad: "Metrekare", kat: 1 },
@@ -1255,7 +1357,7 @@ const BIRIM_GRUPLARI = {
     ]},
     hiz: { ad: "Hız", temel: "m/s", birimler: [
         { kod: "ms", ad: "Metre/saniye", kat: 1 }, { kod: "kmh", ad: "Kilometre/saat", kat: 0.277777778 },
-        { kod: "mph", ad: "Mil/saat", kat: 0.44704 }, { kod: "knot", ad: "Knot", kat: 0.514444 }
+        { kod: "mph", ad: "Mil/saat", kat: 0.44704 }, { kod: "knot", ad: "Knot", kat: 0.5144444444444444 }
     ]},
     sicaklik: { ad: "Sıcaklık", temel: "°C", ozel: true, birimler: [
         { kod: "C", ad: "Santigrat (°C)" }, { kod: "F", ad: "Fahrenhayt (°F)" }, { kod: "K", ad: "Kelvin" }

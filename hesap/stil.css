@@ -1163,10 +1163,30 @@ td.hayir { color: var(--azalis); font-weight: 600; white-space: nowrap; }
     line-height: 1.35;
     margin: .3rem 0 0;
 }
-@media (prefers-color-scheme: dark) {
-    .girdi-bozuk { background: #2a1614; }
-    .girdi-uyari { color: #ff9a90; }
-}
+/* SISTEM SORGUSU DEGIL UYGULAMANIN KENDI TEMASI (05.09.2026, olculdu).
+   Buradaki kurallar `@media (prefers-color-scheme: dark)` icindeydi.
+   O medya sorgusu, uygulamanin KENDI tema secimini BILMEZ. Uygulamada
+   acik/koyu secimi var ve `html[data-tema]` ile tasiniyor; kullanici
+   ACIKCA acik temayi secmis ama cihazi koyuysa ikisi CAKISIYORDU:
+
+   OLCULDU (cihaz koyu + uygulama ACIK tema):
+       .girdi-bozuk  yazi #0f172a / zemin #2a1614  ->  1,04
+   Yani KOYU temanin kirmizi zemini, ACIK temanin koyu yazisiyla
+   birlesiyordu. Esik 4,5. Kullanici yazdigi sayiyi GOREMIYORDU.
+
+   Bunun en kotu yani nerede oldugu: `.girdi-bozuk` "yazdigin sayi
+   okunamadi" durumudur. Kullanicinin girdisini duzeltebilmesi icin
+   tam da onu gormesi gereken an, girdinin gorunmez oldugu an oluyordu.
+
+   Duzeltme: kural artik uygulamanin kendi bayragina bagli. `sayfa.js`
+   sistem koyu ise (ve kullanici acik dememisse) zaten
+   `data-tema="koyu"` koyuyor -- yani sistem tercihi hala onurlandiriliyor,
+   ama SECIM onu ezebiliyor.
+
+   SINIF: bir uygulamanin kendi tema anahtari varsa, `prefers-color-scheme`
+   medya sorgusu o anahtari GORMEZ ve sessizce onunla celisir. */
+html[data-tema="koyu"] .girdi-bozuk { background: #2a1614; }
+html[data-tema="koyu"] .girdi-uyari { color: #ff9a90; }
 
 
 /* ============================================================

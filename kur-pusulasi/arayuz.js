@@ -905,8 +905,9 @@ function tahminCiz() {
             satirlar.map(k => `<tr> <td>${k.gun === 1 ? "Yarın" : k.gun === 7 ? "1 hafta" : "1 ay"}</td> <td><b>%${sayi(k.ortalamaHata, 2)}</b></td> <td>%${sayi(k.naiveHata, 2)}</td> <td class="${k.iyilesme > 0 ? "yukari" : "asagi"}">${yuzde(k.iyilesme, 0)}</td> <td>${k.band68 === null ? "—" : "%" + sayi(k.band68, 0)}</td> <td>%${sayi(k.yonBasarisi, 0)}</td></tr>`).join("") +
             `</tbody></table></div> <p class="kucuk"><b>Nasıl okunur:</b> "Ort. sapma"modelin ortalama hatası. "Basit tahmin",
             <i>"fiyat aynı kalır"</i> demenin hatası. "Kazanç"pozitifse model basit varsayımdan iyi.
-            "%68 band tuttu"ideal olarak <b>%68 civarında</b> olmalı — düşükse band dar, yüksekse gereksiz geniş demektir.</p> <p class="kucuk">Test ${satirlar[0].deneme} geçmiş gün üzerinde yapıldı. Band testi ayrıca dürüst olsun diye
-            ilk %70 ile kurulup <b>son ${satirlar[0].testAdet} günde sınandı</b> — yani bandı hiç görmediği veriyle test ettik.</p>`;
+            "%68 band tuttu"ideal olarak <b>%68 civarında</b> olmalı — düşükse band dar, yüksekse gereksiz geniş demektir.</p> <p class="kucuk">Test ${satirlar[0].deneme} geçmiş gün üzerinde yapıldı.
+            Her gün için band, <b>yalnızca o güne kadar sonucu belli olmuş</b> tahminlerle kuruldu;
+            sonucu henüz bilinmeyen tahminler eğitime alınmadı — model kendi sınavının cevabını görmedi.</p>`;
     }, 30);
 
     // Senaryolar

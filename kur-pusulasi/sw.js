@@ -2,7 +2,7 @@
 // Uygulamayı çevrimdışı da açar: dosyaları önbelleğe alır.
 // Yeni sürüm çıkarınca SURUM'u artır ki herkese taze dosyalar gitsin.
 
-const SURUM = "kur-pusulasi-v54";
+const SURUM = "kur-pusulasi-v57";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.

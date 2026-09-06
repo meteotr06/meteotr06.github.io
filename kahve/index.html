@@ -46,13 +46,34 @@
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="RoastMate" />
-<link rel="stylesheet" href="stil.css?v=17" />
+<link rel="stylesheet" href="stil.css?v=21" />
 </head>
 <body>
 <div class="sarmal">
 
 <header class="ust">
-    <h1>☕ Roast<span>Mate</span></h1>
+    <!-- MARKA ISARETI. ☕ emojisi marka degildir: her isletim
+         sisteminde baska cizilir, boyutu ve rengi denetlenemez, tema
+         rengiyle uyumu tesadufe kalir. Yerine tamburun silueti --
+         uygulamanin kendi konusu, iki temada da ayni. -->
+    <h1 class="marka">
+        <svg class="marka-im" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <!-- huni -->
+            <path d="M11 3h10l-2.4 5h-5.2Z" fill="currentColor" opacity=".55"/>
+            <!-- govde -->
+            <rect x="4" y="9" width="24" height="15" rx="4" fill="currentColor" opacity=".22"/>
+            <!-- tambur agzi -->
+            <circle cx="16" cy="16.5" r="6.2" fill="none"
+                    stroke="currentColor" stroke-width="2"/>
+            <!-- cekirdek: ortadaki yariktan taniniyor -->
+            <ellipse cx="16" cy="16.5" rx="2.6" ry="3.6" fill="currentColor"/>
+            <path d="M16 13.4v6.2" stroke="var(--kart)" stroke-width="1" opacity=".9"/>
+            <!-- ayak -->
+            <rect x="8" y="25" width="16" height="3" rx="1.5"
+                  fill="currentColor" opacity=".45"/>
+        </svg>
+        <span class="marka-ad">Roast<span>Mate</span></span>
+    </h1>
     <div class="ust-sag">
         <!-- DIL DUGMESI: etkin dili DEGIL, gecilecek dili yazar.
              "TR" yazarken Turkce'yseniz basinca ne olacagi belirsiz
@@ -98,6 +119,9 @@
             aria-selected="false" tabindex="-1" data-hedef="sEnvanter" data-i18n="tEnvanter">Envanter</button>
     <button class="sekme" role="tab" id="tDefter" aria-controls="sDefter"
             aria-selected="false" data-hedef="sDefter" data-i18n="tDefter">Defter</button>
+    <button class="sekme" role="tab" id="tMakine" aria-controls="sMakine"
+            aria-selected="false" tabindex="-1" data-hedef="sMakine"
+            data-i18n="tMakine">Makine</button>
 </div>
 
 <!-- Sonuçlar ekran okuyucuya DUYURULUR. Bu olmadan göremeyen kullanıcı
@@ -136,6 +160,112 @@
                     </div>
                 </div>
                 <div class="cekirdek-sira" id="fireCekirdek" aria-hidden="true"></div>
+
+                <!-- ==================== KAVURMA MAKİNESİ ====================
+                     Kullanıcı istedi (05.09.2026): "böyle çok kullanılan
+                     makineden bir tane 3D şekil koyalım ama ETKİLEŞİMLİ
+                     olsun, büyük kahve kavurma makinelerinden."
+
+                     SÜS DEĞİL, GÖSTERGE. Çizimdeki her parça girilen bir
+                     sayıya bağlı:
+                       · huni dolgusu      → giren yeşil kg
+                       · tamburdaki renk   → ölçülen fire (açık ↔ koyu)
+                       · soğutma tepsisi   → çıkan kavrulmuş kg
+                       · buhar             → kaybolan kilo (fire)
+                     Hiçbir yerde uydurma bir sayı yok; veri yoksa parça
+                     nötr hâlinde kalır.
+
+                     NEDEN SVG, NEDEN GERÇEK 3D DEĞİL: three.js gibi bir
+                     kitaplık ~600 KB'lık bir bağımlılık demek ve bu
+                     uygulama çevrimdışı çalışmayı vaat ediyor. Eğik
+                     (izometrik) bir çizim, gölge ve derinlikle aynı
+                     okunurluğu tek dosyada veriyor -- ve ölçtüğümüz
+                     sayıya bağlanabiliyor. Dönen bir model bunu yapamaz.
+
+                     `aria-hidden` DEĞİL: makine bir bilgi taşıyor, o
+                     yüzden ekran okuyucuya da özetleniyor (#makineOzet).
+                ====================================================== -->
+                <figure class="makine-kap" id="makineKap" hidden>
+                    <svg class="makine" viewBox="0 0 260 200" role="img"
+                         aria-labelledby="makineBaslik makineOzet">
+                        <title id="makineBaslik" data-i18n="makineBaslik">Kavurma makinesi</title>
+
+                        <defs>
+                            <linearGradient id="govdeBoya" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#3a4048"/>
+                                <stop offset="1" stop-color="#1b1f25"/>
+                            </linearGradient>
+                            <linearGradient id="camBoya" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#6d7580"/>
+                                <stop offset="1" stop-color="#2a2f36"/>
+                            </linearGradient>
+                            <clipPath id="huniKirp"><path d="M96 12 h56 l-12 26 h-32 Z"/></clipPath>
+                            <clipPath id="tepsiKirp"><ellipse cx="150" cy="150" rx="52" ry="17"/></clipPath>
+                        </defs>
+
+                        <!-- gölge -->
+                        <ellipse cx="132" cy="188" rx="86" ry="7" fill="rgba(0,0,0,.22)"/>
+
+                        <!-- HUNİ: giren yeşil kahve buraya dökülür -->
+                        <path d="M96 12 h56 l-12 26 h-32 Z" fill="url(#govdeBoya)"/>
+                        <g clip-path="url(#huniKirp)">
+                            <rect id="huniDolgu" x="96" y="38" width="56" height="0"
+                                  fill="#5d783e"/>
+                        </g>
+                        <path d="M96 12 h56 l-12 26 h-32 Z" fill="none"
+                              stroke="#0f1216" stroke-width="1.5"/>
+                        <rect x="118" y="38" width="12" height="14" fill="#23282f"/>
+
+                        <!-- GÖVDE -->
+                        <rect x="70" y="52" width="120" height="74" rx="10"
+                              fill="url(#govdeBoya)"/>
+                        <!-- TAMBUR camı: kavrulma rengi burada görünür -->
+                        <circle cx="130" cy="86" r="26" fill="#12151a"/>
+                        <circle id="tamburCam" cx="130" cy="86" r="22" fill="url(#camBoya)"/>
+                        <g id="tamburCekirdek"></g>
+                        <circle cx="130" cy="86" r="22" fill="none"
+                                stroke="#7e8794" stroke-width="2"/>
+                        <!-- sağan kolu (numune alma) -->
+                        <rect x="126" y="106" width="8" height="16" rx="3" fill="#8a5a2b"/>
+                        <circle cx="130" cy="106" r="4" fill="#aab2bd"/>
+
+                        <!-- KUMANDA PANELİ -->
+                        <g id="panel">
+                            <rect x="18" y="66" width="46" height="32" rx="4" fill="#12151a"/>
+                            <rect x="21" y="69" width="40" height="26" rx="2" fill="#1d2530"/>
+                            <text id="panelIsi" x="41" y="86" text-anchor="middle"
+                                  font-size="13" font-weight="700" fill="#7fd4a0">—</text>
+                            <rect x="34" y="98" width="14" height="10" fill="#2a2f36"/>
+                        </g>
+
+                        <!-- SOĞUTMA TEPSİSİ: çıkan kavrulmuş buraya dökülür -->
+                        <ellipse cx="150" cy="150" rx="52" ry="17" fill="#252b33"/>
+                        <g clip-path="url(#tepsiKirp)">
+                            <rect id="tepsiDolgu" x="98" y="167" width="104" height="0"
+                                  fill="#7a4a20"/>
+                        </g>
+                        <ellipse cx="150" cy="150" rx="52" ry="17" fill="none"
+                                 stroke="#aab2bd" stroke-width="2"/>
+                        <ellipse cx="150" cy="150" rx="40" ry="12" fill="none"
+                                 stroke="rgba(255,255,255,.10)" stroke-width="1"/>
+
+                        <!-- KAVUZ ÇEKMECESİ + AYAK -->
+                        <rect x="196" y="152" width="30" height="18" rx="2" fill="#23282f"/>
+                        <circle cx="211" cy="161" r="3" fill="#aab2bd"/>
+                        <rect x="86" y="166" width="96" height="14" rx="3" fill="#1b1f25"/>
+
+                        <!-- BUHAR: fire kadar yükselir (kaybolan kilo) -->
+                        <g id="buhar" opacity="0">
+                            <path d="M112 12 q6 -10 0 -20" stroke="#9fb0c0"
+                                  stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                            <path d="M130 8 q6 -12 0 -24" stroke="#9fb0c0"
+                                  stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                            <path d="M148 12 q6 -10 0 -20" stroke="#9fb0c0"
+                                  stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                    <figcaption class="makine-ozet" id="makineOzet"></figcaption>
+                </figure>
             </div>
         </div>
         <div class="uyari-kutu" id="fireUyari" hidden></div>
@@ -426,14 +556,71 @@
     </div>
 </section>
 
+<!-- ==================== MAKİNE (3D) ====================
+     Kullanıcı istedi (05-06.09.2026): "böyle çok kullanılan makineden
+     bir tane 3D şekil koyalım ama etkileşimli olsun, büyük kahve
+     kavurma makinelerinden" · "oynanır falan, AYRI BİR SEKMEDE 3D".
+
+     NEDEN KİTAPLIKSIZ: three.js ~600 KB'lık bir bağımlılık ve bu
+     uygulama ÇEVRİMDIŞI çalışmayı vaat ediyor; ayrıca WebGL eski
+     telefonlarda düşüyor. Burada gerçek 3D var ama tarayıcının kendi
+     motoruyla: katmanlar `translateZ` ile farklı derinliklere konmuş
+     ve kap `preserve-3d` ile döndürülüyor. Sürüklerken katmanlar
+     birbirine göre kayıyor — derinlik hissi buradan geliyor.
+
+     TAMBUR GERÇEK BİR SİLİNDİR: 16 ince yüzey halka biçiminde
+     dizilmiş. Döndürünce arkası da görünüyor.
+
+     SÜS DEĞİL: tamburdaki renk Fire sekmesinde ölçtüğünüz kavrulmaya
+     bağlı. Hiç ölçmediyseniz nötr yeşil duruyor -- uydurulmuş bir
+     kavrulma göstermiyoruz.
+================================================================= -->
+<section class="sayfa" id="sMakine" role="tabpanel" aria-labelledby="tMakine" hidden>
+    <div class="kart">
+        <h2 data-i18n="makineSekmeBaslik">Kavurma makinesi</h2>
+        <p class="aciklama" data-i18n="makineSekmeAciklama"></p>
+
+        <div class="sahne" id="sahne" tabindex="0" role="application"
+             data-i18n-baslik="makineSurukle">
+            <div class="dunya" id="dunya">
+                <!-- AYAK -->
+                <div class="kat kat-ayak"></div>
+                <!-- GÖVDE -->
+                <div class="kat kat-govde"></div>
+                <!-- TAMBUR: 16 yüzeyli gerçek silindir -->
+                <div class="tambur" id="tambur3d"></div>
+                <div class="kat kat-kapak"></div>
+                <!-- HUNİ -->
+                <div class="kat kat-huni"></div>
+                <!-- SOĞUTMA TEPSİSİ -->
+                <div class="kat kat-tepsi"></div>
+                <!-- KUMANDA PANELİ -->
+                <div class="kat kat-panel"><span id="panel3d">—</span></div>
+            </div>
+        </div>
+
+        <div class="sahne-dugmeler">
+            <button type="button" id="donBtn" data-i18n="makineDon">Döndür</button>
+            <button type="button" id="sifirlaBtn" data-i18n="makineSifirla">Baştan</button>
+        </div>
+
+        <p class="aciklama" id="makine3dNot" style="margin-top:12px"></p>
+    </div>
+
+    <div class="kart">
+        <h2 data-i18n="makineParcaBaslik">Parçalar ne işe yarar</h2>
+        <dl id="parcaListe"></dl>
+    </div>
+</section>
+
 </div><!-- /sarmal -->
 
-<script src="cekirdek.js?v=17"></script>
-<script src="dil.js?v=17"></script>
-<script src="veri.js?v=17"></script>
-<script src="kurulum.js?v=17"></script>
-<script src="arayuz.js?v=17"></script>
-<script src="guncelle.js?v=17"></script>
+<script src="cekirdek.js?v=21"></script>
+<script src="dil.js?v=21"></script>
+<script src="veri.js?v=21"></script>
+<script src="kurulum.js?v=21"></script>
+<script src="arayuz.js?v=21"></script>
+<script src="guncelle.js?v=21"></script>
 <script>
 /* TESLIMAT. Ortak modul: HESAP MAKİNESİ\ortak\guncelle.js
    Degisiklik ONCE orada yapilir, sonra kopyalar tazelenir (K-69).

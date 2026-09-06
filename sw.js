@@ -21,7 +21,7 @@
      · damga TEK yerden türetilir
    ================================================================== */
 
-const SURUM = 'portal-v12';
+const SURUM = 'portal-v13';
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -75,7 +75,7 @@ const ALT_UYGULAMALAR = [
    TAM URL oldugu icin (bu sw `ignoreSearch` kullanmiyor) kaymis damga
    sessizce ISKALAR. Bu yuzden esitligi `ON-ONBELLEK-EKSIGI.py`
    denetliyor; elle hatirlanacak bir kural degil. */
-const HESAP_DAMGA = '?v=97';
+const HESAP_DAMGA = '?v=101';
 const ODUNC = [
     '/hesap/stil.css' + HESAP_DAMGA,
     '/hesap/hesap.js' + HESAP_DAMGA,

@@ -293,6 +293,41 @@
         dilDegisti:  { tr: 'Dil Türkçe olarak ayarlandı.',
                        en: 'Language set to English.' },
 
+        /* ---- kavurma makinesi çizimi ---- */
+        makineBaslik:{ tr: 'Kavurma makinesi',        en: 'Coffee roaster' },
+        makineOzet:  { tr: 'Huniye {0} yeşil girdi, tepsiye {1} kavrulmuş çıktı; aradaki {2} buharlaştı.',
+                       en: '{0} of green went into the hopper, {1} of roasted came out to the tray; the {2} between them evaporated.' },
+
+        /* ---- 3D makine sekmesi ---- */
+        tMakine:     { tr: 'Makine',                  en: 'Roaster' },
+        makineSekmeBaslik: { tr: 'Kavurma makinesi',  en: 'The roaster' },
+        makineSekmeAciklama: { tr: 'Sürükleyerek çevirin. Tamburdaki renk, Fire sekmesinde ölçtüğünüz kavrulmadır — ölçmediyseniz yeşil durur.',
+                               en: 'Drag to turn it. The colour in the drum is the roast you measured on the Roast loss tab — if you have not measured one, it stays green.' },
+        makineSurukle: { tr: 'Sürükleyerek çevir, ok tuşlarıyla da döner',
+                         en: 'Drag to turn; arrow keys work too' },
+        makineDon:   { tr: 'Döndür',                  en: 'Turn' },
+        makineSifirla:{ tr: 'Baştan',                 en: 'Reset view' },
+        makine3dOlculdu: { tr: 'Tamburdaki renk sizin ölçtüğünüz {0} fireye göre.',
+                           en: 'The colour in the drum reflects the {0} loss you measured.' },
+        makine3dOlculmedi: { tr: 'Henüz fire ölçmediniz — tambur yeşil kahve renginde duruyor. Fire sekmesinde tartınızı girin, burası da değişsin.',
+                             en: 'You have not measured a roast loss yet — the drum stays the colour of green coffee. Enter your weights on the Roast loss tab and this will follow.' },
+        makineParcaBaslik: { tr: 'Parçalar ne işe yarar', en: 'What the parts do' },
+        parcaHuni:   { tr: 'Huni',                    en: 'Hopper' },
+        parcaHuniAcik:{ tr: 'Yeşil kahve buraya dökülür — "Giren yeşil"',
+                        en: 'Green coffee goes in here — "Green in"' },
+        parcaTambur: { tr: 'Tambur',                  en: 'Drum' },
+        parcaTamburAcik:{ tr: 'Çekirdek burada döner ve kavrulur; nem atar, ağırlık kaybeder',
+                          en: 'The beans turn and roast here; they lose moisture and weight' },
+        parcaTepsi:  { tr: 'Soğutma tepsisi',         en: 'Cooling tray' },
+        parcaTepsiAcik:{ tr: 'Kavrulan kahve buraya boşalır — "Çıkan kavrulmuş"',
+                         en: 'The roasted coffee drops here — "Roasted out"' },
+        parcaPanel:  { tr: 'Kumanda paneli',          en: 'Control panel' },
+        parcaPanelAcik:{ tr: 'Sıcaklık ve süre; Defter sekmesine yazdığınız çıkış sıcaklığı burada görünür',
+                         en: 'Temperature and time; the drop temperature you record on the Log tab shows here' },
+        parcaKavuz:  { tr: 'Kavuz haznesi',           en: 'Chaff collector' },
+        parcaKavuzAcik:{ tr: 'Çekirdeğin kabuğu buraya toplanır — kaybolan ağırlığın bir kısmı',
+                         en: 'The bean skins collect here — part of the weight you lose' },
+
         /* ---- yer tutucular ----
            Sayilar ayni; degisen 'orn.' ve ONDALIK AYRACI.
            Ingilizce arayuzde 'orn. 8,5' birakmak, kullaniciya

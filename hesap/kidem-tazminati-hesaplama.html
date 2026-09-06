@@ -64,7 +64,7 @@
 <meta property="og:image:alt" content="Kıdem ve İhbar Tazminatı Hesaplama 2026 — Tavan Dahil" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://meteotr06.github.io/hesap/onizleme/kidem-tazminati-hesaplama.png" />
-<link rel="stylesheet" href="stil.css?v=97" />
+<link rel="stylesheet" href="stil.css?v=101" />
 </head>
 <body>
 
@@ -146,8 +146,8 @@
     </section>
 </main>
 
-<script src="hesap.js?v=97"></script>
-<script src="sayfa.js?v=97"></script>
+<script src="hesap.js?v=101"></script>
+<script src="sayfa.js?v=101"></script>
 <script>
 iskeletKur("kidem-tazminati-hesaplama.html");
 gizlilikBaglantisi();
@@ -174,7 +174,11 @@ function hesapla() {
             `<div class="kutu"><p class="kucuk">Çıkış tarihi giriş tarihinden sonra olmalı.</p></div>`;
         return;
     }
-    const ih = ihbarTazminati(ucret, k.toplamGun, dilim);
+    /* TARIHLER GECIRILIYOR: ihbar suresi kanunda AY olarak sayilir
+       ve takvimde bir ay 28-31 gun arasi degisir. Gun sabitiyle
+       olcunce tam alti ayini dolduran isci 2 hafta goruyordu --
+       tazminatin TAM YARISI. */
+    const ih = ihbarTazminati(ucret, k.toplamGun, dilim, k.giris, k.cikis);
     const gunTR = (t) => t.split("-").reverse().join(".");
 
     /* TAVAN VERISI OLMAYAN TARIH: SAYI BASILMAZ.

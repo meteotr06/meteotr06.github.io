@@ -1305,20 +1305,105 @@ function dokumKur(baslik) {
 }
 
 // ---------- 2) Paylaşılabilir bağlantı ----------
-// Girilen değerler adres çubuğuna yazılır; link gönderilince aynı hesap açılır.
-function baglantiyaYaz(alanlar) {
+/* ⚠️ KAPATILAN GIZLILIK ACIGI (06.09.2026) — DESENI GERI GETIRME.
+
+   ESKI HAL: bu islev her hesaptan sonra girilen degerleri ADRES CUBUGUNA
+   yaziyordu (`history.replaceState(null,"","?"+p)`). Sayfada AdSense
+   calistigi icin reklam istegi sayfanin TAM ADRESINI Google'a gonderiyor.
+   Iki kez, birbirinden bagimsiz olculdu (05.09 canli sitede, 06.09 gecesi
+   HTTP uzerinden yerelde):
+     .../pagead/ads?...&url=...%2Fnet-maas-hesaplama.html%3Fbrut%3D75000...
+   52 arac sayfasi bu islevi cagiriyordu: maas, kredi, kidem tazminati,
+   kira geliri, emlak vergisi, mevduat faizi, gebelik tarihi, boy-kilo.
+   En kotu hali: paylasilan baglantiyi acan kisi HICBIR SEY YAZMADAN,
+   sadece sayfayi okurken o maas Google'a gidiyordu.
+   gizlilik.html "Bu baglantiyi SIZ gonderdiginiz surece verileriniz
+   kimseye ulasmaz" diyor -- o cumle o hâlde DOGRU DEGILDI.
+
+   DENENDI VE ISE YARAMADI: "?" yerine "#" kullanmak. Parca da gidiyor.
+   Ilk olcum "gitmiyor" demisti ama yaniltiyordu: parca sayfa yuklendikten
+   SONRA eklenmisti, AdSense ise adresi betik ilk calistigi anda okuyor.
+
+   YENI HAL — iki parcali, ikisi de gerekli:
+     1) Degerler adres cubuguna HIC yazilmaz; sekme belleginde (session)
+        tutulur. Yenilemede kaybolmama yarari korunur, adres temiz kalir.
+        Baglantiyi "Baglantiyi paylas" dugmesi ISTENDIGINDE uretir --
+        vaat o zaman gercekten dogru olur: "siz gonderdiginiz surece".
+     2) Disaridan `?brut=...` ile GELEN adres, okunduktan hemen sonra
+        adres cubugundan silinir (bkz. baglantidanOku). Yalniz 1'i
+        yapmak, paylasilan baglantiyi ACAN kisiyi korumazdi.
+   Reklam yukleyicisi bosta/ilk dokunusta calisiyor (>=2,5 sn), sayfa
+   ilklendirmesi ondan once bitiyor -- silme reklamdan once yetisiyor. */
+
+// Paylasim dugmesinin adresi ISTENDIGINDE uretebilmesi icin, sayfanin
+// hangi alanlari paylastigini burada tutuyoruz. Adres cubuguna yazmiyoruz.
+let PAYLASIM_ALANLARI = [];
+
+function alanDegerleri(alanlar) {
     const p = new URLSearchParams();
-    alanlar.forEach(id => {
+    (alanlar || []).forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
         const d = el.type === "checkbox" ? (el.checked ? "1" : "0") : el.value;
         if (d !== "" && d !== null) p.set(id, d);
     });
-    try { history.replaceState(null, "", "?" + p.toString()); } catch (e) { }
+    return p;
+}
+
+// Sekme bellegi anahtari: sayfa basina ayri. Kalici DEGIL -- sekme
+// kapaninca gider. Amac yalnizca "yenileyince deger kaybolmasin".
+function tazelemeAnahtari() { return "hesapAlan:" + location.pathname; }
+
+function baglantiyaYaz(alanlar) {
+    PAYLASIM_ALANLARI = alanlar || [];
+    try {
+        sessionStorage.setItem(tazelemeAnahtari(), alanDegerleri(alanlar).toString());
+    } catch (e) { /* gizli kip / kota: deger korunmaz, gizlilik yine saglam */ }
+}
+
+// Panoya/paylasima giden adres. Adres cubugundan DEGIL, o andaki alan
+// degerlerinden uretilir -- cunku adres cubugunda artik deger yok.
+function paylasimAdresi() {
+    const p = alanDegerleri(PAYLASIM_ALANLARI).toString();
+    const kok = location.origin + location.pathname;
+    return p ? kok + "?" + p : kok;
+}
+
+// Adresteki degerleri okur. ONCE parca (#), sonra ESKI bicim (?).
+// Eski bicim neden hala destekleniyor: insanlar "?brut=..." adresleri
+// paylasmis olabilir; onlar calismaya devam etmeli.
+function baglantiParametreleri() {
+    const parca = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+    if ([...parca.keys()].length) return parca;
+    const arama = new URLSearchParams(location.search);
+    if ([...arama.keys()].length) return arama;
+    // Adreste bir sey yoksa: bu sayfayi bu sekmede daha once doldurmus
+    // olabiliriz (yenileme). Degerler artik adreste degil, sekme belleginde.
+    try {
+        return new URLSearchParams(sessionStorage.getItem(tazelemeAnahtari()) || "");
+    } catch (e) { return new URLSearchParams(""); }
+}
+
+/* Disaridan gelen degerleri adres cubugundan SILER.
+   Niye: paylasilan `?brut=75000` baglantisini ACAN kisi hicbir sey
+   yazmadan o degeri reklam istegiyle Google'a gonderiyordu (olculdu,
+   05-06.09.2026). Deger zaten alanlara yazildi; adreste kalmasinin
+   kullaniciya faydasi yok, zarari var.
+   Reklam yukleyicisi bosta/ilk dokunusta calisiyor (>=2,5 sn); bu silme
+   sayfa ilklendirmesinde, yani ondan ONCE oluyor. */
+function adresiTemizle() {
+    if (!location.search && !location.hash) return;
+    try {
+        history.replaceState(null, "", location.origin + location.pathname);
+    } catch (e) { /* replaceState yoksa: deger adreste kalir, hesap dogru */ }
 }
 
 function baglantidanOku(alanlar) {
-    const p = new URLSearchParams(location.search);
+    const p = baglantiParametreleri();
+    adresiTemizle();
+    // Hesap yapilmadan da "Baglantiyi paylas" calissin diye alan listesini
+    // burada da kaydediyoruz (baglantiyla gelen kullanici hic hesaplamayabilir).
+    if (!PAYLASIM_ALANLARI.length) PAYLASIM_ALANLARI = alanlar || [];
     let bulundu = false;
     alanlar.forEach(id => {
         if (!p.has(id)) return;
@@ -1435,7 +1520,9 @@ function eylemleriBagla(sonucGetir) {
 
     const pb = document.getElementById("paylasBtn");
     if (pb) pb.onclick = async () => {
-        const adres = location.href;
+        // Adres cubugunda artik deger YOK (gizlilik acigi, 06.09.2026).
+        // Paylasilacak baglantiyi o andaki alan degerlerinden uretiyoruz.
+        const adres = paylasimAdresi();
         if (navigator.share) {
             try { await navigator.share({ title: document.title, url: adres }); return; }
             catch (e) {
@@ -1518,7 +1605,7 @@ function sonucMetni(baslik) {
     });
     if (basliklar.length) satirlar.splice(2, 0, ...basliklar);
 
-    satirlar.push("", location.href);
+    satirlar.push("", paylasimAdresi());   // adres cubugunda deger yok artik
     return satirlar.join("\n");
 }
 
@@ -1846,7 +1933,7 @@ let kullaniciDokundu = false;
    var olan bir girdi adiyla eslesen parametre. */
 function baglantiDegerTasiyorMu() {
     try {
-        const p = new URLSearchParams(location.search);
+        const p = baglantiParametreleri();
         let varMi = false;
         p.forEach(function (_, ad) {
             const el = document.getElementById(ad);
@@ -1959,7 +2046,9 @@ function kurulumSeridiCiz(alt) {
     s.className = "kurulum-serit";
     s.innerHTML = `
         <span class="kurulum-yazi"><b>Telefonunuza kurun.</b>
-        Simgeden tek dokunuşla açılır, internet olmadan da çalışır.</span>
+        Simgeden tek dokunuşla açılır; açtığınız araçlar sonradan
+        internetsiz de çalışır.</span>
+
         <button type="button" id="kurBtn" class="ikincil" hidden>Uygulama olarak kur</button>
         <button type="button" id="kurNasil" class="ikincil">Nasıl kurulur?</button>
         <button type="button" id="kurKapat" class="ikincil"

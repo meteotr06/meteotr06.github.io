@@ -27,22 +27,202 @@
   --arka:#0f1620; --panel:#1c2733; --ickart:#0e1620; --cizgi:#243444;
   --yazi:#ffffff; --yazi2:#9fb0c0; --yazi3:#8a9db0;
   --vurgu:#1f8fff; --vurgu-yazi:#0f1620; --gelir:#33c07a; --gider:#ff6b6b; --uyari:#ffcf5c;
+  /* VURGU IKI AYRI ISI YAPIYORDU, ikisinin sarti TERS.
+     · ZEMIN olarak: ustundeki `--vurgu-yazi` okunsun diye KOYU olmali
+     · YAZI olarak (secili alt menu, gizlilik baglantisi): koyu panelin
+       ustunde okunsun diye ACIK olmali
+     Tek degiskenden ikisi birden istenince biri kaybediyordu. Olculdu
+     (05.09.2026, calisan uygulama, koyu palet, panel #1c2733):
+         lacivert #2c3e8f -> 1,58   mor #7b3fe4 -> 2,65
+         turkuaz  #0e9594 -> 4,14   turuncu #d2691e -> 4,17
+     Esik 4,5. Lacivert secen kullanici SECILI SEKMEYI goremiyordu.
+     `--vurgu-metin` yalnizca YAZI icin; zemin kullanimi degismedi.
+     Degerler tahmin degil: her renk esigi gecene kadar acilarak
+     hesaplandi, sonuclar asagida yaziyor. */
+  --vurgu-metin:#1f8fff;   /* 5,56 / 4,64 / 5,57 -- zaten geciyordu */
+  /* TARAYICININ KENDI PARCALARI DA TEMAYI IZLEMELI.
+     `color-scheme` yoksa tarayici kendi varsayilanlarini CIHAZA gore
+     secer: tarih secici takvimi, acilir liste kutusu, kaydirma
+     cubugu, imlec. Yani kullanici ACIK secse bile cihazi koyuysa
+     tarih secici KOYU aciliyordu.
+     Olculdu (05.09.2026): cihaz koyu + kullanici acik iken
+     `color-scheme` hem kokte hem govdede `normal` cikti.
+     Bu kusuru KARSITLIK TARAMASI GOREMEZ -- o parcalar DOM'da yok;
+     aracin kendi 'ne goremez' bolumunde yazili sinir tam burasi.
+     Merkez ayni sinifi portalda buldu (bes baglanti 2,21, rengi
+     #9e9eff -- hicbir paletimizde olmayan Chrome varsayilani).
+     Tanisi da ogretici: bir kusur BUTUN seceneklerde AYNI
+     cikiyorsa sebebi secenek degildir. */
+  color-scheme: dark;
+}
+/* SECILI OLANI GOSTER.
+   Olculdu (05.09.2026): renk benekleri ve tema dugmeleri BIREBIR
+   ayni gorunuyordu, `aria-pressed` de yoktu. Yani kullanici hangi
+   rengin ya da hangi temanin etkin oldugunu GOREMIYORDU; ekran
+   okuyucu kullanicisi ise hic bilemiyordu.
+   Tema dugmelerini bugun ben ekledim ve ayni eksikle ekledim --
+   uc dugme, hicbiri 'ben seciliyim' demiyor.
+   Halka RENK DEGIL kalinlik da tasiyor: yalniz renkle isaretlemek,
+   renk koru kullaniciyi disarida birakir. */
+#renk-panel [aria-pressed="true"]{
+  outline: 2px solid var(--vurgu-metin);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
 }
 /* ==== Vurgu rengi secenekleri ====
    Kullanici istedi (03.09.2026). Yalniz `--vurgu` degisiyor; gelir/
    gider renkleri SABIT kaliyor cunku onlar ANLAM tasiyor.
    Kirmizi ve yesil vurgu YOK: ikisi de burada gelir/gider demek. */
-html[data-renk="mor"]     :root, html[data-renk="mor"]     { --vurgu:#7b3fe4; --vurgu-yazi:#ffffff; }
-html[data-renk="turuncu"] :root, html[data-renk="turuncu"] { --vurgu:#d2691e; --vurgu-yazi:#0f1620; }
-html[data-renk="turkuaz"] :root, html[data-renk="turkuaz"] { --vurgu:#0e9594; --vurgu-yazi:#0f1620; }
-html[data-renk="lacivert"]:root, html[data-renk="lacivert"]{ --vurgu:#2c3e8f; --vurgu-yazi:#ffffff; }
+html[data-renk="mor"]     :root, html[data-renk="mor"]     { --vurgu:#7b3fe4; --vurgu-yazi:#ffffff;  --vurgu-metin:#a86cff; }   /* panelde 2,65 -> 4,51 */
+html[data-renk="turuncu"] :root, html[data-renk="turuncu"] { --vurgu:#d2691e; --vurgu-yazi:#0f1620;  --vurgu-metin:#d97025; }   /* panelde 4,17 -> 4,54 */
+html[data-renk="turkuaz"] :root, html[data-renk="turkuaz"] { --vurgu:#0e9594; --vurgu-yazi:#0f1620;  --vurgu-metin:#159c9b; }   /* panelde 4,14 -> 4,51 */
+html[data-renk="lacivert"]:root, html[data-renk="lacivert"]{ --vurgu:#2c3e8f; --vurgu-yazi:#ffffff;  --vurgu-metin:#7688d9; }   /* panelde 1,58 -> 4,54 */
+
+/* ================= TEMA KIPI =================
+   Uc kip: CIHAZA UY (varsayilan) - ACIK - KOYU.
+
+   NIYE OZNITELIK: kullanicinin SECIMI diske yazilir, TURETILEN deger
+   yazilmaz. "Cihaza uy" secilirse diske hicbir sey yazilmaz; boylece
+   kullanici telefonun temasini degistirince uygulama da degisir.
+   Turetilmis degeri yazsaydik, kullanici uygulamayi bir kez acmakla
+   temasini DONDURMUS olurdu.
+
+   NIYE `:not([data-tema])`: cihaz acik isterken kullanici KOYU dediyse,
+   cihazin istegi kullanicinin secimini EZMEMELI. Medya sorgusu yalnizca
+   kullanici HIC secim yapmadiginda konusur.
+
+   OZGULLUK NOTU (bugun bu tuzaga dustum): medya sorgusu icinde olmak
+   ozgullugu ARTIRMAZ. Kurallar ustteki koyu tanimlarla ayni ozgullukte
+   ve dosyada onlarin ALTINDA -- kaynak sirasi ile kazaniyorlar.
+   ============================================= */
+html[data-tema="acik"]{
+    --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
+    /* --yazi3 ACIK PALETTE ESIK ALTINDAYDI. Olculdu (05.09.2026):
+       #8393a3 -> arka 2,78 · panel 3,15 · ickart 2,70   (esik 4,5)
+       Bos liste yazilari, ipuclari ve dipnotlar bu rengi kullaniyor;
+       yani "kayit yok, sag alttaki + ile ekleyin" gibi tam da YOL
+       GOSTEREN metinler okunmuyordu. Tek degiskenden 78 kusur cikti.
+       Yeni deger tahmin degil: esigi gecene kadar koyulastirilarak
+       hesaplandi -> 4,69 / 5,32 / 4,56. Gerekenden fazla
+       koyulastirilmadi ki ikincil metin hala ikincil gorunsun. */
+    --yazi:#17212b; --yazi2:#48586a; --yazi3:#5d6d7d;
+    /* ANLAM TASIYAN RENKLER de acik palette esik altindaydi.
+       Olcum (05.09.2026, arka/panel/ickart):
+           gelir #1e9e60 -> 3,03 / 3,43 / 2,94
+           gider #d64545 -> 3,86 / 4,38 / 3,75
+           uyari #b8860b -> 2,87 / 3,25 / 2,79
+       En agiri gelir: bir muhasebe uygulamasinda PARA RAKAMI.
+       Ozet kartindaki tutar okunmuyordu.
+       Yalniz KOYULASTIRILDI, rengin kendisi degismedi -- yesil
+       yesil, kirmizi kirmizi kaldi; bu renkler anlam tasiyor,
+       degistirmek gelir/gider ayrimini bozardi.
+       Koyu palette ucu de zaten geciyor (6,46-12,40), o yuzden
+       orada dokunulmadi. */
+    /* --vurgu BURADA TANIMLANMIYOR, bilerek.
+       Once tanimliyordum ve KENDI ACTIGIM kusur cikti: acik kipte
+       zemin benim blogumdan (mavi #1f8fff), yazi rengi ise renk
+       kuralindan (mor icin beyaz) geliyordu -- ESLESMEYEN CIFT,
+       morda 3,27. Sebep ozgullugu yukseltmem: eski `:root` (0,0,1)
+       renk kuralindan (0,1,1) ZAYIFTI ve renk kazaniyordu; benim
+       `html[data-tema="acik"]` (0,1,1) ise ESIT oldu ve kaynak
+       sirasiyla one gecti. `--vurgu` ile `--vurgu-yazi` AYNI
+       kuralda tanimli kalmali; ikisini ayri yerden almak, Kur'da
+       yasanan sinifin ta kendisi.
+       Vurgu rengi temaya gore degismiyor zaten -- yalnizca YAZI
+       olarak kullanimi (--vurgu-metin) degisiyor. */
+    --gelir:#007c3e; --gider:#c63535; --uyari:#936100;
+    /* ACIK PALETTE vurgu YAZI olarak zaten geciyor (lacivert 8,45),
+       o yuzden burada ozgun degerine donuyor. */
+    /* ACIK PALETTE de olculdu, ve ilk varsayimim YANLISTI: "acikta
+       vurgu yazi olarak zaten geciyor" diye dusunup ozgun degerleri
+       birakmistim. Olcum (05.09.2026, acik palet, arka #eef1f5):
+           varsayilan #1f8fff -> 2,88     turuncu #d2691e -> 3,21
+           turkuaz    #0e9594 -> 3,23     mor     #7b3fe4 -> 5,05 GECER
+           lacivert   #2c3e8f -> 8,45 GECER
+       Ucu esigin altindaydi. Gecmeyenler koyulastirildi, gecenler
+       ozgun birakildi -- gerekmeyen yerde renk degistirmek, olcumu
+       degil zevki uygulamak olurdu.
+
+       OZGULLUK NOTU: ustteki koyu kurallar `html[data-renk="x"]:root`
+       diye yaziliyor; bu bilesik secici (0,2,1) benim ilk yazdigim
+       `html[data-renk="x"]` (0,1,1) kuralindan GUCLU. Medya sorgusu
+       icinde olmak ozgullugu ARTIRMAZ, o yuzden koyu deger acikta da
+       kazaniyordu. Burada ayni bicim kullaniliyor ki gercekten ezsin.
+       Bunu once olcum yakaladi: acikta lacivert #7688d9 (koyu degeri)
+       cikiyordu. */
+    --vurgu-metin:#0068d8;   /* 4,67 / 5,29 / 4,53 -- #1f8fff 2,88 idi */
+    color-scheme: light;
+  }
+  html[data-tema="acik"][data-renk="mor"]     { --vurgu-metin:#7b3fe4; }  /* 5,05 gecer */
+  html[data-tema="acik"][data-renk="turuncu"] { --vurgu-metin:#b54c01; }  /* 3,21 -> 4,64 */
+  html[data-tema="acik"][data-renk="turkuaz"] { --vurgu-metin:#007877; }  /* 3,23 -> 4,69 */
+  html[data-tema="acik"][data-renk="lacivert"]{ --vurgu-metin:#2c3e8f; }  /* 8,45 gecer */
 
 @media (prefers-color-scheme: light){
-  :root{
+
+  html:not([data-tema]){
     --arka:#eef1f5; --panel:#ffffff; --ickart:#e9eef4; --cizgi:#d3dae3;
-    --yazi:#17212b; --yazi2:#48586a; --yazi3:#8393a3;
-    --vurgu:#1f8fff; --gelir:#1e9e60; --gider:#d64545; --uyari:#b8860b;
+    /* --yazi3 ACIK PALETTE ESIK ALTINDAYDI. Olculdu (05.09.2026):
+       #8393a3 -> arka 2,78 · panel 3,15 · ickart 2,70   (esik 4,5)
+       Bos liste yazilari, ipuclari ve dipnotlar bu rengi kullaniyor;
+       yani "kayit yok, sag alttaki + ile ekleyin" gibi tam da YOL
+       GOSTEREN metinler okunmuyordu. Tek degiskenden 78 kusur cikti.
+       Yeni deger tahmin degil: esigi gecene kadar koyulastirilarak
+       hesaplandi -> 4,69 / 5,32 / 4,56. Gerekenden fazla
+       koyulastirilmadi ki ikincil metin hala ikincil gorunsun. */
+    --yazi:#17212b; --yazi2:#48586a; --yazi3:#5d6d7d;
+    /* ANLAM TASIYAN RENKLER de acik palette esik altindaydi.
+       Olcum (05.09.2026, arka/panel/ickart):
+           gelir #1e9e60 -> 3,03 / 3,43 / 2,94
+           gider #d64545 -> 3,86 / 4,38 / 3,75
+           uyari #b8860b -> 2,87 / 3,25 / 2,79
+       En agiri gelir: bir muhasebe uygulamasinda PARA RAKAMI.
+       Ozet kartindaki tutar okunmuyordu.
+       Yalniz KOYULASTIRILDI, rengin kendisi degismedi -- yesil
+       yesil, kirmizi kirmizi kaldi; bu renkler anlam tasiyor,
+       degistirmek gelir/gider ayrimini bozardi.
+       Koyu palette ucu de zaten geciyor (6,46-12,40), o yuzden
+       orada dokunulmadi. */
+    /* --vurgu BURADA TANIMLANMIYOR, bilerek.
+       Once tanimliyordum ve KENDI ACTIGIM kusur cikti: acik kipte
+       zemin benim blogumdan (mavi #1f8fff), yazi rengi ise renk
+       kuralindan (mor icin beyaz) geliyordu -- ESLESMEYEN CIFT,
+       morda 3,27. Sebep ozgullugu yukseltmem: eski `:root` (0,0,1)
+       renk kuralindan (0,1,1) ZAYIFTI ve renk kazaniyordu; benim
+       `html[data-tema="acik"]` (0,1,1) ise ESIT oldu ve kaynak
+       sirasiyla one gecti. `--vurgu` ile `--vurgu-yazi` AYNI
+       kuralda tanimli kalmali; ikisini ayri yerden almak, Kur'da
+       yasanan sinifin ta kendisi.
+       Vurgu rengi temaya gore degismiyor zaten -- yalnizca YAZI
+       olarak kullanimi (--vurgu-metin) degisiyor. */
+    --gelir:#007c3e; --gider:#c63535; --uyari:#936100;
+    /* ACIK PALETTE vurgu YAZI olarak zaten geciyor (lacivert 8,45),
+       o yuzden burada ozgun degerine donuyor. */
+    /* ACIK PALETTE de olculdu, ve ilk varsayimim YANLISTI: "acikta
+       vurgu yazi olarak zaten geciyor" diye dusunup ozgun degerleri
+       birakmistim. Olcum (05.09.2026, acik palet, arka #eef1f5):
+           varsayilan #1f8fff -> 2,88     turuncu #d2691e -> 3,21
+           turkuaz    #0e9594 -> 3,23     mor     #7b3fe4 -> 5,05 GECER
+           lacivert   #2c3e8f -> 8,45 GECER
+       Ucu esigin altindaydi. Gecmeyenler koyulastirildi, gecenler
+       ozgun birakildi -- gerekmeyen yerde renk degistirmek, olcumu
+       degil zevki uygulamak olurdu.
+
+       OZGULLUK NOTU: ustteki koyu kurallar `html[data-renk="x"]:root`
+       diye yaziliyor; bu bilesik secici (0,2,1) benim ilk yazdigim
+       `html[data-renk="x"]` (0,1,1) kuralindan GUCLU. Medya sorgusu
+       icinde olmak ozgullugu ARTIRMAZ, o yuzden koyu deger acikta da
+       kazaniyordu. Burada ayni bicim kullaniliyor ki gercekten ezsin.
+       Bunu once olcum yakaladi: acikta lacivert #7688d9 (koyu degeri)
+       cikiyordu. */
+    --vurgu-metin:#0068d8;   /* 4,67 / 5,29 / 4,53 -- #1f8fff 2,88 idi */
+    color-scheme: light;
   }
+  html:not([data-tema])[data-renk="mor"]     { --vurgu-metin:#7b3fe4; }  /* 5,05 gecer */
+  html:not([data-tema])[data-renk="turuncu"] { --vurgu-metin:#b54c01; }  /* 3,21 -> 4,64 */
+  html:not([data-tema])[data-renk="turkuaz"] { --vurgu-metin:#007877; }  /* 3,23 -> 4,69 */
+  html:not([data-tema])[data-renk="lacivert"]{ --vurgu-metin:#2c3e8f; }  /* 8,45 gecer */
 }
 /* ===== HAREKET ====================================================
    1. VARSAYILAN HAL DAIMA GORUNUR. Butun hareket asagidaki medya
@@ -166,7 +346,7 @@ h1{font-size:20px; margin:6px 0 12px; display:flex; align-items:center; gap:8px;
 .altmenu button{flex:1; background:none; border:0; color:var(--yazi3);
   font-size:11px; font-weight:700; padding:6px 2px; cursor:pointer; min-height:52px;}
 .altmenu button .ikon{font-size:20px; display:block; margin-bottom:2px;}
-.altmenu button.aktif{color:var(--vurgu);}
+.altmenu button.aktif{color:var(--vurgu-metin);}
 
 /* ==== Yuzen ekle dugmesi ==== */
 .fab{position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom));
@@ -278,6 +458,16 @@ select{appearance:none;}
     </div>
     <div id="renk-panel" class="kart" hidden
          style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+      <button type="button" data-tema=""     title="Cihaza uy" aria-label="Tema: cihaza uy">🌓</button>
+      <button type="button" data-tema="acik" title="Açık tema" aria-label="Tema: açık">☀️</button>
+      <button type="button" data-tema="koyu" title="Koyu tema" aria-label="Tema: koyu">🌙</button>
+      <!-- Ayrac METIN degil CIZGI. Once `|` karakteriydi ve
+           `opacity:.45` ile soluklastirilmisti; olcumde acik kipte
+           2,80, koyu kipte 4,24 verdi -- ikisi de esigin altinda.
+           Suslemek icin konan bir karakterin okunabilirlik borcu
+           olmasi anlamsiz: karakteri atip cizgi yaptim. Ekran
+           okuyucu da bosuna "dikey cizgi" okumuyor. -->
+      <span aria-hidden="true" style="display:inline-block;width:1px;height:1.1em;background:var(--cizgi);margin:0 5px;vertical-align:middle"></span>
       <button type="button" data-renk=""         title="Mavi (varsayılan)" aria-label="Mavi">🔵</button>
       <button type="button" data-renk="mor"      title="Mor"      aria-label="Mor">🟣</button>
       <button type="button" data-renk="turuncu"  title="Turuncu"  aria-label="Turuncu">🟠</button>
@@ -298,7 +488,7 @@ select{appearance:none;}
 
   <!-- Ayni adreste alti uygulama var; birbirlerini tanitsinlar -->
   <p class="kucuk" style="text-align:center;margin:18px 0 0;font-size:12.5px;color:var(--yazi3)">
-    <a href="gizlilik.html" style="color:var(--vurgu)">Gizlilik politikası</a> ·
+    <a href="gizlilik.html" style="color:var(--vurgu-metin)">Gizlilik politikası</a> ·
     Veriler yalnızca bu cihazda saklanır
   </p>
 
@@ -848,7 +1038,25 @@ document.getElementById("davet-gizle").onclick=()=>{
   function uygula(r){
     if(r) document.documentElement.setAttribute("data-renk", r);
     else  document.documentElement.removeAttribute("data-renk");
+    isaretle("data-renk", r || "");
   }
+  var TEMA_ANAHTAR = "muhasebe-tema";
+  /* Hangi dugmenin secili oldugunu HEM gorsel HEM ekran okuyucu icin
+     isaretler. `aria-pressed` sart: halka gormeyen kullaniciya bir sey
+     anlatmaz. */
+  function isaretle(oznitelik, deger){
+    var panel = document.getElementById("renk-panel");
+    if(!panel) return;
+    panel.querySelectorAll("[" + oznitelik + "]").forEach(function(b){
+      b.setAttribute("aria-pressed", (b.getAttribute(oznitelik) || "") === deger ? "true" : "false");
+    });
+  }
+  function temaUygula(t){
+    if(t === "acik" || t === "koyu") document.documentElement.setAttribute("data-tema", t);
+    else document.documentElement.removeAttribute("data-tema");
+    isaretle("data-tema", t || "");
+  }
+  try { temaUygula(localStorage.getItem(TEMA_ANAHTAR) || ""); } catch(e){}
   try { uygula(localStorage.getItem(ANAHTAR) || ""); } catch(e){}
   var btn = document.getElementById("renk-btn");
   var panel = document.getElementById("renk-panel");
@@ -860,6 +1068,17 @@ document.getElementById("davet-gizle").onclick=()=>{
   };
   panel.querySelectorAll("button").forEach(function(b){
     b.onclick = function(){
+      if(b.hasAttribute("data-tema")){
+        var t = b.getAttribute("data-tema") || "";
+        temaUygula(t);
+        /* SECIM yazilir, TURETILEN deger yazilmaz. "" = cihaza uy. */
+        try { t ? localStorage.setItem(TEMA_ANAHTAR, t) : localStorage.removeItem(TEMA_ANAHTAR); } catch(e){}
+        panel.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        var dt = document.getElementById("duyuru");
+        if(dt) dt.textContent = "Tema: " + (b.title || "cihaza uy");
+        return;
+      }
       var r = b.getAttribute("data-renk") || "";
       uygula(r);
       try { r ? localStorage.setItem(ANAHTAR, r) : localStorage.removeItem(ANAHTAR); } catch(e){}

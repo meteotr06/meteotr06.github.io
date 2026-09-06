@@ -9,7 +9,7 @@
 //   3) Sayfa yerine geçen yedek yalnızca "navigate" isteğine döner.
 //      (Eskiden .js isteğine index.html dönüyordu ve site komple çöküyordu.)
 
-const SURUM = "hesap-v97";
+const SURUM = "hesap-v101";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.

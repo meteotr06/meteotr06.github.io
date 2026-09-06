@@ -125,6 +125,10 @@
         if (!$('#fGiris').value.trim() || !$('#fCikis').value.trim()) {
             goster(kutu, false); goster(uyari, false);
             goster($('#fireKaydet'), false);
+            /* MAKINE DE GIZLENIR. Ekranda kalsaydi ONCEKI hesabin
+               dolgusunu gosterirdi -- kullanici alanlari sildikten
+               sonra hala eski sayiya bakiyor olurdu. */
+            goster($('#makineKap'), false);
             sonFire = null;
             return;
         }
@@ -132,6 +136,7 @@
             goster(kutu, false);
             uyari.textContent = s.mesaj;
             goster(uyari, true);
+            goster($('#makineKap'), false);
             goster($('#fireKaydet'), false);
             sonFire = null;
             return;
@@ -159,8 +164,115 @@
         $('#fireSag').textContent = T('etiketKayip', kg(s.giris - s.cikis));
         cekirdekCiz(s.fire);
         etiketRengiTazele();
+        makineyiCiz(s);
+        try { makine3dTazele(); } catch (e) {}
 
         duyur(T('duyurFire', sayi(s.fire, 1), kg(s.cikis)));
+    }
+
+    /* ---------------------------------------------------------------
+       KAVURMA MAKİNESİ — SÜS DEĞİL, GÖSTERGE
+
+       Kullanıcı istedi (05.09.2026): "böyle çok kullanılan makineden
+       bir tane 3D şekil koyalım ama ETKİLEŞİMLİ olsun."
+
+       Etkileşimli olmasının anlamı burada şu: çizimdeki her parça
+       kullanıcının GİRDİĞİ bir sayıya bağlı. Süs bir animasyon
+       gürültüdür ve pil yakar; bir gösterge bilgi taşır.
+
+         huni dolgusu     → giren yeşil (kg)
+         tambur rengi     → ölçülen fire: yeşilden koyu kahveye
+         soğutma tepsisi  → çıkan kavrulmuş (kg)
+         buhar            → kaybolan kilo, fire arttıkça belirginleşir
+         panel            → kullanıcının Defter'e yazdığı çıkış sıcaklığı;
+                            YAZMADIYSA "—" (uydurulmuş bir sıcaklık YOK)
+
+       ÖLÇEK EN BÜYÜK GİRDİYE GÖRE: iki kap da aynı orana bölünüyor,
+       yoksa 10 kg giren ile 8,5 kg çıkan kap gözle aynı görünürdü ve
+       fire kaybolurdu -- oysa gösterilmek istenen tam da o fark.
+
+       Hareketin tamamı `prefers-reduced-motion` altında (stil.css);
+       hareket kapalıyken de bütün bilgi duruyor, çünkü bilgi
+       YÜKSEKLİKTE ve RENKTE, harekette değil.
+       --------------------------------------------------------------- */
+    function makineyiCiz(s) {
+        var kap = $('#makineKap');
+        if (!kap) return;
+        goster(kap, true);
+
+        /* Ortak ölçek: en büyük değer kabın tamamını doldurur. */
+        var enBuyuk = Math.max(s.giris, s.cikis, 0.0001);
+        var HUNI_Y = 26, TEPSI_Y = 17;
+
+        var huni = $('#huniDolgu');
+        if (huni) {
+            var h = HUNI_Y * (s.giris / enBuyuk);
+            huni.setAttribute('y', String(38 - h));
+            huni.setAttribute('height', String(h));
+        }
+        var tepsi = $('#tepsiDolgu');
+        if (tepsi) {
+            var t = TEPSI_Y * (s.cikis / enBuyuk);
+            tepsi.setAttribute('y', String(167 - t));
+            tepsi.setAttribute('height', String(t));
+        }
+
+        /* TAMBURDAKİ ÇEKİRDEKLER kavrulma rengini taşıyor. Renk
+           `cekirdekCiz` ile AYNI hesaptan geliyor -- iki ayrı formül
+           olsaydı ikisi ayrışır ve aynı ekranda iki farklı "kavrulma"
+           görünürdü (K-81). */
+        var renk = kavrulmaRengi(s.fire);
+        var g = $('#tamburCekirdek');
+        if (g) {
+            if (!g.childNodes.length) {
+                /* Konumlar SABİT: her hesapta yeniden dağıtılsaydı
+                   çekirdekler zıplar, kullanıcı bunu "değişti" sanırdı. */
+                var yer = [[-11,-6],[0,-10],[11,-5],[-7,3],[5,2],[-1,9],[13,5],[-14,4]];
+                yer.forEach(function (p) {
+                    var e = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                    e.setAttribute('cx', String(130 + p[0]));
+                    e.setAttribute('cy', String(86 + p[1]));
+                    e.setAttribute('rx', '4'); e.setAttribute('ry', '5.5');
+                    e.setAttribute('class', 'tambur-cekirdek');
+                    g.appendChild(e);
+                });
+            }
+            $$('#tamburCekirdek .tambur-cekirdek').forEach(function (e) {
+                e.setAttribute('fill', renk);
+            });
+        }
+
+        /* BUHAR = kaybolan kilo. Fire %25'te tam görünür; ölçek
+           uydurma değil, `cekirdekCiz` ile aynı üst sınırı kullanıyor. */
+        var buhar = $('#buhar');
+        if (buhar) {
+            buhar.setAttribute('opacity',
+                String(Math.max(0, Math.min(1, s.fire / 25)).toFixed(2)));
+        }
+
+        /* PANEL: yalnız KULLANICININ yazdığı sıcaklık. Yoksa "—".
+           Buraya makul bir sayı koymak, ölçülmemiş bir değeri ölçüm
+           gibi göstermek olurdu -- bu takımın en pahalı hata sınıfı. */
+        var isi = $('#panelIsi');
+        if (isi) {
+            var cikisIsi = C.sayi_oku(($('#pCikisIsi') && $('#pCikisIsi').value) || '');
+            isi.textContent = cikisIsi === null ? '—' : sayi(cikisIsi, 0) + '°';
+        }
+
+        var ozet = $('#makineOzet');
+        if (ozet) {
+            ozet.textContent = T('makineOzet', kg(s.giris), kg(s.cikis),
+                                 kg(s.giris - s.cikis));
+        }
+    }
+
+    /* Fire oranından kavrulma rengi. `cekirdekCiz` ile TEK kaynak:
+       ikisi ayrı hesaplasaydı aynı ekranda iki farklı renk çıkardı. */
+    function kavrulmaRengi(fire) {
+        var t = Math.max(0, Math.min(1, fire / 20));
+        return 'rgb(' + Math.round(93 + (108 - 93) * t) + ','
+                      + Math.round(120 + (60 - 120) * t) + ','
+                      + Math.round(62 + (28 - 62) * t) + ')';
     }
 
     /* ---------------------------------------------------------------
@@ -1163,6 +1275,12 @@
         try { harmanHesapla(); } catch (e) {}
         try { demlemeHesapla(); } catch (e) {}
         try { dtrGoster(); } catch (e) {}
+        /* 3D makine sekmesinin ÜRETİLEN metinleri de dile bağlı:
+           alttaki not ve parça açıklamaları. Buraya eklenmeseydi
+           düğmeler Türkçeye döner, not İngilizce kalırdı -- ekranda
+           yarım çeviri. Ölçerek görüldü (06.09.2026). */
+        try { makine3dTazele(); } catch (e) {}
+        try { parcaListesiCiz(); } catch (e) {}
         try {
             cevirHesapla($('#hHedef').value.trim() ? 'hedef' : 'yesil');
         } catch (e) {}
@@ -1178,6 +1296,135 @@
             eski.forEach(function (b) { bilesenEkle(b.kod, b.oran); });
             harmanHesapla();
         } catch (e) {}
+    }
+
+    /* ================= 3D MAKİNE =================
+       Kullanıcı istedi: "oynanır falan, ayrı bir sekmede 3D."
+
+       GERÇEK 3D, KİTAPLIKSIZ. Katmanlar `translateZ` ile farklı
+       derinliklerde; kap `preserve-3d` ile döndürülüyor. Sürüklerken
+       katmanlar birbirine göre kayıyor -- derinlik buradan geliyor,
+       resim numarasından değil.
+
+       TAMBUR GERÇEK SİLİNDİR: 16 yüzey halka üzerinde diziliyor, her
+       biri kendi açısına döndürülüp yarıçap kadar öne itiliyor.
+       Döndürünce arkası da görünüyor.
+
+       RENK ÖLÇÜLEN KAVRULMADAN GELİYOR. Hiç fire ölçülmediyse nötr
+       yeşil duruyor -- uydurulmuş bir kavrulma göstermiyoruz. Bu
+       takımın en pahalı hata sınıfı, ekranda ölçülmemiş bir değeri
+       ölçüm gibi göstermektir. */
+    var _3d = { x: -12, y: -28, surukluyor: false, sonX: 0, sonY: 0 };
+
+    function makine3dKur() {
+        var sahne = $('#sahne'), dunya = $('#dunya'), tambur = $('#tambur3d');
+        if (!sahne || !dunya || !tambur) return;
+
+        /* --- silindiri kur: 16 yüzey --- */
+        var YUZ = 16, YARICAP = 30;
+        for (var i = 0; i < YUZ; i++) {
+            var d = document.createElement('div');
+            d.className = 'yuzey';
+            d.style.transform = 'rotateY(' + (i * (360 / YUZ)) + 'deg) '
+                              + 'translateZ(' + YARICAP + 'px)';
+            /* Yüzeyler halka boyunca hafifçe koyulaşıyor: ışık tek
+               yönden geliyormuş gibi dursun, yoksa silindir düz bir
+               daire gibi görünür. */
+            d.style.filter = 'brightness(' +
+                (0.72 + 0.28 * Math.cos(i * 2 * Math.PI / YUZ)).toFixed(3) + ')';
+            tambur.appendChild(d);
+        }
+
+        function ciz() {
+            dunya.style.transform = 'rotateX(' + _3d.x + 'deg) rotateY(' + _3d.y + 'deg)';
+        }
+        ciz();
+
+        /* --- SÜRÜKLEYEREK DÖNDÜR ---
+           `setPointerCapture`: parmak sahnenin dışına çıksa da
+           döndürme sürsün. Olmadan, kenara gelince hareket kopuyor. */
+        sahne.addEventListener('pointerdown', function (e) {
+            _3d.surukluyor = true;
+            _3d.sonX = e.clientX; _3d.sonY = e.clientY;
+            try { sahne.setPointerCapture(e.pointerId); } catch (x) {}
+        });
+        sahne.addEventListener('pointermove', function (e) {
+            if (!_3d.surukluyor) return;
+            _3d.y += (e.clientX - _3d.sonX) * 0.6;
+            /* Dikey açı KISITLI (-60..+60): sınırsız bırakılırsa
+               makine ters dönüyor ve kullanıcı nerede olduğunu
+               kaybediyor. */
+            _3d.x = Math.max(-60, Math.min(60, _3d.x - (e.clientY - _3d.sonY) * 0.6));
+            _3d.sonX = e.clientX; _3d.sonY = e.clientY;
+            ciz();
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (o) {
+            sahne.addEventListener(o, function () { _3d.surukluyor = false; });
+        });
+
+        /* --- KLAVYEYLE DE DÖNSÜN ---
+           Yalnız sürüklemeyle bırakmak, klavye kullanan kullanıcıyı
+           tamamen dışarıda bırakırdı. */
+        sahne.addEventListener('keydown', function (e) {
+            var a = e.shiftKey ? 15 : 5, t = true;
+            if (e.key === 'ArrowLeft') _3d.y -= a;
+            else if (e.key === 'ArrowRight') _3d.y += a;
+            else if (e.key === 'ArrowUp') _3d.x = Math.max(-60, _3d.x - a);
+            else if (e.key === 'ArrowDown') _3d.x = Math.min(60, _3d.x + a);
+            else t = false;
+            if (t) { e.preventDefault(); ciz(); }
+        });
+
+        var don = $('#donBtn');
+        if (don) don.addEventListener('click', function () { _3d.y += 45; ciz(); });
+        var sfr = $('#sifirlaBtn');
+        if (sfr) sfr.addEventListener('click', function () {
+            _3d.x = -12; _3d.y = -28; ciz();
+        });
+
+        makine3dTazele();
+        parcaListesiCiz();
+    }
+
+    /* Fire sekmesinde ölçülen kavrulma buraya taşınıyor. Ölçüm yoksa
+       DOKUNMUYORUZ: nötr yeşil kalıyor ve not öyle söylüyor. */
+    function makine3dTazele() {
+        var kok = document.documentElement;
+        var not = $('#makine3dNot');
+        var panel = $('#panel3d');
+        if (sonFire && isFinite(sonFire.fire)) {
+            kok.style.setProperty('--tambur-renk', kavrulmaRengi(sonFire.fire));
+            if (not) not.textContent = T('makine3dOlculdu', yuzde(sonFire.fire, 1));
+        } else {
+            kok.style.removeProperty('--tambur-renk');
+            if (not) not.textContent = T('makine3dOlculmedi');
+        }
+        if (panel) {
+            var i = C.sayi_oku(($('#pCikisIsi') && $('#pCikisIsi').value) || '');
+            panel.textContent = i === null ? '—' : sayi(i, 0) + '°';
+        }
+    }
+
+    /* Parça listesi: hangi sayının nereye gittiğini anlatır.
+       Kullanıcı "daha kolay bir anlatımla işlevi gerçekleştirebilme"
+       istedi -- makinenin parçalarını uygulamanın alanlarına
+       bağlamak, metinle anlatmaktan daha çabuk öğretiyor. */
+    function parcaListesiCiz() {
+        var d = $('#parcaListe');
+        if (!d) return;
+        d.innerHTML = '';
+        [['parcaHuni', 'parcaHuniAcik'],
+         ['parcaTambur', 'parcaTamburAcik'],
+         ['parcaTepsi', 'parcaTepsiAcik'],
+         ['parcaPanel', 'parcaPanelAcik'],
+         ['parcaKavuz', 'parcaKavuzAcik']].forEach(function (p) {
+            var s = document.createElement('div');
+            s.className = 'cift';
+            var dt = document.createElement('dt'); dt.textContent = T(p[0]);
+            var dd = document.createElement('dd'); dd.textContent = T(p[1]);
+            s.appendChild(dt); s.appendChild(dd);
+            d.appendChild(s);
+        });
     }
 
     /* ================= BAŞLAT ================= */
@@ -1234,6 +1481,7 @@
         demlemeKur();
         partiFormKur();
         defterCiz();
+        makine3dKur();
 
         /* Dil değişince: duran metinleri `Dil.uygula()` çevirir (dil.js
            içinde), üretilenleri burası yeniden çizer. İkisi ayrı ayrı
