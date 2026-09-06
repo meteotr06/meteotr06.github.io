@@ -1317,11 +1317,43 @@ function portfoyCiz() {
     }
 
     const renkler = ["#4dd4c0", "#7aa2ff", "#ffb347", "#ff6b6b", "#a78bfa", "#35d07f", "#f472b6", "#60a5fa"];
-    let toplam = 0, toplamMaliyet = 0;
+    /* KÂR/ZARARIN PAYI İLE PAYDASI AYNI KALEMLERDEN GELMELİ.
+
+       KUSUR (06.09.2026'da ölçülerek bulundu): `toplam` BÜTÜN
+       kalemleri sayıyordu, `toplamMaliyet` ise yalnız alış fiyatı
+       GİRİLMİŞ olanları. Sonra kâr `toplam - toplamMaliyet` diye
+       hesaplanıyordu — iki farklı kümenin farkı.
+
+       Alış fiyatını boş bırakmak DESTEKLENEN bir seçenek: alanın
+       kendi ipucu "boş bırakılabilir" diyor. Yani kullanıcı kuralına
+       uyarak kullanıyor ve karşılığında şişmiş bir kâr görüyor.
+
+       ÖLÇÜLDÜ: 1000 dolar (alış 40) + 10 gram altın (alış boş),
+       güncel 41 TL ve 4.500 TL iken ekranda
+           "Kâr / zarar  46.000,00 ₺ (+115,00%)"
+       yazıyordu. Doğrusu 1.000,00 ₺ (+%2,50). KIRK ALTI KAT.
+
+       İşaret bile dönebiliyordu: gerçekte zararda olan bir portföy
+       kârda görünebiliyordu.
+
+       Hiç kimse alış girmezse satır zaten gizleniyordu; yani hata
+       YALNIZCA karışık portföyde çıkıyor ve hiçbir uyarı vermiyor.
+       Satır bazlı yüzdeler doğru çalıştığı için ekranda tutarsızlık
+       da görünmüyordu — özet kirli, satırlar temiz.
+
+       DÜZELTME: kâr yalnız MALİYETİ BİLİNEN kalemlerden hesaplanıyor,
+       ve maliyeti bilinmeyen bir kısım varsa kullanıcıya SÖYLENİYOR.
+       Sessizce eksik hesaplamak, yanlış hesaplamanın kibar hâlidir. */
+    let toplam = 0, toplamMaliyet = 0, maliyetliDeger = 0, maliyetsizDeger = 0;
     kalemler.forEach((k, i) => {
         k.renk = renkler[i % renkler.length];
         toplam += k.deger;
-        if (k.alis) toplamMaliyet += k.alis * k.miktar;
+        if (k.alis) {
+            toplamMaliyet += k.alis * k.miktar;
+            maliyetliDeger += k.deger;
+        } else {
+            maliyetsizDeger += k.deger;
+        }
     });
 
     // 1 ay sonrası aralık: her varlığın kendi bandı toplanır.
@@ -1338,10 +1370,15 @@ function portfoyCiz() {
     });
 
     const usdKur = durum.veri.seriler.USD[durum.veri.seriler.USD.length - 1];
-    const kar = toplamMaliyet ? toplam - toplamMaliyet : null;
+    /* Pay da payda da AYNI kalemlerden: maliyeti bilinenler. */
+    const kar = toplamMaliyet ? maliyetliDeger - toplamMaliyet : null;
 
     $("#portfoyOzet").innerHTML = `<div class="kutu"> <div class="sonuc-satir buyuk"><span>Toplam değer</span><b>${paraYaz(toplam)}</b></div> <div class="sonuc-satir"><span>Dolar karşılığı</span><b>${sayi(toplam / usdKur, 2)} $</b></div> ${kar !== null ? `<div class="sonuc-satir"><span>Kâr / zarar</span> <b class="${kar >= 0 ? "yukari" : "asagi"}">${paraYaz(kar)} (${yuzde(kar / toplamMaliyet * 100)})</b></div>` : ""}
-        <div class="sonuc-satir"><span>1 ay sonra merkezi tahmin</span><b>${paraYaz(merkez)}</b></div> <div class="sonuc-satir"><span>1 ay sonra %68 aralık</span><b>${paraYaz(alt)} – ${paraYaz(ust)}</b></div> <div class="dagilim">${kalemler.map(k => `<div style="width:${k.deger / toplam * 100}%;background:${k.renk}"></div>`).join("")}</div> <div class="dagilim-liste">${kalemler.map(k => `<span><i style="background:${k.renk}"></i>${k.ad} %${sayi(k.deger / toplam * 100, 1)}</span>`).join("")}</div> ${tahminsiz > 0 ? `<p class="kucuk">Not: portföyün ${paraYaz(tahminsiz)} kadarlık kısmı (fonlar)
+        <div class="sonuc-satir"><span>1 ay sonra merkezi tahmin</span><b>${paraYaz(merkez)}</b></div> <div class="sonuc-satir"><span>1 ay sonra %68 aralık</span><b>${paraYaz(alt)} – ${paraYaz(ust)}</b></div> <div class="dagilim">${kalemler.map(k => `<div style="width:${k.deger / toplam * 100}%;background:${k.renk}"></div>`).join("")}</div> <div class="dagilim-liste">${kalemler.map(k => `<span><i style="background:${k.renk}"></i>${k.ad} %${sayi(k.deger / toplam * 100, 1)}</span>`).join("")}</div> ${maliyetsizDeger > 0 && kar !== null ? `<p class="kucuk">Kâr / zarar, portföyün
+            <b>${paraYaz(maliyetliDeger)}</b> kadarlık kısmı için hesaplandı — geri kalan
+            ${paraYaz(maliyetsizDeger)} için alış fiyatı girilmedi, o kısım hesaba
+            KATILMADI. Alış fiyatlarını girerseniz gerçek kârınızı görürsünüz.</p>` : ""}
+        ${tahminsiz > 0 ? `<p class="kucuk">Not: portföyün ${paraYaz(tahminsiz)} kadarlık kısmı (fonlar)
             fiyat geçmişi olmadığı için tahmine katılmadı, olduğu gibi sayıldı.</p>` : ""}
  </div>`;
 
