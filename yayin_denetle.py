@@ -64,6 +64,9 @@ UYGULAMALAR = [
     ("Haftalık Planlayıcı", r"D:\Projeler\06 Programlama",  None,           "/planlayici/"),
     ("Göz Molası",        r"D:\Projeler\05 Ekran koruması", None,    "/goz-molasi/"),
     ("Arsa Rehberi",      r"D:\Projeler\10 Arsa Rehberi",   None,           "/arsa/"),
+    # 07.09.2026 EKLENDI -- yayina cikan gun, ayni gun nobete yazildi.
+    # Denetlenmeyen uygulama "temiz" degildir, KOR NOKTADIR (bkz. /kahve/).
+    ("Repertuar",         r"D:\Projeler\13 Repertuar",     "repertuar",    "/repertuar/"),
     # 04.09.2026 EKLENDİ — ve eklenene kadar KÖR NOKTAYDI.
     #
     # /kahve/ aylardır yayındaydı ama bu listede yoktu. Yani nöbetçi

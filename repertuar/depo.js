@@ -29,6 +29,17 @@ function sarkiDogrula(sarki) {
   return null;
 }
 
+/* Kullanicinin yazdigi metni TAM SAYI olarak okur; okuyamazsa NaN doner.
+   NIYE parseInt yetmez: parseInt("3,5") = 3 ve parseInt("3abc") = 3 doner.
+   Yani kullanici "3,5" yazar, uygulama sessizce 3 kaydeder ve kimse fark
+   etmez. Burada once yazimin TAMAMI rakam mi diye bakilir.
+   (Ayrica ev kurali: sayi kutusu type="number" olmaz -- Turkce yazimi bozar.) */
+function tamSayiOku(metin) {
+  var t = String(metin === null || metin === undefined ? '' : metin).trim();
+  if (!/^\d+$/.test(t)) return NaN;
+  return parseInt(t, 10);
+}
+
 /* SET (sahne sirasi). Ayni sarki birden fazla kez olabilir — bir sarki
    iki kez calinabilir, bu hata degil. */
 function setDogrula(set) {

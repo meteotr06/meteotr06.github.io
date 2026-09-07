@@ -278,7 +278,7 @@ function duzenAc(sarki) {
 }
 
 function duzenKaydet() {
-  var kapoDeger = parseInt($('dKapo').value, 10);
+  var kapoDeger = tamSayiOku($('dKapo').value);   // "3,5" sessizce 3 olmaz
   var taslak = {
     id: duzenlenen.id,
     ad: $('dAd').value.trim(),
