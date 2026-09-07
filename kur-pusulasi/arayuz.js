@@ -1190,12 +1190,40 @@ function ekonomiCiz() {
         if (!s) return null;
         const o = varlikOzeti(p.kod, durum.veri.tarihler, s);
         return { p: p, yil: o.yil, tlKaybi: o.yil !== null ? (1 - 1 / (1 + o.yil / 100)) * 100 : null };
-    }).filter(x => x && x.yil !== null).sort((a, b) => b.yil - a.yil).slice(0, 12);
-    const enBuyuk = Math.max(...perf.map(x => Math.abs(x.yil)));
-    $("#tlPerformans").innerHTML = perf.map(x => `
+    }).filter(x => x && x.yil !== null).sort((a, b) => b.yil - a.yil);
+
+    /* LISTE KESILIYOR AMA DOLAR TAM LISTEDE ARANIYOR (06.09.2026).
+       Onceden `.slice(0, 12)` ZINCIRIN ICINDEYDI ve asagidaki ozet
+       cumlesi dolari KESILMIS listede ariyordu:
+           perf.find(x => x.p.kod === "USD") ? ... : 0
+       PARALAR 29 para iceriyor ve liste TL karsisindaki yillik getiriye
+       gore siralaniyor. Dolardan daha cok deger kazanan 12 para olmasi
+       gayet olagan -- o zaman `find` bos donuyor ve cumle su hale
+       geliyordu:
+           "TL'nin dolar karsisindaki 1 yillik alim gucu kaybi: %0,0"
+       Yani ekran, liranin dolar karsisinda HIC deger kaybetmedigini
+       soyluyordu. Bu bir doviz uygulamasinin Ekonomi sekmesindeki TEK
+       ozet cumlesi.
+
+       IKI AYRI KUSUR VARDI:
+       1) Arama, gosterim icin kisaltilmis listede yapiliyordu. Gosterim
+          kisitini veri kisiti sanmak.
+       2) Yedek deger 0 idi. Bilinmeyen bir buyuklugu 0 diye yazmak,
+          "kayip yok" demektir -- bu takimin defalarca kapattigi
+          sessiz sifir sinifi.
+
+       Artik dolar TAM listede araniyor; gercekten yoksa 0 degil "-"
+       yaziliyor ve neden bilinmedigi soyleniyor. */
+    const perfTumu = perf;
+    const perfGoster = perf.slice(0, 12);
+    const enBuyuk = Math.max(...perfGoster.map(x => Math.abs(x.yil)));
+    const usdKaydi = perfTumu.find(x => x.p.kod === "USD");
+    $("#tlPerformans").innerHTML = perfGoster.map(x => `
         <div class="sonuc-satir"> <span>${x.p.bayrak} ${x.p.ad}</span> <span style="display:flex;align-items:center;gap:8px"> <span style="display:inline-block;height:8px;border-radius:4px;background:${x.yil > 0 ? "var(--azalis)" : "var(--artis)"};width:${Math.abs(x.yil) / enBuyuk * 70}px"></span> <b class="${x.yil > 0 ? "asagi" : "yukari"}">${yuzde(x.yil)}</b> </span> </div>`).join("") +
         `<p class="kucuk">Pozitif = o para TL karşısında değer kazandı, yani TL değer kaybetti.
-        TL'nin dolar karşısındaki 1 yıllık alım gücü kaybı: <b>%${sayi(perf.find(x => x.p.kod === "USD") ? perf.find(x => x.p.kod === "USD").tlKaybi : 0, 1)}</b>.</p>`;
+        TL'nin dolar karşısındaki 1 yıllık alım gücü kaybı: <b>${
+            usdKaydi ? "%" + sayi(usdKaydi.tlKaybi, 1) : "—"
+        }</b>${usdKaydi ? "" : " <span class=\"kucuk\">(dolar için 1 yıllık geçmiş yok)</span>"}.</p>`;
 
     // Madenler
     const madenSatir = MADENLER.map(m => {

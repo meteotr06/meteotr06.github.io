@@ -896,14 +896,27 @@ function olasilikDilimleri(tahmin) {
 
 // Geçmişteki en sert 21 iş günlük (≈1 ay) hareketi bulur — "en kötü ay"senaryosu için
 function enSertAylikHareket(seri) {
+    /* OLCULMEDIYSE null DONER, 0 DEGIL (06.09.2026).
+       Onceden `enCok = 0, enAz = 0` ile basliyordu. Bu, "hic yukselis
+       gormedim" ile "en buyuk yukselis sifir" arasindaki farki siliyor:
+         · Surekli DUSEN bir seride hicbir d > 0 olmaz, enCok 0 kalir ve
+           senaryo ekrana "Son yillarin en hizli yukselisi %0,0
+           tekrarlarsa" diye cikar -- olculmemis bir sayiyi olculmus
+           gibi gosteren, anlamsiz bir satir.
+         · Surekli YUKSELEN seride ayni sey dusus tarafinda olur; orada
+           `< -0.5` kontrolu tesadufen sakliyordu, yukari tarafta boyle
+           bir kontrol YOKTU.
+       Simdi olculemeyen yon `null` doner ve cagiran taraf o senaryoyu
+       HIC gostermez. 21 gunluk pencere dolmuyorsa da null. */
     const temiz = seri.filter(x => x && isFinite(x));
-    let enCok = 0, enAz = 0;
+    let enCok = null, enAz = null;
     for (let i = 21; i < temiz.length; i++) {
         const d = temiz[i] / temiz[i - 21] - 1;
-        if (d > enCok) enCok = d;
-        if (d < enAz) enAz = d;
+        if (enCok === null || d > enCok) enCok = d;
+        if (enAz === null || d < enAz) enAz = d;
     }
-    return { yukari: enCok * 100, asagi: enAz * 100 };
+    if (enCok === null) return { yukari: null, asagi: null, pencereIsGunu: 21 };
+    return { yukari: enCok * 100, asagi: enAz * 100, pencereIsGunu: 21 };
 }
 
 // "Şu olay olursa"senaryoları — hepsi hesapla üretilir, uydurma yok
@@ -940,11 +953,49 @@ function olaySenaryolari(seri, kod, ayar, takvimGun) {
     // Geçmişin en sert ayı tekrarlarsa
     const sert = enSertAylikHareket(temiz);
     const olcek = takvimGun / 30;
-    ekle("Geçmişin en sert dönemi", spot * (1 + sert.yukari / 100 * olcek),
-        `Son ${Math.round(temiz.length / IS_GUNU_YIL)} yılın en hızlı ${takvimGun} günlük yükselişi (%${sayi(sert.yukari * olcek, 1)}) tekrarlarsa.`);
-    if (sert.asagi < -0.5) {
-        ekle("Geçmişin en sert düşüşü", spot * (1 + sert.asagi / 100 * olcek),
-            `Son yılların en hızlı ${takvimGun} günlük düşüşü (%${sayi(sert.asagi * olcek, 1)}) tekrarlarsa.`);
+
+    /* UC DUZELTME (06.09.2026):
+
+       1) FIYAT SIFIRIN ALTINA INEMEZ. `spot * (1 + asagi/100 * olcek)`
+          90 gunluk vadede (olcek = 3) su hale geliyordu:
+              asagi = -35  ->  1 + (-0,35 x 3) = -0,05  ->  NEGATIF FIYAT
+          Kriptolarda -%35'lik 21 gunluk hareket olagan; ekranda eksi
+          isaretli bir fiyat ve "%-105 dusus" cikiyordu. Matematiksel
+          olarak da imkansiz: bir varlik degerinin %100'unden fazlasini
+          kaybedemez. Artik %-95'te taban var ve bu taban ACIKCA
+          soyleniyor.
+
+       2) ETIKET OLCULEN PENCEREYI SOYLUYOR. Onceden "en hizli
+          ${takvimGun} gunluk yukselis" yaziyordu; oysa olculen pencere
+          HER ZAMAN 21 IS GUNU. 90 gun secen kullanici, 90 gunluk bir
+          olcum yapildigini saniyordu. Olculen 21 gunluk hareket, vadeye
+          DOGRUSAL carpiliyor.
+
+       3) OLCULEMEYEN YON GOSTERILMIYOR. `enSertAylikHareket` artik
+          olcemedigi yon icin null donuyor; asagidaki kontroller onu
+          eliyor. Onceden yukari yonde hic kontrol yoktu ve surekli
+          dusen bir seride "en hizli yukselis %0,0" satiri cikiyordu.
+
+       ACIK BIRAKILAN SORU -- bilerek degistirilmedi:
+       Dogrusal olcekleme (`olcek = takvimGun/30`) oynakligi zamanla
+       DOGRUSAL buyutuyor; istatistiksel dogrusu karekok-zamandir
+       (sigma ~ sqrt(t)). Yani 90 gunluk "en kotu durum" olcegi 3 yerine
+       ~1,73 olmaliydi. DEGISTIRMEDIM cunku bu bir MODEL kararidir ve
+       yonu kullanici aleyhine degil: dogrusal olcekleme daha GENIS bir
+       en-kotu-durum uretir, plan yapan kullanici icin temkinli taraftir.
+       Karekoke cevirmek en kotu durumu KUCULTUR. Bu karar olculerek
+       verilmeli, tek basima degistirmiyorum -- merkeze bildirilecek. */
+    const TABAN = -95;   // en fazla %95 dusus gosterilir
+    if (sert.yukari !== null && sert.yukari * olcek > 0.5) {
+        ekle("Geçmişin en sert dönemi", spot * (1 + sert.yukari / 100 * olcek),
+            `Son ${Math.round(temiz.length / IS_GUNU_YIL)} yılın en hızlı 21 iş günlük yükselişi, ${takvimGun} güne oranlanırsa (%${sayi(sert.yukari * olcek, 1)}).`);
+    }
+    if (sert.asagi !== null && sert.asagi * olcek < -0.5) {
+        const dususHam = sert.asagi * olcek;
+        const dusus = Math.max(TABAN, dususHam);
+        ekle("Geçmişin en sert düşüşü", spot * (1 + dusus / 100),
+            `Son yılların en hızlı 21 iş günlük düşüşü, ${takvimGun} güne oranlanırsa (%${sayi(dusus, 1)})` +
+            (dususHam < TABAN ? ` — oranlama %${sayi(dususHam, 1)} veriyordu, fiyat sıfırın altına inemeyeceği için %${TABAN}'te sınırlandı.` : ".")); 
     }
 
     // Enflasyon kadar artarsa (satın alma gücü paritesi mantığı)

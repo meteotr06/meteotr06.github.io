@@ -253,7 +253,14 @@ h4 { font-size: .875rem; margin: 0 0 6px; font-weight: 600; }
   line-height: 1.45;
 }
 .ys-govde { flex: 1 1 auto; }
-.yenilik-serit a { color: var(--vurgu); }
+/* BAGLANTI --vurgu2 ILE: seridin zemini `color-mix(in oklch,
+   var(--kart) 85%, var(--vurgu))`, yani yazinin KENDI renginin %15'ini
+   tasiyor. --vurgu ile yazinca acik temada orman 4,10 · gunbatimi 4,20
+   -- AA esigi 4,5'in altinda (12 halin 2'si). Bu serit "eski surumle
+   hesap yapiyor olabilirsiniz" uyarisini tasiyor (role="alert"); cikis
+   baglantisinin okunamamasi tam da en kotu yerde oluyor.
+   --vurgu2 olculdu: 12/12 geciyor, en kotu hal 5,93. */
+.yenilik-serit a { color: var(--vurgu2); }
 .ys-kapat {
   flex: 0 0 auto;
   background: none;
@@ -310,6 +317,21 @@ input, select, textarea {
        alanlari 290 px'e cikip sayfayi 10 px kaydiriyordu. */
     min-width: 0; max-width: 100%;
 }
+/* IPUCU YAZISI (::placeholder) -- RENK ACIKCA VERILIYOR.
+   07.09.2026 olculdu: kural HIC YOKTU, yani tarayici varsayilani
+   devredeydi. Chromium ipucunu `currentColor %54` yapar; --yazi
+   (#0f172a) beyaz uzerinde %54 ile #7d828c'ye duser: karsitlik 3,86,
+   AA esigi 4,5'in ALTINDA. Koyu tema geciyordu (5,42) -- kusur yalniz
+   ACIK temadaydi, bu yuzden koyu temada bakan biri sorunu goremezdi.
+   @media (prefers-contrast: more) da kurtarmiyordu: o blok --yazi'ya
+   dokunmuyor.
+   Ipucu METNI burada dekorasyon degil, bilgi tasiyor: "bos = yasal
+   sinir", "bos = hic calismayacagim", "bos = ilk asgari tutar".
+   Etiketin sylemedigini soyluyor, yani okunamamasi bilgi kaybidir.
+   --yazi2 olculdu: acik 5,28 · koyu 6,60; yuksek karsitlikta 7,58/12,30
+   -- accommodation da calisiyor (opacity kullanilmadigi icin).
+   `opacity: 1` sart: Firefox ipucuna kendi soldurmasini uygular. */
+::placeholder { color: var(--yazi2); opacity: 1; }
 input:focus, select:focus { outline: 2px solid var(--vurgu); outline-offset: -1px; border-color: var(--vurgu); }
 #arama { flex: 1; }
 #siralama { flex: 0 0 auto; width: auto; max-width: 46%; }
