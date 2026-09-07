@@ -318,6 +318,35 @@ function duzenSil() {
   yukle(); listeCiz(); depoUyarisiCiz(); ekranGoster('liste');
 }
 
+/* ---------- baski ----------
+   Kurallar TEK YERDE: stil.css icindeki `.baski` sinifi. Yazdirmadan hemen
+   once govdeye o sinif ekleniyor, bitince kaldiriliyor. `@media print`
+   kurallari KOPYALANMIYOR -- kopyalansaydi biri duzelip oteki bozuk kalabilir
+   ve bunu kimse goremezdi (K-102). */
+
+function baskiKipi(acik) {
+  document.body.classList.toggle('baski', !!acik);
+}
+
+function baskiyaHazirla() {
+  if (kaydirmaAcik) kaydirmaCevir();     // kayarken yazdirma
+  if (METRONOM.calisiyorMu()) { METRONOM.dur(); metronomCiz(); }
+  baskiKipi(true);
+}
+
+function baskidanDon() { baskiKipi(false); }
+
+window.addEventListener('beforeprint', baskiyaHazirla);
+window.addEventListener('afterprint', baskidanDon);
+if (window.matchMedia) {                 // Safari 'beforeprint' yerine bunu kullanir
+  var _bs = window.matchMedia('print');
+  if (_bs.addEventListener) {
+    _bs.addEventListener('change', function (o) {
+      if (o.matches) baskiyaHazirla(); else baskidanDon();
+    });
+  }
+}
+
 /* ---------- metronom ---------- */
 
 var METRONOM = MetronomKur();
@@ -603,6 +632,12 @@ function baglantilariKur() {
     $('ustBaslik').textContent = 'Set listeleri';
     ekranGoster('setler');
   });
+  $('yazdir').addEventListener('click', function () {
+    baskiyaHazirla();
+    window.print();
+    setTimeout(baskidanDon, 1000);       // 'afterprint' gelmezse ekran koyu temaya donsun
+  });
+
   $('mCal').addEventListener('click', function () {
     if (METRONOM.calisiyorMu()) { METRONOM.dur(); metronomCiz(); return; }
     METRONOM.ayarla(metronomBpm, parseInt($('mOlcu').value, 10));

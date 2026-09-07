@@ -190,3 +190,68 @@ textarea { min-height: 240px; resize: vertical; font-family: ui-monospace, Conso
 .set-satir .ad { flex: 1; }
 .set-satir.eksik { border-color: #6b2630; }
 .set-satir.eksik .ad { color: var(--uyari); }
+
+
+/* ================= BASKI =================
+   BURADAKI SESSIZ YANLIS: ekranda dogru gorunup KAGITTA bozuk cikmak.
+   Koyu tema oldugu gibi yazdirilirsa yazici ya sayfayi simsiyah basar
+   ya da rengi atar ve beyaz uzerine beyaz kalir. Ikisinde de kullanici
+   ekranda hicbir sey gormedigi icin hatayi ancak kagidi eline alinca
+   anlar -- yani provada, sahneye giderken.
+
+   TEK KAYNAK (K-102): kurallar yalnizca `.baski` sinifinda yazili.
+   `@media print` bu kurallari KOPYALAMAZ; arayuz yazdirmadan hemen once
+   govdeye `.baski` sinifini ekler. Boylece ekranda olctugumuz sey ile
+   kagida giden sey AYNI kural kumesidir -- kopyalasaydik biri duzelip
+   oteki bozuk kalabilirdi ve bunu kimse gormezdi. */
+
+.baski {
+  background: #fff;
+  color: #000;
+}
+.baski .govde { padding: 0; max-width: none; }
+
+/* Kagitta isi olmayanlar */
+.baski .ust,
+.baski .kumanda,
+.baski #metronomSerit,
+.baski .set-serit,
+.baski #etiketler,
+.baski .alan,
+.baski .bilgi-serit,
+.baski button { display: none !important; }
+
+.baski .baslik-satiri h2 { color: #000; font-size: 20pt; }
+.baski .baslik-satiri .sanatci { color: #333; }
+
+/* Hangi akorun gosterildigi KAGITTA DA yazar (K-22) */
+.baski .yazim-serit {
+  background: #fff; color: #000; border: 1px solid #000;
+  border-left-width: 4px; font-size: 10pt;
+}
+.baski .yazim-serit b { color: #000; }
+
+.baski .sarki { color: #000; }
+/* Akor kagitta RENKLE degil, KOYULUK ve olcuyle ayrilir: siyah-beyaz
+   yaziciya girdiginde amber acik gri olur ve soze karisir. */
+.baski .parca .ak { color: #000; font-weight: 800; }
+.baski .parca .ak.gecersiz { color: #000; text-decoration: underline; }
+.baski .bolum { color: #000; font-weight: 800; }
+.baski .yorum { color: #333; }
+.baski .tab { background: #fff; color: #000; border: 1px solid #888; }
+.baski .bozuk-satir { color: #000; background: #eee; border-left-color: #000; }
+.baski .uyari-kutu { background: #fff; color: #000; border: 1px solid #000; }
+.baski .uyari-kutu h3 { color: #000; }
+
+.baski .sema { background: #fff; color: #000; border: 1px solid #888; }
+.baski .sema .ad { color: #000; }
+.baski .sema.yok { color: #333; }
+
+/* Satir ve bolum kagit ortasindan BOLUNMEZ: yarim kalan bir satir,
+   calan kisiye sayfa cevirtir. */
+.baski .satir { break-inside: avoid; page-break-inside: avoid; }
+.baski .bolum { break-after: avoid; page-break-after: avoid; }
+.baski .sema  { break-inside: avoid; page-break-inside: avoid; }
+.baski .tab   { break-inside: avoid; page-break-inside: avoid; }
+
+@page { margin: 14mm; }
