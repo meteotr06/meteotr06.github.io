@@ -21,7 +21,7 @@ const PARAMETRE = {
        duzeltmeden habersiz kaliyordu.
        Artik yayin nobetcisi (02 Hava Dururmu/yayin_denetle.py) bu alani
        git gecmisiyle karsilastirip uyariyor. Elle degistirirken git'e bak. */
-    guncelleme: "2026-09-06",
+    guncelleme: "2026-09-07",
 
     // Asgari ücret (1 Ocak 2026'dan itibaren)
     asgariBrut: 33030.00,
