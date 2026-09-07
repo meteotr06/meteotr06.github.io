@@ -14,6 +14,15 @@
   --uyari: #ff6b7a;
   --iyi: #7ee2a8;
   --hedef: 44px;
+
+  /* Renkli zeminin YAZI rengi de belirtec olmali.
+     NIYE: zemin temaya gore degisip yazi SABIT kalirsa, yazi yalniz bir
+     temada okunur; otekinde sessizce kaybolur. Merkez bugun (07.09.2026)
+     Muhasebe'de tam bunu buldu: acik temada 5,31 -- koyu temada 2,34, ve
+     hem de para girilen formda. Bu uygulama su an tek temali; belirtec
+     yine de bastan kuruluyor ki ikinci tema geldigi gun aranmasin (K-102). */
+  --vurgu-yazi: #05111f;   /* --vurgu mavisinin uzerindeki yazi */
+  --akor-yazi:  #2a1a05;   /* --akor amberinin uzerindeki yazi */
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -38,9 +47,9 @@ button {
   cursor: pointer;
 }
 button:active { background: #2b3543; }
-button.birincil { background: var(--vurgu); border-color: var(--vurgu); color: #05111f; font-weight: 700; }
+button.birincil { background: var(--vurgu); border-color: var(--vurgu); color: var(--vurgu-yazi); font-weight: 700; }
 button.tehlike  { border-color: #6b2630; color: var(--uyari); }
-button.secili   { background: var(--vurgu); border-color: var(--vurgu); color: #05111f; font-weight: 700; }
+button.secili   { background: var(--vurgu); border-color: var(--vurgu); color: var(--vurgu-yazi); font-weight: 700; }
 
 input, select, textarea {
   width: 100%;
@@ -160,7 +169,7 @@ textarea { min-height: 240px; resize: vertical; font-family: ui-monospace, Conso
   min-height: 40px; padding: 0 14px; border-radius: 999px; font-size: 14px;
 }
 .etiket-serit button.secili { background: var(--vurgu); border-color: var(--vurgu);
-  color: #05111f; font-weight: 700; }
+  color: var(--vurgu-yazi); font-weight: 700; }
 
 /* --- set şeridi (şarkı görünümünde) --- */
 .set-serit {
