@@ -17,6 +17,14 @@
 'use strict';
 
 var AKTARIM_AYRAC = '{yeni_sarki}';
+var NOT_BASLA = '{notlar}';
+var NOT_BITIR = '{notlar_son}';
+
+/* Not blogu komutlari BILEREK `KOMUT_KARSILIGI`ye eklenmedi: orasi sarki
+   GOVDESINI cozen tablodur. Not, govdenin degil sarkinin alanidir; oraya
+   konsaydi kullanicinin govdeye yazdigi `{notlar}` sessizce yutulurdu. */
+function _notBaslangici(ad) { return ad === 'notlar' || ad === 'notes'; }
+function _notBitisi(ad) { return ad === 'notlar_son' || ad === 'end_of_notes' || ad === 'eon'; }
 
 /* Şarkının ALANI olan komutlar. Bunlar gövdeden çıkarılır: aynı değer iki
    yerde durursa hangisinin doğru olduğu belli olmaz. */
@@ -38,6 +46,12 @@ function disaAktarMetin(sarkilar) {
     if (s.ton) p.push('{ton: ' + s.ton + '}');
     if (s.tempo !== null && s.tempo !== undefined) p.push('{tempo: ' + s.tempo + '}');
     if (s.etiketler && s.etiketler.length) p.push('{etiketler: ' + s.etiketler.join(', ') + '}');
+    // Not COK SATIRLI olabilir; tek satirlik komuta sigmaz. Tab gibi blok yaziliyor.
+    if (s.notlar && s.notlar.trim()) {
+      p.push(NOT_BASLA);
+      p.push(s.notlar);
+      p.push(NOT_BITIR);
+    }
     p.push(s.govde);
     return p.join('\n');
   }).join('\n') + '\n';
@@ -61,6 +75,8 @@ function iceAktarMetin(metin) {
 
   var acik = null;          // { alanlar:{}, govde:[] }
   var tabIcinde = false;
+  var notIcinde = false;
+  var notSatirlari = [];
   var sira = 0;
 
   function yeniAc() { sira++; return { alanlar: {}, govde: [], sira: sira }; }
@@ -103,6 +119,7 @@ function iceAktarMetin(metin) {
     while (govde.length && govde[govde.length - 1].trim() === '') govde.pop();
 
     var sarki = yeniSarki({
+      notlar: (a.notlar === undefined ? '' : String(a.notlar)),
       ad: (a.ad === undefined ? '' : String(a.ad).trim()),
       sanatci: (a.sanatci === undefined ? '' : String(a.sanatci).trim()),
       yazim: (a.yazim === undefined ? 'duyulan' : a.yazim),
@@ -131,6 +148,25 @@ function iceAktarMetin(metin) {
     var satir = satirlar[i];
     var k = komutCozumle(satir);
     var karsilik = k ? KOMUT_KARSILIGI[k.ad] : null;
+
+    // NOT BLOGU: icerigi HAM. Icindeki `[Am]` akor sanilmaz, `{baslik}` sarki
+    // bolmez -- not, kullanicinin kendi cumlesidir.
+    if (notIcinde) {
+      if (k && _notBitisi(k.ad)) {
+        if (!acik) acik = yeniAc();
+        acik.alanlar.notlar = notSatirlari.join('\n');
+        notIcinde = false;
+      } else {
+        notSatirlari.push(satir);
+      }
+      continue;
+    }
+    if (k && _notBaslangici(k.ad)) {
+      if (!acik) acik = yeniAc();
+      notIcinde = true;
+      notSatirlari = [];
+      continue;
+    }
 
     // Tab bloğunun İÇİ ham metindir: oradaki hiçbir şey komut sayılmaz,
     // yoksa tab satırı şarkıyı ikiye bölebilir.
@@ -162,6 +198,11 @@ function iceAktarMetin(metin) {
     if (satir.trim() === '' && !acik) continue;    // şarkı dışındaki boşluk
     if (!acik) acik = yeniAc();                    // başlıksız metin de kayıt sayılır
     acik.govde.push(satir);
+  }
+  if (notIcinde) {
+    if (!acik) acik = yeniAc();
+    acik.alanlar.notlar = notSatirlari.join('\n');
+    uyarilar.push('dosyada kapanmamış bir {notlar} bloğu var');
   }
   kapat();
 

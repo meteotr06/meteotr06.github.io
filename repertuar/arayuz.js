@@ -185,6 +185,11 @@ function sarkiCiz() {
   });
   $('sarkiGovde').innerHTML = p.join('');
 
+  // Şarkıya özel not: varsa gösterilir, yoksa kutu HİÇ çıkmaz.
+  var not = (secili.notlar || '').trim();
+  $('sarkiNot').textContent = not;
+  $('sarkiNot').classList.toggle('gizli', not === '');
+
   // --- hangi yazım gösteriliyor: HER ZAMAN yazar ---
   var serit = [];
   serit.push('Ekranda <b>' + (istenenYazim === 'tutulan' ? 'TUTULAN' : 'DUYULAN') + '</b> akorlar');
@@ -272,6 +277,7 @@ function duzenAc(sarki) {
   $('dYazim').value = sarki.yazim || 'duyulan';
   $('dEtiketler').value = (sarki.etiketler || []).join(', ');
   $('dGovde').value = sarki.govde || '';
+  $('dNotlar').value = sarki.notlar || '';
   $('dSil').className = sarkilar.indexOf(sarki) === -1 ? 'tehlike gizli' : 'tehlike';
   $('ustBaslik').textContent = sarki.ad || 'Yeni şarkı';
   ekranGoster('duzen');
@@ -292,7 +298,7 @@ function duzenKaydet() {
     etiketler: $('dEtiketler').value.split(',')
       .map(function (e) { return e.trim(); }).filter(function (e) { return e; }),
     govde: $('dGovde').value,
-    notlar: duzenlenen.notlar || '',
+    notlar: $('dNotlar').value,
     eklendi: duzenlenen.eklendi || new Date().toISOString()
   };
 

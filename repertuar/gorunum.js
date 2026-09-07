@@ -74,12 +74,41 @@ function tumEtiketler(sarkilar) {
   return havuz.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
 }
 
+/* TURKCE ARAMA KATLAMASI
+   `toLocaleLowerCase('tr')` yetmez: Turkcede buyuk I'nin kucugu NOKTASIZ
+   "ı"dir. Yani "IsIk" -> "ısık" olur ve kullanicinin yazdigi "isik" ile
+   ESLESMEZ. Olculdu (07.09.2026): sinama tam bunu dusurdu.
+
+   Dahasi, telefonda kimse "Işık" diye yazmaz -- "isik" yazar. O yuzden
+   yalniz kucultmuyoruz, TURKCE HARFLERI DE KATLIYORUZ. Katlama ARAMAYA
+   ozeldir; sarkinin kendi yazimina dokunulmaz. */
+var TR_KATLAMA = {
+  'İ': 'i', 'I': 'i', 'ı': 'i', 'i': 'i',
+  'Ş': 's', 'ş': 's',
+  'Ğ': 'g', 'ğ': 'g',
+  'Ü': 'u', 'ü': 'u',
+  'Ö': 'o', 'ö': 'o',
+  'Ç': 'c', 'ç': 'c',
+  'Â': 'a', 'â': 'a', 'Î': 'i', 'î': 'i', 'Û': 'u', 'û': 'u'
+};
+
+function turkceKatla(metin) {
+  return Array.from(String(metin === null || metin === undefined ? '' : metin))
+    .map(function (h) { return TR_KATLAMA[h] || h; })
+    .join('')
+    .toLowerCase();
+}
+
+
 /* Metin aramasi — ad, sanatci ve etiketlerde gecer. */
 function metinleSuz(sarkilar, arama) {
-  var a = String(arama || '').trim().toLocaleLowerCase('tr');
+  var a = turkceKatla(String(arama || '').trim());
   if (!a) return sarkilar.slice();
   return sarkilar.filter(function (s) {
-    var havuz = [s.ad, s.sanatci].concat(s.etiketler || []).join(' ').toLocaleLowerCase('tr');
+    // Not da aranir: "kapo 3" diye arayip o şarkıyı bulabilmek gerek.
+    var havuz = [s.ad, s.sanatci, s.notlar || '']
+      .concat(s.etiketler || []).join(' ');
+    havuz = turkceKatla(havuz);
     return havuz.indexOf(a) !== -1;
   });
 }
