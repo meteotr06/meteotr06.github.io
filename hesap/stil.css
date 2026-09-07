@@ -35,6 +35,16 @@ html { font-size: 100%; }
     --cizgi: #e3e6eb;          /* saç teli ayraç */
     --yazi: #0f172a;
     --yazi2: #656c7a;   /* ölçüldü: zemine karşı kontrast 4,9 (AA sınırı 4,5) */
+    /* SOLUK DEKOR RENGI -- `opacity` YERINE.
+       07.09.2026 olculdu: `color: var(--yazi2); opacity: .65` yazan bir kural,
+       @media (prefers-contrast: more) accommodation'ini SESSIZCE IPTAL EDIYOR.
+       Accommodation belirteci degistirerek calisir; opacity ise belirtecten
+       SONRA uygulanir. Sistem 7,01 vaat ediyordu, ekrana 3,10 geliyordu.
+       Ayari acan kullanici, tam da o ayara ihtiyaci olan kullanicidir.
+       Deger, .65 ile zemin uzerinde BUGUN cizilen rengin ta kendisi:
+       gorunum degismedi, yalnizca accommodation artik yukseltebiliyor.
+       Nobetci: 02 Hava Dururmu/soldurma_denetle.py */
+    --yazi3: #979ca6;
     --vurgu: #1c5fd6;          /* kurumsal mavi */
     --vurgu2: #123f96;
     /* VURGU ZEMINININ UZERINDEKI YAZI -- ayri rol, olculerek (03.09.2026).
@@ -70,6 +80,7 @@ html[data-tema="koyu"] {
     --cizgi: #242935;
     --yazi: #eef1f6;
     --yazi2: #939cab;
+    --yazi3: #646a76;
     --vurgu: #6b9bff;
     --vurgu2: #a5c2ff;
     --vurgu-yazi: #0c0e13;
@@ -942,8 +953,8 @@ main:focus { outline: none; }
 
 /* Kontrast tercih edenler için */
 @media (prefers-contrast: more) {
-    :root { --cizgi: #94a3b8; --yazi2: #475569; }
-    html[data-tema="koyu"] { --cizgi: #64748b; --yazi2: #cbd5e1; }
+    :root { --cizgi: #94a3b8; --yazi2: #475569; --yazi3: #475569; }
+    html[data-tema="koyu"] { --cizgi: #64748b; --yazi2: #cbd5e1; --yazi3: #cbd5e1; }
     .kutu, .arac-kart { border-width: 2px; }
 }
 
@@ -1085,7 +1096,7 @@ main:focus { outline: none; }
     text-align: center; padding: 30px 20px;
     border-style: dashed; background: transparent;
 }
-.bekleyen-simge { font-size: 1.875rem; line-height: 1; color: var(--yazi2); margin-bottom: 10px; opacity: .65; }
+.bekleyen-simge { font-size: 1.875rem; line-height: 1; color: var(--yazi3); margin-bottom: 10px; }
 .bekleyen-baslik { font-weight: 600; color: var(--yazi); margin: 0 0 6px; font-size: .9375rem; }
 .kutu.bekleyen .kucuk { margin: 0; }
 

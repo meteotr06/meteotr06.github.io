@@ -2021,6 +2021,33 @@ function kurulumDugmesi() {
     kuruluMuSor().then((kurulu) => { if (!kurulu) kurulumSeridiCiz(alt); });
 }
 
+/* CEVRIMDISI VAADI -- KOSULU SOYLENIYOR (06.09.2026, olculdu)
+
+   Eski metin "internet olmadan da calisir" diyordu, KOSULSUZ.
+   Olculen gercek durum:
+     - sw.js CEKIRDEK on-onbellek listesinde 9 girdi var (ana sayfa +
+       varliklar). 59 arac sayfasinin HICBIRI listede degil.
+     - sw.js:154 sayfalari CALISMA ANINDA onbellege aliyor
+       (k.put(sayfaAnahtari, kopya)) -- yani DAHA ONCE ACILMIS araclar
+       internetsiz gercekten calisiyor.
+   Yani vaat yalan degildi, KOSULSUZ yazilmisti. Bosluk su: yeni kurulum
+   + hic arac acmadan cevrimdisi = yalniz ana sayfa acilir. Metin artik
+   kosulu soyluyor. (Ilk teshis bunu "59 sayfa cevrimdisi CALISMIYOR"
+   diye abartmisti; calisma ani onbellegi gozden kacmisti.)
+
+   ACIK SECENEK, sahibi karar versin: butun arac sayfalarini kurulumda
+   on onbellege almak. Olculdu -- 86 HTML toplam 1,7 MB ham / ~313 KB
+   gzip; yayina cikan arac sayfalari bunun altinda (test-*.html ve
+   sinama.html yayina cikmaz, K-48). TUZAK: cache.addAll TEK bir adres
+   404 verirse HEPSINI reddeder ve servis iscisi hic kurulmaz -- ayri
+   ayri cache.add + catch ile, kurulumu BLOKLAMADAN yapilmali.
+   sw.js'e bu gece DOKUNULMADI: o dosyada baska bir oturumun commit
+   edilmemis isi duruyor (K-27).
+
+   KENDI HATAM, kayda geciyor: bu aciklamayi ilk yazisimda serit
+   HTML'inin ICINE koydum ve icinde ters tirnak vardi -- sablon dizesi
+   orada kapandi, sayfa.js komple coktu (iskeletKur is not defined).
+   Sinamalar degil, TARAYICIDA OLCUM yakaladi (K-88). */
 function kurulumSeridiCiz(alt) {
 
     /* Arac sayfasiysa sonucu bekle. Rehber/dizin sayfalarinda bekleyecek

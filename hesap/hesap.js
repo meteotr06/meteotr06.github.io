@@ -15,7 +15,13 @@ const PARAMETRE = {
        kullaniciya sessizce %10 ekleniyordu). Kullanici ekranda "bir
        haftadir dokunulmamis" diye okuyordu.
        Nobetci: HESAP MAKINESI/TARIH-BAYAT.py -- git log ile karsilastirir. */
-    guncelleme: "2026-09-03",
+    /* Bu tarih ELLE tutuluyor ve 06.09.2026'da bayat yakalandi: "2026-09-03"
+       yaziyordu ama dosyalar 06.09'da degismisti -- hem de IKI PARA HATASININ
+       duzeltildigi surumde. Tarihe bakan kullanici kendisini ilgilendiren
+       duzeltmeden habersiz kaliyordu.
+       Artik yayin nobetcisi (02 Hava Dururmu/yayin_denetle.py) bu alani
+       git gecmisiyle karsilastirip uyariyor. Elle degistirirken git'e bak. */
+    guncelleme: "2026-09-06",
 
     // Asgari ücret (1 Ocak 2026'dan itibaren)
     asgariBrut: 33030.00,
