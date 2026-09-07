@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1116">
+<title>Repertuar</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="stil.css">
+</head>
+<body>
+
+<div class="ust">
+  <button id="geri" class="gizli" aria-label="Listeye dön">←</button>
+  <h1 id="ustBaslik">Repertuar</h1>
+  <span class="bosluk"></span>
+  <button id="duzenle" class="gizli">Düzenle</button>
+  <button id="setlerAc" title="Set listeleri">≡</button>
+  <button id="yedek" title="Yedek / aktarım">⇅</button>
+  <button id="yeni" class="birincil">+ Şarkı</button>
+</div>
+
+<div class="govde">
+
+  <!-- LİSTE -->
+  <section id="ekranListe">
+    <div class="alan">
+      <input id="arama" type="search" placeholder="Şarkı, sanatçı veya etiket ara…" autocomplete="off">
+    </div>
+    <div id="etiketler" class="etiket-serit"></div>
+    <div id="uyariDepo"></div>
+    <div id="liste"></div>
+  </section>
+
+  <!-- SET LİSTELERİ -->
+  <section id="ekranSetler" class="gizli">
+    <div class="ikili alan">
+      <input id="sYeniAd" placeholder="Yeni set adı — örn. Cumartesi provası">
+      <button id="sYeniEkle" class="birincil" style="flex:0 0 auto">+ Set</button>
+    </div>
+    <div id="setListesi"></div>
+  </section>
+
+  <!-- SET DÜZENLEME -->
+  <section id="ekranSet" class="gizli">
+    <div class="alan">
+      <label for="sAd">Set adı</label>
+      <input id="sAd">
+    </div>
+    <div class="ikili alan">
+      <select id="sSarkiSec"></select>
+      <button id="sSarkiEkle" style="flex:0 0 auto">+ Ekle</button>
+    </div>
+    <div id="setIcerik"></div>
+    <div class="ikili">
+      <button id="sCal" class="birincil">▶ Sette çal</button>
+      <button id="sKaydet">Kaydet</button>
+      <button id="sSil" class="tehlike">Sil</button>
+    </div>
+  </section>
+
+  <!-- ŞARKI -->
+  <section id="ekranSarki" class="gizli">
+    <div class="baslik-satiri">
+      <h2 id="sarkiAd"></h2>
+      <span class="sanatci" id="sarkiSanatci"></span>
+    </div>
+
+    <div class="kumanda">
+      <div class="grup">
+        <span class="etiket">Ton</span>
+        <button id="tonAsagi" aria-label="Yarım ses aşağı">−</button>
+        <button id="tonSifir" title="Özgün tona dön">0</button>
+        <button id="tonYukari" aria-label="Yarım ses yukarı">+</button>
+      </div>
+      <div class="grup">
+        <span class="etiket">Kapo</span>
+        <button id="kapoAzalt" aria-label="Kapo azalt">−</button>
+        <span id="kapoDeger" style="min-width:24px;text-align:center">0</span>
+        <button id="kapoArtir" aria-label="Kapo artır">+</button>
+      </div>
+      <div class="grup">
+        <button id="yazimTutulan">Tutulan</button>
+        <button id="yazimDuyulan">Duyulan</button>
+      </div>
+      <div class="grup">
+        <span class="etiket">Yazı</span>
+        <button id="yaziKucult" aria-label="Yazıyı küçült">A−</button>
+        <button id="yaziBuyut" aria-label="Yazıyı büyüt">A+</button>
+      </div>
+      <div class="grup">
+        <button id="kaydirma" class="birincil">▶ Kaydır</button>
+        <input id="hiz" type="range" min="1" max="10" value="3"
+               style="width:110px;min-height:auto" aria-label="Kaydırma hızı">
+      </div>
+    </div>
+
+    <div class="set-serit gizli" id="setSerit">
+      <button id="setOnceki">◀</button>
+      <span id="setKonum"></span>
+      <button id="setSonraki">▶</button>
+      <button id="setCik">Setten çık</button>
+    </div>
+    <div class="kumanda" id="metronomSerit">
+      <div class="grup">
+        <button id="mCal">♪ Metronom</button>
+      </div>
+      <div class="grup">
+        <button id="mAzalt" aria-label="Tempo azalt">−</button>
+        <span id="mBpm" style="min-width:56px;text-align:center">100</span>
+        <button id="mArtir" aria-label="Tempo artır">+</button>
+      </div>
+      <div class="grup">
+        <span class="etiket">Ölçü</span>
+        <select id="mOlcu" style="width:auto;min-width:72px">
+          <option value="1">yok</option>
+          <option value="2">2/4</option>
+          <option value="3">3/4</option>
+          <option value="4" selected>4/4</option>
+          <option value="6">6/8</option>
+        </select>
+      </div>
+      <div class="grup"><span class="etiket" id="mNot"></span></div>
+    </div>
+
+    <div class="yazim-serit" id="yazimSerit"></div>
+    <div id="uyariSarki"></div>
+    <div class="sarki" id="sarkiGovde"></div>
+    <div class="semalar" id="semalar"></div>
+    <div class="bilgi-serit" id="sarkiBilgi"></div>
+  </section>
+
+  <!-- YEDEK / AKTARIM -->
+  <section id="ekranYedek" class="gizli">
+    <div class="alan">
+      <label>Dışa aktar</label>
+      <div class="ikili">
+        <button id="yDisaMetin">Metin (ChordPro)</button>
+        <button id="yDisaJson">Yedek (JSON)</button>
+      </div>
+      <div class="bilgi-serit" style="border:0;padding-top:6px">
+        Metin okunaklıdır, elle düzenlenir, başka programlarla paylaşılır.
+        JSON kayıpsız yedektir — taşınırken hiçbir alan düşmez.
+      </div>
+    </div>
+
+    <div class="alan">
+      <label for="yDosya">İçe aktar — dosya seç</label>
+      <input id="yDosya" type="file" accept=".txt,.cho,.chopro,.crd,.pro,.json,text/plain,application/json">
+    </div>
+    <div class="alan">
+      <label for="yMetin">…ya da buraya yapıştır</label>
+      <textarea id="yMetin" spellcheck="false"
+        placeholder="{baslik: Şarkı}&#10;{calgi: gitar}&#10;{yazim: duyulan}&#10;{kapo: 0}&#10;[Am]söz…"></textarea>
+    </div>
+    <div class="ikili">
+      <button id="yIceAl" class="birincil">İçe al</button>
+      <button id="yKapat">Kapat</button>
+    </div>
+    <div id="yRapor"></div>
+    <div class="bilgi-serit">
+      İçe aktarma mevcut şarkılarını <b>silmez</b>, üstüne ekler. Aynı kimlikli
+      kayıt gelirse yenisi ayrı şarkı olarak eklenir — hiçbir şeyin üzerine yazılmaz.
+    </div>
+  </section>
+
+  <!-- DÜZENLEME -->
+  <section id="ekranDuzen" class="gizli">
+    <div class="alan">
+      <label for="dAd">Şarkı adı</label>
+      <input id="dAd" placeholder="Örnek: Kara Tren">
+    </div>
+    <div class="alan">
+      <label for="dSanatci">Sanatçı / kaynak</label>
+      <input id="dSanatci" placeholder="Anonim, yöre, ya da sanatçı">
+    </div>
+    <div class="ikili alan">
+      <div>
+        <label for="dCalgi">Çalgı</label>
+        <select id="dCalgi">
+          <option value="gitar">Gitar</option>
+          <option value="ukulele">Ukulele</option>
+          <option value="piyano">Piyano</option>
+        </select>
+      </div>
+      <div>
+        <label for="dKapo">Kapo</label>
+        <input id="dKapo" type="number" min="0" max="12" value="0">
+      </div>
+    </div>
+    <div class="alan">
+      <label for="dYazim">Aşağıdaki akorlar ne anlama geliyor?</label>
+      <select id="dYazim">
+        <option value="duyulan">Duyulan — gerçekte çıkan ses</option>
+        <option value="tutulan">Tutulan — kapoya göre parmağın bastığı</option>
+      </select>
+    </div>
+    <div class="alan">
+      <label for="dEtiketler">Etiketler (virgülle)</label>
+      <input id="dEtiketler" placeholder="türkü, ağır, prova">
+    </div>
+    <div class="alan">
+      <label for="dGovde">Gövde — akoru hecenin önüne köşeli parantezle yaz</label>
+      <textarea id="dGovde" spellcheck="false"></textarea>
+    </div>
+    <div class="ikili">
+      <button id="dKaydet" class="birincil">Kaydet</button>
+      <button id="dVazgec">Vazgeç</button>
+      <button id="dSil" class="tehlike">Sil</button>
+    </div>
+    <div class="bilgi-serit">
+      Komutlar: <code>{baslik: …}</code> <code>{kapo: 3}</code> <code>{nakarat}</code>
+      <code>{not: …}</code> <code>{tab}</code>…<code>{tab_son}</code>.
+      ChordPro karşılıkları (<code>{title}</code>, <code>{soc}</code>, <code>{sot}</code>) da çalışır.
+    </div>
+  </section>
+
+</div>
+
+<script src="akor.js"></script>
+<script src="sarki.js"></script>
+<script src="depo.js"></script>
+<script src="sema.js"></script>
+<script src="kaydirma.js"></script>
+<script src="gorunum.js"></script>
+<script src="aktarim.js"></script>
+<script src="metronom.js"></script>
+<script src="ornek-repertuar.js"></script>
+<script src="arayuz.js"></script>
+</body>
+</html>

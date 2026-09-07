@@ -1,0 +1,15 @@
+{
+  "name": "Repertuar",
+  "short_name": "Repertuar",
+  "description": "Akor, tab ve sozleriyle sahne repertuari. Transpoze, kapo, otomatik kaydirma.",
+  "lang": "tr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1116",
+  "theme_color": "#0e1116",
+  "icons": [
+    { "src": "simge.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

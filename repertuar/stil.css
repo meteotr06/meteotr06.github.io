@@ -1,0 +1,183 @@
+/* stil.css — Repertuar
+   Kullanım anı: elinde gitar var, telefon sehpada, iki elin de dolu.
+   Bütün ölçüler buna göre: koyu zemin, büyük yazı, 44px'ten küçük hedef yok. */
+
+:root {
+  --zemin: #0e1116;
+  --kart: #161b23;
+  --kart-2: #1d2430;
+  --cizgi: #2a3341;
+  --yazi: #e8ecf3;
+  --soluk: #93a0b4;
+  --akor: #ffb454;
+  --vurgu: #5aa9ff;
+  --uyari: #ff6b7a;
+  --iyi: #7ee2a8;
+  --hedef: 44px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0;
+  background: var(--zemin);
+  color: var(--yazi);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overscroll-behavior-y: contain;
+}
+
+button, select, input, textarea { font: inherit; color: inherit; }
+
+button {
+  min-height: var(--hedef);
+  min-width: var(--hedef);
+  padding: 0 14px;
+  border: 1px solid var(--cizgi);
+  border-radius: 10px;
+  background: var(--kart-2);
+  cursor: pointer;
+}
+button:active { background: #2b3543; }
+button.birincil { background: var(--vurgu); border-color: var(--vurgu); color: #05111f; font-weight: 700; }
+button.tehlike  { border-color: #6b2630; color: var(--uyari); }
+button.secili   { background: var(--vurgu); border-color: var(--vurgu); color: #05111f; font-weight: 700; }
+
+input, select, textarea {
+  width: 100%;
+  min-height: var(--hedef);
+  padding: 10px 12px;
+  background: var(--kart-2);
+  border: 1px solid var(--cizgi);
+  border-radius: 10px;
+}
+textarea { min-height: 240px; resize: vertical; font-family: ui-monospace, Consolas, monospace; }
+
+/* --- üst çubuk --- */
+.ust {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; gap: 8px; align-items: center;
+  padding: 10px 12px;
+  background: rgba(14,17,22,.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--cizgi);
+}
+.ust h1 { font-size: 18px; margin: 0; letter-spacing: .02em; }
+.ust .bosluk { flex: 1; }
+
+.govde { padding: 12px 12px 96px; max-width: 900px; margin: 0 auto; }
+
+/* --- listedeki şarkılar --- */
+.kart {
+  display: block; width: 100%; text-align: left;
+  background: var(--kart); border: 1px solid var(--cizgi);
+  border-radius: 14px; padding: 14px; margin-bottom: 10px;
+  min-height: 64px;
+}
+.kart .ad { font-size: 17px; font-weight: 650; }
+.kart .alt { color: var(--soluk); font-size: 14px; margin-top: 2px; }
+
+.bos-durum { color: var(--soluk); text-align: center; padding: 40px 16px; }
+
+/* --- şarkı görünümü --- */
+.baslik-satiri { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.baslik-satiri h2 { margin: 0; font-size: 22px; }
+.baslik-satiri .sanatci { color: var(--soluk); }
+
+.kumanda {
+  position: sticky; top: 56px; z-index: 15;
+  background: var(--kart); border: 1px solid var(--cizgi);
+  border-radius: 14px; padding: 10px; margin: 10px 0 12px;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.kumanda .grup { display: flex; gap: 6px; align-items: center; }
+.kumanda .etiket { color: var(--soluk); font-size: 13px; }
+
+/* Ekranda hangi akorun gösterildiği HER ZAMAN yazar (K-22). */
+.yazim-serit {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--kart-2); border: 1px solid var(--cizgi);
+  border-left: 4px solid var(--akor);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
+  font-size: 14px;
+}
+.yazim-serit b { color: var(--akor); }
+
+/* --- akor + söz: satır içi parçalar, boşluk sayısına DAYANMAZ --- */
+.sarki { font-size: var(--sarki-boy, 18px); line-height: 1.35; }
+.satir { margin: 0 0 6px; }
+.parca { display: inline-block; vertical-align: bottom; }
+.parca .ak {
+  display: block; height: 1.35em; color: var(--akor);
+  font-weight: 700; font-size: .82em; white-space: pre; padding-right: .6em;
+}
+.parca .ak.gecersiz { color: var(--uyari); text-decoration: underline wavy; }
+.parca .sz { display: block; white-space: pre-wrap; }
+.satir.bos { height: .8em; }
+.bolum { color: var(--vurgu); font-weight: 700; margin: 14px 0 4px; font-size: .95em; }
+.yorum { color: var(--soluk); font-style: italic; margin: 6px 0; }
+.tab {
+  font-family: ui-monospace, Consolas, monospace; white-space: pre;
+  overflow-x: auto; background: var(--kart); border: 1px solid var(--cizgi);
+  border-radius: 10px; padding: 10px; margin: 10px 0; font-size: 14px;
+}
+.bozuk-satir {
+  color: var(--uyari); background: rgba(255,107,122,.08);
+  border-left: 3px solid var(--uyari); padding: 4px 8px; margin: 4px 0;
+  font-family: ui-monospace, Consolas, monospace; font-size: 14px;
+}
+
+/* --- şemalar --- */
+.semalar { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.sema {
+  background: var(--kart); border: 1px solid var(--cizgi); border-radius: 12px;
+  padding: 8px 10px; text-align: center; color: var(--yazi); min-width: 84px;
+}
+.sema .ad { color: var(--akor); font-weight: 700; margin-bottom: 4px; }
+.sema.yok { color: var(--soluk); display: flex; flex-direction: column;
+            justify-content: center; min-height: 96px; font-size: 13px; }
+
+/* --- uyarı kutusu --- */
+.uyari-kutu {
+  background: rgba(255,107,122,.08); border: 1px solid #6b2630;
+  border-radius: 12px; padding: 10px 12px; margin: 12px 0; font-size: 14px;
+}
+.uyari-kutu h3 { margin: 0 0 6px; font-size: 14px; color: var(--uyari); }
+.uyari-kutu ul { margin: 0; padding-left: 18px; }
+
+.bilgi-serit { color: var(--soluk); font-size: 13px; margin-top: 20px;
+               border-top: 1px solid var(--cizgi); padding-top: 10px; }
+
+.alan { margin-bottom: 12px; }
+.alan label { display: block; color: var(--soluk); font-size: 13px; margin-bottom: 4px; }
+.ikili { display: flex; gap: 10px; }
+.ikili > * { flex: 1; }
+
+.gizli { display: none !important; }
+
+/* --- etiket şeridi --- */
+.etiket-serit { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.etiket-serit button {
+  min-height: 40px; padding: 0 14px; border-radius: 999px; font-size: 14px;
+}
+.etiket-serit button.secili { background: var(--vurgu); border-color: var(--vurgu);
+  color: #05111f; font-weight: 700; }
+
+/* --- set şeridi (şarkı görünümünde) --- */
+.set-serit {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--kart-2); border: 1px solid var(--cizgi);
+  border-left: 4px solid var(--vurgu);
+  border-radius: 10px; padding: 8px 10px; margin-bottom: 10px;
+}
+.set-serit #setKonum { flex: 1; text-align: center; font-weight: 650; }
+
+/* --- set içeriği --- */
+.set-satir {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--kart); border: 1px solid var(--cizgi);
+  border-radius: 12px; padding: 8px 10px; margin-bottom: 8px;
+}
+.set-satir .no { color: var(--soluk); min-width: 26px; }
+.set-satir .ad { flex: 1; }
+.set-satir.eksik { border-color: #6b2630; }
+.set-satir.eksik .ad { color: var(--uyari); }
