@@ -1,3 +1,20 @@
+/* TAZE AL -- `cache.add`/`addAll` KULLANMA.
+   Istek TARAYICININ HTTP onbelleginden karsilanabilir; yeni damgayla
+   kurulan isci ESKI index.html'i gomer, o index eski `?v=` adreslerini
+   ister ve kullanici surum artsa da ESKI kodu calistirir. Damga
+   denetleyicileri bunu goremez: kaynagin tutarliligina bakarlar,
+   iscinin ne gomdugune degil.
+   Arsa oturumu buldu (08.09.2026). `{cache:"reload"}` HTTP onbellegini
+   atlar; `c.ok` denetimi 404 govdesinin gomulmesini engeller -- `add`
+   bunu kendisi yapar, `put` yapmaz.
+   ATAR (throw): boylece eski `add` davranisi korunur -- cagri
+   yerlerindeki `.catch(...)` ve `try/catch` oldugu gibi calisir. */
+const tazeAl = async (k, u) => {
+    const c = await fetch(u, { cache: "reload" });
+    if (!c || !c.ok) throw new Error("alinamadi: " + u);
+    await k.put(u, c);
+};
+
 /* 🏠 PORTAL — SERVİS İŞÇİSİ (ana sayfa)
    ==================================================================
    BU DOSYA ALT UYGULAMALARA KARIŞMAZ. En önemli tasarım kararı bu.
@@ -104,7 +121,7 @@ self.addEventListener('install', (e) => {
                geldigi ve damgalari kayabilecegi icin bu risk simdi daha
                yuksek. (Desen 06 Planlayici'dan geldi, K-69.) */
             .then((o) => Promise.all(
-                CEKIRDEK.map((u) => o.add(u).catch(() => null))))
+                CEKIRDEK.map((u) => tazeAl(o, u).catch(() => null))))
             .then(() => self.skipWaiting())
     );
 });
