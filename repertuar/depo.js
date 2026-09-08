@@ -75,6 +75,7 @@ function yeniSarki(alanlar) {
     akort: 'standart',       // calgiya ozgu akort/duzen
     ton: '',
     tempo: null,
+    sure: null,           // saniye — otomatik kaydirma bunu kullanir
     etiketler: [],
     govde: '',
     notlar: '',

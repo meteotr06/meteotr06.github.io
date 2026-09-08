@@ -236,7 +236,10 @@ function sarkiCiz() {
 
 function kaydirmaCevir() {
   kaydirmaAcik = !kaydirmaAcik;
+  kaydirmaBaslangicZamani = performance.now();
+  kaydirmaBirikim = 0;
   $('kaydirma').textContent = kaydirmaAcik ? '❚❚ Dur' : '▶ Kaydır';
+  if (!kaydirmaAcik) kaydirmaDurumuYaz('');
   if (kaydirmaAcik) {
     uyanikTut(true);
     requestAnimationFrame(kaydirmaAdimi);
@@ -246,18 +249,61 @@ function kaydirmaCevir() {
 }
 
 var sonZaman = 0;
+var kaydirmaBaslangicZamani = 0;
+
+function kaydirmaDurumuYaz(metin) {
+  var e = document.getElementById('kaydirmaDurum');
+  if (e) e.textContent = metin;
+}
+
+/* IKI KIP VAR, HANGISINDE OLDUGU EKRANDA YAZAR.
+
+   SUREYE GORE (sarkinin suresi girilmisse) -- dort rakip de boyle calisiyor.
+   Kullaniciya "hiz" sordurmak, sahnede deneme yanilma demektir; sahnede
+   deneme yanilma sansi yoktur.
+     · PRE-ROLL: hemen baslamaz, ilk satirlari okuyabilesin diye geri sayar.
+     · ELLE DUZELTME: hiz HER KAREDE yeniden hesaplanir (kalan mesafe / kalan
+       sure). Parmakla ileri alirsan yavaslar, geri alirsan hizlanir; sarki
+       yine tam zamaninda biter. Sabit hizla gitseydi bir kez elle duzeltmek
+       butun geri kalani kaydirirdi.
+
+   HIZ KADEMESI (sure girilmemisse) -- eski davranis, kaydiracla. */
 function kaydirmaAdimi(zaman) {
   if (!kaydirmaAcik) { sonZaman = 0; return; }
   if (!sonZaman) sonZaman = zaman;
   var gecen = zaman - sonZaman;
   sonZaman = zaman;
 
-  var sonuc = kaydirmaMiktari(Number($('hiz').value), gecen, kaydirmaBirikim);
+  var gecenSaniye = (zaman - kaydirmaBaslangicZamani) / 1000;
+  var sure = (secili && Number.isFinite(secili.sure) && secili.sure > 0) ? secili.sure : null;
+  var sonuc;
+
+  if (sure) {
+    var kalanPre = prerollKalan(PREROLL_VARSAYILAN, gecenSaniye);
+    if (kalanPre > 0) {
+      kaydirmaDurumuYaz(kalanPre + '\u2026');
+      requestAnimationFrame(kaydirmaAdimi);
+      return;
+    }
+    var kalanSaniye = kaydirmaKalanSure(sure, gecenSaniye);
+    if (kalanSaniye <= 0) { kaydirmaCevir(); return; }          // sarki bitti
+
+    var sonNokta = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    var kalanMesafe = sonNokta - window.scrollY;
+    kaydirmaDurumuYaz(sureYaz(kalanSaniye) + ' kald\u0131');
+    sonuc = pikselMiktari(sureliHiz(kalanMesafe, kalanSaniye), gecen, kaydirmaBirikim);
+  } else {
+    kaydirmaDurumuYaz('h\u0131z ' + $('hiz').value);
+    sonuc = kaydirmaMiktari(Number($('hiz').value), gecen, kaydirmaBirikim);
+  }
+
   kaydirmaBirikim = sonuc.birikim;
   if (sonuc.piksel > 0) {
     var onceki = window.scrollY;
     window.scrollBy(0, sonuc.piksel);
-    if (window.scrollY === onceki) { kaydirmaCevir(); return; }   // sona geldi
+    /* Hiz kipinde sona gelince durur. Sure kipinde DURMAZ: kullanici geri
+       kaydirabilir ve kalan sure boyunca yeniden ilerlemesi gerekir. */
+    if (window.scrollY === onceki && !sure) { kaydirmaCevir(); return; }
   }
   requestAnimationFrame(kaydirmaAdimi);
 }
@@ -280,9 +326,24 @@ function duzenAc(sarki) {
   $('dEtiketler').value = (sarki.etiketler || []).join(', ');
   $('dGovde').value = sarki.govde || '';
   $('dNotlar').value = sarki.notlar || '';
+  $('dSure').value = sureYaz(sarki.sure) || '';
   $('dSil').className = sarkilar.indexOf(sarki) === -1 ? 'tehlike gizli' : 'tehlike';
   $('ustBaslik').textContent = sarki.ad || 'Yeni şarkı';
   ekranGoster('duzen');
+}
+
+/* Sure kutusu bos birakilabilir. Ama YAZILMISSA anlasilmali: anlasilmayan
+   bir sure sessizce 0 ya da 3 saniye olmamali -- kaydirma o zaman sarkiyla
+   hic tutmaz ve kullanici sebebini bulamaz. */
+function sureAlaniniOku() {
+  var ham = $('dSure').value.trim();
+  if (ham === '') return null;
+  var s = sureCozumle(ham);
+  if (!Number.isFinite(s)) {
+    alert('S\u00fcre anla\u015f\u0131lmad\u0131: "' + ham + '"\n\u00d6rnek: 3:35 ya da 215');
+    return undefined;                       // kaydetmeyi durdurur
+  }
+  return s;
 }
 
 function duzenKaydet() {
@@ -301,10 +362,13 @@ function duzenKaydet() {
       .map(function (e) { return e.trim(); }).filter(function (e) { return e; }),
     govde: $('dGovde').value,
     notlar: $('dNotlar').value,
+    sure: sureAlaniniOku(),
     eklendi: duzenlenen.eklendi || new Date().toISOString()
   };
 
   // Doğrulama kapıda yapılır; arayüz sadece sebebi gösterir.
+  if (taslak.sure === undefined) return;   // süre anlaşılmadı, uyarıldı
+
   var sebep = sarkiDogrula(taslak);
   if (sebep) { alert('Kaydedilemedi: ' + sebep); return; }
 

@@ -114,6 +114,7 @@ var KOMUT_KARSILIGI = {
   'key': 'ton', 'ton': 'ton',
   'capo': 'kapo', 'kapo': 'kapo',
   'tempo': 'tempo', 'hiz': 'tempo',
+  'duration': 'sure', 'sure': 'sure',
   'calgi': 'calgi', 'instrument': 'calgi',
   'yazim': 'yazim',
   'etiketler': 'etiketler', 'tags': 'etiketler',

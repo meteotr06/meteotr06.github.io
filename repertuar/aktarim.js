@@ -30,7 +30,7 @@ function _notBitisi(ad) { return ad === 'notlar_son' || ad === 'end_of_notes' ||
    yerde durursa hangisinin doğru olduğu belli olmaz. */
 var ALAN_KOMUTLARI = {
   baslik: 'ad', sanatci: 'sanatci', ton: 'ton', kapo: 'kapo',
-  calgi: 'calgi', yazim: 'yazim', etiketler: 'etiketler', tempo: 'tempo'
+  calgi: 'calgi', yazim: 'yazim', etiketler: 'etiketler', tempo: 'tempo', sure: 'sure'
 };
 
 /* ---------- dışa ---------- */
@@ -45,6 +45,7 @@ function disaAktarMetin(sarkilar) {
     p.push('{kapo: ' + s.kapo + '}');
     if (s.ton) p.push('{ton: ' + s.ton + '}');
     if (s.tempo !== null && s.tempo !== undefined) p.push('{tempo: ' + s.tempo + '}');
+    if (Number.isFinite(s.sure) && s.sure > 0) p.push('{sure: ' + sureYaz(s.sure) + '}');
     if (s.etiketler && s.etiketler.length) p.push('{etiketler: ' + s.etiketler.join(', ') + '}');
     // Not COK SATIRLI olabilir; tek satirlik komuta sigmaz. Tab gibi blok yaziliyor.
     if (s.notlar && s.notlar.trim()) {
@@ -108,6 +109,13 @@ function iceAktarMetin(metin) {
       else yerel.push('kapo sayı değil ("' + a.kapo + '"), 0 varsayıldı');
     }
 
+    var sure = null;
+    if (a.sure !== undefined) {
+      var cozulen = sureCozumle(a.sure);
+      if (Number.isFinite(cozulen)) sure = cozulen;
+      else yerel.push('süre anlaşılmadı ("' + a.sure + '"), boş bırakıldı');
+    }
+
     var tempo = null;
     if (a.tempo !== undefined) {
       if (/^\d+$/.test(String(a.tempo).trim())) tempo = parseInt(a.tempo, 10);
@@ -126,6 +134,7 @@ function iceAktarMetin(metin) {
       calgi: (a.calgi === undefined ? 'gitar' : a.calgi),
       kapo: kapo,
       tempo: tempo,
+      sure: sure,
       ton: (a.ton === undefined ? '' : String(a.ton).trim()),
       etiketler: (a.etiketler === undefined ? [] :
         String(a.etiketler).split(',').map(function (e) { return e.trim(); })
