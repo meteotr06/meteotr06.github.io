@@ -29,6 +29,13 @@ var kaydirmaAcik = false;
 var kaydirmaBirikim = 0;
 var uyanikKilit = null;
 
+/* Her ekranin kaydirma konumu ayri tutulur. Rakibin Play'de duzeltmek
+   zorunda kaldigi hata: "repertuardan sarki acip donunce liste basa
+   donuyor". Yuz sarkilik bir listede bu, her donuste yeniden aramak
+   demektir. */
+var ekranKonumlari = {};
+var suankiEkran = 'liste';
+
 function $(id) { return document.getElementById(id); }
 
 /* kacir() ve satirHtml() gorunum.js'te — sinama sayfasi da onlari kullaniyor. */
@@ -231,7 +238,7 @@ function kaydirmaCevir() {
   kaydirmaAcik = !kaydirmaAcik;
   $('kaydirma').textContent = kaydirmaAcik ? '❚❚ Dur' : '▶ Kaydır';
   if (kaydirmaAcik) {
-    ekraniUyanikTut();
+    uyanikTut(true);
     requestAnimationFrame(kaydirmaAdimi);
   } else {
     uyanikBirak();
@@ -255,11 +262,6 @@ function kaydirmaAdimi(zaman) {
   requestAnimationFrame(kaydirmaAdimi);
 }
 
-function ekraniUyanikTut() {
-  if (!navigator.wakeLock) return;
-  navigator.wakeLock.request('screen').then(function (k) { uyanikKilit = k; })
-    .catch(function () { /* izin yok — kaydırma yine de çalışır */ });
-}
 function uyanikBirak() {
   if (uyanikKilit) { try { uyanikKilit.release(); } catch (h) {} uyanikKilit = null; }
 }
@@ -536,9 +538,119 @@ function iceAl(metin) {
   yedekRaporu(sonuc.tamam ? 'İçe alındı' : 'Sorun var', gelen, sonuc);
 }
 
+/* ---------- pedal / klavye ----------
+   Bluetooth sayfa pedallari klavye tusu gonderir (ok tuslari, bosluk,
+   PageUp/PageDown). Yani pedal icin ayri bir sey yazmiyoruz.
+
+   Yarim sayfa ilerliyoruz, tam sayfa degil: tam sayfa cevirince muzisyen
+   bir an nerede oldugunu kaybediyor. Ustte kalan yari, gozun yerini
+   bulmasini sagliyor.
+
+   SABIT SERIDIN ORTTUGU KISIM DUSULUYOR: ust cubuk + kumanda seridi
+   sayfanin ustunu ortuyor. Pencerenin yarisi kadar kaydirsak ortulen kadari
+   OKUNMADAN gecerdi -- ekranda hata gorunmez, calan kisi satir atlar. */
+
+function sabitSeritYuksekligi() {
+  var toplam = 0;
+  ['.ust', '.kumanda'].forEach(function (secici) {
+    var e = document.querySelector(secici);
+    if (!e) return;
+    var s = getComputedStyle(e);
+    if (s.display === 'none') return;
+    if (s.position !== 'sticky' && s.position !== 'fixed') return;
+    toplam += e.getBoundingClientRect().height;
+  });
+  return toplam;
+}
+
+/* Yumusak kaydirma HER ZAMAN calismaz: 'hareketi azalt' ayari acikken
+   tarayici animasyonu yok sayar, bazi ortamlarda ise hic uygulanmaz.
+   Boyle bir yerde pedala basan kisi HICBIR SEY olmadigini gorur ve
+   'pedal bozuk' der. O yuzden once hedef hesaplaniyor, sonra gercekten
+   oraya gidilip gidilmedigi OLCULUYOR; gitmediyse aninda atlaniyor. */
+function yarimSayfaGit(yon) {
+  var miktar = yarimSayfaMiktari(window.innerHeight, sabitSeritYuksekligi());
+  var oncekiY = window.scrollY;
+  var azalt = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  try {
+    window.scrollBy({ top: yon * miktar, behavior: azalt ? 'auto' : 'smooth' });
+  } catch (h) {
+    window.scrollBy(0, yon * miktar);        // eski tarayici: nesne bicimini bilmiyor
+  }
+
+  if (azalt) return;
+  setTimeout(function () {
+    if (window.scrollY === oncekiY) window.scrollBy(0, yon * miktar);
+  }, 250);
+}
+
+function pedalDinle(olay) {
+  if (suankiEkran !== 'sarki') return;
+  var eylem = tusEylemi(olay.key, {
+    yaziliyor: yaziKutusundaMi(document.activeElement),
+    sette: !!calanSet
+  });
+  if (!eylem) return;
+  olay.preventDefault();
+
+  if (eylem === 'ileri') yarimSayfaGit(1);
+  else if (eylem === 'geri') yarimSayfaGit(-1);
+  else if (eylem === 'sonrakiSarki') setteGit(1);
+  else if (eylem === 'oncekiSarki') setteGit(-1);
+  else if (eylem === 'kaydirmaCevir') kaydirmaCevir();
+  else if (eylem === 'basa') window.scrollTo({ top: 0, behavior: 'smooth' });
+  else if (eylem === 'sona') window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+document.addEventListener('keydown', pedalDinle);
+
 /* ---------- ekran geçişleri ---------- */
 
+/* Ekran degisince: konumu geri getir, ekrani uyanik tut ya da birak. */
+function ekranaGecildi(hangi) {
+  suankiEkran = hangi;
+  var konum = ekranKonumlari[hangi];
+  var hedef = (hangi === 'liste' && Number.isFinite(konum)) ? konum : 0;
+
+  /* UC KEZ ayarlaniyor, ucu de gerekli -- olcerek ogrenildi (08.09.2026):
+     Uzun listeden kisa bir sarkiya gecerken tarayici, ESKI konumu yeni
+     sayfanin sonuna KIRPIYOR. Sonuc: sarki 199. pikselden aciliyordu, yani
+     kullanici sahnede sarkinin BASINI goremiyordu. Ekranda hata gorunmuyor.
+       1. hemen        -> gecisin kendisi
+       2. setTimeout 0 -> yerlesim yeni yuksekligi hesapladiktan sonra
+       3. rAF          -> cizim oncesi son duzeltme
+     rAF tek basina YETMEZ: sekme arkadayken hic calismiyor. */
+  window.scrollTo(0, hedef);
+  setTimeout(function () { window.scrollTo(0, hedef); }, 0);
+  requestAnimationFrame(function () { window.scrollTo(0, hedef); });
+
+  uyanikTut(hangi === 'sarki');
+}
+
+/* EKRANI UYANIK TUTMA — sahne uygulamasinin olmazsa olmazi.
+   Onceden yalniz otomatik kaydirma acikken isteniyordu; oysa kullanici
+   kaydirmayi kapatip elle takip ettiginde de ekran kararmamali. Artik
+   sarki ekraninda oldugu surece isteniyor.
+   Kilit, sekme arkaya alininca tarayici tarafindan BIRAKILIR; geri
+   donuldugunde yeniden isteniyor -- yoksa "bir kez istedim, tamamdir"
+   sanip ekran sahnede kararir. */
+function uyanikTut(istensin) {
+  if (!istensin) { uyanikBirak(); return; }
+  if (uyanikKilit || !navigator.wakeLock) return;
+  navigator.wakeLock.request('screen').then(function (k) {
+    uyanikKilit = k;
+    k.addEventListener('release', function () { uyanikKilit = null; });
+  }).catch(function () { /* izin yok ya da pil dusuk -- uygulama yine calisir */ });
+}
+
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible' && suankiEkran === 'sarki') uyanikTut(true);
+});
+
+
 function ekranGoster(hangi) {
+  ekranKonumlari[suankiEkran] = window.scrollY;
   if (kaydirmaAcik) kaydirmaCevir();
   if (hangi !== 'sarki' && METRONOM.calisiyorMu()) { METRONOM.dur(); metronomCiz(); }
   ['Liste', 'Sarki', 'Duzen', 'Yedek', 'Setler', 'Set'].forEach(function (e) {
@@ -552,7 +664,7 @@ function ekranGoster(hangi) {
   $('yedek').classList.toggle('gizli', hangi !== 'liste');
   $('setlerAc').classList.toggle('gizli', hangi !== 'liste');
   if (hangi === 'liste') $('ustBaslik').textContent = 'Repertuar';
-  window.scrollTo(0, 0);
+  ekranaGecildi(hangi);
 }
 
 /* ---------- yazı boyu (kişisel tercih, kalıcı olmasa da olur) ---------- */

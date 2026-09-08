@@ -4,7 +4,7 @@
    gider. Bu ekip bu tuzağa bir günde üç kez düştü. Herhangi bir dosyayı
    değiştirdiğinde AŞAĞIDAKİ SÜRÜMÜ DE ARTIR. */
 
-var SURUM = 'repertuar-v18';
+var SURUM = 'repertuar-v19';
 
 var DOSYALAR = [
   './',
@@ -18,6 +18,7 @@ var DOSYALAR = [
   './gorunum.js',
   './aktarim.js',
   './metronom.js',
+  './gezinme.js',
   './ornek-repertuar.js',
   './arayuz.js',
   './gizlilik.html',
