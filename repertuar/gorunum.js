@@ -17,7 +17,7 @@ function kacir(s) {
   });
 }
 
-function satirHtml(blok) {
+function satirHtml(blok, ikincilAkorlar) {
   var harfler = Array.from(blok.soz);
   var akorlar = blok.akorlar.slice().sort(function (a, b) { return a.sutun - b.sutun; });
   var p = [];
@@ -40,7 +40,9 @@ function satirHtml(blok) {
     if (son < a.sutun) son = a.sutun;
     var sinif = a.gecerli === false ? 'ak gecersiz' : 'ak';
     var baslik = a.gecerli === false ? ' title="Bu akor tanınmadı — olduğu gibi bırakıldı"' : '';
-    parca('<span class="' + sinif + '"' + baslik + '>' + kacir(a.akor) + '</span>',
+    var ikincil = ikincilAkorlar && ikincilAkorlar[i] ? ikincilAkorlar[i].akor : null;
+    parca('<span class="' + sinif + '"' + baslik + '>' +
+          kacir(ikiliAkorMetni(a.akor, ikincil)) + '</span>',
           harfler.slice(a.sutun, son).join(''));
     okunan = son;
   }
@@ -111,4 +113,17 @@ function metinleSuz(sarkilar, arama) {
     havuz = turkceKatla(havuz);
     return havuz.indexOf(a) !== -1;
   });
+}
+
+/* IKILI AKOR GOSTERIMI
+   Kapo takiliyken gitarist "D sekli" tutar ama "E" duyulur; klavyeci E
+   gormek ister. Ayni kagitta iki beklenti catisir. OnSong'un cozumu:
+   ikisini BIRDEN goster, biri parantez icinde.
+
+   Ikisi ayni ciktiginda (kapo 0) parantez ACILMAZ -- "D (D)" gibi bir sey
+   ekrani kalabaliklastirir ve hicbir sey soylemez. */
+function ikiliAkorMetni(birincil, ikincil) {
+  if (!birincil) return '';
+  if (!ikincil || ikincil === birincil) return birincil;
+  return birincil + ' (' + ikincil + ')';
 }

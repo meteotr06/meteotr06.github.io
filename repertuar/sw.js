@@ -4,7 +4,7 @@
    gider. Bu ekip bu tuzağa bir günde üç kez düştü. Herhangi bir dosyayı
    değiştirdiğinde AŞAĞIDAKİ SÜRÜMÜ DE ARTIR. */
 
-var SURUM = 'repertuar-v20';
+var SURUM = 'repertuar-v21';
 
 var DOSYALAR = [
   './',

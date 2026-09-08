@@ -87,14 +87,14 @@ function hizala(cozum) {
 
    Taninmayan akor UYDURULMAZ: oldugu gibi kalir, gecerli=false ile isaretlenir
    ki ekranda uyari gosterilebilsin (K-89 — atlanan sey ekranda yazar). */
-function satirAktar(cozum, adim) {
+function satirAktar(cozum, adim, secenek) {
   if (!cozum) return null;
 
   var kaynak = cozum.kaynak || cozum.akorlar;   // HER ZAMAN orijinalden
   var yeni = [];
   for (var i = 0; i < kaynak.length; i++) {
     var a = kaynak[i];
-    var cevrilmis = akorAktar(a.akor, adim);
+    var cevrilmis = akorAktar(a.akor, adim, secenek);
     if (cevrilmis === null) {
       yeni.push({ akor: a.akor, sutun: a.sutun, gecerli: false });
     } else {
@@ -198,12 +198,12 @@ function metinCozumle(metin) {
 }
 
 /* Tum govdeyi ORIJINALDEN mutlak adimla aktarir (zincir tuzagina karsi). */
-function govdeAktar(cozulmus, adim) {
+function govdeAktar(cozulmus, adim, secenek) {
   var yeni = [];
   for (var i = 0; i < cozulmus.bloklar.length; i++) {
     var b = cozulmus.bloklar[i];
     if (b.tur !== 'satir') { yeni.push(b); continue; }
-    var a = satirAktar({ soz: b.soz, akorlar: b.akorlar, kaynak: b.kaynak || b.akorlar }, adim);
+    var a = satirAktar({ soz: b.soz, akorlar: b.akorlar, kaynak: b.kaynak || b.akorlar }, adim, secenek);
     yeni.push({ tur: 'satir', soz: b.soz, akorlar: a.akorlar, kaynak: a.kaynak, no: b.no });
   }
   return { kunye: cozulmus.kunye, bloklar: yeni };

@@ -112,3 +112,17 @@ function gosterilecekAkor(akor, kapo, saklananYazim, istenenYazim) {
    "Cb5" gibi girdide yazim belirsizdir; bu cozumleyici degistiriciyi koke
    baglar (Cb + "5"), C + "b5" olarak okumaz. Gercek repertuarda alterasyon
    "C7b5" gibi rakamdan sonra yazildigi icin bu tuzak pratikte kapalidir. */
+
+/* ENHARMONIK TERCIH CALGIYA GORE DEGISIR.
+   Arastirma (ORNEK-UYGULAMALAR.md · bolum 5): gitaristler diyez yazar
+   (D#, G#, C#), piyanist ve nefesliler bemol (Eb, Ab, Db). "Tek global
+   ayar yetmez" -- ayni repertuari iki calgida acan iki kisi, ayni sesi
+   farkli isimle bekler.
+
+   ONEMLI SINIR: bu tercih YALNIZCA transpoze SIRASINDA kullanilir.
+   Kullanici "Bb" yazdiysa ve hicbir sey aktarilmiyorsa, ekranda "Bb"
+   yazar -- uygulama kimsenin yazdigini duzeltmez. Yazim secmek zorunda
+   kaldigimiz tek an, sesin yeniden adlandirilmasi gereken andir. */
+function yazimTercihi(calgi) {
+  return calgi === 'piyano';        // piyano bemol, telliler diyez
+}

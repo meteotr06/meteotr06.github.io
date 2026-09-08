@@ -20,6 +20,7 @@ var secili = null;
 var adim = 0;                 // transpoze — MUTLAK, orijinalden
 var kapo = 0;
 var istenenYazim = 'duyulan'; // ekranda hangi yazım gösteriliyor
+var ikiliAcik = false;      // tutulan ve duyulani BIRLIKTE goster
 var setler = [];
 var setBozuklar = [];
 var acikSet = null;        // duzenlenen set
@@ -147,12 +148,31 @@ function sarkiAc(id) {
 
 /* Toplam kaydırma tek seferde hesaplanır ve ORİJİNALE uygulanır.
    Üst üste aktarma yapılmaz — yoksa Eb → E → D# olur (zincir tuzağı). */
-function toplamAdim() {
+/* Ekranda gosterilmeyen OTEKI yazim (ikili gosterim icin). */
+function otekiYazim() {
+  return istenenYazim === 'tutulan' ? 'duyulan' : 'tutulan';
+}
+
+function yazimAdimi(hangiYazim) {
   var kapoAdim = 0;
-  if (istenenYazim !== secili.yazim) {
+  if (hangiYazim !== secili.yazim) {
     kapoAdim = (secili.yazim === 'tutulan') ? kapo : -kapo;
   }
   return adim + kapoAdim;
+}
+
+/* Enharmonik tercih YALNIZCA aktarim varken uygulanir.
+   Adim 0 ise kullanicinin kendi yazimi hic degistirilmez -- gitarda bile
+   "Bb" yazan kisi "A#" gormemeli. Yazim secmek zorunda kaldigimiz tek an,
+   sesin yeniden adlandirilmasi gereken andir. */
+function yazimSecenegi(toplam) {
+  if (toplam === 0) return null;
+  return { bemol: yazimTercihi(secili.calgi) };
+}
+
+
+function toplamAdim() {
+  return yazimAdimi(istenenYazim);
 }
 
 function sarkiCiz() {
@@ -162,9 +182,19 @@ function sarkiCiz() {
   $('kapoDeger').textContent = String(kapo);
   $('yazimTutulan').className = (istenenYazim === 'tutulan') ? 'secili' : '';
   $('yazimDuyulan').className = (istenenYazim === 'duyulan') ? 'secili' : '';
+  $('yazimIkili').className = ikiliAcik ? 'secili' : '';
 
   var cozum = metinCozumle(secili.govde);
-  var g = govdeAktar(cozum, toplamAdim());
+  var toplam = toplamAdim();
+  var secenek = yazimSecenegi(toplam);
+  var g = govdeAktar(cozum, toplam, secenek);
+
+  /* IKILI GOSTERIM: ayni sarki bir de OTEKI yazimla aktarilip yan yana
+     konuyor. Kapo 0 ise ikisi zaten ayni olur, parantez acilmaz. */
+  var ikincilG = (ikiliAcik && kapo > 0)
+    ? govdeAktar(cozum, yazimAdimi(otekiYazim()), yazimSecenegi(yazimAdimi(otekiYazim())))
+    : null;
+  var ikincilSira = 0;
 
   // --- gövde ---
   var p = [];
@@ -177,7 +207,13 @@ function sarkiCiz() {
         if (kullanilan.indexOf(a.akor) === -1) kullanilan.push(a.akor);
         if (a.gecerli === false) uyarilar.push('Tanınmayan akor: ' + a.akor);
       });
-      p.push(satirHtml(b));
+      var ikincilAkorlar = null;
+      if (ikincilG) {
+        var ikincilBlok = ikincilG.bloklar.filter(function (x) { return x.tur === 'satir'; })[ikincilSira];
+        ikincilAkorlar = ikincilBlok ? ikincilBlok.akorlar : null;
+      }
+      ikincilSira++;
+      p.push(satirHtml(b, ikincilAkorlar));
     } else if (b.tur === 'bos')   { p.push('<div class="satir bos"></div>'); }
     else if (b.tur === 'bolum')   { p.push('<div class="bolum">' + kacir(b.ad) + '</div>'); }
     else if (b.tur === 'yorum')   { p.push('<div class="yorum">' + kacir(b.metin) + '</div>'); }
@@ -208,6 +244,15 @@ function sarkiCiz() {
     serit.push('— kapo yok');
   }
   if (adim !== 0) serit.push('· ton <b>' + (adim > 0 ? '+' : '') + adim + '</b> yarım ses');
+  if (ikiliAcik) {
+    serit.push(kapo > 0
+      ? '· parantez i\u00e7inde <b>' + otekiYazim().toUpperCase() + '</b>'
+      : '· ikili a\u00e7\u0131k ama <b>kapo yok</b> \u2014 ikisi ayn\u0131');
+  }
+  if (toplamAdim() !== 0) {
+    serit.push('· yaz\u0131m: <b>' + (yazimTercihi(secili.calgi) ? 'bemol' : 'diyez') +
+               '</b> (' + secili.calgi + ')');
+  }
   serit.push('· kayıtlı hâli: <b>' + secili.yazim + '</b>');
   $('yazimSerit').innerHTML = serit.join(' ');
 
@@ -760,6 +805,7 @@ function baglantilariKur() {
   $('kapoArtir').addEventListener('click', function () { if (kapo < 12) { kapo++; sarkiCiz(); } });
   $('yazimTutulan').addEventListener('click', function () { istenenYazim = 'tutulan'; sarkiCiz(); });
   $('yazimDuyulan').addEventListener('click', function () { istenenYazim = 'duyulan'; sarkiCiz(); });
+  $('yazimIkili').addEventListener('click', function () { ikiliAcik = !ikiliAcik; sarkiCiz(); });
 
   $('yaziBuyut').addEventListener('click', function () { yaziBoyu = Math.min(40, yaziBoyu + 2); yaziBoyuUygula(yaziBoyu); });
   $('yaziKucult').addEventListener('click', function () { yaziBoyu = Math.max(12, yaziBoyu - 2); yaziBoyuUygula(yaziBoyu); });
