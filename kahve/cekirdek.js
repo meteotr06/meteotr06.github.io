@@ -256,7 +256,13 @@
             if (o === null) return red('sayi_okunamadi');
             if (o < 0) return red('oran_negatif', 'Oran eksi olamaz.');
             toplam += o;
-            satir.push({ ad: bilesenler[i].ad, oran: o });
+            /* Fiyat ISTEGE BAGLI: yoksa `null` kalir ve asagida
+               "eksik" sayilir -- sifir sayilmaz (K-66). */
+            var fy = sayi_oku(bilesenler[i].fiyat);
+            if (fy !== null && fy < 0) {
+                return red('fiyat_negatif', 'Fiyat eksi olamaz.');
+            }
+            satir.push({ ad: bilesenler[i].ad, oran: o, fiyat: fy });
         }
         if (Math.abs(toplam - 100) > 0.001) {
             return red('oran_toplami',
@@ -270,7 +276,31 @@
             s.yesilKg = toplamYesil * s.oran / 100;
             s.kavrulmusKg = h * s.oran / 100;
         });
-        return { gecerli: true, toplamYesil: toplamYesil, bilesenler: satir };
+        /* ---- HARMANIN KILO MALIYETI ----
+           Bilesen fiyatlarinin ORANLA agirliklandirilmis ortalamasi
+           yesil maliyeti verir; kavrulmus kilonun maliyeti icin fire
+           duzeltmesi gerekir (10 kg yesilden 8,5 kg cikiyorsa yesilin
+           kilosu 500 ise kavrulmusun kilosu 588,24).
+
+           TEK BIR FIYAT EKSIKSE HESAP YAPILMIYOR. Eksigi sifir saymak
+           ortalamayi asagi ceker ve kullanici ucuz bir harman gorur --
+           sessiz yanlis sayinin tam tarifi (K-66). */
+        var eksikFiyat = satir.filter(function (x) { return x.fiyat === null; })
+                              .map(function (x) { return x.ad; });
+        var harmanMaliyet = null, yesilOrtalama = null;
+        if (!eksikFiyat.length) {
+            yesilOrtalama = satir.reduce(function (t, x) {
+                return t + x.fiyat * x.oran / 100;
+            }, 0);
+            harmanMaliyet = yesilOrtalama / (1 - f / 100);
+        }
+
+        return { gecerli: true, toplamYesil: toplamYesil, bilesenler: satir,
+                 /* yesil kilo maliyeti (fire hesaba katilmadan) */
+                 yesilOrtalama: yesilOrtalama,
+                 /* KAVRULMUS kilo maliyeti -- satis bunun uzerinden yapilir */
+                 kgMaliyet: harmanMaliyet,
+                 eksikFiyat: eksikFiyat };
     }
 
     /* ---------------------------------------------------------------
@@ -320,6 +350,9 @@
        zaten görünmüyor. Büyütülürse gerçek eksik stok gizlenir.
        Bozununca düşen sınama: "tolerans YARIM GRAMDIR". */
     var TOLERANS_KG = 0.0005;
+    /* Ekranda fireyi tek ondalikla yaziyoruz; bundan kucuk bir
+       farki gosteremiyoruz, dolayisiyla uyari da yapmiyoruz. */
+    var EN_KUCUK_FARK_PUAN = 0.1;
 
     function bosDepo() {
         return {
@@ -471,13 +504,7 @@
            Siralama KARARLIDIR (index ikincil anahtar): ayni gun icindeki
            hareketler yazilma sirasini korur, yoksa ayni defter iki kez
            hesaplaninca farkli sonuc verebilirdi. */
-        var siralanmis = hareketler.map(function (h, i) {
-            return { h: h || {}, i: i };
-        }).sort(function (a, b) {
-            var ta = String(a.h.tarih || ''), tb = String(b.h.tarih || '');
-            if (ta !== tb) return ta < tb ? -1 : 1;
-            return a.i - b.i;
-        });
+        var siralanmis = tarihSiralaDizinli(hareketler);
 
         var cesitler = {}, sira = [];
 
@@ -520,6 +547,213 @@
                  sirali: siralanmis.map(function (x) { return x.h; }) };
     }
 
+
+    /* ---------------------------------------------------------------
+       PARTI KARSILASTIRMA -- "bu parti oncekilere gore nasil gitti?"
+
+       Defter zaten fire, gelisim orani, sureler ve mense tutuyor; ama
+       yalnizca LISTELIYOR. Kavurmacinin sordugu soru bu degil: o,
+       "gecen sefere gore ne degisti" diye soruyor.
+
+       KURAL -- HICBIR IDEAL DEGER YOK. Bu islev "dogru fire %15'tir"
+       gibi bir sey SOYLEMEZ; yalnizca KULLANICININ KENDI gecmis
+       partilerini ozetler. Ideal fire makineye, cekirdege ve kavurma
+       derecesine gore degisir; bir sayi yazsaydik kullanici onu olcum
+       sanirdi (K-22). Uygulama bastan bu sozu veriyor (veri.js:
+       "fire orani ... KULLANICIDAN olcerek ogrenir").
+
+       KIYAS KUMESI: ayni MENSE ve ayni DERECE. Ikisi de tutmuyorsa
+       kiyas anlamsiz -- Etiyopya'yi acik kavurmakla Brezilya'yi koyu
+       kavurmayi karsilastirmak bilgi vermez, gurultu verir.
+
+       YETERSIZ VERI DURUSTCE SOYLENIR: tek bir onceki parti "ortalama"
+       degildir. En az IKI onceki kayit istiyoruz; yoksa `yeterli:false`
+       ve sebebi doner. Bos donmek yerine NEDEN bos oldugunu soylemek,
+       kullanicinin "uygulama bozuk mu" diye dusunmesini onler.
+       --------------------------------------------------------------- */
+
+    /** Bir partiyi, ayni mense+derecedeki onceki partilerle karsilastirir.
+        kayit   : {fire, dtr, mense, derece, ...}
+        gecmis  : defterdeki butun kayitlar (kayit da icinde olabilir)
+        Doner   : {yeterli, sebep} ya da ozet nesnesi. */
+    function parti_karsilastir(kayit, gecmis) {
+        if (!kayit) return { yeterli: false, sebep: 'kayit_yok' };
+        var mense = (kayit.mense || '').trim();
+        var derece = (kayit.derece || '').trim();
+        if (!mense || !derece) return { yeterli: false, sebep: 'kunye_eksik' };
+
+        /* Kendisini disarida birak: zaman damgasi kimlik yerine geciyor.
+           Damgasizsa nesne kimligine bakiyoruz -- ayni kaydin kendisiyle
+           karsilastirilmasi ortalamayi kendine dogru ceker. */
+        var oncekiler = (gecmis || []).filter(function (k) {
+            if (!k || k === kayit) return false;
+            if (kayit.t && k.t && k.t === kayit.t) return false;
+            if ((k.mense || '').trim() !== mense) return false;
+            if ((k.derece || '').trim() !== derece) return false;
+            if (typeof k.fire !== 'number' || !isFinite(k.fire)) return false;
+            /* FIRE SINIRI BURADA DA GECERLI. `fire_gecerli` bes islevde
+               kullaniliyordu, burada YOKTU -- oysa bu islev de defterden
+               gelen degerleri okuyor. Depoya bir sekilde girmis imkansiz
+               bir deger (or. %150) ortalamayi kaydirirdi ve kullanici
+               bunu kendi olcumu sanirdi (K-102: yazma tarafini kapatmak
+               okuma tarafini kapatmaz).
+               DIKKAT: `fire_gecerli` GECERLIYSE null doner. */
+            return !fire_gecerli(k.fire);
+        });
+
+        if (oncekiler.length < 2) {
+            return { yeterli: false, sebep: 'az_kayit',
+                     bulunan: oncekiler.length, mense: mense, derece: derece };
+        }
+
+        var fireler = oncekiler.map(function (k) { return k.fire; });
+        var ort = fireler.reduce(function (a, b) { return a + b; }, 0) / fireler.length;
+        var enDusuk = Math.min.apply(null, fireler);
+        var enYuksek = Math.max.apply(null, fireler);
+
+        /* Standart sapma: "olagan salinim" ne kadar? Tek bir ortalamaya
+           bakip "sapti" demek yaniltir -- kimi cekirdek dogal olarak
+           daha oynak. Payda n (ornek degil, kullanicinin TUM gecmisi). */
+        var kare = fireler.reduce(function (t, f) {
+            return t + (f - ort) * (f - ort);
+        }, 0) / fireler.length;
+        var sapma = Math.sqrt(kare);
+
+        var fark = kayit.fire - ort;
+
+        /* ---------------------------------------------------------
+           "OLAGANDISI" NE ZAMAN DENIR?
+
+           ILK YAZDIGIM KURAL YANLISTI ve EKRANDA OLCEREK gorundu
+           (06.09.2026). Kural "ortalamadan standart sapmadan fazla
+           uzaksa uyar; sapma kucukse taban 0,2 puan" idi. Gercek
+           bir defterle denendiginde DORT karsilastirmanin UCU
+           turuncu "YUKSEK/DUSUK" yaziyordu:
+               %15,2 · ortalama %15,0 · aralik 14,8-15,1  -> "YUKSEK"
+               %14,8 · ortalama %15,1 · aralik 15,0-15,1  -> "DUSUK"
+           Hicbir kavurmaci bunlara olagandisi demez. Surekli oten
+           bir alarm, alarm olmamasindan KOTUDUR: kullanici okumayi
+           birakir ve sirada gelen gercek %19,4'u de kacirir.
+
+           YENI KURAL -- yine hicbir sabit uydurmadan:
+             1. Parti, kullanicinin GORDUGU araligin (en dusuk-en
+                yuksek) DISINDA olacak. Icerideki bir sayi, tanimi
+                geregi daha once yasanmis demektir.
+             2. Disari tasma, o araligin KENDI genisliginden (ya da
+                standart sapmadan; hangisi buyukse) fazla olacak.
+             3. Bunu soyleyebilmek icin EN AZ UC onceki parti gerek.
+                Iki noktayla ortalama hesaplanir ama "olagan salinim"
+                bilinmez; iki nokta her zaman bir dogru cizer.
+           Ucu de kullanicinin KENDI sayilarindan turer.
+
+           TEK SABIT: EN_KUCUK_FARK_PUAN. Butun gecmis birebir ayni
+           sayiysa genislik de sapma da 0 cikar ve her kil payi fark
+           "olagandisi" olurdu. Taban, EKRANDA YAZDIGIMIZ cozunurluk:
+           fireyi tek ondalikla gosteriyoruz, yani 0,1 puandan kucuk
+           bir farki kullaniciya gosteremiyoruz bile. Gosteremedigimiz
+           bir farkla alarm calmayiz. */
+        var genislik = enYuksek - enDusuk;
+        var esik = Math.max(genislik, sapma, EN_KUCUK_FARK_PUAN);
+        var yeterinceGecmis = oncekiler.length >= 3;
+        var disarida = kayit.fire > enYuksek + esik || kayit.fire < enDusuk - esik;
+
+        var dtrler = oncekiler.filter(function (k) {
+            return typeof k.dtr === 'number' && isFinite(k.dtr);
+        }).map(function (k) { return k.dtr; });
+        var dtrOrt = dtrler.length
+            ? dtrler.reduce(function (a, b) { return a + b; }, 0) / dtrler.length
+            : null;
+
+        return {
+            yeterli: true,
+            mense: mense, derece: derece,
+            sayi: oncekiler.length,
+            fire: kayit.fire,
+            fireOrt: ort, fireEnDusuk: enDusuk, fireEnYuksek: enYuksek,
+            sapma: sapma,
+            genislik: genislik,
+            esik: esik,
+            fark: fark,
+            /* Uyari icin uc kosul da saglanmali. `alarmaHazir`, ekranin
+               "neden uyari yok" diye sorabilmesi icin ayrica veriliyor. */
+            alarmaHazir: yeterinceGecmis,
+            olagandisi: yeterinceGecmis && disarida,
+            yon: fark > 0 ? 'yuksek' : (fark < 0 ? 'dusuk' : 'ayni'),
+            dtr: (typeof kayit.dtr === 'number' && isFinite(kayit.dtr)) ? kayit.dtr : null,
+            dtrOrt: dtrOrt,
+            dtrSayisi: dtrler.length
+        };
+    }
+
+    /* TARIH SIRALAMASI TEK YERDE.
+       Bu kural 06.09.2026'ya kadar UC yerde ayri ayri yaziliydi:
+       burada, `tarihSirala` disa aciminda ve arayuzun kendi ciziminde.
+       Ucu de aynidiydi, yani ortada hata yoktu -- ama biri degisince
+       uygulama cokmez, kullaniciya YANLIS SATIRI gosterir. Motor
+       "Satir 3" der, kullanici listesinde bambaska bir satir sayar.
+       Sessiz yanlis bilgi; en gec fark edilen sinif.
+
+       DIZIN TASINIYOR (`i`). Arayuz silerken ozgun dizine muhtac:
+       gorunen sirayla silmek YANLIS KAYDI siler. */
+    function tarihSiralaDizinli(liste) {
+        return (liste || []).map(function (h, i) {
+            return { h: h || {}, i: i };
+        }).sort(function (a, b) {
+            /* Tarihsizler ONCE gelir (bos dize her tarihten kucuk) ve
+               kendi aralarinda yazilma sirasini korur -- bu alan
+               eklenmeden onceki defterler birebir ayni sonucu versin. */
+            var ta = String(a.h.tarih || ''), tb = String(b.h.tarih || '');
+            if (ta !== tb) return ta < tb ? -1 : 1;
+            return a.i - b.i;   /* kararli: ayni gun -> yazilma sirasi */
+        });
+    }
+
+    /* ---------------------------------------------------------------
+       SATIS ANALIZI -- "kaca satarsam ne kazanirim?"
+
+       MALIYETI KENDISI HESAPLAMAZ, DISARIDAN ALIR. Sebep: ekranda
+       gosterilen maliyet ile kar hesabinda kullanilan maliyet AYNI
+       sayi olmali. Islev kendi icinde yeniden hesaplasaydi, girdilerin
+       biri degistiginde iki taraf ayrisabilir ve kullanici tutarli
+       gorunen ama yanlis bir kar gorurdu.
+
+       MARJ VE MARKUP AYRI AYRI DONER, cunku ayni sey degiller:
+           marj   = kar / satis    (satisin yuzde kaci kar)
+           markup = kar / maliyet  (maliyetin ustune yuzde kac konmus)
+       500 maliyet + 750 satis -> marj %33,3 · markup %50. Tek bir
+       "kar yuzdesi" dondurup hangisi oldugunu soylememek, sessiz
+       yanlis sayinin ta kendisi olurdu.
+       --------------------------------------------------------------- */
+    function satis_analiz(satisFiyati, kgMaliyet) {
+        var satis = sayi_oku(satisFiyati);
+        if (satis === null) return red('sayi_okunamadi');
+        if (satis <= 0) {
+            return red('satis_sifir', 'Satış fiyatı sıfırdan büyük olmalı.');
+        }
+        /* Maliyet HESAPLANMIS bir sayi olarak gelir; okunamiyorsa
+           uydurmuyoruz. `0` da bir maliyet degildir, bilinmiyordur. */
+        if (typeof kgMaliyet !== 'number' || !isFinite(kgMaliyet) || kgMaliyet <= 0) {
+            return red('maliyet_yok',
+                'Önce kilo maliyetini hesaplayın — kâr, maliyet bilinmeden ' +
+                'söylenemez.');
+        }
+
+        var kar = satis - kgMaliyet;
+        return {
+            gecerli: true,
+            satis: satis,
+            maliyet: kgMaliyet,
+            kar: kar,
+            /* Ikisi de yuzde; hangisi oldugu ADINDA yaziyor. */
+            marj: kar / satis * 100,        /* satisin yuzde kaci kar */
+            markup: kar / kgMaliyet * 100,  /* maliyetin ustune yuzde kac */
+            zarar: kar < 0,
+            /* Basabas: bu maliyette zarar etmemek icin en az bu fiyat.
+               "Onerilen fiyat" DEGIL -- oneri, olculmemis bir sayidir. */
+            basabas: kgMaliyet
+        };
+    }
+
     function red(kod, mesaj) {
         return {
             gecerli: false,
@@ -538,16 +772,15 @@
         maliyet: maliyet,
         harman: harman,
         gelisim_orani: gelisim_orani,
+        satis_analiz: satis_analiz,
+        parti_karsilastir: parti_karsilastir,
         stok_hesap: stok_hesap,
         tarihSirala: function (liste) {
-            return (liste || []).map(function (h, i) { return { h: h, i: i }; })
-                .sort(function (a, b) {
-                    var ta = String((a.h || {}).tarih || ''),
-                        tb = String((b.h || {}).tarih || '');
-                    if (ta !== tb) return ta < tb ? -1 : 1;
-                    return a.i - b.i;
-                }).map(function (x) { return x.h; });
+            return tarihSiralaDizinli(liste).map(function (x) { return x.h; });
         },
-        TOLERANS_KG: TOLERANS_KG
+        /* Arayuz bunu kullaniyor: hem sira hem OZGUN DIZIN lazim. */
+        tarihSiralaDizinli: tarihSiralaDizinli,
+        TOLERANS_KG: TOLERANS_KG,
+        EN_KUCUK_FARK_PUAN: EN_KUCUK_FARK_PUAN
     };
 })(typeof window !== 'undefined' ? window : this);

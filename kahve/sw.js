@@ -1,3 +1,20 @@
+/* TAZE AL -- `cache.add`/`addAll` KULLANMA.
+   Istek TARAYICININ HTTP onbelleginden karsilanabilir; yeni damgayla
+   kurulan isci ESKI index.html'i gomer, o index eski `?v=` adreslerini
+   ister ve kullanici surum artsa da ESKI kodu calistirir. Damga
+   denetleyicileri bunu goremez: kaynagin tutarliligina bakarlar,
+   iscinin ne gomdugune degil.
+   Arsa oturumu buldu (08.09.2026). `{cache:"reload"}` HTTP onbellegini
+   atlar; `c.ok` denetimi 404 govdesinin gomulmesini engeller -- `add`
+   bunu kendisi yapar, `put` yapmaz.
+   ATAR (throw): boylece eski `add` davranisi korunur -- cagri
+   yerlerindeki `.catch(...)` ve `try/catch` oldugu gibi calisir. */
+const tazeAl = async (k, u) => {
+    const c = await fetch(u, { cache: "reload" });
+    if (!c || !c.ok) throw new Error("alinamadi: " + u);
+    await k.put(u, c);
+};
+
 /* ☕ KAHVE KAVURMA — SERVİS İŞÇİSİ (çevrimdışı katman)
    ==================================================================
    Kavurmahanede internet çoğu zaman zayıftır. Uygulama makinenin
@@ -24,7 +41,7 @@
       hatayı kalıcı hâle getirir.
    ================================================================== */
 
-const SURUM = 'kahve-v21';
+const SURUM = 'kahve-v76';
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
@@ -34,7 +51,7 @@ const SURUM = 'kahve-v21';
    Buradaki temizlik eskiden "adi SURUM olmayan her onbellegi sil"
    diyordu -- yani BUTUN KARDES UYGULAMALARIN onbellegini siliyordu:
    portal, Hesap Araclari, Muhasebe, Kur Pusulasi, Planlayici, Arsa,
-   RoastMate, Hava Durumu, Goz Molasi.
+   RoastLog, Hava Durumu, Goz Molasi.
 
    Kullanicinin gordugu sey: ucakta kurulu bir kardes uygulamayi
    aciyor, BOS SAYFA geliyor. Simetrik olduğu icin ailenin cevrimdisi
@@ -61,6 +78,24 @@ const CEKIRDEK = [
     './arayuz.js' + ETIKET,
     './kurulum.js' + ETIKET,
     './guncelle.js' + ETIKET,
+    './kavurma-makinesi.jpg',
+    /* UCU DE DAMGALI OLMALI.
+       Onceden "three.min.js" ve "gltf-okuyucu.js" damgasiz,
+       "makine3d.js" damgali on onbellege giriyordu -- ama sayfa
+       UCUNU DE damgasiz istiyordu. Yani servis calisani bir adresi
+       sakliyor, sayfa baskasini istiyordu: ne onbellek ise yariyor
+       ne de yeni surum geliyordu.
+
+       07.09.2026'da ekranda yasandi: dosyaya yeni bir disa acim
+       ekledim, diskte vardi, tarayici ESKI surumu calistirdi.
+       Onbellek temizlendi, servis calisani kaldirildi, sayfa zorla
+       yenilendi -- yine eskisi geldi. HTTP onbellegini kiran tek sey
+       damgadir. Yukleyici tarafi da ayni damgayi kullaniyor
+       (`ucBoyutDamga`), ve o damga sayfanin kendi betik etiketinden
+       turuyor -- iki yere ayri sayi yazilsaydi biri bayatlardi. */
+    './three.min.js' + ETIKET,
+    './gltf-okuyucu.js' + ETIKET,
+    './makine3d.js' + ETIKET,
     './manifest.json',
     './ikon-192.png',
     './ikon-512.png',
@@ -70,7 +105,7 @@ const CEKIRDEK = [
 self.addEventListener('install', (e) => {
     e.waitUntil(
         caches.open(SURUM)
-            .then((o) => o.addAll(CEKIRDEK))
+            .then((o) => Promise.all(CEKIRDEK.map((u) => tazeAl(o, u))))
             .then(() => self.skipWaiting())
     );
 });

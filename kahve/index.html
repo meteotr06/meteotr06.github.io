@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title data-i18n="sayfaBasligi">RoastMate — kavurma firesi, maliyet, harman, defter</title>
-<meta name="description" content="RoastMate — kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri. Türkçe ve İngilizce. Ücretsiz, çevrimdışı çalışır. Roast loss, cost per kilo, blend ratios and a roast log." />
+<title data-i18n="sayfaBasligi">RoastLog — kavurma firesi, maliyet, harman, defter</title>
+<meta name="description" content="RoastLog — kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri. Türkçe ve İngilizce. Ücretsiz, çevrimdışı çalışır. Roast loss, cost per kilo, blend ratios and a roast log." />
 <meta name="theme-color" content="#0d0b09" />
 <meta name="color-scheme" content="dark light" />
 <script>
@@ -45,34 +45,40 @@
 <link rel="icon" type="image/png" href="favicon.png" />
 <link rel="apple-touch-icon" href="ikon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-title" content="RoastMate" />
-<link rel="stylesheet" href="stil.css?v=21" />
+<meta name="apple-mobile-web-app-title" content="RoastLog" />
+<link rel="stylesheet" href="stil.css?v=76" />
 </head>
 <body>
 <div class="sarmal">
 
 <header class="ust">
-    <!-- MARKA ISARETI. ☕ emojisi marka degildir: her isletim
-         sisteminde baska cizilir, boyutu ve rengi denetlenemez, tema
-         rengiyle uyumu tesadufe kalir. Yerine tamburun silueti --
-         uygulamanin kendi konusu, iki temada da ayni. -->
+    <!-- MARKA ISARETI: CEKIRDEK + OLCU CIZGISI.
+         Kullanicinin secimi (06.09.2026). Anlatmak istedigi sey su:
+         bu uygulama TAHMIN etmez, OLCER. Cekirdek ne yaptigimizi,
+         altindaki cetvel nasil yaptigimizi soyluyor.
+         Emoji kullanilmiyor: her isletim sisteminde baska cizilir,
+         boyutu ve rengi denetlenemez. -->
     <h1 class="marka">
         <svg class="marka-im" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-            <!-- huni -->
-            <path d="M11 3h10l-2.4 5h-5.2Z" fill="currentColor" opacity=".55"/>
-            <!-- govde -->
-            <rect x="4" y="9" width="24" height="15" rx="4" fill="currentColor" opacity=".22"/>
-            <!-- tambur agzi -->
-            <circle cx="16" cy="16.5" r="6.2" fill="none"
-                    stroke="currentColor" stroke-width="2"/>
-            <!-- cekirdek: ortadaki yariktan taniniyor -->
-            <ellipse cx="16" cy="16.5" rx="2.6" ry="3.6" fill="currentColor"/>
-            <path d="M16 13.4v6.2" stroke="var(--kart)" stroke-width="1" opacity=".9"/>
-            <!-- ayak -->
-            <rect x="8" y="25" width="16" height="3" rx="1.5"
-                  fill="currentColor" opacity=".45"/>
+            <!-- cekirdek: hafif egik, ortadaki yariktan taniniyor -->
+            <g transform="rotate(-18 16 13)">
+                <ellipse cx="16" cy="13" rx="7.4" ry="9.2" fill="currentColor"/>
+                <path d="M16 4.6c-2.6 3.1-2.6 13.7 0 16.8"
+                      fill="none" stroke="var(--kart)" stroke-width="1.7"
+                      stroke-linecap="round"/>
+            </g>
+            <!-- olcu cizgisi: cetvel + centikler -->
+            <path d="M3.5 26.5h25" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" opacity=".55"/>
+            <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".55">
+                <path d="M6 26.5v-2.6"/>
+                <path d="M11 26.5v-1.6"/>
+                <path d="M16 26.5v-3.4"/>
+                <path d="M21 26.5v-1.6"/>
+                <path d="M26 26.5v-2.6"/>
+            </g>
         </svg>
-        <span class="marka-ad">Roast<span>Mate</span></span>
+        <span class="marka-ad">Roast<span>Log</span></span>
     </h1>
     <div class="ust-sag">
         <!-- DIL DUGMESI: etkin dili DEGIL, gecilecek dili yazar.
@@ -149,6 +155,11 @@
         <div class="sonuc" id="fireSonuc" hidden>
             <div class="buyuk" id="fireBuyuk">—</div>
             <div class="alt" id="fireAlt"></div>
+
+            <!-- Sonuc kutusunun sag yarisi bostu. Buraya kullanicinin
+                 KENDI defterinden turemis ozet geliyor; defter bossa
+                 sayi uretmeden sebebini yaziyor. -->
+            <aside class="gecmis" id="fireGecmis" hidden></aside>
 
             <div class="gorsel">
                 <div class="cubuk-kap">
@@ -345,12 +356,27 @@
             </div>
         </div>
 
+        <!-- SATIS FIYATI: maliyetin bir sonraki sorusu. Bos birakilirsa
+             hicbir sey gosterilmez -- bos alan icin sayi uretmiyoruz. -->
+        <div class="satir" id="mSatisSatir">
+            <label for="mSatis"><span data-i18n="mSatisEt">Satış fiyatım</span>
+                <small><span class="para-birim"></span> <span data-i18n="birimKg">/ kg</span>
+                <span data-i18n="mSatisAlt">— isteğe bağlı</span></small></label>
+            <input id="mSatis" inputmode="decimal" data-i18n-yer="yer750" />
+        </div>
+
         <div class="sonuc" id="maliyetSonuc" hidden>
             <div class="buyuk" id="maliyetBuyuk">—</div>
             <div class="alt" data-i18n="maliyetAlt">kavrulmuş kahvenin kilo maliyeti</div>
             <dl id="maliyetDetay"></dl>
         </div>
         <div class="bilgi-kutu" id="maliyetFark" hidden></div>
+        <div class="sonuc" id="satisSonuc" hidden>
+            <div class="buyuk" id="satisBuyuk">—</div>
+            <div class="alt" id="satisAlt"></div>
+            <dl id="satisDetay"></dl>
+        </div>
+        <div class="uyari-kutu" id="satisUyari" hidden></div>
         <div class="uyari-kutu" id="maliyetUyari" hidden></div>
     </div>
 </section>
@@ -379,6 +405,7 @@
             <div class="buyuk" id="harmanBuyuk">—</div>
             <div class="alt" data-i18n="harmanAlt">toplam yeşil kahve</div>
             <dl id="harmanDetay"></dl>
+            <div id="harmanMaliyet" hidden></div>
         </div>
         <div class="uyari-kutu" id="harmanUyari" hidden></div>
     </div>
@@ -515,6 +542,12 @@
         </div>
         <div class="satir ikili">
             <div>
+                <label for="pTur" data-i18n="pTurEt">Çekirdek türü</label>
+                <select id="pTur"></select>
+            </div>
+        </div>
+        <div class="satir ikili">
+            <div>
                 <label for="pVaryete" data-i18n="pVaryeteEt">Varyete</label>
                 <select id="pVaryete"></select>
             </div>
@@ -580,27 +613,47 @@
         <h2 data-i18n="makineSekmeBaslik">Kavurma makinesi</h2>
         <p class="aciklama" data-i18n="makineSekmeAciklama"></p>
 
-        <div class="sahne" id="sahne" tabindex="0" role="application"
-             data-i18n-baslik="makineSurukle">
-            <div class="dunya" id="dunya">
-                <!-- AYAK -->
-                <div class="kat kat-ayak"></div>
-                <!-- GÖVDE -->
-                <div class="kat kat-govde"></div>
-                <!-- TAMBUR: 16 yüzeyli gerçek silindir -->
-                <div class="tambur" id="tambur3d"></div>
-                <div class="kat kat-kapak"></div>
-                <!-- HUNİ -->
-                <div class="kat kat-huni"></div>
-                <!-- SOĞUTMA TEPSİSİ -->
-                <div class="kat kat-tepsi"></div>
-                <!-- KUMANDA PANELİ -->
-                <div class="kat kat-panel"><span id="panel3d">—</span></div>
+        <div class="mak-sahne">
+        <div class="mak-foto" id="makine">
+            <img src="kavurma-makinesi.jpg" width="540" height="720" draggable="false"
+                 data-i18n-alt="makineFotoAlt" alt="Tamburlu kahve kavurma makinesi">
+
+            <div class="mak-katman" aria-hidden="true">
+                <div class="mak-dokum" id="makDokum">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+                <div class="mak-akis" id="makAkis">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+                <div class="mak-tepsi-dolgu" id="makTepsiDolgu"></div>
+                <div class="mak-kor" id="makKor"></div>
             </div>
+
+            <button type="button" class="mak-nokta" id="nHazne"
+                    style="--x:39%; --y:11%; --w:32%; --h:17%"
+                    data-i18n-baslik="makineHazneKol"><span data-i18n="makineEtHazne"></span></button>
+            <button type="button" class="mak-nokta" id="nKasik"
+                    style="--x:15%; --y:33%; --w:17%; --h:14%"
+                    data-i18n-baslik="makineKasik"><span data-i18n="makineEtKasik"></span></button>
+            <button type="button" class="mak-nokta" id="nBosalt"
+                    style="--x:33%; --y:41%; --w:24%; --h:13%"
+                    data-i18n-baslik="makineBosaltKol"><span data-i18n="makineEtBosalt"></span></button>
+            <button type="button" class="mak-nokta" id="nTepsi"
+                    style="--x:39%; --y:65%; --w:58%; --h:18%"
+                    data-i18n-baslik="makineTepsi"><span data-i18n="makineEtTepsi"></span></button>
+        </div>
+        <div class="mak-3d" id="mak3dKap" hidden></div>
+        </div>
+        <p class="mak-kaynak">Fotoğraf: Øristeriet · CC BY-SA 3.0 · Wikimedia Commons</p>
+
+        <div class="mak-kumanda gorsel-gizli" id="makKumanda" hidden>
+            <button type="button" class="mak-dg" id="b3Hazne"  data-i18n="makineEtHazne"></button>
+            <button type="button" class="mak-dg" id="b3Kasik"  data-i18n="makineEtKasik"></button>
+            <button type="button" class="mak-dg" id="b3Bosalt" data-i18n="makineEtBosalt"></button>
+            <button type="button" class="mak-dg" id="b3Tepsi"  data-i18n="makineEtTepsi"></button>
         </div>
 
         <div class="sahne-dugmeler">
-            <button type="button" id="donBtn" data-i18n="makineDon">Döndür</button>
             <button type="button" id="sifirlaBtn" data-i18n="makineSifirla">Baştan</button>
         </div>
 
@@ -615,12 +668,12 @@
 
 </div><!-- /sarmal -->
 
-<script src="cekirdek.js?v=21"></script>
-<script src="dil.js?v=21"></script>
-<script src="veri.js?v=21"></script>
-<script src="kurulum.js?v=21"></script>
-<script src="arayuz.js?v=21"></script>
-<script src="guncelle.js?v=21"></script>
+<script src="cekirdek.js?v=76"></script>
+<script src="dil.js?v=76"></script>
+<script src="veri.js?v=76"></script>
+<script src="kurulum.js?v=76"></script>
+<script src="arayuz.js?v=76"></script>
+<script src="guncelle.js?v=76"></script>
 <script>
 /* TESLIMAT. Ortak modul: HESAP MAKİNESİ\ortak\guncelle.js
    Degisiklik ONCE orada yapilir, sonra kopyalar tazelenir (K-69).

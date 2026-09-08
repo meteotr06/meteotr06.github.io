@@ -1,7 +1,7 @@
 {
   "id": "/kahve/",
-  "name": "RoastMate — Kahve Kavurma / Coffee Roasting",
-  "short_name": "RoastMate",
+  "name": "RoastLog — Kahve Kavurma / Coffee Roasting",
+  "short_name": "RoastLog",
   "description": "Kavurma firesi, kilo maliyeti, harman oranı ve kavurma defteri — Türkçe ve İngilizce. Roast loss, cost per kilo, blend ratios and a roast log.",
   "start_url": "./index.html",
   "scope": "./",

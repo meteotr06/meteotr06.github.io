@@ -68,8 +68,8 @@
            acilmanin amaci tam da bulunabilmekti.
            `uygula()` zaten `textContent` yaziyor; `<title>` uzerinde
            bu dogrudan sekme basligini degistirir, yeni kod gerekmez. */
-        sayfaBasligi: { tr: 'RoastMate — kavurma firesi, maliyet, harman, defter',
-                        en: 'RoastMate — roast loss, cost, blend and roast log' },
+        sayfaBasligi: { tr: 'RoastLog — kavurma firesi, maliyet, harman, defter',
+                        en: 'RoastLog — roast loss, cost, blend and roast log' },
 
         /* ---- sekmeler ---- */
         sekmeler:    { tr: 'Bölümler',                en: 'Sections' },
@@ -172,6 +172,9 @@
                             en: 'The batch you saved on the Roast loss tab gets filled out here. <strong>Nothing is required</strong> — leave what you do not know blank; the app will not invent it.' },
         pMenseEt:    { tr: 'Menşe',                   en: 'Origin' },
         pIslemeEt:   { tr: 'İşleme',                  en: 'Processing' },
+        /* Cekirdek turu: liste `veri.js`'te bastan beri vardi ama
+           hicbir ekrana bagli degildi. */
+        pTurEt:      { tr: 'Çekirdek türü',           en: 'Bean species' },
         pVaryeteEt:  { tr: 'Varyete',                 en: 'Variety' },
         pDereceEt:   { tr: 'Kavurma derecesi',        en: 'Roast level' },
         pToplamEt:   { tr: 'Toplam süre',             en: 'Total time' },
@@ -277,6 +280,81 @@
         ortalamaFire:{ tr: '{0} partide ortalama fireniz',
                        en: 'your average loss over {0} batches' },
         oynama:      { tr: 'oynama',                   en: 'spread' },
+        /* HARMAN MALIYETI. Fiyati girilmemis bilesen SIFIR sayilmaz;
+           hesap yapilmaz ve hangi cekirdegin eksik oldugu yazilir. */
+        bFiyatEt:    { tr: 'Yeşil fiyatı',             en: 'Green price' },
+        harmanMaliyetBaslik:{ tr: 'Bu harmanın kilo maliyeti',
+                              en: 'Cost per kilo of this blend' },
+        harmanYesilOrt:{ tr: 'yeşil ortalaması',       en: 'green average' },
+        harmanFiyatEksik:{ tr: 'Kilo maliyeti için şunların yeşil fiyatı gerekiyor: {0}',
+                           en: 'To get the cost per kilo, these still need a green price: {0}' },
+        /* SATIS ANALIZI. "Onerilen fiyat" diye bir sey YAZMIYORUZ --
+           oneri, olculmemis bir sayidir ve kullanici onu hesap sanir. */
+        mSatisEt:    { tr: 'Satış fiyatım',            en: 'My selling price' },
+        mSatisAlt:   { tr: '— isteğe bağlı',           en: '— optional' },
+        yer750:      { tr: '750',                      en: '750' },
+        satisKar:    { tr: 'kilo başına kârınız',      en: 'your profit per kilo' },
+        satisZarar:  { tr: 'kilo başına ZARARINIZ',    en: 'your LOSS per kilo' },
+        ciftMarj:    { tr: 'Kâr marjı (satışın yüzdesi)',
+                       en: 'Margin (share of the selling price)' },
+        ciftMarkup:  { tr: 'Kâr oranı (maliyetin üstüne)',
+                       en: 'Markup (added on top of cost)' },
+        ciftBasabas: { tr: 'Başabaş fiyat',            en: 'Break-even price' },
+        satisZararNot:{ tr: 'Bu fiyat maliyetinizin altında. Başabaş için en az {0} gerekiyor.',
+                        en: 'This price is below your cost. You need at least {0} to break even.' },
+        /* Bozuk kayit sessizce atilmaz; kac tanesi atildigi yazilir. */
+        kayitAtlandi:{ tr: '{0} kayıt okunamadı, hesaba katılmadı.',
+                       en: '{0} records could not be read and were left out.' },
+        kayitAtlandiTek:{ tr: '1 kayıt okunamadı, hesaba katılmadı.',
+                          en: '1 record could not be read and was left out.' },
+        /* FIRE SEKMESINDEKI "KENDI GECMISIN" KUTUSU.
+           Butun sayilar kullanicinin defterinden turer; defter bossa
+           sayi uretilmez, sebebi yazilir. */
+        gecmisBaslik:{ tr: 'Kendi geçmişiniz',        en: 'Your own history' },
+        gecmisYok:   { tr: 'Deftere henüz parti kaydetmediniz. Ölçüp kaydettikçe kendi ortalamanız burada çıkacak.',
+                       en: 'You have not saved a batch to the log yet. As you measure and save, your own average will appear here.' },
+        gecmisOrt:   { tr: '{0} partide ortalamanız',  en: 'your average over {0} batches' },
+        gecmisTek:   { tr: '1 partilik kaydınız',      en: 'from your 1 saved batch' },
+        /* DIKKAT: asagidaki UC anahtar arayuz.js'te DEGISKENLE
+           cagriliyor (`T(notAnahtar, ...)`). CEVIRI-DENETLE.py
+           yalnizca duz yazilmis anahtari gorur ve bu ucunu
+           "kullanilmiyor" diye listeler. KULLANILIYORLAR --
+           silmeyin. Ayni durum kiyas* anahtarlarinda da var. */
+        gecmisUstunde:{ tr: 'Bu ölçüm ortalamanızın <b>{0} puan üstünde</b>.',
+                        en: 'This one is <b>{0} points above</b> your average.' },
+        gecmisAltinda:{ tr: 'Bu ölçüm ortalamanızın <b>{0} puan altında</b>.',
+                        en: 'This one is <b>{0} points below</b> your average.' },
+        gecmisAyni:  { tr: 'Bu ölçüm ortalamanızla <b>aynı</b>.',
+                       en: 'This one is <b>the same</b> as your average.' },
+        /* PARTI KIYASLAMA -- kullanicinin KENDI gecmisine gore.
+
+           DIKKAT: kiyasOlagan / kiyasYuksek / kiyasDusuk anahtarlari
+           arayuz.js'te DEGISKENLE cagriliyor (`T(anahtar, ...)`).
+           CEVIRI-DENETLE.py yalnizca duz yazilmis anahtari gorur, bu
+           ucunu "kullanilmiyor" diye listeler. KULLANILIYORLAR --
+           silmeyin. Araci genisletmek yerine buraya not dusuyorum:
+           arac genisletildiginde 49 yalan "eksik anahtar" uretmisti.
+           Hicbir cumlede "ideal fire" yok; olcut kullanicinin kendi
+           ortalamasi. Sayilar disaridan bicimli gecirilir ki yuzde
+           isareti dogru yana dussun (Turkce %15,0 · Ingilizce 15.0%). */
+        kiyasOlagan: { tr: '{0} önceki partiye göre olağan · ort. {1}',
+                       en: 'usual for your {0} earlier batches · avg {1}' },
+        kiyasYuksek: { tr: '{0} önceki partiye göre YÜKSEK · ort. {1}',
+                       en: 'HIGH vs your {0} earlier batches · avg {1}' },
+        kiyasDusuk:  { tr: '{0} önceki partiye göre DÜŞÜK · ort. {1}',
+                       en: 'LOW vs your {0} earlier batches · avg {1}' },
+        kiyasAralik: { tr: 'aralık {0} – {1}',         en: 'range {0} – {1}' },
+        /* INGILIZCEDE COGUL EKI VAR, TURKCEDE YOK. Tek bir metne
+           "{1} batches" yazarsak "over 1 batches" cikar -- ekranda
+           olculdu. Iki ayri anahtar, sayiya gore secilir. */
+        kiyasDtr:    { tr: 'gelişim ort. {0} ({1} partide)',
+                       en: 'avg development {0} (over {1} batches)' },
+        kiyasDtrTek: { tr: 'gelişim ort. {0} (1 partide)',
+                       en: 'avg development {0} (over 1 batch)' },
+        kiyasAz:     { tr: 'Kıyas için aynı çekirdek ve derecede en az 2 önceki parti gerekiyor ({0} var).',
+                       en: 'Comparison needs at least 2 earlier batches of the same bean and roast ({0} found).' },
+        kiyasKunye:  { tr: 'Menşe ve kavurma derecesini yazarsanız bu partiyi öncekilerle kıyaslayabiliriz.',
+                       en: 'Add the origin and roast level and we can compare this batch with earlier ones.' },
         puan:        { tr: '{0} puan',                 en: '{0} points' },
         duyurDemleme:{ tr: '{0} gram kahve gerekiyor.',
                        en: '{0} grams of coffee needed.' },
@@ -301,8 +379,56 @@
         /* ---- 3D makine sekmesi ---- */
         tMakine:     { tr: 'Makine',                  en: 'Roaster' },
         makineSekmeBaslik: { tr: 'Kavurma makinesi',  en: 'The roaster' },
-        makineSekmeAciklama: { tr: 'Sürükleyerek çevirin. Tamburdaki renk, Fire sekmesinde ölçtüğünüz kavrulmadır — ölçmediyseniz yeşil durur.',
-                               en: 'Drag to turn it. The colour in the drum is the roast you measured on the Roast loss tab — if you have not measured one, it stays green.' },
+        makineTut:        { tr: 'Parçalara dokunun', en: 'Tap the parts' },
+        makine3dYukleniyor:{ tr: '3B makine yükleniyor…', en: 'Loading the 3D machine…' },
+        makine3dOlmadi:   { tr: '3B açılamadı — fotoğrafın üzerinden devam edebilirsiniz.',
+                            en: 'The 3D view could not start — you can keep using the photo.' },
+        makineFotoAlt:    { tr: 'Tamburlu kahve kavurma makinesi: üstte hazne, ortada tambur kapağı, önde soğutma teknesi.',
+                            en: 'Drum coffee roaster: hopper on top, drum door in the middle, cooling tray in front.' },
+        makineTepsi:      { tr: 'Soğutma teknesi — dokununca ne kadar kahve çıktığını söyler',
+                            en: 'Cooling tray — tap to see how much coffee came out' },
+        makDurTepsiBos:   { tr: 'Tepse henüz boş. Önce kavurun, sonra boşaltın.',
+                            en: 'The tray is still empty. Roast first, then discharge.' },
+        makineHazneKol:   { tr: 'Hazne kolu — çekince kapak açılır, çekirdek tambura dökülür',
+                            en: 'Hopper lever — pull to open the gate and drop the beans into the drum' },
+        makineKasik:      { tr: 'Kontrol kaşığı — çekince o anki çekirdek görünür',
+                            en: 'Trier — pull it out to see the beans right now' },
+        makineBosaltKol:  { tr: 'Boşaltma kolu — aşağı çekince kahve soğutma teknesine dökülür',
+                            en: 'Discharge lever — pull down to drop the coffee into the cooling tray' },
+        makineEtHazne:    { tr: 'Hazne',              en: 'Hopper' },
+        makineEtHazneKol: { tr: 'Hazne kolu \u25b8 ÇEK',  en: 'Hopper lever \u25b8 PULL' },
+        makineEtTambur:   { tr: 'Tambur',             en: 'Drum' },
+        makineEtPanel:    { tr: 'Ekran',             en: 'Display' },
+        makineEtBosalt:   { tr: 'Boşaltma kolu \u25b8 ÇEK', en: 'Discharge lever \u25b8 PULL' },
+        makineEtKasik:    { tr: 'Kontrol kaşığı \u25b8 ÇEK', en: 'Trier \u25b8 PULL' },
+        makineEtTepsi:    { tr: 'Soğutma teknesi',   en: 'Cooling tray' },
+        makineEtSiklon:   { tr: 'Baca — kabuk',      en: 'Stack — chaff' },
+        makineEtGaz:      { tr: 'Brulör',            en: 'Burner' },
+        makDurHazir:      { tr: 'Hazne dolu. Ölçtüğünüz fire {0}. Turuncu kollardan birini tutup çekin.',
+                            en: 'Hopper loaded. Your measured loss is {0}. Grab one of the orange levers and pull.' },
+        makDurOlcumYok:   { tr: 'Henüz fire ölçmediniz — makine çalışır ama kiloları uydurmaz. Fire sekmesini doldurun.',
+                            en: 'You have not measured a roast yet — the machine works but will not invent kilos. Fill in the Loss tab.' },
+        makDurDokuluyor:  { tr: 'Kapak açıldı — {0} yeşil çekirdek tambura dökülüyor.',
+                            en: 'Gate open — {0} of green coffee is dropping into the drum.' },
+        makDurDokulOlcumsuz:{ tr: 'Kapak açıldı — çekirdek dökülüyor. (Kilo yazılmıyor çünkü henüz ölçmediğiniz.)',
+                            en: 'Gate open — beans are dropping. (No weight shown: you have not measured one yet.)' },
+        makDurSarjTamam:  { tr: 'Şarj tamam. Tambur dönüyor, alev açık. Şimdi kontrol kaşığını çekin.',
+                            en: 'Charged. The drum is turning and the flame is on. Now pull the trier.' },
+        makDurOnceSarj:   { tr: 'Tambur boş. Önce hazne kolunu çekin.',
+                            en: 'The drum is empty. Pull the hopper lever first.' },
+        makDurKasik:      { tr: 'Kaşıktaki renk, ölçtüğünüz {0} fireye karşılık gelen renktir.',
+                            en: 'The colour on the trier is the one matching your measured {0} loss.' },
+        makDurKasikOlcumsuz:{ tr: 'Kaşık boş görünüyor — renk ancak ölçtüğünüz fireden gelir, uydurulmaz.',
+                            en: 'The trier looks empty — the colour can only come from a loss you measured.' },
+        makDurKasikGirdi: { tr: 'Kaşık yerine girdi.', en: 'Trier back in.' },
+        makDurBosaliyor:  { tr: 'Oluk açıldı — kahve soğutma teknesine akıyor, kollar dönüyor.',
+                            en: 'Chute open — the coffee is flowing into the cooling tray, the arms are turning.' },
+        makDurBosaldi:    { tr: 'Tepside {0} kavrulmuş kahve. Siklonda {1} kabuk ve nem.',
+                            en: '{0} of roasted coffee in the tray. {1} of chaff and moisture in the cyclone.' },
+        makDurBosaldiOlcumsuz:{ tr: 'Boşaltıldı. Kiloları yazmak için Fire sekmesinde giren ve çıkan kiloyu doldurun.',
+                            en: 'Discharged. Fill in the green and roasted weights on the Loss tab to see the kilos.' },
+        makineSekmeAciklama: { tr: 'Makinenin parçalarına dokunun: hazne, kontrol kaşığı, boşaltma kolu, soğutma teknesi. Tamburdaki renk, Fire sekmesinde ölçtüğünüz fireden gelir — ölçmediğinizde yeşil kalır.',
+                              en: 'Tap the parts of the machine: hopper, trier, discharge lever, cooling tray. The colour in the drum comes from the loss you measured on the Loss tab — it stays green until you measure one.' },
         makineSurukle: { tr: 'Sürükleyerek çevir, ok tuşlarıyla da döner',
                          en: 'Drag to turn; arrow keys work too' },
         makineDon:   { tr: 'Döndür',                  en: 'Turn' },

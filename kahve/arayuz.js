@@ -129,6 +129,7 @@
                dolgusunu gosterirdi -- kullanici alanlari sildikten
                sonra hala eski sayiya bakiyor olurdu. */
             goster($('#makineKap'), false);
+            goster($('#fireGecmis'), false);
             sonFire = null;
             return;
         }
@@ -164,10 +165,70 @@
         $('#fireSag').textContent = T('etiketKayip', kg(s.giris - s.cikis));
         cekirdekCiz(s.fire);
         etiketRengiTazele();
+        etiketSigdir();
         makineyiCiz(s);
         try { makine3dTazele(); } catch (e) {}
 
+        fireGecmisCiz(s.fire);
+
         duyur(T('duyurFire', sayi(s.fire, 1), kg(s.cikis)));
+    }
+
+    /* ---------------------------------------------------------------
+       "KENDİ GEÇMİŞİNİZ" — sonuç kutusunun sağ sütunu.
+
+       Kullanıcı Fire sekmesi için "sağı boş" dedi; ekranda baktım,
+       haklıydı: büyük sayı solda duruyor, sağ yarı kararmış boşluk.
+
+       Oraya UYDURMA bir şey koymuyoruz. Bütün sayılar kullanıcının
+       KENDİ defterinden geliyor. Defter boşsa tek bir sayı bile
+       üretilmiyor — sebebi yazılıp susuluyor (K-22, K-96). "Sektör
+       ortalaması %15'tir" gibi bir cümle buraya asla girmemeli:
+       kullanıcı onu kendi ölçümü sanır.
+       --------------------------------------------------------------- */
+    function fireGecmisCiz(buFire) {
+        var kutu = $('#fireGecmis');
+        if (!kutu) return;                    /* eski sayfa açıksa çökmesin */
+        goster(kutu, true);
+
+        /* Ayni suzgec: `defterFireleri` (K-102 -- tek yer). */
+        var f = defterFireleri(defterOku());
+
+        if (!f.length) {
+            kutu.innerHTML = '<h3></h3><p class="yok"></p>';
+            kutu.querySelector('h3').textContent = T('gecmisBaslik');
+            kutu.querySelector('.yok').textContent = T('gecmisYok');
+            return;
+        }
+
+        var ort = f.reduce(function (x, y) { return x + y; }, 0) / f.length;
+        var enAz = Math.min.apply(null, f), enCok = Math.max.apply(null, f);
+        var fark = buFire - ort;
+
+        /* EŞİK EKRAN ÇÖZÜNÜRLÜĞÜ. Fireyi tek ondalıkla yazıyoruz;
+           0,1 puandan küçük bir farkı gösteremiyoruz bile, o yüzden
+           "üstünde/altında" demiyoruz. Aynı kural çekirdekteki parti
+           karşılaştırmasında da var (C.EN_KUCUK_FARK_PUAN). */
+        var esik = C.EN_KUCUK_FARK_PUAN;
+        var notAnahtar = Math.abs(fark) < esik ? 'gecmisAyni'
+                       : (fark > 0 ? 'gecmisUstunde' : 'gecmisAltinda');
+
+        var html = '<h3>' + T('gecmisBaslik') + '</h3>' +
+            '<div class="buyukcik">' + yuzde(ort, 1) + '</div>' +
+            '<div class="satir-ic"><span>' +
+            (f.length === 1 ? T('gecmisTek') : T('gecmisOrt', f.length)) +
+            '</span></div>';
+        /* Tek kayıtta "en düşük / en yüksek" göstermek yanıltır:
+           ikisi de aynı sayıdır, aralık varmış gibi görünür. */
+        if (f.length > 1) {
+            html += '<div class="satir-ic"><span>' + T('enDusuk') +
+                    '</span><b>' + yuzde(enAz, 1) + '</b></div>' +
+                    '<div class="satir-ic"><span>' + T('enYuksek') +
+                    '</span><b>' + yuzde(enCok, 1) + '</b></div>';
+        }
+        html += '<div class="kiyas-not">' +
+                T(notAnahtar, sayi(Math.abs(fark), 1)) + '</div>';
+        kutu.innerHTML = html;
     }
 
     /* ---------------------------------------------------------------
@@ -317,6 +378,42 @@
         var p = _parlaklik(zemin);
         return (p === null || p > 0.179) ? '#111111' : '#ffffff';
     }
+    /* ---------------------------------------------------------------
+       ETİKET KENDİ BÖLGESİNE SIĞIYOR MU?
+
+       Etiket rengi `_ustYazi()` ile kendi bölgesinin zemininden
+       türetiliyor: sağ etiket YEŞİL'den, yani beyaz. Matematik doğru --
+       ama etiketin gerçekten o bölgede durduğunu kimse denetlemiyordu.
+
+       Ölçüldü (07.09.2026): %15 firede "kayıp 1,500 kg" etiketi
+       842→932 px, turuncu çubuk 850'de bitiyor. İlk 8 piksel turuncunun
+       üstünde ve beyaz/turuncu karşıtlığı 2,08 -- okunmuyor. Fire
+       düştükçe yeşil daralıyor ve taşma büyüyor.
+
+       Sığmıyorsa GİZLENİYOR. Bilgi kaybı yok: aynı sayılar üstteki
+       metin satırında zaten yazıyor; çubuk etiketi bir tekrar. Okunmayan
+       bir etiket, olmayan etiketten kötüdür.
+
+       `visibility` kullanılıyor, `hidden` DEĞİL: `hidden` öğeyi
+       yerleşimden çıkarır, genişliği 0 olur, bir sonraki ölçümde "sığdı"
+       sanılıp yeniden gösterilir -- titreme döngüsü. `visibility`
+       yerleşimi korur, ölçüm kararlı kalır.
+       --------------------------------------------------------------- */
+    function etiketSigdir() {
+        var sol = $('#fireSol'), sag = $('#fireSag');
+        var cub = $('#fireCubuk'), kap = document.querySelector('.cubuk-kap');
+        if (!sol || !sag || !cub || !kap) return;
+        var rk = kap.getBoundingClientRect(), rc = cub.getBoundingClientRect();
+        /* Yerleşim yoksa karar VERMİYORUZ. Sıfır genişlikte her etiket
+           "sığmıyor" görünür ve ikisi birden gizlenirdi. */
+        if (rk.width < 1) return;
+        var bosluk = 14;                       /* iki yandaki dolgu payı */
+        var turuncuGen = rc.width;
+        var yesilGen = rk.right - rc.right;
+        sol.classList.toggle('dar-etiket', sol.offsetWidth + bosluk > turuncuGen);
+        sag.classList.toggle('dar-etiket', sag.offsetWidth + bosluk > yesilGen);
+    }
+
     function etiketRengiTazele() {
         var kav = $('#fireCubuk'), sol = $('#fireSol'), sag = $('#fireSag');
         var yes = document.querySelector('.cubuk-yesil');
@@ -339,7 +436,9 @@
         new MutationObserver(function () {
             /* Gecis 0,55 sn suruyor; bitmeden okursak ARA rengi olcup
                yanlis yaziya karar veririz. Gecisin sonunu bekliyoruz. */
-            setTimeout(etiketRengiTazele, 600);
+            setTimeout(function () {
+                etiketRengiTazele(); etiketSigdir();
+            }, 600);
         }).observe(document.documentElement,
                    { attributes: true, attributeFilter: ['data-tema', 'data-renk'] });
     } catch (e) {}
@@ -418,11 +517,15 @@
         var kutu = $('#maliyetSonuc'), uyari = $('#maliyetUyari'), fark = $('#maliyetFark');
         if (!g.fire.trim() || !g.yesilFiyat.trim()) {
             goster(kutu, false); goster(uyari, false); goster(fark, false);
+            /* Maliyet yoksa kar da yok: kutuyu ACIK BIRAKMAK, eski
+               maliyete gore hesaplanmis bir kari ekranda tutardi. */
+            goster($('#satisSonuc'), false); goster($('#satisUyari'), false);
             return;
         }
         var s = C.maliyet(g);
         if (!s.gecerli) {
             goster(kutu, false); goster(fark, false);
+            goster($('#satisSonuc'), false); goster($('#satisUyari'), false);
             uyari.textContent = s.mesaj; goster(uyari, true);
             return;
         }
@@ -449,12 +552,64 @@
             uyari.textContent = T('girilmedi', s.eksik.join(', '));
             goster(uyari, true);
         }
+        satisCiz(s.kgMaliyet);
+
         duyur(T('duyurMaliyet', para(s.kgMaliyet)));
+    }
+
+    /* ---------------------------------------------------------------
+       SATIŞ ANALİZİ — "kaça satarsam ne kazanırım?"
+
+       MALİYETİ YENİDEN HESAPLAMIYORUZ. Ekranda gösterilen `kgMaliyet`
+       neyse, kâr ona göre çıkıyor. Yeniden hesaplasaydık iki taraf
+       ayrışabilirdi ve kullanıcı tutarlı görünen ama yanlış bir kâr
+       görürdü — merkezin bugün Muhasebe'de bulduğu hata tam buydu
+       (ciro bir kümeden, maliyet başka kümeden).
+
+       MARJ ve MARKUP AYRI AYRI yazılıyor, çünkü aynı şey değiller ve
+       ikisi de "kâr yüzdesi" gibi görünür. Tek bir yüzde yazıp
+       hangisi olduğunu söylememek sessiz yanlış sayıdır.
+       --------------------------------------------------------------- */
+    function satisCiz(kgMaliyet) {
+        var kutu = $('#satisSonuc'), uyari = $('#satisUyari'), alan = $('#mSatis');
+        if (!kutu || !alan) return;                /* eski sayfa açıksa çökmesin */
+        if (!alan.value.trim()) {
+            goster(kutu, false); goster(uyari, false);
+            return;
+        }
+        var s = C.satis_analiz(alan.value, kgMaliyet);
+        if (!s.gecerli) {
+            goster(kutu, false);
+            uyari.textContent = s.mesaj; goster(uyari, true);
+            return;
+        }
+        goster(uyari, false); goster(kutu, true);
+
+        $('#satisBuyuk').textContent = para(s.kar);
+        $('#satisBuyuk').style.color = s.zarar ? 'var(--kritik)' : '';
+        $('#satisAlt').textContent = T(s.zarar ? 'satisZarar' : 'satisKar');
+
+        var d = $('#satisDetay');
+        d.innerHTML = '';
+        function cift(ad, deger) {
+            d.insertAdjacentHTML('beforeend',
+                '<div class="cift"><dt>' + ad + '</dt><dd>' + deger + '</dd></div>');
+        }
+        cift(T('ciftMarj'), yuzde(s.marj, 1));
+        cift(T('ciftMarkup'), yuzde(s.markup, 1));
+        cift(T('ciftBasabas'), para(s.basabas));
+
+        /* ZARAR SESSIZ GECILMEZ. Hesap Araclari'nda canlida yasanan sey
+           tersiydi: kullanici zarardaydi, ekran soylemiyordu. */
+        if (s.zarar) {
+            uyari.textContent = T('satisZararNot', para(s.basabas));
+            goster(uyari, true);
+        }
     }
 
     /* ================= HARMAN ================= */
     var bilesenSayi = 0;
-    function bilesenEkle(ad, oran) {
+    function bilesenEkle(ad, oran, fiyat) {
         bilesenSayi++;
         var n = bilesenSayi;
         var mense = V.menseSirali().map(function (m) {
@@ -470,9 +625,19 @@
             '<div><label for="bOran' + n + '">' + T('oranEt') +
             ' <small>%</small></label>' +
             '<input id="bOran' + n + '" inputmode="decimal" value="' + (oran || '') + '" /></div>' +
+            /* FIYAT ISTEGE BAGLI. Girilirse harmanin kilo maliyeti
+               cikiyor; girilmezse hicbir sey uydurulmuyor. */
+            '<div><label for="bFiyat' + n + '">' + T('bFiyatEt') +
+            ' <small><span class="para-birim"></span> ' + T('birimKg') + '</small></label>' +
+            '<input id="bFiyat' + n + '" inputmode="decimal" value="' +
+            (fiyat || '') + '" /></div>' +
             '</div>');
         $('#bAd' + n).addEventListener('change', harmanHesapla);
         $('#bOran' + n).addEventListener('input', harmanHesapla);
+        $('#bFiyat' + n).addEventListener('input', harmanHesapla);
+        /* Para simgesi yeni satirda da dogru olmali: mevcut dil/para
+           ayarindan turetiliyor, elle yazilmiyor. */
+        try { paraBirimleriniYaz(); } catch (e) {}
     }
 
     function harmanHesapla() {
@@ -482,7 +647,8 @@
                hesaba girmez, yalnız sonuç listesinde yazılır. */
             var kod = $('#bAd' + n).value;
             return { ad: kod ? V.ad(V.MENSE, kod) : T('cekirdekN', n),
-                     oran: $('#bOran' + n).value };
+                     oran: $('#bOran' + n).value,
+                     fiyat: ($('#bFiyat' + n) || {}).value };
         }).filter(function (b) { return String(b.oran).trim() !== ''; });
 
         var kutu = $('#harmanSonuc'), uyari = $('#harmanUyari');
@@ -503,6 +669,35 @@
                 '<div class="cift"><dt>' + b.ad + ' (' + yuzde(b.oran, 0) + ')</dt>' +
                 '<dd>' + kg(b.yesilKg) + '</dd></div>');
         });
+
+        /* ---- BU HARMANIN KİLO MALİYETİ ----
+           Bileşen fiyatlarının oranla ağırlıklandırılmış ortalaması,
+           üstüne fire düzeltmesi. Elde yapılması kolay yanılınan bir
+           işlem — uygulamanın var olma sebebi bu.
+
+           TEK BİR FİYAT EKSİKSE SAYI YOK. Eksiği sıfır saymak
+           ortalamayı aşağı çeker ve kullanıcı ucuz bir harman görür.
+           Hangi çekirdeğin eksik olduğu yazılıyor ki tamamlanabilsin
+           (K-66). */
+        var mk = $('#harmanMaliyet');
+        if (mk) {
+            if (s.kgMaliyet !== null) {
+                mk.innerHTML = '<div class="cift"><dt>' +
+                    T('harmanMaliyetBaslik') + '</dt><dd><b>' +
+                    para(s.kgMaliyet) + '</b></dd></div>' +
+                    '<div class="cift"><dt>' + T('harmanYesilOrt') +
+                    '</dt><dd>' + para(s.yesilOrtalama) + '</dd></div>';
+                goster(mk, true);
+            } else if (s.eksikFiyat.length) {
+                mk.innerHTML = '<p class="eksik-not"></p>';
+                mk.querySelector('.eksik-not').textContent =
+                    T('harmanFiyatEksik', s.eksikFiyat.join(', '));
+                goster(mk, true);
+            } else {
+                goster(mk, false);
+            }
+        }
+
         duyur(T('duyurHarman', kg(s.toplamYesil)));
     }
 
@@ -802,13 +997,11 @@
            Liste artik TARIH sirasiyla ciziliyor ama depoda yazilma
            sirasiyla duruyor. Silerken gorunen sirayi kullanmak YANLIS
            KAYDI siler; bu yuzden ozgun dizin (`ozgunSira`) tasiniyor. */
-        var ozgunSira = liste.map(function (h, i) { return { h: h, i: i }; })
-            .sort(function (x, y) {
-                var tx = String((x.h || {}).tarih || ''),
-                    ty = String((y.h || {}).tarih || '');
-                if (tx !== ty) return tx < ty ? -1 : 1;
-                return x.i - y.i;
-            });
+        /* SIRALAMA MOTORDAN GELIR, burada yeniden yazilmaz.
+           Aynı kural burada da yazılıydı; ikisi ayrışırsa motorun
+           "Satır 3" uyarısı kullanıcının listesinde başka bir satırı
+           gösterirdi. Tek kaynak: `C.tarihSiralaDizinli`. */
+        var ozgunSira = C.tarihSiralaDizinli(liste);
 
         ozgunSira.forEach(function (kayit) {
             var h = kayit.h, i = kayit.i;
@@ -873,7 +1066,54 @@
     }
 
     /* ================= DEFTER ================= */
-    function defterOku() { return oku(DEFTER_ANAHTAR, []); }
+    /* DEPODAN GIREN VERI DIZI OLMAK ZORUNDA.
+       06.09.2026'da olculdu: `kahve-defter` anahtarina dizi olmayan bir
+       deger konunca (eski surum, elle duzenleme, baska cihaz) fire
+       olcumu hata firlatiyordu -- "(liste || []).filter is not a
+       function" -- ve o hatadan SONRAKI adimlar hic calismiyordu.
+
+       Ayni dosyadaki `hareketOku()` bu denetimi bastan beri yapiyordu;
+       defter okuyucusunda YOKTU. Ayni uygulama, iki depo okuyucusu,
+       birinde koruma var otekinde yok (K-102).
+
+       Koruma BURADA, giris kapisinda. Her okuyucuya ayri savunma
+       eklemek bir sonraki okuyucuda yine unutulur. */
+    function defterOku() {
+        var d = oku(DEFTER_ANAHTAR, []);
+        return Object.prototype.toString.call(d) === '[object Array]' ? d : [];
+    }
+
+    /* DEFTERDEKI KULLANILABILIR FIRE DEGERLERI -- TEK YERDE.
+
+       06.09.2026'da olculdu: deftere fire alani olmayan TEK bir kayit
+       koyunca defter ozetinin tamami dusuyordu ("%—", "en dusuk %—"),
+       ama Fire sekmesindeki ozet dogru calisiyordu. Ayni veri, ayni
+       hesap; biri suzuyordu, oteki suzmuyordu (K-102).
+
+       Suzgeci ikinci kez YAZMIYORUZ. K-102'nin dersi "korumayi her
+       yere kopyala" degil, "koruma tek yerde olsun, herkes onu
+       cagirsin" -- kopyalanan koruma bir sonraki degisiklikte yine
+       ayrisir.
+
+       Bozuk kayit nasil olusur: eski surum, elle duzenlenmis
+       localStorage, yarim kalmis yazma, baska cihazdan gelen veri.
+       Yazma tarafinin dogrulamasi OKUMA tarafini korumaz. */
+    function defterFireleri(liste) {
+        var l = (liste && liste.length) ? liste : [];
+        return l.filter(function (p) {
+            return p && typeof p.fire === 'number' && isFinite(p.fire);
+        }).map(function (p) { return p.fire; });
+    }
+
+    /* KAC KAYIT HESABA KATILMADI?
+       Bozuk kaydi sessizce atmak, kirpmak kadar olmasa da bir yalanin
+       yumusak hali: kullanici dort parti kaydettigini bilir, ekran uc
+       gosterir ve sebebini soylemez. Sayiyi soruyoruz ki soylenebilsin
+       (K-89 / K-94). */
+    function defterDusen(liste) {
+        var l = (liste && liste.length) ? liste : [];
+        return l.length - defterFireleri(l).length;
+    }
 
     function defterKaydet() {
         if (!sonFire) return;
@@ -911,18 +1151,37 @@
         /* ORTALAMA VE OYNAMA — kullanıcının kendi verisinden.
            "İdeal fire" diye bir sayı YAZMIYORUZ; makineye ve çekirdeğe
            göre değişir. Yalnız KENDİ dağılımını gösteriyoruz. */
-        var f = liste.map(function (p) { return p.fire; });
+        var f = defterFireleri(liste);
+        var dusen = defterDusen(liste);
+        /* SAYI, OZETLENEN KAYIT SAYISIDIR -- listenin uzunlugu degil.
+           Eskiden "4 partide ortalama fireniz" yazip yanina "%—"
+           koyuyordu: gosteremedigi bir sayi icin dort parti iddia
+           ediyordu. Bozuk kayit varsa sayilar da, sayi da kuculuyor. */
+        if (!f.length) {
+            /* `partiYok` cevirisi HTML iceriyor (<br>, <strong>).
+               Ilk yazimda `textContent` kullandim ve etiketler
+               EKRANDA DUZ METIN olarak gorundu. Ust taraftaki es
+               dal zaten innerHTML kullaniyor; ikisi ayni
+               gorunmeli -- yoksa ayni durum iki turlu cikar. */
+            ozet.innerHTML = '';
+            kap.innerHTML = '<p class="bos-defter">' + T('partiYok') + '</p>';
+            return;
+        }
         var ort = f.reduce(function (a, b) { return a + b; }, 0) / f.length;
         var enAz = Math.min.apply(null, f), enCok = Math.max.apply(null, f);
         ozet.innerHTML =
             '<div class="sonuc"><div class="buyuk">' + yuzde(ort, 1) + '</div>' +
-            '<div class="alt">' + T('ortalamaFire', liste.length) + '</div>' +
+            '<div class="alt">' + T('ortalamaFire', f.length) + '</div>' +
             '<dl><div class="cift"><dt>' + T('enDusuk') + '</dt><dd>' +
             yuzde(enAz, 1) + '</dd></div>' +
             '<div class="cift"><dt>' + T('enYuksek') + '</dt><dd>' +
             yuzde(enCok, 1) + '</dd></div>' +
             '<div class="cift"><dt>' + T('oynama') + '</dt><dd>' +
-            T('puan', sayi(enCok - enAz, 1)) + '</dd></div></dl></div>';
+            T('puan', sayi(enCok - enAz, 1)) + '</dd></div></dl>' +
+            (dusen ? '<p class="dusen-not">' +
+                (dusen === 1 ? T('kayitAtlandiTek') : T('kayitAtlandi', dusen)) +
+                '</p>' : '') +
+            '</div>';
 
         liste.forEach(function (p, i) {
             var t = new Date(p.t);
@@ -942,12 +1201,58 @@
             var ayrinti = [kg(p.giris) + ' → ' + kg(p.cikis)];
             if (menseAd) ayrinti.push(menseAd);
             if (dereceAd) ayrinti.push(dereceAd);
+            /* Tur de KOD tutulur, ekranda cevirisi cikar; eski
+               kayitlarda bu alan yok, o zaman hic yazilmaz. */
+            if (p.tur) ayrinti.push(V.ad(V.TUR, V.kodla(V.TUR, p.tur)));
             if (p.dtr !== undefined) ayrinti.push(T('gelisimKisa', sayi(p.dtr, 1)));
             if (p.not) ayrinti.push(p.not);
+
+            /* BU PARTI ONCEKILERE GORE NASIL?
+               KIYAS YALNIZ GECMISE BAKAR. Liste yeniden eskiye
+               siralidir; `slice(i + 1)` bu partiden ONCE kaydedilenler
+               demektir. Butun defteri verseydik eski bir karti, ondan
+               SONRA gelen partilerle kiyaslamis olurduk -- o gun
+               bilinmeyen bir sayiyla. Ekranda dogru gorunur, anlami
+               yanlis olurdu (K-22).
+               Olcut kullanicinin KENDI ortalamasi; "ideal fire" diye
+               bir sayi yazmiyoruz. */
+            var kiyas = C.parti_karsilastir(p, liste.slice(i + 1));
+            var kiyasSatir = '';
+            if (kiyas.yeterli) {
+                var anahtar = kiyas.olagandisi
+                    ? (kiyas.yon === 'yuksek' ? 'kiyasYuksek' : 'kiyasDusuk')
+                    : 'kiyasOlagan';
+                var parcalar = [T(anahtar, kiyas.sayi, yuzde(kiyas.fireOrt, 1)),
+                                T('kiyasAralik', yuzde(kiyas.fireEnDusuk, 1),
+                                  yuzde(kiyas.fireEnYuksek, 1))];
+                /* DTR ortalamasi YALNIZ onu giren partilerden gelir;
+                   kac partiden geldigi de yaziliyor -- yoksa kullanici
+                   butun defterin ortalamasi sanir. */
+                if (kiyas.dtrOrt !== null) {
+                    parcalar.push(kiyas.dtrSayisi === 1
+                        ? T('kiyasDtrTek', yuzde(kiyas.dtrOrt, 1))
+                        : T('kiyasDtr', yuzde(kiyas.dtrOrt, 1), kiyas.dtrSayisi));
+                }
+                kiyasSatir = '<span class="kiyas' +
+                    (kiyas.olagandisi ? ' dikkat' : '') + '">' +
+                    parcalar.join(' · ') + '</span>';
+            } else if (i === 0) {
+                /* YALNIZ EN YENI KARTTA sebebini soyluyoruz. Bos birakmak
+                   "uygulama bozuk" izlenimi verir; her karta yazmak
+                   defteri gurultuye bogar. */
+                if (kiyas.sebep === 'kunye_eksik') {
+                    kiyasSatir = '<span class="kiyas soluk">' + T('kiyasKunye') + '</span>';
+                } else if (kiyas.sebep === 'az_kayit') {
+                    kiyasSatir = '<span class="kiyas soluk">' +
+                        T('kiyasAz', kiyas.bulunan) + '</span>';
+                }
+            }
+
             b.innerHTML = '<span class="ad">' + tarih +
                 (menseAd ? ' · ' + menseAd : '') + '</span>' +
                 '<span class="fire">' + yuzde(p.fire, 1) + '</span>' +
-                '<span class="detay">' + ayrinti.join(' · ') + '</span>';
+                '<span class="detay">' + ayrinti.join(' · ') + '</span>' +
+                kiyasSatir;
             b.addEventListener('click', function () {
                 if (!confirm(T('partiSilOnay'))) return;
                 var l = defterOku(); l.splice(i, 1); yaz(DEFTER_ANAHTAR, l);
@@ -1065,6 +1370,7 @@
     function partiFormKur() {
         secenekDoldur('#pMense', V.menseSirali());
         secenekDoldur('#pIsleme', V.ISLEME);
+        secenekDoldur('#pTur', V.TUR);
         secenekDoldur('#pVaryete', V.varyeteSirali());
         secenekDoldur('#pDerece', V.DERECE);
         ['#pToplam', '#pCatlak'].forEach(function (s) {
@@ -1091,8 +1397,9 @@
 
     function partiAyrintisi() {
         var d = {};
-        [['mense', '#pMense'], ['isleme', '#pIsleme'], ['varyete', '#pVaryete'],
-         ['derece', '#pDerece'], ['not', '#pNot']].forEach(function (p) {
+        [['mense', '#pMense'], ['isleme', '#pIsleme'], ['tur', '#pTur'],
+         ['varyete', '#pVaryete'], ['derece', '#pDerece'],
+         ['not', '#pNot']].forEach(function (p) {
             var v = $(p[1]) && $(p[1]).value.trim();
             if (v) d[p[0]] = v;
         });
@@ -1111,7 +1418,7 @@
     }
 
     function partiFormuTemizle() {
-        ['#pMense','#pIsleme','#pVaryete','#pDerece','#pToplam','#pCatlak',
+        ['#pMense','#pIsleme','#pTur','#pVaryete','#pDerece','#pToplam','#pCatlak',
          '#pSarj','#pCikisIsi','#pNot'].forEach(function (s) {
             if ($(s)) $(s).value = '';
         });
@@ -1287,13 +1594,19 @@
         /* Harman bileşen satırlarındaki etiketler ve menşe listesi de
            dile bağlı; onları da tazeliyoruz. */
         try {
+            /* FIYAT DA TASINIR. Bu satira eklemeyi unutunca, dil
+               degistiren kullanicinin girdigi butun fiyatlar sessizce
+               siliniyordu -- uygulama cokmuyor, veri kayboluyordu.
+               Yeni bir alan eklerken alanin GECTIGI HER YOL guncellenmeli:
+               yazilma, okunma, temizlenme, YENIDEN CIZILME. */
             var eski = $$('#bilesenler [data-bilesen]').map(function (o) {
                 var n = o.dataset.bilesen;
-                return { kod: $('#bAd' + n).value, oran: $('#bOran' + n).value };
+                return { kod: $('#bAd' + n).value, oran: $('#bOran' + n).value,
+                         fiyat: ($('#bFiyat' + n) || {}).value };
             });
             $('#bilesenler').innerHTML = '';
             bilesenSayi = 0;
-            eski.forEach(function (b) { bilesenEkle(b.kod, b.oran); });
+            eski.forEach(function (b) { bilesenEkle(b.kod, b.oran, b.fiyat); });
             harmanHesapla();
         } catch (e) {}
     }
@@ -1314,74 +1627,319 @@
        yeşil duruyor -- uydurulmuş bir kavrulma göstermiyoruz. Bu
        takımın en pahalı hata sınıfı, ekranda ölçülmemiş bir değeri
        ölçüm gibi göstermektir. */
-    var _3d = { x: -12, y: -28, surukluyor: false, sonX: 0, sonY: 0 };
+
+    /* ================= KAVURMA MAKİNESİ =================
+       06.09.2026'da yeniden yazıldı. Öncesinde makine CSS kutularından
+       kurulmuş bir 3B silindirdi; kullanıcı bir bakışta "hiç anlaşılmıyor,
+       gerçek fotoğrafların aynısını yapmalıyız" dedi. Haklıydı: kutu
+       yığarak kavurma makinesi çıkmıyor. Şimdi makine çizim, parçalar
+       gerçek yerlerinde ve kendi menteşelerinden dönüyor.
+
+       VE ETKİLEŞİM DOĞRUDAN PARÇANIN ÜZERİNDE (kullanıcı: "direk
+       etkileşimli olmalı"). Sahne altına düğme dizmek gerçek makineye
+       benzemiyor — kolu tutup çekiyorsun. Klavye karşılığı Enter/Boşluk,
+       yani klavye kullanan da dışarıda kalmıyor. */
+
+    /* SAYILAR UYDURULMAZ. Makinenin gösterdiği her kilo, kullanıcının Fire
+       sekmesine KENDİ girdiği sayıdır. Ölçüm yoksa makine çalışır ama
+       "henüz ölçmedin" der; sahte bir 10 kg göstermez. */
+    function makVeri() {
+        var g = null, c = null, f = null;
+        if (sonFire) {
+            if (isFinite(sonFire.fire))  f = sonFire.fire;
+            if (isFinite(sonFire.giris)) g = sonFire.giris;
+            if (isFinite(sonFire.cikis)) c = sonFire.cikis;
+        }
+        if (g === null) g = C.sayi_oku(($('#fGiris') && $('#fGiris').value) || '');
+        if (c === null) c = C.sayi_oku(($('#fCikis') && $('#fCikis').value) || '');
+        return { g: g, c: c, f: f };
+    }
+    function makKg(x) { return x === null ? null : sayi(x, 1) + ' kg'; }
+
+    function makDurum(anahtar, a1, a2) {
+        var n = $('#makine3dNot');
+        if (n) n.textContent = a2 === undefined ? (a1 === undefined ? T(anahtar) : T(anahtar, a1))
+                                                : T(anahtar, a1, a2);
+    }
+
+    /* KAPSAM KANCASI. `ucBoyutKavrulma` `makine3dKur` ICINDE tanimli;
+       `makine3dTazele` disaridan onu goremez. Bu depoda ayni kapsam
+       hatasi ucuncu kez yapildi (once _c, sonra renkleriTazele) --
+       bu sefer modul duzeyinde bir kanca ile baglaniyor. */
+    var _ucKavrulmaKanca = null;
 
     function makine3dKur() {
-        var sahne = $('#sahne'), dunya = $('#dunya'), tambur = $('#tambur3d');
-        if (!sahne || !dunya || !tambur) return;
+        var mak = $('#makine');
+        if (!mak) return;
 
-        /* --- silindiri kur: 16 yüzey --- */
-        var YUZ = 16, YARICAP = 30;
-        for (var i = 0; i < YUZ; i++) {
-            var d = document.createElement('div');
-            d.className = 'yuzey';
-            d.style.transform = 'rotateY(' + (i * (360 / YUZ)) + 'deg) '
-                              + 'translateZ(' + YARICAP + 'px)';
-            /* Yüzeyler halka boyunca hafifçe koyulaşıyor: ışık tek
-               yönden geliyormuş gibi dursun, yoksa silindir düz bir
-               daire gibi görünür. */
-            d.style.filter = 'brightness(' +
-                (0.72 + 0.28 * Math.cos(i * 2 * Math.PI / YUZ)).toFixed(3) + ')';
-            tambur.appendChild(d);
+        function sarjEt() {
+            if (mak.classList.contains('sarjli')) return;
+            var v = makVeri();
+            mak.classList.add('sarjli'); noktalariTazele(); ucBoyutEylem('hazne');
+            makDurum(v.g === null ? 'makDurDokulOlcumsuz' : 'makDurDokuluyor', makKg(v.g));
+            setTimeout(function () {
+                if (!mak.classList.contains('sarjli')) return;
+                makDurum('makDurSarjTamam');
+            }, 1000);
         }
 
-        function ciz() {
-            dunya.style.transform = 'rotateX(' + _3d.x + 'deg) rotateY(' + _3d.y + 'deg)';
+        function kasikCek() {
+            if (!mak.classList.contains('sarjli')) { makDurum('makDurOnceSarj'); return; }
+            var acik = mak.classList.toggle('kasikta'); noktalariTazele(); ucBoyutEylem('kasik');
+            if (!acik) { makDurum('makDurKasikGirdi'); return; }
+            var v = makVeri();
+            if (v.f === null) { makDurum('makDurKasikOlcumsuz'); return; }
+            kok().style.setProperty('--tambur-renk', kavrulmaRengi(v.f));
+            makDurum('makDurKasik', yuzde(v.f, 1));
         }
-        ciz();
 
-        /* --- SÜRÜKLEYEREK DÖNDÜR ---
-           `setPointerCapture`: parmak sahnenin dışına çıksa da
-           döndürme sürsün. Olmadan, kenara gelince hareket kopuyor. */
-        sahne.addEventListener('pointerdown', function (e) {
-            _3d.surukluyor = true;
-            _3d.sonX = e.clientX; _3d.sonY = e.clientY;
-            try { sahne.setPointerCapture(e.pointerId); } catch (x) {}
-        });
-        sahne.addEventListener('pointermove', function (e) {
-            if (!_3d.surukluyor) return;
-            _3d.y += (e.clientX - _3d.sonX) * 0.6;
-            /* Dikey açı KISITLI (-60..+60): sınırsız bırakılırsa
-               makine ters dönüyor ve kullanıcı nerede olduğunu
-               kaybediyor. */
-            _3d.x = Math.max(-60, Math.min(60, _3d.x - (e.clientY - _3d.sonY) * 0.6));
-            _3d.sonX = e.clientX; _3d.sonY = e.clientY;
-            ciz();
-        });
-        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (o) {
-            sahne.addEventListener(o, function () { _3d.surukluyor = false; });
+        function bosalt() {
+            if (!mak.classList.contains('sarjli')) { makDurum('makDurOnceSarj'); return; }
+            if (mak.classList.contains('bosaldi')) return;
+            mak.classList.add('bosaldi');
+            mak.classList.remove('kasikta');
+            noktalariTazele(); ucBoyutEylem('bosalt');
+            makDurum('makDurBosaliyor');
+            setTimeout(function () {
+                if (!mak.classList.contains('bosaldi')) return;
+                var v = makVeri();
+                if (v.c === null || v.g === null || v.f === null) { makDurum('makDurBosaldiOlcumsuz'); return; }
+                /* Siklondaki kabuk = giren eksi çıkan. Aynı fark Fire
+                   sekmesinde de yazıyor; iki yerde iki farklı sayı çıkmasın
+                   diye ikisi de aynı iki alandan hesaplanıyor (K-81). */
+                makDurum('makDurBosaldi', makKg(v.c), makKg(v.g - v.c));
+            }, 1100);
+        }
+
+
+        /* ---------- 3B MAKİNE ----------
+           Kullanıcı: "animasyon olayına çevir aynısını, 3d şekilde,
+           yapılır be." Daha önce "kitaplık olmaz" denmişti; o gerekçe
+           yanlıştı — yüklenemeyen şey CDN'di, dosyayı depoya koyunca
+           çevrimdışı da çalışıyor.
+
+           594 KB'lık kitaplık SEKME AÇILINCA yükleniyor, uygulama
+           açılışında değil. Açılışı yavaşlatmasını istemiyoruz. */
+        var uc = { denendi: false, kap: null };
+
+        /* DAMGA SAYFANIN KENDI BETIKLERINDEN OKUNUR.
+           `makine3d.js`, `three.min.js` ve `gltf-okuyucu.js` duz adla
+           isteniyordu, yani `?v=NN` damgasi YOKTU. index.html'deki
+           butun betikler damgali; bu ucu degildi.
+
+           Olculdu (07.09.2026): dosyaya yeni bir disa acim ekledim,
+           diskte vardi, tarayici yine ESKI surumu calistirdi.
+           `caches` temizlendi, servis calisani kaldirildi, sayfa
+           zorla yenilendi -- yine eskisi geldi. HTTP onbellegini
+           kiran tek sey damgadir.
+
+           Urundeki anlami daha agir: elinde eski `makine3d.js` olan
+           kullanici, yeni index.html'i indirse bile ESKI makineyi
+           gorur ve bunu anlamasinin yolu yoktur.
+
+           Sayi ELLE YAZILMIYOR; sayfanin kendi betik etiketinden
+           turuyor. Ikinci bir yere yazsaydik biri guncellenip oteki
+           unutuldugunda yine ayrisirdi (K-69). */
+        function ucBoyutDamga() {
+            var b = document.querySelector('script[src*="cekirdek.js"]');
+            var m = b && b.getAttribute('src').match(/[?&]v=([^&]+)/);
+            return m ? ('?v=' + m[1]) : '';
+        }
+
+        function ucBoyutDosyaYukle(yol) {
+            return new Promise(function (tamam, hata) {
+                var s = document.createElement('script');
+                s.src = yol + ucBoyutDamga(); s.async = true;
+                s.onload = tamam;
+                s.onerror = function () { hata(new Error(yol)); };
+                document.head.appendChild(s);
+            });
+        }
+
+        function ucBoyutAc() {
+            if (uc.denendi) {
+                if (window.Makine3D && Makine3D.hazirMi()) Makine3D.ac();
+                return;
+            }
+            uc.denendi = true;
+
+            /* Hareket azaltma seçilmişse 3B hiç başlamıyor; fotoğraf kalıyor.
+               WebGL yoksa da aynısı. Ne olursa olsun boş çerçeve görünmüyor. */
+            var azHareket = window.matchMedia &&
+                matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (azHareket) return;
+
+            uc.kap = $('#mak3dKap');
+            if (!uc.kap) return;
+
+            /* 3B YALNIZ GERCEK MODEL VARSA ACILIR.
+               Elle yazilmis model kullanicinin referanslarina
+               benzemedi ve ekrandan kaldirildi (kullanici: "once
+               modeli kaldir, direkt yanlis model"). Makine artik
+               GERCEK FOTOGRAF; 3B ancak klasore dogru lisansli bir
+               makine.glb konunca devreye giriyor.
+               Boylece yanlis bir model bir daha gorunmuyor. */
+            /* 3B yeniden acik: model hedefe gore duzeltildi.
+               makine.glb konulursa yine o devraliyor. */
+            ucBoyutBaslat(bekleGoster());
+            return;
+        }
+
+        function bekleGoster() {
+
+            var bekle = document.createElement('div');
+            bekle.className = 'mak-yukleniyor';
+            bekle.textContent = T('makine3dYukleniyor');
+            uc.kap.parentNode.appendChild(bekle);
+            return bekle;
+        }
+
+        function ucBoyutBaslat(bekle) {
+            ucBoyutDosyaYukle('three.min.js')
+                .then(function () { return ucBoyutDosyaYukle('gltf-okuyucu.js'); })
+                .then(function () { return ucBoyutDosyaYukle('makine3d.js'); })
+                .then(function () {
+                    if (!window.THREE || !window.Makine3D || !Makine3D.destekleniyorMu()) {
+                        throw new Error('webgl yok');
+                    }
+                    if (!Makine3D.kur(uc.kap, window.THREE, ucBoyutTiklandi)) {
+                        throw new Error('kurulamadi');
+                    }
+                    uc.kap.hidden = false;
+                    var sahne = uc.kap.parentNode;
+                    if (sahne) sahne.classList.add('uc-boyut');
+                    var km = $('#makKumanda'); if (km) km.hidden = false;
+                    Makine3D.ac();
+                    ucBoyutKavrulma();
+                    bekle.remove();
+                })
+                .catch(function () {
+                    /* Sessizce fotoğrafta kalınıyor — ama kullanıcı neden
+                       olduğunu bilsin diye tek satır yazılıyor. */
+                    bekle.textContent = T('makine3dOlmadi');
+                    setTimeout(function () { bekle.remove(); }, 4000);
+                });
+        }
+
+        function ucBoyutTiklandi(ad) {
+            if (ad === 'hazne') sarjEt();
+            else if (ad === 'kasik') kasikCek();
+            else if (ad === 'bosalt') bosalt();
+            else if (ad === 'tepsi') tepsiBilgi();
+        }
+
+        function ucBoyutKavrulma() {
+            if (!window.Makine3D || !Makine3D.hazirMi()) return;
+            var v = makVeri();
+            Makine3D.kavrulmaVer(v.f === null ? null : v.f);
+        }
+
+        function ucBoyutEylem(ad) {
+            if (window.Makine3D && Makine3D.hazirMi()) Makine3D.eylem(ad);
+        }
+
+        function kok() { return document.documentElement; }
+
+        /* Soğutma teknesine dokunmak bir EYLEM değil, bir SORU: "burada ne
+           var?" Cevap ölçülen sayılardan gelir; ölçüm yoksa söylenmez. */
+        function tepsiBilgi() {
+            var v = makVeri();
+            if (!mak.classList.contains('bosaldi')) { makDurum('makDurTepsiBos'); return; }
+            if (v.c === null || v.g === null) { makDurum('makDurBosaldiOlcumsuz'); return; }
+            makDurum('makDurBosaldi', makKg(v.c), makKg(v.g - v.c));
+        }
+
+        function bastan() {
+            mak.classList.remove('sarjli', 'kasikta', 'bosaldi');
+            ucBoyutEylem('bastan');
+            
+            makine3dTazele();
+            noktalariTazele();
+        }
+
+        /* Hangi parçanın şu an "açık" olduğu fotoğraf üzerinde de
+           görünsün; yoksa kullanıcı neyi yaptığını yalnız yazıdan anlar. */
+        function noktalariTazele() {
+            var s = mak.classList;
+            var d = {
+                nHazne:  s.contains('sarjli'),  b3Hazne:  s.contains('sarjli'),
+                nKasik:  s.contains('kasikta'), b3Kasik:  s.contains('kasikta'),
+                nBosalt: s.contains('bosaldi'), b3Bosalt: s.contains('bosaldi'),
+                nTepsi:  s.contains('bosaldi'), b3Tepsi:  s.contains('bosaldi')
+            };
+            Object.keys(d).forEach(function (k) {
+                var o = document.getElementById(k);
+                if (o) o.classList.toggle('acik', d[k]);
+            });
+        }
+
+        /* Doğrudan tutma. Eşik yalnız boşaltmada var: boşaltma geri
+           alınamaz bir eylem, kazayla olmasın diye 40px aşağı çekmek gerekiyor.
+           Diğerlerinde dokunmak yetiyor. */
+        function kolKur(kimlik, is, esik) {
+            var g = document.getElementById(kimlik);
+            if (!g) return;
+            var bas = null;
+            g.addEventListener('pointerdown', function (e) {
+                bas = { x: e.clientX, y: e.clientY };
+                try { g.setPointerCapture(e.pointerId); } catch (x) {}
+                e.preventDefault();
+            });
+            g.addEventListener('pointermove', function (e) {
+                if (!bas || !esik) return;
+                if (e.clientY - bas.y >= esik) { bas = null; kilitli(); }
+            });
+            g.addEventListener('pointerup', function (e) {
+                if (!bas) return;
+                var dy = Math.abs(e.clientY - bas.y), dx = Math.abs(e.clientX - bas.x);
+                bas = null;
+                if (dy < 6 && dx < 6) kilitli();
+                else if (!esik) kilitli();
+            });
+            ['pointercancel', 'lostpointercapture'].forEach(function (o) {
+                g.addEventListener(o, function () { bas = null; });
+            });
+            g.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); kilitli(); }
+            });
+            /* EKRAN OKUYUCU YOLU. Yardimci teknolojiler pointer olayi
+               uretmeden dogrudan `click` gonderir; yalniz pointer
+               dinlemek o kullaniciyi tamamen disarida birakiyordu.
+               `sonAn` kilidi, pointerup + click ikilisinde islemin iki
+               kez kosmasini engelliyor. */
+            var sonAn = 0;
+            function kilitli() {
+                var t = Date.now();
+                if (t - sonAn < 350) return;
+                sonAn = t; is();
+            }
+            g.addEventListener('click', function (e) { e.preventDefault(); kilitli(); });
+        }
+
+        kolKur('nHazne',  sarjEt,   0);
+        kolKur('nKasik',  kasikCek, 0);
+        kolKur('nBosalt', bosalt,  40);
+        kolKur('nTepsi',  tepsiBilgi, 0);
+        kolKur('b3Hazne',  sarjEt,     0);
+        kolKur('b3Kasik',  kasikCek,   0);
+        kolKur('b3Bosalt', bosalt,     0);
+        kolKur('b3Tepsi',  tepsiBilgi, 0);
+
+        /* Sekme açılınca 3B başlar; kapanınca durur.
+           Durmayan bir çizim döngüsü cepteki telefonda pil yakar ve
+           kimse görmez. */
+        var sekmeDgm = $('#tMakine');
+        if (sekmeDgm) sekmeDgm.addEventListener('click', function () { setTimeout(ucBoyutAc, 60); });
+        document.addEventListener('visibilitychange', function () {
+            if (!window.Makine3D || !Makine3D.hazirMi()) return;
+            if (document.hidden) Makine3D.kapa();
+            else if (!$('#sMakine').hidden) Makine3D.ac();
         });
 
-        /* --- KLAVYEYLE DE DÖNSÜN ---
-           Yalnız sürüklemeyle bırakmak, klavye kullanan kullanıcıyı
-           tamamen dışarıda bırakırdı. */
-        sahne.addEventListener('keydown', function (e) {
-            var a = e.shiftKey ? 15 : 5, t = true;
-            if (e.key === 'ArrowLeft') _3d.y -= a;
-            else if (e.key === 'ArrowRight') _3d.y += a;
-            else if (e.key === 'ArrowUp') _3d.x = Math.max(-60, _3d.x - a);
-            else if (e.key === 'ArrowDown') _3d.x = Math.min(60, _3d.x + a);
-            else t = false;
-            if (t) { e.preventDefault(); ciz(); }
-        });
-
-        var don = $('#donBtn');
-        if (don) don.addEventListener('click', function () { _3d.y += 45; ciz(); });
         var sfr = $('#sifirlaBtn');
-        if (sfr) sfr.addEventListener('click', function () {
-            _3d.x = -12; _3d.y = -28; ciz();
-        });
+        if (sfr) sfr.addEventListener('click', bastan);
 
+        _ucKavrulmaKanca = ucBoyutKavrulma;
         makine3dTazele();
         parcaListesiCiz();
     }
@@ -1389,20 +1947,19 @@
     /* Fire sekmesinde ölçülen kavrulma buraya taşınıyor. Ölçüm yoksa
        DOKUNMUYORUZ: nötr yeşil kalıyor ve not öyle söylüyor. */
     function makine3dTazele() {
+        var v = makVeri();
+        /* KAVRULMA RENGİ ÖLÇÜMDEN GELİR, YOKSA HİÇ ÇİZİLMEZ.
+           `--tambur-renk` tanımsız kalırsa fotoğrafın üzerindeki leke
+           saydam kalıyor; uydurulmuş bir kavrulma göstermiyoruz. */
         var kok = document.documentElement;
-        var not = $('#makine3dNot');
-        var panel = $('#panel3d');
-        if (sonFire && isFinite(sonFire.fire)) {
-            kok.style.setProperty('--tambur-renk', kavrulmaRengi(sonFire.fire));
-            if (not) not.textContent = T('makine3dOlculdu', yuzde(sonFire.fire, 1));
-        } else {
+        if (v.f === null) {
             kok.style.removeProperty('--tambur-renk');
-            if (not) not.textContent = T('makine3dOlculmedi');
+            makDurum('makDurOlcumYok');
+        } else {
+            kok.style.setProperty('--tambur-renk', kavrulmaRengi(v.f));
+            makDurum('makDurHazir', yuzde(v.f, 1));
         }
-        if (panel) {
-            var i = C.sayi_oku(($('#pCikisIsi') && $('#pCikisIsi').value) || '');
-            panel.textContent = i === null ? '—' : sayi(i, 0) + '°';
-        }
+        if (_ucKavrulmaKanca) _ucKavrulmaKanca();
     }
 
     /* Parça listesi: hangi sayının nereye gittiğini anlatır.
@@ -1455,7 +2012,10 @@
             $('#hYesil').value = ''; cevirHesapla('hedef');
         });
 
-        ['#mFiyat','#mFire','#mParti','#mEnerji','#mIscilik','#mPaket','#mAmbalaj','#mFincan']
+        /* '#mSatis' de burada: yazarken kar aninda guncellensin.
+           Listeye eklemeyi unutmak, alani ekleyip CALISMAMASI demekti. */
+        ['#mFiyat','#mFire','#mParti','#mEnerji','#mIscilik','#mPaket','#mAmbalaj',
+         '#mFincan','#mSatis']
             .forEach(function (s) { $(s).addEventListener('input', maliyetHesapla); });
 
         bilesenEkle('', '60'); bilesenEkle('', '40');
