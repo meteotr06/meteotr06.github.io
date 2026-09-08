@@ -843,28 +843,27 @@
         /* ---- KROM BACA (sagda, yukari kivriliyor) ----
            Fotografta govdenin sagindan yukari kivrilan parlak boru.
            Siklondan ayri: bu, govdenin ustune cikan egri hat. */
-        /* IKI UCU DA BAGLI OLMALI. Onceki turda bu kavisi boslugla
-           koymustum: bir ucu hicbir seye degmiyordu ve havada duruyordu.
-           Simdi govdenin ustunden cikip siklonun tepesine giriyor;
-           arada iki duz parca var, yani yol kesintisiz. */
-        var bacaDikey = golgeli(new T.Mesh(
-            new T.CylinderGeometry(0.035, 0.035, GVH * 0.34, 16), M.celik));
-        bacaDikey.position.set(TMX + KAU * 0.30, GVT + GVH + GVH * 0.15, -GVU * 0.10);
-        kokG.add(bacaDikey);
-        var bacaKavis = golgeli(new T.Mesh(
-            new T.TorusGeometry(H * 0.10, 0.035, 12, 24, Math.PI * 0.5), M.celik));
-        bacaKavis.position.set(TMX + KAU * 0.30 + H * 0.10,
-                               GVT + GVH + GVH * 0.32, -GVU * 0.10);
-        bacaKavis.rotation.y = Math.PI / 2;
-        bacaKavis.rotation.z = Math.PI;
-        kokG.add(bacaKavis);
-        var bacaYatay = golgeli(new T.Mesh(
-            new T.CylinderGeometry(0.035, 0.035,
-                Math.abs(SKX - (TMX + KAU * 0.30 + H * 0.10)) + 0.06, 16), M.celik));
-        bacaYatay.rotation.z = Math.PI / 2;
-        bacaYatay.position.set((SKX + TMX + KAU * 0.30 + H * 0.10) / 2,
-                               GVT + GVH + GVH * 0.32 + H * 0.10, -GVU * 0.10);
-        kokG.add(bacaYatay);
+        /* SIKLON KISA VE KALIN BIR KANALLA BAGLI.
+           Onceki halde govdenin ustunden siklona uzanan uzun bir krom
+           hat vardi. Iki ucu da baglilydi -- sinir kutusu olcumu "havada
+           degil" diyordu -- ama kullanici arkadan bakinca "ince beyaz bir
+           cubuk havada" dedi ve hakliydi: UZUN ve INCE bir parca,
+           uclari bagli olsa bile bosluktan gecen bir TEL gibi okunuyor.
+
+           Olcum yanlis degildi, DARDI: "hicbir seye degmeyen var mi?"
+           diye sormustum; "bosluktan gecen ince uzun parca var mi?"
+           diye sormamistim.
+
+           Referans fotografta da boru govdeye YAPISIK; havada uzun bir
+           hat yok. Kisa, kalin, govdenin sagina bitisik bir kanal. */
+        var siklonUst = GVT + H * 0.18 + (H * 0.34) / 2;
+        var kanalBoy = Math.abs(SKX - (TMX + KAU * 0.42)) + 0.10;
+        var bacaKanal = golgeli(new T.Mesh(
+            new T.CylinderGeometry(0.055, 0.055, kanalBoy, 18), M.celik));
+        bacaKanal.rotation.z = Math.PI / 2;
+        bacaKanal.position.set((SKX + TMX + KAU * 0.42) / 2,
+                               siklonUst - 0.02, -GVU * 0.20);
+        kokG.add(bacaKanal);
 
         /* ================= EKRAN KOLU (SOLDA) =================
            Ön görünüşte sola uzanan kolun ucunda dokunmatik panel. */
@@ -1539,6 +1538,46 @@
            dolayli gostergelerle (durum, mesaj) olcmeye calismak
            yetmedi -- ikisi de her parcayi yansitmiyor. */
         vurguVer: function () { return P.vurgu || null; },
+        /* HAVADA DURAN PARCALARI BULUR.
+           Kullanici uc kez "havada duruyor" dedi; her seferinde tek bir
+           parca duzeltildi ve dorduncu tur yine ayni sikayetle geldi.
+           Gozle kovalamak bitmiyor -- her yeni parca ayni riski tasiyor.
+           Bu islev sahnedeki her mesh'in sinir kutusunu alip BASKA
+           hicbir parcaya degmeyenleri listeliyor.
+
+           SINIRI: sinir kutusu KABADIR. Egri bir boru, kutusuyla baska
+           bir kutuya degiyor gorunup gercekte degmeyebilir. Yani bos
+           liste "temiz" degil, "kaba elekten gecti" demektir; gozle
+           bakmanin yerine gecmez, isini daraltir (K-96). */
+        havadaOlanlar: function (tolerans) {
+            if (!P.kok || !T) return null;
+            var t = (tolerans === undefined) ? 0.02 : tolerans;
+            var kutular = [];
+            P.kok.updateMatrixWorld(true);
+            P.kok.traverse(function (o) {
+                if (!o.isMesh || !o.geometry) return;
+                if (o.material && o.material.visible === false) return;  /* dokunma vekilleri */
+                var k = new T.Box3().setFromObject(o);
+                if (k.isEmpty()) return;
+                k.expandByScalar(t);
+                kutular.push({ ad: o.name || o.geometry.type, kutu: k, oge: o });
+            });
+            var havada = [];
+            for (var i = 0; i < kutular.length; i++) {
+                var degdi = false;
+                for (var j = 0; j < kutular.length && !degdi; j++) {
+                    if (i === j) continue;
+                    if (kutular[i].oge.parent === kutular[j].oge) continue;  /* ata-cocuk sayilmaz */
+                    if (kutular[i].kutu.intersectsBox(kutular[j].kutu)) degdi = true;
+                }
+                if (!degdi) {
+                    var m = kutular[i].kutu.getCenter(new T.Vector3());
+                    havada.push({ ad: kutular[i].ad,
+                                  x: +m.x.toFixed(2), y: +m.y.toFixed(2), z: +m.z.toFixed(2) });
+                }
+            }
+            return { sayi: havada.length, toplamParca: kutular.length, havada: havada };
+        },
         /* Verilen tuval noktasinda hangi parca var? Olcum ve sinama
            icin; arayuz bunu kullanmiyor. */
         noktadaNeVar: function (x, y) {
