@@ -865,26 +865,71 @@
                                siklonUst - 0.02, -GVU * 0.20);
         kokG.add(bacaKanal);
 
-        /* ================= EKRAN KOLU (SOLDA) =================
-           Ön görünüşte sola uzanan kolun ucunda dokunmatik panel. */
+        /* EKRAN KOLU YOK -- bilerek.
+           Bir sure govdenin soluna uzanan, ucunda dokunmatik panel olan
+           bir kol vardi. Kullanici dort kez "havada bir cubuk var" dedi;
+           olcunce sahnedeki tek uzun ince yatay silindir oydu.
+
+           Asil kusur konum degildi: BU KOL REFERANSTA YOK. Kullanicinin
+           gonderdigi uc gorselde de yok; onu GULMAK fotografindan,
+           yani BASKA BIR MAKINEDEN almistim. Parcanin yerini
+           duzeltmeye calisirken, parcanin orada olmamasi gerektigini
+           kacirdim.
+
+           Ders: "bu parca nereye baglaniyor" sorusundan ONCE "bu parca
+           referansta var mi" diye sormak gerekiyor. Yanlis referanstan
+           gelen parca, ne kadar iyi baglanirsa baglansin yanlis kalir. */
+
+        /* ================= DOKUNMATIK EKRAN (SOL ON) =================
+           Fotografta govdenin sol onunden cikan KISA ve KALIN bir
+           dirsegin ucunda, kullaniciya donuk egik bir panel var.
+
+           Onceki denemede ekran ince bir cubugun (yaricap 0,022)
+           ucundaydi ve govdeden uzaktaydi; kullanici dort kez "havada
+           bir cubuk var" dedi. Kolu uzatmak da yaklastirmak da
+           yetmedi: sorun BAGLANTI degil ORANDI. Uzun ve ince bir
+           parca, iki ucu bagli olsa bile tel gibi okunuyor.
+           Simdi kisa + kalin + kutu profilli. */
         var ekranG = new T.Group();
-        /* Ekran GOVDEYE YAKIN olmali: onceki yerinde (KAU*0.78)
-           kol uzunlugu (KAU*0.40) govdeye YETISMIYORDU ve panel
-           havada asili duruyordu. Mesafe kol uzunlugundan kucuk
-           tutuluyor ki kol her zaman govdeye degsin. */
-        ekranG.position.set(TMX - KAU * 0.62, GVT + GVH * 0.72, GVU * 0.22);
+        /* TEKNENIN DISINDA olmali: ilk denemede -KAU*0.34'te idi ve
+           teknenin (yaricap KAU*0.66) arkasinda kalip HIC gorunmuyordu.
+           Parca sahnede vardi -- 90 parca, 0 havada -- ama ekranda yoktu;
+           "eklendi" ile "gorunuyor" ayri seyler. */
+        /* ON YUZDEN ONDE olmali. GVU*0.34'te iken tamburun on yuzu
+           (ONZ = GVU/2) ondeydi ve ekrani orturuyordu: parca sahnede
+           vardi ama kameradan gorunmuyordu. Ucuncu kez ayni sinif --
+           "eklendi" ile "gorunuyor" ayri seyler. */
+        ekranG.position.set(TMX - KAU * 0.80, GVT + GVH * 0.74, ONZ + 0.22);
         kokG.add(ekranG);
-        /* Kol, ekrandan govdeye kadar UZANIR. Uzunluk ekranin
-           govdeye uzakligindan buyuk secilir; kisa kalirsa boslukta
-           biten bir cubuk gorunur. */
-        var ekKol = golgeli(new T.Mesh(new T.CylinderGeometry(0.022, 0.022, KAU * 0.72, 14), M.celikMat));
-        ekKol.rotation.z = Math.PI / 2;
-        ekKol.position.x = KAU * 0.36; ekranG.add(ekKol);
-        var ekKutu = golgeli(yuvarlakKutu(0.30, 0.21, 0.055, 0.018, M.siyahKoyu));
-        ekranG.add(ekKutu);
-        var ekCam = new T.Mesh(new T.BoxGeometry(0.25, 0.16, 0.012),
-                               new T.MeshBasicMaterial({ color: 0x0d1620 }));
-        ekCam.position.z = 0.034; ekranG.add(ekCam);
+        /* Dirsek: govdeye giren kalin kutu -- cubuk degil. */
+        var ekranKol = golgeli(new T.Mesh(
+            new T.BoxGeometry(KAU * 0.42, 0.055, 0.075), M.bakir));
+        ekranKol.position.set(KAU * 0.21, 0, 0);
+        ekranG.add(ekranKol);
+        /* Dirsegin govdeye oturdugu flans */
+        var ekranFlans = golgeli(new T.Mesh(
+            new T.BoxGeometry(0.035, 0.11, 0.11), M.bakirMat));
+        ekranFlans.position.set(KAU * 0.42, 0, 0);
+        ekranG.add(ekranFlans);
+        /* Panel: EGIK, kullaniciya donuk */
+        /* BUYUK VE BELIRGIN. Kullanici "ekran onemli" dedi; onceki
+           olcude (0,26 x 0,19) makinenin yaninda kucuk bir cikinti gibi
+           kaliyordu ve ekranda secilmiyordu. */
+        var ekranKutu = golgeli(yuvarlakKutu(0.42, 0.30, 0.055, 0.020, M.siyahKoyu));
+        ekranKutu.rotation.y = 0.42;
+        ekranKutu.rotation.x = -0.20;
+        ekranG.add(ekranKutu);
+        /* Cam: koyu, YAZI YOK. Uzerine sayi koysaydik olculmus bir
+           deger sanilirdi -- makine hicbir sey olcmuyor (K-22). */
+        /* Cam hafif isikli: koyu zeminde koyu bir dikdortgen
+           gorunmuyordu. YAZI YOK -- uzerine sayi koysaydik olculmus bir
+           deger sanilirdi (K-22). */
+        var ekranCam = new T.Mesh(new T.BoxGeometry(0.35, 0.24, 0.012),
+                                  new T.MeshBasicMaterial({ color: 0x1c3348 }));
+        ekranCam.rotation.y = 0.42;
+        ekranCam.rotation.x = -0.20;
+        ekranCam.position.set(0.012, 0.004, 0.034);
+        ekranG.add(ekranCam);
 
         /* ---- KIVRIK BAKIR BORU (on yuzde) ----
            Fotografta yuzden asagi kivrilarak inen kalin bakir hat.

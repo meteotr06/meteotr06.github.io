@@ -41,7 +41,7 @@ const tazeAl = async (k, u) => {
       hatayı kalıcı hâle getirir.
    ================================================================== */
 
-const SURUM = 'kahve-v78';
+const SURUM = 'kahve-v83';
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.
