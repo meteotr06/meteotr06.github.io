@@ -178,7 +178,12 @@ var SEMALAR = {
 
 /* Sema arama — ADA gore degil, SESE gore. Boylece D# yazilmis akor
    tablodaki Eb girisini de bulur (esanlamli yazim sorunu cozulur). */
-function semaBul(akorAdi, calgi) {
+function semaBul(akorAdi, calgi, tanimlar) {
+  /* Kullanicinin kendi tanimi HER ZAMAN once gelir: kendi tuttugu sekil,
+     bizim tablomuzdaki genel sekilden onceliklidir. */
+  var kendi = tanimHaritasi(tanimlar)[akorAdi];
+  if (kendi) return { perdeler: kendi.perdeler, adi: akorAdi, birebir: true, kullanici: true };
+
   var tablo = SEMALAR[calgi];
   if (!tablo) return null;
   var c = akorCozumle(akorAdi);
@@ -199,10 +204,10 @@ function semaBul(akorAdi, calgi) {
 
 /* --- Cizim --- */
 
-function semaSvg(akorAdi, calgi) {
+function semaSvg(akorAdi, calgi, tanimlar) {
   if (calgi === 'piyano') return piyanoSvg(akorAdi);
 
-  var bulunan = semaBul(akorAdi, calgi);
+  var bulunan = semaBul(akorAdi, calgi, tanimlar);
   if (!bulunan) return null;
 
   var perdeler = bulunan.perdeler;
@@ -290,4 +295,69 @@ function piyanoSvg(akorAdi) {
   }
   p.push('</svg>');
   return p.join('');
+}
+
+/* ================= KULLANICININ KENDI SEMASI ({define:}) =================
+   Tablomuzda 60 sema var; olmayan akorda durustce "sema yok" diyoruz.
+   Ama ChordPro'da sema tanimlama komutu ZATEN STANDART:
+
+     {define: F/G base-fret 1 frets 1 3 3 2 1 3}
+
+   Kullanici kendi tuttugu sekli yazabilmeli. Turkce karsiligi da kabul
+   ediliyor: {tanim: ... perde 1 perdeler ...}
+
+   BASE-FRET: ChordPro'da perdeler base-fret'e GORE verilir; base-fret 5 ise
+   "1" bes perde demektir. Mutlaga cevriliyor, yoksa sema bes perde asagi
+   cizilir ve kullanici yanlis yere basar.
+
+   DOGRULAMA: kullanicinin tanimi da `semaDogrula`dan geciriliyor. Gecmezse
+   sema YINE DE gosteriliyor -- kendi sekli, belki bilerek boyle tutuyor --
+   ama ekranda uyari cikiyor (K-89). Sessizce kabul de etmiyoruz, sessizce
+   reddetmiyoruz da. */
+
+function tanimCozumle(deger) {
+  if (typeof deger !== 'string') return null;
+  var parcalar = deger.trim().split(/\s+/);
+  if (parcalar.length < 3) return null;
+
+  var ad = parcalar[0];
+  if (!akorCozumle(ad)) return null;                 // taninmayan akor adi
+
+  var baslangic = 1;
+  var perdeMetinleri = null;
+
+  for (var i = 1; i < parcalar.length; i++) {
+    var anahtar = parcalar[i].toLowerCase().replace(/:$/, '');
+    if (anahtar === 'base-fret' || anahtar === 'perde') {
+      var b = parcalar[i + 1];
+      if (!/^\d+$/.test(b || '')) return null;
+      baslangic = parseInt(b, 10);
+      if (baslangic < 1 || baslangic > 20) return null;
+      i++;
+    } else if (anahtar === 'frets' || anahtar === 'perdeler') {
+      perdeMetinleri = parcalar.slice(i + 1);
+      break;
+    } else if (anahtar === 'fingers' || anahtar === 'parmaklar') {
+      break;                                          // parmak bilgisi cizimde kullanilmiyor
+    }
+  }
+  if (!perdeMetinleri || perdeMetinleri.length === 0) return null;
+
+  var perdeler = [];
+  for (var j = 0; j < perdeMetinleri.length; j++) {
+    var p = perdeMetinleri[j].toLowerCase();
+    if (p === 'x' || p === '-' || p === '-1') { perdeler.push(-1); continue; }
+    if (!/^\d+$/.test(p)) return null;
+    var n = parseInt(p, 10);
+    // base-fret'e gore verilen perde MUTLAGA cevriliyor
+    perdeler.push(n === 0 ? 0 : (baslangic - 1 + n));
+  }
+  return { ad: ad, perdeler: perdeler, baslangic: baslangic };
+}
+
+/* Tanim listesini ada gore haritaya cevirir; sonraki tanim oncekini ezer. */
+function tanimHaritasi(tanimlar) {
+  var harita = {};
+  (tanimlar || []).forEach(function (t) { if (t && t.ad) harita[t.ad] = t; });
+  return harita;
 }

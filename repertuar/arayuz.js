@@ -53,7 +53,7 @@ function yukle() {
 
   // Ornek yalnizca ILK acilista gelir. Kullanici hepsini silerse geri gelmez.
   if (sarkilar.length === 0 && bozuklar.length === 0 && !DEPO.tohumlandiMi()) {
-    if (DEPO.tohumla(ORNEK_SARKILAR).tamam) sarkilar = ORNEK_SARKILAR.slice();
+    if (DEPO.tohumla(ORNEK_SARKILAR.concat(typeof BASLANGIC_PAKETI !== 'undefined' ? BASLANGIC_PAKETI : [])).tamam) sarkilar = ORNEK_SARKILAR.concat(typeof BASLANGIC_PAKETI !== 'undefined' ? BASLANGIC_PAKETI : []);
   }
 }
 
@@ -165,9 +165,23 @@ function yazimAdimi(hangiYazim) {
    Adim 0 ise kullanicinin kendi yazimi hic degistirilmez -- gitarda bile
    "Bb" yazan kisi "A#" gormemeli. Yazim secmek zorunda kaldigimiz tek an,
    sesin yeniden adlandirilmasi gereken andir. */
+/* Enharmonik yazim YALNIZCA aktarim varken secilir. Adim 0 ise kullanicinin
+   kendi yazimi hic degistirilmez -- gitarda bile "Bb" yazan kisi "A#" gormemeli.
+
+   Aktarim varken IKI olcut var ve SIRASI onemli:
+     1. HEDEF TON biliniyorsa onun donanimina uyulur. Eb tonundaki bir sarkida
+        "D#" yazmak ayni sesi yanlis adlandirmaktir; bu muzikal dogruluk.
+     2. Ton bilinmiyorsa CALGI aliskanligina donulur (gitar diyez, piyano
+        bemol). Bu bir tahmin degil, belgelenmis bir okuma aliskanligi.
+   Hangisinin gecerli oldugu EKRANDA yaziyor -- kullanici neden "Db" gordugunu
+   bilmeli (K-22). */
 function yazimSecenegi(toplam) {
   if (toplam === 0) return null;
-  return { bemol: yazimTercihi(secili.calgi) };
+  var tonTercihi = secili.ton ? hedefTonTercihi(secili.ton, toplam) : null;
+  if (tonTercihi !== null) {
+    return { bemol: tonTercihi, kaynak: 'ton', hedefTon: akorAktar(secili.ton, toplam, { bemol: tonTercihi }) };
+  }
+  return { bemol: yazimTercihi(secili.calgi), kaynak: 'calgi' };
 }
 
 
@@ -250,11 +264,28 @@ function sarkiCiz() {
       : '· ikili a\u00e7\u0131k ama <b>kapo yok</b> \u2014 ikisi ayn\u0131');
   }
   if (toplamAdim() !== 0) {
-    serit.push('· yaz\u0131m: <b>' + (yazimTercihi(secili.calgi) ? 'bemol' : 'diyez') +
-               '</b> (' + secili.calgi + ')');
+    var sec = yazimSecenegi(toplamAdim());
+    if (sec) {
+      serit.push('· yaz\u0131m: <b>' + (sec.bemol ? 'bemol' : 'diyez') + '</b> (' +
+                 (sec.kaynak === 'ton' ? (sec.hedefTon + ' tonuna g\u00f6re') : secili.calgi) + ')');
+    }
   }
   serit.push('· kayıtlı hâli: <b>' + secili.yazim + '</b>');
   $('yazimSerit').innerHTML = serit.join(' ');
+
+  /* Kullanici tanimlari, UYARI KUTUSU CIZILMEDEN ONCE denetlenmeli.
+     Ilk yazdigimda denetim semalar bolumundeydi -- yani uyari listesine
+     ekliyordu ama liste ekrana coktan basilmisti. Denetim kosuyordu,
+     sonucu kimse gormuyordu. Olcerek yakalandi (08.09.2026). */
+  var calgiAdi = secili.calgi || 'gitar';
+  /* Kullanicinin kendi tanimi da denetleniyor. Gecmezse sema YINE gosteriliyor
+     -- kendi sekli, belki bilerek boyle tutuyor -- ama uyari cikiyor.
+     Sessizce kabul de etmiyoruz, sessizce reddetmiyoruz da (K-89). */
+  (g.tanimlar || []).forEach(function (t) {
+    if (calgiAdi === 'piyano') return;
+    var sebep = semaDogrula(t.perdeler, t.ad, calgiAdi);
+    if (sebep) uyarilar.push('Kendi \u015feman "' + t.ad + '" akorunu vermiyor: ' + sebep);
+  });
 
   // --- uyarılar (K-89: atlanan şey ekranda yazar) ---
   $('uyariSarki').innerHTML = uyarilar.length
@@ -264,8 +295,10 @@ function sarkiCiz() {
 
   // --- şemalar ---
   var calgi = secili.calgi || 'gitar';
+
+
   $('semalar').innerHTML = kullanilan.map(function (ad) {
-    var svg = semaSvg(ad, calgi);
+    var svg = semaSvg(ad, calgi, g.tanimlar);
     if (!svg) {
       return '<div class="sema yok"><div class="ad">' + kacir(ad) + '</div>şema yok</div>';
     }
@@ -372,6 +405,7 @@ function duzenAc(sarki) {
   $('dGovde').value = sarki.govde || '';
   $('dNotlar').value = sarki.notlar || '';
   $('dSure').value = sureYaz(sarki.sure) || '';
+  $('dTon').value = sarki.ton || '';
   $('dSil').className = sarkilar.indexOf(sarki) === -1 ? 'tehlike gizli' : 'tehlike';
   $('ustBaslik').textContent = sarki.ad || 'Yeni şarkı';
   ekranGoster('duzen');
@@ -401,7 +435,7 @@ function duzenKaydet() {
     kapo: Number.isInteger(kapoDeger) ? kapoDeger : NaN,
     calgi: $('dCalgi').value,
     akort: duzenlenen.akort || 'standart',
-    ton: duzenlenen.ton || '',
+    ton: $('dTon').value.trim(),
     tempo: duzenlenen.tempo || null,
     etiketler: $('dEtiketler').value.split(',')
       .map(function (e) { return e.trim(); }).filter(function (e) { return e; }),

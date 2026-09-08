@@ -115,6 +115,7 @@ var KOMUT_KARSILIGI = {
   'capo': 'kapo', 'kapo': 'kapo',
   'tempo': 'tempo', 'hiz': 'tempo',
   'duration': 'sure', 'sure': 'sure',
+  'define': 'tanim', 'tanim': 'tanim',
   'calgi': 'calgi', 'instrument': 'calgi',
   'yazim': 'yazim',
   'etiketler': 'etiketler', 'tags': 'etiketler',
@@ -141,6 +142,7 @@ function komutCozumle(satir) {
 function metinCozumle(metin) {
   var satirlar = String(metin).replace(/\r\n/g, '\n').split('\n');
   var kunye = {};
+  var tanimlar = [];
   var bloklar = [];
   var tabAcik = false;
   var tabSatirlari = [];
@@ -171,6 +173,14 @@ function metinCozumle(metin) {
         else kunye[karsilik] = sayi;
         continue;
       }
+      /* Sema tanimi govdeye YAZILMAZ, ayri listeye gider: sarkinin sozu
+         degil, cizim verisidir. Cozulemezse SESSIZCE atilmaz, uyari olur. */
+      if (karsilik === 'tanim') {
+        var t = (typeof tanimCozumle === 'function') ? tanimCozumle(k.deger) : null;
+        if (t) tanimlar.push(t);
+        else bloklar.push({ tur: 'bozuk', ham: satir, no: i + 1, sebep: 'sema tanimi okunamadi' });
+        continue;
+      }
       if (karsilik === 'yorum') { bloklar.push({ tur: 'yorum', metin: k.deger, no: i + 1 }); continue; }
       if (karsilik === 'nakarat_basla') { bloklar.push({ tur: 'bolum', ad: k.deger || 'Nakarat', no: i + 1 }); continue; }
       if (karsilik === 'kita_basla') { bloklar.push({ tur: 'bolum', ad: k.deger || 'Kita', no: i + 1 }); continue; }
@@ -194,7 +204,7 @@ function metinCozumle(metin) {
     bloklar.push({ tur: 'tab', satirlar: tabSatirlari, no: tabBaslangicNo });
     bloklar.push({ tur: 'bozuk', ham: '{tab}', no: tabBaslangicNo, sebep: 'tab blogu kapanmadi' });
   }
-  return { kunye: kunye, bloklar: bloklar };
+  return { kunye: kunye, bloklar: bloklar, tanimlar: tanimlar };
 }
 
 /* Tum govdeyi ORIJINALDEN mutlak adimla aktarir (zincir tuzagina karsi). */
@@ -206,5 +216,5 @@ function govdeAktar(cozulmus, adim, secenek) {
     var a = satirAktar({ soz: b.soz, akorlar: b.akorlar, kaynak: b.kaynak || b.akorlar }, adim, secenek);
     yeni.push({ tur: 'satir', soz: b.soz, akorlar: a.akorlar, kaynak: a.kaynak, no: b.no });
   }
-  return { kunye: cozulmus.kunye, bloklar: yeni };
+  return { kunye: cozulmus.kunye, bloklar: yeni, tanimlar: cozulmus.tanimlar || [] };
 }

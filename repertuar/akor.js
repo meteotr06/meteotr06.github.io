@@ -126,3 +126,42 @@ function gosterilecekAkor(akor, kapo, saklananYazim, istenenYazim) {
 function yazimTercihi(calgi) {
   return calgi === 'piyano';        // piyano bemol, telliler diyez
 }
+
+/* ================= HEDEF TONA GORE YAZIM =================
+   Arastirma (ORNEK-UYGULAMALAR.md · bolum 5): enharmonik icin TEK bir
+   sektor kurali yok. Iki belgelenmis yaklasim var:
+     (a) HEDEF TONA gore -- OnSong: transpoze sonrasi isaret, yeni tonun
+         enharmonik tercihiyle belirlenir.
+     (b) YONE gore -- ChordPro: yukari transpozede diyez, asagida bemol.
+
+   (a)'yi seciyoruz cunku muzikal olarak dogru olan o: Eb tonundaki bir
+   sarkida "D#" yazmak, ayni sesi yanlis adlandirmaktir. Yon kurali ise
+   ayni sarkiyi iki yonden gelince iki farkli yazimla gosterir.
+
+   TON SOZLUGU SINIRLI (ChordPro da boyle yapiyor): en fazla BES arizali
+   tonlar gecerli. C# (7 diyez) yerine Db (5 bemol) kullanilir.
+   F#/Gb ciftinde varsayilan F# -- ikisi de alti arizali, birini secmek
+   gerekiyor.
+
+   Minor tonlar: ilgili majore gore. Am'in donanimi C ile ayni (arizasiz),
+   Cm'inki Eb ile ayni (uc bemol). O yuzden minor ton +3 yarim ses cikarilip
+   major karsiligina bakiliyor. */
+
+/* Major tonun yazim tercihi: true = bemol, false = diyez.
+   0=C 1=Db 2=D 3=Eb 4=E 5=F 6=F# 7=G 8=Ab 9=A 10=Bb 11=B */
+var MAJOR_TON_BEMOL = [false, true, false, true, false, true,
+                       false, false, true, false, true, false];
+
+/* Ton adindan (ve istege bagli transpoze adimindan) yazim tercihi.
+   Cozemedigi tonda null doner -- tahmin etmez, cagiran yerin baska bir
+   olcute donmesi gerekir. */
+function hedefTonTercihi(ton, adim) {
+  var c = akorCozumle(ton);
+  if (!c) return null;
+  if (!Number.isInteger(adim)) adim = 0;
+
+  var yer = mod12(c.kok + adim);
+  var minorMu = (c.ek === 'm' || c.ek === 'min' || c.ek === '-');
+  if (minorMu) yer = mod12(yer + 3);          // ilgili major
+  return MAJOR_TON_BEMOL[yer];
+}
