@@ -11,7 +11,7 @@
    onbellek silinmez, yeni dosyalar hic indirilmez.)
    Yoksa telefona kurmus kullanicilar eski surumu gormeye devam eder
    (onbellekten servis edilir). Numara degisince eski onbellek silinir. */
-const ONBELLEK = "hava-durumu-20260904-160643";
+const ONBELLEK = "hava-durumu-20260922-215928";
 /* ONBELLEK ADI ONEKI -- YALNIZ KENDI ONBELLEKLERIMIZI SILIYORUZ.
 
    `caches` (CacheStorage) KOKEN basinadir, kapsam basina DEGIL.

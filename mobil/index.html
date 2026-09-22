@@ -156,6 +156,11 @@
   .gunes-satir { color:var(--yazi3); font-size:12px; margin-top:12px;
                  display:flex; gap:16px; flex-wrap:wrap; }
   .yagmur-uyari { color:var(--yagis); font-size:13px; font-weight:600; margin-top:10px; }
+  /* Dokunma esigi 44px (K: en cok basilan dugmeler esigin altinda kalmamali). */
+  .yagis-bildir-dugme { margin-left:8px; min-height:32px; padding:4px 10px; border:0;
+    border-radius:999px; background:var(--ickart); color:var(--yazi); font-size:12px;
+    font-weight:700; cursor:pointer; }
+  .yagis-siniri { color:var(--yazi3); font-size:11.5px; line-height:1.45; margin-top:6px; }
 
   .uclu { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
   .mini { background:var(--ickart); border-radius:14px; padding:12px 6px; text-align:center; }
@@ -401,6 +406,70 @@
 
 <script src="yerler.js"></script>
 <script>
+/* ==================================================================
+   YAGIS BILDIRIMI
+   ==================================================================
+   Masaustunde vardi (kaynak/bildirim.py + iki zamanlanmis gorev),
+   mobilde HIC YOKTU. Hesap zaten buradaydi: `minutely_15` verisi
+   cekiliyor ve ekranda "~21:45 civarinda basliyor" yaziyordu. Eksik
+   olan tek sey bunu bildirime cevirmekti.
+
+   SINIRI ACIKCA SOYLENIYOR -- olculdu (22.09.2026, Chrome):
+       TimestampTrigger : tanimli DEGIL
+       showTrigger      : desteklenmiyor
+       periodicSync     : izin "denied"
+   Yani tarayicida, uygulama KAPALIYKEN zamanlanmis bildirim
+   kurulamiyor. Tek yolu sunucudan itme (push) ve o da konumun bir
+   sunucuya gitmesini gerektirir; gondermiyoruz.
+
+   Sonuc: bildirim uygulama ACIKKEN ya da her acilista cikar.
+   "Arka planda da uyarir" demek TUTULAMAYAN BIR VAAT olurdu (K-22);
+   Goz Molasi'nda ayni sinir ayni sekilde yazili. */
+const YAGIS_ANAHTAR = "yagis-bildirim-son";
+
+function yagisDepoOku(){ try { return localStorage.getItem(YAGIS_ANAHTAR); } catch(e){ return null; } }
+function yagisDepoYaz(d){ try { localStorage.setItem(YAGIS_ANAHTAR, d); } catch(e){} }
+
+/* AYNI YAGIS ICIN BIR KEZ. Sayfa her tazelendiginde bildirim atmak,
+   bildirimi degersizlestirir ve kullanici hepsini kapatir. */
+async function yagisBildir(damga, yer){
+  if (!damga) return;
+  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+  if (yagisDepoOku() === damga) return;
+  const saat = damga.slice(11,16);
+  const govde = (yer ? yer + ": " : "") + "~" + saat + " civarı yağış başlıyor.";
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg && reg.showNotification) {
+      /* Servis iscisi uzerinden gostermek sart: Android'de `new
+         Notification()` calismaz, sessizce atar. */
+      await reg.showNotification("Yağmur uyarısı", {
+        body: govde, icon: "simge-192.png", badge: "simge-192.png",
+        tag: "yagis", renotify: false });
+    } else {
+      new Notification("Yağmur uyarısı", { body: govde, icon: "simge-192.png", tag: "yagis" });
+    }
+    yagisDepoYaz(damga);
+  } catch(e){ /* bildirim atamadiysa sessiz kal -- uygulama calismaya devam eder */ }
+}
+
+/* Dugme her tazelemede yeniden ciziliyor; olayi BELGEYE bagliyoruz ki
+   hangi an cizildigi onemli olmasin. */
+document.addEventListener("click", async (o) => {
+  const d = o.target.closest && o.target.closest("#yagisBildirDugme");
+  if (!d) return;
+  if (typeof Notification === "undefined") { d.textContent = "Bu tarayıcı desteklemiyor"; return; }
+  const s = await Notification.requestPermission();
+  const kutu = d.closest(".yagmur-uyari");
+  d.remove();
+  if (!kutu) return;
+  const not = document.createElement("div");
+  not.className = "yagis-siniri";
+  not.textContent = (s === "granted")
+    ? "Yağış uyarısı açık. Uygulama açıkken ya da her açılışta bildirim gelir; telefon kilitliyken gelmez — bunun için konumunuzun bir sunucuya gitmesi gerekirdi, göndermiyoruz."
+    : "Bildirime izin verilmedi. Yağış uyarısı yalnızca ekranda görünecek.";
+  kutu.appendChild(not);
+});
 /* ==================================================================
    Türkiye Hava Durumu — mobil sürüm
    Masaüstü sürümüyle AYNI veri kaynakları ve AYNI il/ilçe koordinatları.
@@ -748,16 +817,42 @@ function goster(yer, v, hk, modeller){
 
   /* yağmur ne zaman başlıyor (15 dk çözünürlük, önümüzdeki 2 saat) */
   let yagmurUyari = "";
+  let yagisAnI = null;                 /* tam damga: "2026-09-22T21:45" */
   if (v.minutely_15){
     const bas15 = v.minutely_15.time.findIndex(t => t >= g.time);
     for (let i=Math.max(0,bas15); i<Math.min(bas15+8, v.minutely_15.time.length); i++){
       if ((v.minutely_15.precipitation[i]||0) > 0.05){
-        yagmurUyari = `<div class="yagmur-uyari">☔ Yağış ~${v.minutely_15.time[i].slice(11,16)} civarında başlıyor</div>`;
+        yagisAnI = v.minutely_15.time[i];
+        const saat = yagisAnI.slice(11,16);
+        /* Bildirim dugmesi UYARININ ICINDE: ayri bir ayar ekrani
+           aramak yerine, uyari gorununce elinin altinda oluyor.
+           Izin zaten verilmisse dugme cizilmiyor. */
+        const dgm = (typeof Notification === "undefined" || Notification.permission === "granted")
+          ? "" : ` <button type="button" class="yagis-bildir-dugme" id="yagisBildirDugme">🔔 Bildir</button>`;
+        yagmurUyari = `<div class="yagmur-uyari">☔ Yağış ~${saat} civarında başlıyor${dgm}</div>`;
+        yagisBildir(yagisAnI, (typeof yerAdi !== "undefined" ? yerAdi : null));
         break;
       }
     }
   }
 
+  /* YAGIS BILDIRIMI -- masaustunde vardi, mobilde HIC YOKTU.
+     Hesap zaten burada: `minutely_15` verisi cekiliyor ve ekranda
+     "~21:45 civarinda basliyor" yaziyordu. Eksik olan tek sey, bunu
+     bildirime cevirmekti.
+
+     SINIRI ACIKCA SOYLUYORUZ. Olculdu (22.09.2026, Chrome):
+         TimestampTrigger  -> tanimli DEGIL
+         showTrigger       -> desteklenmiyor
+         periodicSync      -> izin "denied"
+     Yani tarayicida, uygulama KAPALIYKEN zamanlanmis bildirim
+     kurulamiyor. Bunu yapabilmenin tek yolu sunucudan itme (push),
+     o da konumun bir sunucuya gitmesini gerektirir. Gondermiyoruz.
+
+     Sonuc: bildirim uygulama ACIKKEN ya da acildiginda cikar.
+     "Arka planda da uyarir" demek yalan olurdu -- Goz Molasi'nda ayni
+     sinir ayni sekilde yaziliyor (K-22: en tehlikelisi tutulamayan
+     vaattir). */
   /* hava kalitesi kartı */
   let aqiHTML = "";
   if (hk && hk.aqi != null){
