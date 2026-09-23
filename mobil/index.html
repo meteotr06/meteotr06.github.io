@@ -112,6 +112,76 @@
   .kip-sec[aria-checked="true"] { background:var(--vurgu); color:var(--vurgu-yazi); border-color:transparent; }
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  /* ==================================================================
+     HAVA KATMANI -- arka planda yagmur/kar
+     ==================================================================
+     Telefonun kendi hava uygulamasindaki sey bu: yagmur yagarken
+     ekranin arkasinda gercekten yagmur akiyor. Veri degil, ATMOSFER.
+
+     UC KURAL, ucu de bu takimin kendi dersinden:
+     1. OKUNABILIRLIK BOZULMAZ. Katman `.kap`in ALTINDA (z-index 0) ve
+        cok soluk; kartlarin kendi zemini var, yazi hic degismiyor.
+        Karsitlik olcumlerimiz bu yuzden gecerli kaliyor.
+     2. AZ HAREKET AYARINA SAYGI. `prefers-reduced-motion: reduce`
+        secildiginde animasyon durur. Bu dosyada o sorgu HIC yoktu.
+     3. UCUZ OLACAK. Damla basina DOM ogesi yok; tek katman, iki
+        `repeating-linear-gradient` ve `transform` ile kayiyor --
+        telefonda pil yakmasin diye.
+     ================================================================== */
+  #havaKatman {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0; transition: opacity .6s ease;
+  }
+  #havaKatman.acik { opacity: 1; }
+
+  /* YAGMUR: iki katman, farkli hiz ve egim -> derinlik duygusu */
+  /* FIRTINA DA YAGMURDUR. `kodCoz` bes kategori donduruyor:
+     gunes · bulut · yagmur · kar · firtina. Ilk yazimda firtinayi
+     atlamistim -- olculdu, katman firtinada hic acilmiyordu. Oysa
+     kullanici acisindan firtina, yagmurun siddetli halidir. */
+  #havaKatman[data-hava="yagmur"]::before,
+  #havaKatman[data-hava="firtina"]::before,
+  #havaKatman[data-hava="yagmur"]::after,
+  #havaKatman[data-hava="firtina"]::after {
+    content: ""; position: absolute; inset: -20% -20%;
+    background-repeat: repeat;
+    animation: yagmurAk linear infinite;
+  }
+  #havaKatman[data-hava="yagmur"]::before,
+  #havaKatman[data-hava="firtina"]::before {
+    background-image: repeating-linear-gradient(105deg,
+      transparent 0 9px, rgba(174,206,255,.20) 9px 10px);
+    animation-duration: .85s;
+  }
+  #havaKatman[data-hava="yagmur"]::after,
+  #havaKatman[data-hava="firtina"]::after {
+    background-image: repeating-linear-gradient(102deg,
+      transparent 0 17px, rgba(174,206,255,.12) 17px 18px);
+    animation-duration: 1.45s;
+  }
+  @keyframes yagmurAk { to { transform: translate3d(-40px, 260px, 0); } }
+
+  /* KAR: daha yavas, dik, yuvarlak taneler */
+  #havaKatman[data-hava="kar"]::before {
+    content: ""; position: absolute; inset: -20% -20%;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.35) 1.4px, transparent 1.6px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,.28) 1.2px, transparent 1.4px);
+    background-size: 90px 90px, 140px 140px;
+    animation: karYag 9s linear infinite;
+  }
+  @keyframes karYag { to { transform: translate3d(-18px, 300px, 0); } }
+
+  /* AZ HAREKET: kullanici isletim sisteminden kapatmissa animasyon YOK.
+     Katman yine cizilir ama durur -- hareket rahatsiz eden kisi icin
+     "acik ama sabit" hali, hicbir sey gostermemekten iyi. */
+  @media (prefers-reduced-motion: reduce) {
+    #havaKatman::before, #havaKatman::after { animation: none !important; }
+  }
+
+  /* Icerik katmanin USTUNDE kalir. */
+  .kap { position: relative; z-index: 1; }
+
   body {
     font-family:-apple-system, "Segoe UI", Roboto, sans-serif;
     background:var(--arka); color:var(--yazi);
@@ -326,6 +396,7 @@
 </head>
 <body>
 
+<div id="havaKatman" aria-hidden="true"></div>
 <div class="kap">
   <header>
     <h1 id="baslik">Yükleniyor…</h1>
@@ -769,6 +840,15 @@ let sonYer = null, sonVeri = null;
 
 function goster(yer, v, hk, modeller){
   const g = v.current, [acik, kat] = kodCoz(g.weather_code);
+  /* Arka plan havayi izler. Yalniz yagmur ve karda aciliyor; gunesli
+     havada bos ekran kalabaliklastirmanin anlami yok. */
+  (function(){
+    const k = document.getElementById("havaKatman");
+    if (!k) return;
+    const goster = (kat === "yagmur" || kat === "kar" || kat === "firtina");
+    if (goster) k.setAttribute("data-hava", kat); else k.removeAttribute("data-hava");
+    k.classList.toggle("acik", goster);
+  })();
   document.getElementById("baslik").textContent = yer.etiket;
   /* Ekran okuyucu sicakligin degistigini gormez; ayri bir canli bolgeye
      yaziyoruz ki yer/sayi degisince sesli duyulsun. */

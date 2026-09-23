@@ -1,2 +1,2 @@
-damga=hava-durumu-20260922-215928
-kod_ozeti=ea4200fee8d0
+damga=hava-durumu-20260923-174405
+kod_ozeti=fd7f383ab6ff
