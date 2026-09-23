@@ -290,11 +290,27 @@
   .saat-kart .d { font-size:17px; font-weight:700; margin:4px 0 6px; }
   .saat-kart .v { font-size:11px; margin-top:3px; }
 
-  .gun { display:flex; align-items:center; gap:10px; background:var(--panel);
-         border-radius:14px; padding:11px 14px; margin-bottom:6px; }
-  .gun .ad { flex:1; font-size:14px; font-weight:600; }
-  .gun .ols { font-size:11px; color:var(--nem); min-width:38px; text-align:right; }
-  .gun .dd { font-size:14px; font-weight:700; min-width:74px; text-align:right; }
+  /* GUNLUK TAHMIN YATAY SERIT.
+     Once her gun tam genislikte bir satirdi: 7 gun ekranin yarisindan
+     fazlasini yiyor, kullanici alt bolumlere ulasmak icin uzun uzun
+     kaydiriyordu. Telefonun ve Google'in hava kartlarinda gunler yan
+     yana duruyor, hepsi bir bakista goruluyor.
+
+     DESEN SAATLIK SERITTEN ALINDI -- ayni dosyada zaten yatay kaydirilan
+     bir serit vardi (`.saatlik`). Ikinci bir kaydirma bicimi icat etmek
+     yerine olani tekrarliyoruz: kullanici bir kez ogrendigi hareketi
+     ikinci yerde de kullaniyor (K-69). */
+  .gunler { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px;
+            -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; }
+  .gunler::-webkit-scrollbar { height:0; }
+  .gun { flex:0 0 auto; width:68px; scroll-snap-align:start;
+         display:flex; flex-direction:column; align-items:center; gap:5px;
+         background:var(--panel); border-radius:14px; padding:10px 6px; }
+  .gun .ad { font-size:12px; font-weight:700; white-space:nowrap; }
+  /* Yagis olasiligi YER TUTAR: olasilik yoksa da satir bos kalir, yoksa
+     kartlar birbirinden farkli yukseklikte olur ve serit titrer. */
+  .gun .ols { font-size:11px; color:var(--nem); min-height:14px; }
+  .gun .dd { font-size:13px; font-weight:700; white-space:nowrap; }
   .gun .dd i { color:var(--yazi3); font-style:normal; font-weight:400; }
 
   /* harita (istege bagli yuklenir) */
@@ -913,8 +929,11 @@ function goster(yer, v, hk, modeller){
 
   const gunlukHTML = v.daily.time.map((t,i) => {
     const ols = v.daily.precipitation_probability_max[i] || 0;
-    return `<div class="gun">${ikon(kodCoz(v.daily.weather_code[i])[1],30)}
+    /* Sira degisti: GUN ADI en uste. Dar bir sutunda once "hangi gun"
+       okunur, sonra ikon ve sayilar. */
+    return `<div class="gun">
       <span class="ad">${gunAdi(t,i)}</span>
+      ${ikon(kodCoz(v.daily.weather_code[i])[1],28)}
       <span class="ols">${ols?("%"+ols):""}</span>
       <span class="dd">${sy(v.daily.temperature_2m_max[i],"","°")} <i>${sy(v.daily.temperature_2m_min[i],"","°")}</i></span>
     </div>`; }).join("");
@@ -1029,7 +1048,7 @@ function goster(yer, v, hk, modeller){
     <div class="kart" style="padding:12px">${grafikCiz(saatler)}</div>
 
     <h2>7 günlük tahmin</h2>
-    ${gunlukHTML}`;
+    <div class="gunler">${gunlukHTML}</div>`;
 
   document.getElementById("haritaBtn").onclick = haritayiAc;
   document.getElementById("radarBtn").onclick = radarDegistir;
