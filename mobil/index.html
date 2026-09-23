@@ -825,13 +825,37 @@ function grafikCiz(saatler){
     return `<rect x="${x-3}" y="${ust+gh-h}" width="6" height="${h}" fill="var(--yagis)" opacity="0.35"/>`;
   }).join("");
   const cizgi = t.map((v,i) => nokta(i,v).join(",")).join(" ");
+  /* DEGER ETIKETLERI -- grafigin uzerinde.
+     Eskiden eksende yalniz en yuksek ve en dusuk yaziyordu; grafige
+     bakip "saat 3'te kac derece" denemiyordu. Telefonun ve Google'in
+     hava kartlarinda sayilar dogrudan egrinin ustunde duruyor, okuma
+     bir bakisla oluyor.
+
+     ARALIK SAAT ETIKETIYLE AYNI (her 6. nokta): sayi kendi saatinin
+     tam ustune dusuyor, goz ikisini eslestirmek zorunda kalmiyor.
+     Daha sik yazmak 320 piksellik grafikte ust uste biner.
+
+     TEPEDE KIRPILMA YOK: en sicak nokta ust kenara yapisik ciziliyor,
+     etiketi oldugu gibi koysak viewBox disina tasardi. `Math.max(9,...)`
+     onu iceride tutuyor. */
+  const degerEtiket = saatler.map((s,i) => {
+    if (i % 6) return "";
+    const [x, y] = nokta(i, t[i]);
+    return `<text x="${x}" y="${Math.max(9, y - 7)}" font-size="10" font-weight="700"`
+         + ` fill="var(--yazi)" text-anchor="middle">${Math.round(t[i])}°</text>`;
+  }).join("");
   const saatEtiket = saatler.map((s,i) => i%6 ? "" :
     `<text x="${nokta(i,t[i])[0]}" y="${Y-4}" font-size="9" fill="var(--yazi3)" text-anchor="middle">${s.saat}</text>`).join("");
   return `<svg viewBox="0 0 ${G} ${Y}" style="width:100%;height:${Y}px">
     ${cubuklar}
     <polyline points="${cizgi}" fill="none" stroke="var(--vurgu)" stroke-width="2" stroke-linejoin="round"/>
-    <text x="2" y="${ust+4}" font-size="9" fill="var(--yazi3)">${tmax}°</text>
-    <text x="2" y="${ust+gh}" font-size="9" fill="var(--yazi3)">${tmin}°</text>
+    <!-- EKSEN DE TAM SAYI. Olculdu: alt eksende "11.8" yaziyordu --
+         hem NOKTALI ondalik (Turkcede virgul), hem de egri uzerindeki
+         etiketler tam sayi oldugu icin ayni grafikte iki ayri bicim
+         vardi. Yuvarlamak ikisini esitliyor. -->
+    <text x="2" y="${ust+4}" font-size="9" fill="var(--yazi3)">${Math.round(tmax)}°</text>
+    <text x="2" y="${ust+gh}" font-size="9" fill="var(--yazi3)">${Math.round(tmin)}°</text>
+    ${degerEtiket}
     ${saatEtiket}</svg>`;
 }
 
