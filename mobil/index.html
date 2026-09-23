@@ -328,6 +328,8 @@
   #haritaKutu.acik { display:block; }
   .harita-dugmeler { display:flex; gap:8px; margin-top:8px; }
   .harita-dugmeler .dugme { flex:1; font-size:13px; }
+  .radar-zaman { align-self:center; font-size:12px; font-weight:700;
+                 color:var(--yazi2); min-width:44px; text-align:center; }
   /* haritada sehir sicakligi etiketleri */
   .sic-etiket { background:transparent !important; border:none !important; }
   .sic-ic { transform:translate(-50%,-100%); text-align:center; white-space:nowrap;
@@ -1082,6 +1084,9 @@ function goster(yer, v, hk, modeller){
     <div class="harita-dugmeler">
       <button class="dugme" id="haritaBtn">🗺️ Haritayı göster</button>
       <button class="dugme" id="radarBtn" style="display:none">🌧️ Radar</button>
+      <!-- Hangi ANIN goruntusu oldugu yazmazsa, oynayan radar
+           "su an yagiyor" sanilir. Saat, goruntuyu zamana bagliyor. -->
+      <span id="radarZaman" class="radar-zaman" aria-live="polite"></span>
     </div>
 
     <div class="kart">
@@ -1127,6 +1132,11 @@ function goster(yer, v, hk, modeller){
 
 /* ---- harita: İSTEĞE BAĞLI yüklenir (açılışı yavaşlatmasın) ---- */
 let harita = null, radarKatman = null, radarAcik = false;
+/* RADAR OYNATMA. Once yalnizca SON kare gosteriliyordu: yagmurun nerede
+   oldugunu soyluyor ama NEREYE GITTIGINI soylemiyordu -- radarin asil
+   isi o. Kareler zaten cektigimiz ayni yanitta geliyordu
+   (`radar.past`), kullanilmiyordu. */
+let radarKareler = [], radarIndeks = 0, radarZamanlayici = null;
 let sicaklikKatman = null, sicZaman = null;   // haritada sehir sicakliklari
 function betikYukle(src){ return new Promise((c,h) => {
   const s = document.createElement("script"); s.src = src; s.onload = c; s.onerror = h;
@@ -1257,23 +1267,65 @@ async function haritaSicakliklari(){
   } catch (e) { /* sessiz gec */ }
 }
 
+/* Kareler ust uste duruyor, yalniz biri gorunur. Her adimda yeniden
+   yuklemek yerine gorunurlugu degistiriyoruz -- boylece dongu akici
+   oluyor ve ag her turda yeniden calismiyor. */
+function radarKareGoster(i){
+  radarKareler.forEach((k, n) => k.katman.setOpacity(n === i ? 0.65 : 0));
+  radarIndeks = i;
+  const e = document.getElementById("radarZaman");
+  if (e && radarKareler[i]) e.textContent = radarKareler[i].etiket;
+}
+
+function radarOynat(){
+  clearInterval(radarZamanlayici);
+  radarZamanlayici = setInterval(() => {
+    if (document.hidden) return;        /* sekme arkadayken pil yakma */
+    radarKareGoster((radarIndeks + 1) % radarKareler.length);
+  }, 600);
+}
+
+function radarDurdur(){
+  clearInterval(radarZamanlayici); radarZamanlayici = null;
+  radarKareler.forEach(k => { try { harita.removeLayer(k.katman); } catch(e){} });
+  radarKareler = []; radarIndeks = 0;
+}
+
 async function radarDegistir(){
   const btn = document.getElementById("radarBtn");
-  if (radarAcik){ harita.removeLayer(radarKatman); radarAcik=false;
+  if (radarAcik){ radarDurdur(); radarAcik=false;
+    const z = document.getElementById("radarZaman"); if (z) z.textContent = "";
     btn.textContent = "🌧️ Radar"; return; }
   btn.textContent = "Radar yükleniyor…";
   try {
     const v = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
-    const kare = v.radar.past[v.radar.past.length-1];
-    radarKatman = L.tileLayer(`${v.host}${kare.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity:0.65 });
-    radarKatman.addTo(harita); radarAcik = true;
-    btn.textContent = "🌧️ Radar: Açık";
+    const gecmis = (v.radar && v.radar.past) ? v.radar.past : [];
+    if (!gecmis.length) { btn.textContent = "Radar verisi yok"; return; }
+    /* SON IKI SAAT yetiyor: daha eskisi yagmurun yonunu anlatmiyor,
+       sadece kare sayisini ve veri kullanimini artiriyor. */
+    const secilen = gecmis.slice(-12);
+    radarKareler = secilen.map(kare => ({
+      etiket: new Date(kare.time * 1000).toLocaleTimeString("tr-TR",
+                { hour:"2-digit", minute:"2-digit" }),
+      katman: L.tileLayer(`${v.host}${kare.path}/256/{z}/{x}/{y}/2/1_1.png`,
+                { opacity:0 }).addTo(harita)
+    }));
+    radarKatman = radarKareler[radarKareler.length-1].katman;
+    radarKareGoster(radarKareler.length - 1);
+    radarOynat();
+    radarAcik = true;
+    btn.textContent = `🌧️ Radar: Açık (${radarKareler.length} kare)`;
   } catch { btn.textContent = "Radar alınamadı"; }
 }
 
 /* ---- yükleme ---- */
 async function yukle(yer){
   sonYer = yer;
+  /* Yer degisince oynatici da DURMALI: eski haritaya bagli katmanlar ve
+     calisan bir zamanlayici geride kalirsa pil yakar ve yeni haritada
+     yanlis kareyi gostermeye calisir. */
+  clearInterval(radarZamanlayici); radarZamanlayici = null;
+  radarKareler = []; radarIndeks = 0;
   harita = null; radarAcik = false; sicaklikKatman = null;  // yeni yer -> harita sifirlansin
   document.getElementById("baslik").textContent = yer.etiket;
   document.getElementById("icerik").innerHTML = '<div class="yukleniyor">Hava durumu getiriliyor…</div>';
