@@ -300,6 +300,16 @@
      bir serit vardi (`.saatlik`). Ikinci bir kaydirma bicimi icat etmek
      yerine olani tekrarliyoruz: kullanici bir kez ogrendigi hareketi
      ikinci yerde de kullaniyor (K-69). */
+  /* GRAFIK SEKMELERI. Once sicaklik cizgisi ve yagis cubugu AYNI
+     grafikte ust uste biniyordu: iki ayri birim (derece ve yuzde) tek
+     eksende, ve ruzgar hic gosterilmiyordu -- veri cekildigi halde.
+     Sekme, her seriyi kendi olceginde gosteriyor. */
+  .grafik-sekmeler { display:flex; gap:6px; margin-bottom:8px; }
+  .grafik-sekme { flex:1; min-height:34px; border:0; border-radius:10px;
+    background:var(--ickart); color:var(--yazi2); font-size:12.5px;
+    font-weight:700; cursor:pointer; }
+  .grafik-sekme[aria-selected="true"] { background:var(--vurgu); color:var(--vurgu-yazi); }
+
   .gunler { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px;
             -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; }
   .gunler::-webkit-scrollbar { height:0; }
@@ -542,6 +552,19 @@ async function yagisBildir(damga, yer){
 
 /* Dugme her tazelemede yeniden ciziliyor; olayi BELGEYE bagliyoruz ki
    hangi an cizildigi onemli olmasin. */
+/* SEKME DEGISIMI. Dugmeler her cizimde yeniden olusuyor, o yuzden olay
+   BELGEYE bagli. Yalniz grafik kabi yeniden ciziliyor -- butun sayfayi
+   tazelemek kaydirma konumunu kaybettirirdi. */
+document.addEventListener("click", (o) => {
+  const d = o.target.closest && o.target.closest(".grafik-sekme");
+  if (!d || !sonSaatler) return;
+  grafikKip = d.dataset.kip;
+  document.querySelectorAll(".grafik-sekme").forEach(b =>
+    b.setAttribute("aria-selected", String(b.dataset.kip === grafikKip)));
+  const kap = document.getElementById("grafikKap");
+  if (kap) kap.innerHTML = grafikCiz(sonSaatler, grafikKip);
+});
+
 document.addEventListener("click", async (o) => {
   const d = o.target.closest && o.target.closest("#yagisBildirDugme");
   if (!d) return;
@@ -809,7 +832,27 @@ async function modelKarsilastir(enlem, boylam){
 }
 
 /* ---- sıcaklık grafiği (SVG, 24 saat + yağış çubukları) ---- */
-function grafikCiz(saatler){
+/* Uc seri, tek cizim islevi. Her birinin kendi alani, birimi ve
+   cizim bicimi var; olcek HER SERI ICIN AYRI hesaplaniyor (derece ile
+   yuzdeyi ayni eksene koymak sayiyi yalanlar). */
+const GRAFIK_KIPLERI = {
+  sicaklik: { ad:"Sıcaklık", alan:"sicaklik", birim:"°",  renk:"var(--vurgu)",  cubuk:false, yagisCubugu:true },
+  /* YAGISTA OLCEK SABIT 0-100. Otomatik olcek burada YALAN SOYLUYOR:
+     olasiliklarin hepsi kucukken en buyugu grafigin TEPESINE ciziliyor.
+     Olculdu (23.09.2026): butun saatler %0-%1 iken eksen 0-1 oldu ve
+     %1'lik bir cubuk ekranin tepesine kadar uzadi -- bakan kisi
+     "yagmur yagacak" sanir. Sayi dogru, GORUNTU yalan; bu, ekibin en
+     tehlikeli hata sinifinin (K-22) grafik hali.
+     Sicaklik ve ruzgarda otomatik olcek DOGRU, cunku onlarin dogal bir
+     tavani yok; olasiligin var: yuzde. */
+  yagis:    { ad:"Yağış",    alan:"olasilik", birim:"%",  renk:"var(--yagis)",  cubuk:true,  yagisCubugu:false, sabit:[0,100] },
+  ruzgar:   { ad:"Rüzgâr",   alan:"ruzgar",   birim:" km/s", renk:"var(--ruzgar)", cubuk:false, yagisCubugu:false }
+};
+let grafikKip = "sicaklik";
+let sonSaatler = null;
+
+function grafikCiz(saatler, kip){
+  const K = GRAFIK_KIPLERI[kip] || GRAFIK_KIPLERI.sicaklik;
   const G=320, Y=110, sol=26, sag=8, ust=14, alt=18;
   const gw=G-sol-sag, gh=Y-ust-alt;
 
@@ -824,23 +867,31 @@ function grafikCiz(saatler){
      Number.isFinite sart.
      KURAL: NaN koordinat uretilecekse grafigi HIC CIZME. Yanlis cizmektense
      "veri yetersiz" demek dogrusu. */
-  const t = saatler.map(s => s.sicaklik).filter(Number.isFinite);
+  const t = saatler.map(s => s[K.alan]).filter(Number.isFinite);
   if (t.length < 2) {
     return `<div class="hata" style="font-size:12px;padding:8px 0">` +
-           `Saatlik sıcaklık verisi yetersiz, grafik çizilemedi.</div>`;
+           `${K.ad} için saatlik veri yetersiz, grafik çizilemedi.</div>`;
   }
   /* Filtreleme sonrasi dizi kisalmis olabilir; cizim ayni uzunlukta
      kalsin diye saatleri de ayni olcute gore suzuyoruz. */
-  saatler = saatler.filter(s => Number.isFinite(s.sicaklik));
+  saatler = saatler.filter(s => Number.isFinite(s[K.alan]));
 
-  const tmin=Math.min(...t), tmax=Math.max(...t)===tmin ? tmin+1 : Math.max(...t);
+  const tmin = K.sabit ? K.sabit[0] : Math.min(...t);
+  const tmax = K.sabit ? K.sabit[1]
+             : (Math.max(...t)===tmin ? tmin+1 : Math.max(...t));
   const nokta = (i,v) => [sol+gw*i/(t.length-1), ust+gh*(1-(v-tmin)/(tmax-tmin))];
   const cubuklar = saatler.map((s,i) => {
     const p = Number.isFinite(s.olasilik) ? s.olasilik : 0; if(!p) return "";
     const [x] = nokta(i,t[i]); const h = gh*p/100;
     return `<rect x="${x-3}" y="${ust+gh-h}" width="6" height="${h}" fill="var(--yagis)" opacity="0.35"/>`;
   }).join("");
-  const cizgi = t.map((v,i) => nokta(i,v).join(",")).join(" ");
+  /* YAGIS CUBUKLA cizilir: yuzde, surekli bir egri degil, saat saat
+     bagimsiz bir olasiliktir; cizgi olsaydi aradaki degerler
+     varmis gibi gorunurdu. */
+  const seriCizim = K.cubuk
+    ? t.map((v,i) => { const [x] = nokta(i,v); const h = gh*(v-tmin)/(tmax-tmin);
+        return `<rect x="${x-4}" y="${ust+gh-h}" width="8" height="${Math.max(0,h)}" fill="${K.renk}" opacity="0.8" rx="2"/>`; }).join("")
+    : `<polyline points="${t.map((v,i) => nokta(i,v).join(",")).join(" ")}" fill="none" stroke="${K.renk}" stroke-width="2" stroke-linejoin="round"/>`;
   /* DEGER ETIKETLERI -- grafigin uzerinde.
      Eskiden eksende yalniz en yuksek ve en dusuk yaziyordu; grafige
      bakip "saat 3'te kac derece" denemiyordu. Telefonun ve Google'in
@@ -858,19 +909,19 @@ function grafikCiz(saatler){
     if (i % 6) return "";
     const [x, y] = nokta(i, t[i]);
     return `<text x="${x}" y="${Math.max(9, y - 7)}" font-size="10" font-weight="700"`
-         + ` fill="var(--yazi)" text-anchor="middle">${Math.round(t[i])}°</text>`;
+         + ` fill="var(--yazi)" text-anchor="middle">${Math.round(t[i])}${K.birim}</text>`;
   }).join("");
   const saatEtiket = saatler.map((s,i) => i%6 ? "" :
     `<text x="${nokta(i,t[i])[0]}" y="${Y-4}" font-size="9" fill="var(--yazi3)" text-anchor="middle">${s.saat}</text>`).join("");
   return `<svg viewBox="0 0 ${G} ${Y}" style="width:100%;height:${Y}px">
-    ${cubuklar}
-    <polyline points="${cizgi}" fill="none" stroke="var(--vurgu)" stroke-width="2" stroke-linejoin="round"/>
+    ${K.yagisCubugu ? cubuklar : ""}
+    ${seriCizim}
     <!-- EKSEN DE TAM SAYI. Olculdu: alt eksende "11.8" yaziyordu --
          hem NOKTALI ondalik (Turkcede virgul), hem de egri uzerindeki
          etiketler tam sayi oldugu icin ayni grafikte iki ayri bicim
          vardi. Yuvarlamak ikisini esitliyor. -->
-    <text x="2" y="${ust+4}" font-size="9" fill="var(--yazi3)">${Math.round(tmax)}°</text>
-    <text x="2" y="${ust+gh}" font-size="9" fill="var(--yazi3)">${Math.round(tmin)}°</text>
+    <text x="2" y="${ust+4}" font-size="9" fill="var(--yazi3)">${Math.round(tmax)}${K.birim}</text>
+    <text x="2" y="${ust+gh}" font-size="9" fill="var(--yazi3)">${Math.round(tmin)}${K.birim}</text>
     ${degerEtiket}
     ${saatEtiket}</svg>`;
 }
@@ -902,11 +953,16 @@ function goster(yer, v, hk, modeller){
   const simdiSaat = g.time.slice(0,13);
   let bas = v.hourly.time.findIndex(t => t.slice(0,13) === simdiSaat);
   if (bas < 0) bas = 0;
+  /* Sekmeye basildiginda veriyi YENIDEN CEKMEDEN cizebilmek icin son
+     saatlik dizi tutuluyor; sekme degistirmek ag istegi olmamali. */
   const saatler = [];
   for (let i=bas; i<Math.min(bas+24, v.hourly.time.length); i++)
     saatler.push({ saat:v.hourly.time[i].slice(11,16), sicaklik:v.hourly.temperature_2m[i],
       nem:v.hourly.relative_humidity_2m[i], yagis:v.hourly.precipitation[i]||0,
-      olasilik:v.hourly.precipitation_probability[i]||0, kod:v.hourly.weather_code[i], ilk:i===bas });
+      olasilik:v.hourly.precipitation_probability[i]||0, kod:v.hourly.weather_code[i],
+      /* Ruzgar ZATEN cekiliyordu (`wind_speed_10m`) ama bu diziye
+         konmadigi icin hicbir yerde kullanilamiyordu. */
+      ruzgar:(v.hourly.wind_speed_10m ? v.hourly.wind_speed_10m[i] : null), ilk:i===bas });
 
   /* "SIMDI" ETIKETI IKI FARKLI SAYIYI AYNI ADLA GOSTERIYORDU.
      Olculdu (30.08.2026, telefon): saat 19:45'te ust kart 30 derece,
@@ -927,6 +983,7 @@ function goster(yer, v, hk, modeller){
       <div class="v" style="color:var(--ruzgar)">${s.yagis.toFixed(1)} mm</div>
     </div>`).join("");
 
+  sonSaatler = saatler;
   const gunlukHTML = v.daily.time.map((t,i) => {
     const ols = v.daily.precipitation_probability_max[i] || 0;
     /* Sira degisti: GUN ADI en uste. Dar bir sutunda once "hangi gun"
@@ -1044,8 +1101,15 @@ function goster(yer, v, hk, modeller){
     <h2>Saatlik tahmin <small>nem · yağış — kaydırın →</small></h2>
     <div class="saatlik">${saatlikHTML}</div>
 
-    <h2>Sıcaklık grafiği <small>çizgi °C · çubuk %yağış</small></h2>
-    <div class="kart" style="padding:12px">${grafikCiz(saatler)}</div>
+    <h2>Saatlik grafik</h2>
+    <div class="kart" style="padding:12px">
+      <div class="grafik-sekmeler" role="tablist">
+        ${Object.keys(GRAFIK_KIPLERI).map(k =>
+          `<button type="button" class="grafik-sekme" role="tab" data-kip="${k}"
+            aria-selected="${k===grafikKip}">${GRAFIK_KIPLERI[k].ad}</button>`).join("")}
+      </div>
+      <div id="grafikKap">${grafikCiz(saatler, grafikKip)}</div>
+    </div>
 
     <h2>7 günlük tahmin</h2>
     <div class="gunler">${gunlukHTML}</div>`;
